@@ -1,0 +1,20 @@
+# The webserver
+Django
+
+# Provides runserver_plus and shell_plus
+django-extensions
+
+# Connects to Postgresql
+psycopg2-binary
+
+# Reads .env files
+django-dotenv
+
+# used to localize times
+pytz
+
+# Used by runserver_plus
+Werkzeug
+
+# Converts between units like cups/quarts/milliliters.  This is my fork which adds volume.
+git+https://github.com/adamtorres/unit-convert@master#egg=unit-convert
