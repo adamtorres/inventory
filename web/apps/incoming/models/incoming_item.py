@@ -4,13 +4,13 @@ from django.db import models
 
 import uuid
 
-from .incoming_items import IncomingItems
+from .incoming_item_group import IncomingItemGroup
 from .item import Item
 
 
 class IncomingItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    parent = models.ForeignKey(IncomingItems, on_delete=models.CASCADE, related_name="items")
+    parent = models.ForeignKey(IncomingItemGroup, on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="incoming_items")
     # TODO: quantity, size, cost, etc.
 

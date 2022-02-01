@@ -7,7 +7,7 @@ import uuid
 from .source import Source
 
 
-class IncomingItems(models.Model):
+class IncomingItemGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     # vendor order/donation instance

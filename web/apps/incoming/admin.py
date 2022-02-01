@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render
 
-from .models import IncomingItem, IncomingItems, Item, Source
+from .models import IncomingItem, IncomingItemGroup, Item, Source
 
 
 class IncomingItemInline(admin.TabularInline):
@@ -15,12 +15,12 @@ class IncomingItemInline(admin.TabularInline):
     extra = 1
 
 
-class IncomingItemsAdmin(admin.ModelAdmin):
+class IncomingItemGroupAdmin(admin.ModelAdmin):
     inlines = [IncomingItemInline, ]
     # ordering = ['name', ]
 
 
 admin.site.register(IncomingItem)
-admin.site.register(IncomingItems, IncomingItemsAdmin)
+admin.site.register(IncomingItemGroup, IncomingItemGroupAdmin)
 admin.site.register(Item)
 admin.site.register(Source)

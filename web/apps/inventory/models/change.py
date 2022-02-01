@@ -10,9 +10,7 @@ class Change(models.Model):
 
     # Link this to a vendor order, donation, local store pickup, etc.  Actual instance of change, not the company.
     # This is the order or donation group object.  Not a specific item within.
-    source = ct_fields.GenericForeignKey('source_content_type', 'source_object_id')
-    source_content_type = models.ForeignKey(ct_models.ContentType, on_delete=models.CASCADE, null=True, blank=True)
-    source_object_id = models.UUIDField(null=True, blank=True)
+    source = models.ForeignKey("incoming.IncomingItemGroup", on_delete=models.CASCADE, null=True, blank=True)
 
 # inventory change
 #     - groups changes to items

@@ -15,14 +15,12 @@ class ItemChange(models.Model):
 
     # Link this to a vendor order, donation, local store pickup, etc.  Actual instance of change, not the company.
     # This is the line item on the order or donation.  Not the order or donation.
-    source_item = ct_fields.GenericForeignKey('source_item_content_type', 'source_item_object_id')
-    source_item_content_type = models.ForeignKey(ct_models.ContentType, on_delete=models.CASCADE, null=True, blank=True)
-    source_item_object_id = models.UUIDField(null=True, blank=True)
+    source_item = models.ForeignKey("incoming.IncomingItem", on_delete=models.CASCADE, null=True, blank=True)
 
-    previous_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False)
+    previous_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     # Positive for adding stuff to inventory, negative for using stuff.
     change_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False)
-    new_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False)
+    new_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
 
     applied = models.BooleanField("The change been applied", default=False, null=False)
 
@@ -54,6 +52,7 @@ class ItemChange(models.Model):
             if not self.item:
                 i = self.source_item.item.common_item.make_item(unit_size="?")
                 self.item = i
+                self.item.original_quantity = self.change_quantity
             self.previous_quantity = self.item.current_quantity
             self.item.current_quantity += self.change_quantity
             self.item.save()
