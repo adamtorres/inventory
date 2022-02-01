@@ -15,7 +15,15 @@ class ItemChange(models.Model):
 
     # Link this to a vendor order, donation, local store pickup, etc.  Actual instance of change, not the company.
     # This is the line item on the order or donation.  Not the order or donation.
-    source_item = models.ForeignKey("incoming.IncomingItem", on_delete=models.CASCADE, null=True, blank=True)
+    source_item_limit = (
+        models.Q(app_label='incoming', model='IncomingItem')
+        | models.Q(app_label='inventory', model='AdjustmentItem')
+        | models.Q(app_label='inventory', model='UsageItem')
+    )
+    source_item = ct_fields.GenericForeignKey('source_item_content_type', 'source_item_object_id')
+    source_item_content_type = models.ForeignKey(
+        ct_models.ContentType, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to=source_item_limit)
+    source_item_object_id = models.UUIDField(null=True, blank=True)
 
     previous_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     # Positive for adding stuff to inventory, negative for using stuff.

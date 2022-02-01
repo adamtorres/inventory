@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render
 
-from .models import Change, CommonItem, CommonItemOtherName, Item, ItemChange
+from .models import (
+    Adjustment, AdjustmentItem, Change, CommonItem, CommonItemOtherName, Item, ItemChange, Usage, UsageItem)
 
 
 @admin.action(description='Apply inventory changes.')
@@ -13,6 +14,11 @@ def apply_item_changes(model_admin, request, queryset):
     for change in queryset.all():
         for i in change.items.exclude(applied=True):
             i.apply_change()
+
+
+class AdjustmentItemInline(admin.TabularInline):
+    model = AdjustmentItem
+    extra = 1
 
 
 class CommonItemOtherNameInline(admin.TabularInline):
@@ -28,9 +34,24 @@ class ItemChangeInline(admin.TabularInline):
     extra = 1
 
 
+class UsageItemInline(admin.TabularInline):
+    model = UsageItem
+    extra = 1
+
+
+class AdjustmentAdmin(admin.ModelAdmin):
+    inlines = [AdjustmentItemInline, ]
+
+
 class ChangeAdmin(admin.ModelAdmin):
     inlines = [ItemChangeInline, ]
     actions = [apply_item_changes, ]
+    # related_lookup_fields = {
+    #     'generic': [['source_content_type', 'source_object_id']],
+    # }
+    autocomplete_lookup_fields = {
+        'generic': [['source_content_type', 'source_object_id']],
+    }
 
 
 class CommonItemAdmin(admin.ModelAdmin):
@@ -42,9 +63,15 @@ class CommonItemOtherNameAdmin(admin.ModelAdmin):
     ordering = ['common_item__name', 'name']
 
 
+class UsageAdmin(admin.ModelAdmin):
+    inlines = [UsageItemInline, ]
+
+
+admin.site.register(Adjustment, AdjustmentAdmin)
 admin.site.register(Change, ChangeAdmin)
 admin.site.register(CommonItem, CommonItemAdmin)
 # admin.site.register(CommonItemOtherName, CommonItemOtherNameAdmin)
 admin.site.register(Item)
 # admin.site.register(ItemChange)
+admin.site.register(Usage, UsageAdmin)
 

@@ -11,8 +11,15 @@ class Change(models.Model):
     # Link this to a vendor order, donation, local store pickup, etc.  Actual instance of change, not the company.
     # This is the order or donation group object.  Not a specific item within.
     # This could also link to usage forms or inventory adjustments
-    source = models.ForeignKey("incoming.IncomingItemGroup", on_delete=models.CASCADE, null=True, blank=True)
-    # TODO: rework so this can link to incoming.IncomingItemGroup, Usage, or Adjustment?
+    source_limit = (
+        models.Q(app_label='incoming', model='incomingitemgroup')
+        | models.Q(app_label='inventory', model='adjustment')
+        | models.Q(app_label='inventory', model='usage')
+    )
+    source = ct_fields.GenericForeignKey('source_content_type', 'source_object_id')
+    source_content_type = models.ForeignKey(
+        ct_models.ContentType, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to=source_limit)
+    source_object_id = models.UUIDField(null=True, blank=True)
 
 # inventory change
 #     - groups changes to items
@@ -21,3 +28,6 @@ class Change(models.Model):
 
     def __str__(self):
         return f"Group of inventory changes {self.id}"
+
+    def related_label(self):
+        return f"Change ({self.id})"

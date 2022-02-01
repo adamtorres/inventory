@@ -18,3 +18,6 @@ Werkzeug
 
 # Converts between units like cups/quarts/milliliters.  This is my fork which adds volume.
 git+https://github.com/adamtorres/unit-convert@master#egg=unit-convert
+
+# provides a fancier django admin interface.  Using it because it promised to handle GenericForeignKey nicely.
+django-grappelli
