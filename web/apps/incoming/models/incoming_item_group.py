@@ -6,6 +6,7 @@ from django.utils import timezone
 import uuid
 
 from .source import Source
+import scrap
 
 
 class IncomingItemGroup(models.Model):
@@ -21,7 +22,7 @@ class IncomingItemGroup(models.Model):
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
     def __str__(self):
-        return f"a set of incoming items {self.id}"
+        return f"{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)}"
 
     @staticmethod
     def autocomplete_search_fields():

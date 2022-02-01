@@ -24,12 +24,24 @@ class Change(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
+    source_model_to_nice_name = {
+        "incomingitemgroup": "Incoming Item Group",
+        "adjustment": "Adjustment",
+        "usage": "Usage",
+    }
+
+    class Meta:
+        ordering = ["-action_date", "-created"]
+
 # inventory change
 #     - groups changes to items
 #     - this isn't just incoming.  This includes usage forms.
 #     link to specific order or donation in case we need to see an original
 
     def __str__(self):
+        if self.source:
+            source_type = self.source_model_to_nice_name.get(self.source_content_type.model) or "?"
+            return f"{source_type} - {self.source}"
         return f"Group of inventory changes {self.id}"
 
     def related_label(self):

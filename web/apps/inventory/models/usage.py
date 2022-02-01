@@ -4,6 +4,8 @@ from django.utils import timezone
 
 import uuid
 
+import scrap
+
 
 class Usage(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -14,7 +16,7 @@ class Usage(models.Model):
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
     def __str__(self):
-        return f"{self.who} used items {self.id}"
+        return f"{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.who)}"
 
     @staticmethod
     def autocomplete_search_fields():
