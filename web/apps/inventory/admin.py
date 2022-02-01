@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render
 
-from .models import Change, CommonItem, CommonItemNames, Item, ItemChange
+from .models import Change, CommonItem, CommonItemOtherName, Item, ItemChange
 
 
 @admin.action(description='Apply inventory changes.')
@@ -15,8 +15,8 @@ def apply_item_changes(model_admin, request, queryset):
             i.apply_change()
 
 
-class CommonItemNamesInline(admin.TabularInline):
-    model = CommonItemNames
+class CommonItemOtherNameInline(admin.TabularInline):
+    model = CommonItemOtherName
     ordering = ['common_item__name', 'name']
     # TODO: need to filter the potential items to the ones in the parent order
     extra = 1
@@ -34,17 +34,17 @@ class ChangeAdmin(admin.ModelAdmin):
 
 
 class CommonItemAdmin(admin.ModelAdmin):
-    inlines = [CommonItemNamesInline, ]
+    inlines = [CommonItemOtherNameInline, ]
     ordering = ['name', ]
 
 
-class CommonItemNamesAdmin(admin.ModelAdmin):
+class CommonItemOtherNameAdmin(admin.ModelAdmin):
     ordering = ['common_item__name', 'name']
 
 
 admin.site.register(Change, ChangeAdmin)
 admin.site.register(CommonItem, CommonItemAdmin)
-admin.site.register(CommonItemNames, CommonItemNamesAdmin)
+# admin.site.register(CommonItemOtherName, CommonItemOtherNameAdmin)
 admin.site.register(Item)
-admin.site.register(ItemChange)
+# admin.site.register(ItemChange)
 

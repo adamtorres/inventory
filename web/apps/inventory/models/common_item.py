@@ -34,7 +34,7 @@ class CommonItem(models.Model):
 #         this should be set as a default to whatever is most common.  maybe a setting or a db value?
 
 
-class CommonItemNames(models.Model):
+class CommonItemOtherName(models.Model):
     """
     Alternate names for a common item.
     """

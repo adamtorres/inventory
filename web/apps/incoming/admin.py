@@ -20,7 +20,7 @@ class IncomingItemGroupAdmin(admin.ModelAdmin):
     # ordering = ['name', ]
 
 
-admin.site.register(IncomingItem)
+# admin.site.register(IncomingItem)
 admin.site.register(IncomingItemGroup, IncomingItemGroupAdmin)
 admin.site.register(Item)
 admin.site.register(Source)
