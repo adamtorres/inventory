@@ -10,6 +10,7 @@ class Item(models.Model):
     source = models.ForeignKey("incoming.Source", on_delete=models.CASCADE, related_name="items")
     name = models.CharField("item name", max_length=1024, null=False, blank=False)
     common_item = models.ForeignKey("inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items")
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
 # vendor/donation items
 #     - This is not items on an order.  This is just a way to convert between vendor and inventory.

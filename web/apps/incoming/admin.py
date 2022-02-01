@@ -6,7 +6,10 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render
 
-from .models import IncomingItem, IncomingItemGroup, Item, Source
+from grappelli import forms as g_forms
+
+from .models import (
+    IncomingItem, IncomingItemGroup, IncomingItemGroupDetail, Item, Source, SourceIncomingDetailTemplate)
 
 
 @admin.action(description='Convert incoming group to an inventory change.')
@@ -23,17 +26,33 @@ def make_change(model_admin, request, queryset):
 class IncomingItemInline(admin.TabularInline):
     model = IncomingItem
     ordering = ['item__name', ]
-    # TODO: need to filter the potential items to the ones in the parent order
+    extra = 1
+
+
+class IncomingItemGroupDetailInline(g_forms.GrappelliSortableHiddenMixin, admin.TabularInline):
+    model = IncomingItemGroupDetail
+    sortable_field_name = "position"
+    extra = 1
+
+
+class SourceIncomingDetailTemplateInline(g_forms.GrappelliSortableHiddenMixin, admin.TabularInline):
+    model = SourceIncomingDetailTemplate
+    sortable_field_name = "position"
     extra = 1
 
 
 class IncomingItemGroupAdmin(admin.ModelAdmin):
-    inlines = [IncomingItemInline, ]
+    inlines = [IncomingItemGroupDetailInline, IncomingItemInline, ]
     # ordering = ['name', ]
     actions = [make_change, ]
+
+
+class SourceAdmin(admin.ModelAdmin):
+    inlines = [SourceIncomingDetailTemplateInline, ]
+    ordering = ['name', ]
 
 
 # admin.site.register(IncomingItem)
 admin.site.register(IncomingItemGroup, IncomingItemGroupAdmin)
 admin.site.register(Item)
-admin.site.register(Source)
+admin.site.register(Source, SourceAdmin)

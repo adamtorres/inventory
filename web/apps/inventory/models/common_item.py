@@ -8,6 +8,7 @@ import uuid
 class CommonItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField("primary name", max_length=1024, null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
     # TODO: link to vendor common items
     # TODO: unit of measure

@@ -16,6 +16,8 @@ class IncomingItem(models.Model):
     quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     # TODO: quantity, size, cost, etc.
 
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
+
     def __str__(self):
         return self.item.name
 

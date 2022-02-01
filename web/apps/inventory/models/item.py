@@ -12,6 +12,7 @@ class Item(models.Model):
     current_quantity = models.DecimalField(default=0, max_digits=10, decimal_places=4, null=False, blank=False)
     # TODO: cost and size info.  How is cost handled?  need to know the unit of measure.
     unit_size = models.CharField(max_length=1024, default='', null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
     def __str__(self):
         # don't want to just str the common_item as that includes the other_names.

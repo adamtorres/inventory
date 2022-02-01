@@ -1,5 +1,6 @@
 from django.contrib.contenttypes import fields as ct_fields
 from django.db import models
+from django.utils import timezone
 
 import uuid
 
@@ -9,6 +10,8 @@ class Usage(models.Model):
     # TODO: who used, when
     who = models.CharField("Who used this stuff", max_length=1024, null=False, blank=False)
     change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type")
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
+    action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
     def __str__(self):
         return f"{self.who} used items {self.id}"

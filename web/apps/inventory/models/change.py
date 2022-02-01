@@ -1,6 +1,7 @@
 from django.contrib.contenttypes import fields as ct_fields
 from django.contrib.contenttypes import models as ct_models
 from django.db import models
+from django.utils import timezone
 
 import uuid
 
@@ -20,6 +21,8 @@ class Change(models.Model):
     source_content_type = models.ForeignKey(
         ct_models.ContentType, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to=source_limit)
     source_object_id = models.UUIDField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
+    action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
 # inventory change
 #     - groups changes to items
