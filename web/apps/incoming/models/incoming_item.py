@@ -12,7 +12,13 @@ class IncomingItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     parent = models.ForeignKey(IncomingItemGroup, on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="incoming_items")
+    unit_size = models.CharField(max_length=1024, null=False, blank=False, default='count')
+    quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     # TODO: quantity, size, cost, etc.
 
     def __str__(self):
         return self.item.name
+
+    @staticmethod
+    def autocomplete_search_fields():
+        return "id__icontains", "item__name__icontains"

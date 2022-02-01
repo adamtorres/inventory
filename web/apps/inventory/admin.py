@@ -16,6 +16,16 @@ def apply_item_changes(model_admin, request, queryset):
             i.apply_change()
 
 
+@admin.action(description='Convert to an inventory change.')
+def make_change(model_admin, request, queryset):
+    # Exclude any groups which are already associated with a Change object.
+    queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
+    for ig in queryset:
+        c = Change.objects.create(source=ig)
+        for ii in ig.items.all():
+            c.items.create(source_item=ii, change_quantity=ii.quantity)
+
+
 class AdjustmentItemInline(admin.TabularInline):
     model = AdjustmentItem
     extra = 1
@@ -32,6 +42,9 @@ class ItemChangeInline(admin.TabularInline):
     model = ItemChange
     ordering = ['item__common_item__name']
     extra = 1
+    autocomplete_lookup_fields = {
+        'generic': [['source_item_content_type', 'source_item_object_id']],
+    }
 
 
 class UsageItemInline(admin.TabularInline):
@@ -41,14 +54,12 @@ class UsageItemInline(admin.TabularInline):
 
 class AdjustmentAdmin(admin.ModelAdmin):
     inlines = [AdjustmentItemInline, ]
+    actions = [make_change, ]
 
 
 class ChangeAdmin(admin.ModelAdmin):
     inlines = [ItemChangeInline, ]
     actions = [apply_item_changes, ]
-    # related_lookup_fields = {
-    #     'generic': [['source_content_type', 'source_object_id']],
-    # }
     autocomplete_lookup_fields = {
         'generic': [['source_content_type', 'source_object_id']],
     }
@@ -65,6 +76,7 @@ class CommonItemOtherNameAdmin(admin.ModelAdmin):
 
 class UsageAdmin(admin.ModelAdmin):
     inlines = [UsageItemInline, ]
+    actions = [make_change, ]
 
 
 admin.site.register(Adjustment, AdjustmentAdmin)

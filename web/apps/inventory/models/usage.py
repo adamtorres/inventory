@@ -1,3 +1,4 @@
+from django.contrib.contenttypes import fields as ct_fields
 from django.db import models
 
 import uuid
@@ -7,6 +8,7 @@ class Usage(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # TODO: who used, when
     who = models.CharField("Who used this stuff", max_length=1024, null=False, blank=False)
+    change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type")
 
     def __str__(self):
         return f"{self.who} used items {self.id}"

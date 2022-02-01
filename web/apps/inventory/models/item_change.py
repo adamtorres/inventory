@@ -16,9 +16,9 @@ class ItemChange(models.Model):
     # Link this to a vendor order, donation, local store pickup, etc.  Actual instance of change, not the company.
     # This is the line item on the order or donation.  Not the order or donation.
     source_item_limit = (
-        models.Q(app_label='incoming', model='IncomingItem')
-        | models.Q(app_label='inventory', model='AdjustmentItem')
-        | models.Q(app_label='inventory', model='UsageItem')
+        models.Q(app_label='incoming', model='incomingitem')
+        | models.Q(app_label='inventory', model='adjustmentitem')
+        | models.Q(app_label='inventory', model='usageitem')
     )
     source_item = ct_fields.GenericForeignKey('source_item_content_type', 'source_item_object_id')
     source_item_content_type = models.ForeignKey(
@@ -58,7 +58,7 @@ class ItemChange(models.Model):
             return
         with transaction.atomic():
             if not self.item:
-                i = self.source_item.item.common_item.make_item(unit_size="?")
+                i = self.source_item.item.common_item.make_item(unit_size=self.source_item.unit_size)
                 self.item = i
                 self.item.original_quantity = self.change_quantity
             self.previous_quantity = self.item.current_quantity

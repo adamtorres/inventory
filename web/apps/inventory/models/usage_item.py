@@ -13,8 +13,14 @@ class UsageItem(models.Model):
     parent = models.ForeignKey(Usage, on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="usage_items")
     # TODO: quantity, size, cost, etc.
+    unit_size = models.CharField(max_length=1024, null=False, blank=False, default='count')
+    quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
 
     def __str__(self):
         # TODO: should item changes store the name at the time of creation in case it changes?
         # Also, doing it as item.common_item.name depends on children knowing more than one level up.
         return self.item.common_item.name
+
+    @staticmethod
+    def autocomplete_search_fields():
+        return "id__icontains", "item__common_item__name__icontains", "item__common_item__other_names__name__icontains"

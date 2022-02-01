@@ -1,4 +1,6 @@
+from django.contrib.contenttypes import fields as ct_fields
 from django.db import models
+
 
 import uuid
 
@@ -13,6 +15,7 @@ class IncomingItemGroup(models.Model):
     #     This might not be a complete order as some items might not have been delivered or were sent back as damaged.
     # TODO: any details about the order/donation
     descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=False)
+    change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type")
 
     def __str__(self):
         return f"a set of incoming items {self.id}"
