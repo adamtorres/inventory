@@ -1,7 +1,3 @@
-# when doing an inventory audit, this is used to adjust quantities.
-# spoiled, damaged, missing, found, whatever.
-from django.contrib.contenttypes import fields as ct_fields
-from django.contrib.contenttypes import models as ct_models
 from django.db import models
 
 import uuid
@@ -17,4 +13,4 @@ class Adjustment(models.Model):
 
     @staticmethod
     def autocomplete_search_fields():
-        return ("id__icontains", "type__icontains")
+        return "id__icontains", "type__icontains"

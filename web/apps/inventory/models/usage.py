@@ -1,7 +1,3 @@
-# normal usage forms.
-
-from django.contrib.contenttypes import fields as ct_fields
-from django.contrib.contenttypes import models as ct_models
 from django.db import models
 
 import uuid
@@ -17,4 +13,4 @@ class Usage(models.Model):
 
     @staticmethod
     def autocomplete_search_fields():
-        return ("id__icontains", "who__icontains")
+        return "id__icontains", "who__icontains"
