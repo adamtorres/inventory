@@ -16,7 +16,7 @@ class IncomingItemGroup(models.Model):
     #     a specific instance of incoming items group.  not a single item on the order.
     #     This might not be a complete order as some items might not have been delivered or were sent back as damaged.
     # TODO: any details about the order/donation
-    descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=False)
+    descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=True, default='')
     change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type")
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     # TODO: the default is UTC so evening dates are tomorrow.
