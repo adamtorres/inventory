@@ -19,7 +19,7 @@ def make_change(model_admin, request, queryset):
     queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
     for ig in queryset:
         c = change.objects.create(source=ig)
-        for ii in ig.items.all():
+        for ii in ig.items.exclude(do_not_inventory=True):
             c.items.create(source_item=ii, change_quantity=ii.quantity)
 
 
