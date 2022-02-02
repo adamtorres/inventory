@@ -12,6 +12,12 @@ from .models import (
     IncomingItem, IncomingItemGroup, IncomingItemGroupDetail, Item, Source, SourceIncomingDetailTemplate)
 
 
+@admin.action(description="Add the source-specific details to the incoming group.")
+def add_details(model_admin, request, queryset):
+    for ig in queryset:
+        ig.add_details()
+
+
 @admin.action(description='Convert incoming group to an inventory change.')
 def make_change(model_admin, request, queryset):
     change = apps.get_model('inventory', 'Change')
@@ -19,7 +25,7 @@ def make_change(model_admin, request, queryset):
     queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
     for ig in queryset:
         c = change.objects.create(source=ig)
-        for ii in ig.items.exclude(do_not_inventory=True):
+        for ii in ig.items.exclude(item__do_not_inventory=True):
             c.items.create(source_item=ii, change_quantity=ii.quantity)
 
 
@@ -44,7 +50,7 @@ class SourceIncomingDetailTemplateInline(g_forms.GrappelliSortableHiddenMixin, a
 class IncomingItemGroupAdmin(admin.ModelAdmin):
     inlines = [IncomingItemGroupDetailInline, IncomingItemInline, ]
     # ordering = ['name', ]
-    actions = [make_change, ]
+    actions = [add_details, make_change, ]
 
 
 class SourceAdmin(admin.ModelAdmin):
