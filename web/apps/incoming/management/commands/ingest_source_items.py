@@ -73,19 +73,57 @@ class Command(BaseCommand):
                 source = row[headers["vendor"]]
                 item = row[headers["item"]]
                 item_code = row[headers["item code"]]
+                order = {
+                    "delivery_date": row[headers["deliv date"]],
+                    "customer_number": row[headers["cust#"]],
+                    "department": row[headers["dept"]],
+                    "po_text": row[headers["PO#"]],
+                    "order_number": row[headers["order#"]],
+                    "line_item_number": row[headers["line item#"]],
+                    "category": row[headers["category"]],
+                    "ordered_quantity": row[headers["qty"]],
+                    "pack_quantity": row[headers["pack qty"]],
+                    "unit_size": row[headers["size"]],
+                    "extra_crap": row[headers["extra crap"]],
+                    "pack_cost": row[headers["pack cost"]],
+                    "pack_tax": row[headers["tax"]],
+                    "extended_cost": row[headers["extended cost"]],
+                    "total_weight": row[headers["t/wt"]],
+                    "comment": row[headers["handwritten notes"]],
+                }
                 if source not in data:
                     data[source] = {"records": 0, "items_by_name": {}, "items_by_code": {}}
                 data[source]["records"] += 1
+
                 if item not in data[source]["items_by_name"]:
-                    data[source]["items_by_name"][item] = 0
-                data[source]["items_by_name"][item] += 1
+                    data[source]["items_by_name"][item] = {"records": 0, "orders": []}
+                data[source]["items_by_name"][item]["records"] += 1
+                data[source]["items_by_name"][item]["orders"].append(order)
+
                 if item_code not in data[source]["items_by_code"]:
                     data[source]["items_by_code"][item_code] = 0
                 data[source]["items_by_code"][item_code] += 1
-                print(f"{r}, {row}")
-        for source, source_data in data.items():
+
+        for source_name, source_data in data.items():
             print("=========")
-            print(f"Source: {source}")
+            print(f"Source: {source_name}")
             print(f"Total records: {source_data['records']}")
-            for item in source_data["items_by_name"]:
-                print(f"  {item!r} == {source_data['items_by_name'][item]}")
+            print(f"Distinct items by name: {len(source_data['items_by_name'])}")
+            print(f"Distinct items by code: {len(source_data['items_by_code'])}")
+            # for item in source_data["items_by_name"]:
+            #     print(f"  {item!r} == {source_data['items_by_name'][item]['records']}")
+            if add_new_sources:
+                source_obj, created = inc_models.Source.objects.get_or_create(
+                    name__iexact=source_name, defaults={"name": source_name})
+                if created:
+                    print("! Created new source object.")
+            else:
+                source_obj = inc_models.Source.objects.filter(name__iexact=source_name).first()
+            if not source_obj:
+                # If there isn't a source object, there's no point going through the rest of the
+                continue
+            for item_name in source_data["items_by_name"]:
+                pack_size_unit_size_combos = {}
+                for order in source_data["items_by_name"][item_name]["orders"]:
+                    pack_size_unit_size_combos.add([order["pack_quantity"], order["unit_size"]])
+                inc_models.Item(source=source_obj, name=item_name, pack_quantity='', unit_size='')

@@ -7,21 +7,41 @@ import uuid
 import scrap
 
 
+class ItemManager(models.Manager):
+    def available_items(self, source=None):
+        qs = self.exclude(discontinued=True).select_related('source')
+        if source is not None:
+            # Using "if source" seems to execute the query on the database.
+            if isinstance(source, models.QuerySet):
+                qs = qs.filter(source__in=source)
+            else:
+                qs = qs.filter(source=source)
+        return qs
+
+
 class Item(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey("incoming.Source", on_delete=models.CASCADE, related_name="items")
+    identifier = models.CharField(max_length=1024, null=False, blank=True, default='', help_text="code, upc, etc.")
     name = models.CharField("Probably cryptic item name", max_length=1024, null=False, blank=False)
+    better_name = models.CharField("Less cryptic item name", max_length=1024, null=False, blank=True, default='')
     common_item = models.ForeignKey("inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items")
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     do_not_inventory = models.BooleanField(default=False, null=False, blank=False)
+
+    # Just a helper for reports or drop downs so they are filled with garbage.
+    discontinued = models.BooleanField(default=False, null=False, blank=False)
 
     # A single package can have multiple items.
     pack_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     unit_size = models.CharField(max_length=1024, null=False, blank=False, default='count')
 
+    # price is not here as the prices change quite often.
     # TODO: How to convert this item's quantity to a usable inventory quantity?  Should it just be up to the user?
 
-# vendor/donation items
+    objects = ItemManager()
+
+    # vendor/donation items
 #     - This is not items on an order.  This is just a way to convert between vendor and inventory.
 #     - There might be multiple items that are actually the same thing as vendors sometimes change item
 #           numbers/descriptions.
