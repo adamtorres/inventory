@@ -24,7 +24,7 @@ class CommonItem(models.Model):
 
     def make_item(self, unit_size):
         # Create a 0 quantity item from this common item.
-        return self.items.create(unit_size=unit_size, location=self.location, category=self.category)
+        return self.items.create(unit_size=unit_size, location=self.location)
 
 # ? items
 #     - provides a listing of all items which can be used as a dictionary/lookup table

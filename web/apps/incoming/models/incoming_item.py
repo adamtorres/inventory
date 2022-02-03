@@ -38,3 +38,7 @@ class IncomingItem(models.Model):
 
     def get_inventory_quantity(self):
         return self.delivered_quantity * self.item.pack_quantity
+
+    @property
+    def unit_size(self):
+        return self.item.unit_size
