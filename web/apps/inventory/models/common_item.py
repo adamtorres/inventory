@@ -9,6 +9,8 @@ class CommonItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField("primary name", max_length=1024, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
+    location = models.ForeignKey("inventory.Location", on_delete=models.CASCADE, null=True, blank=False)
+    category = models.ForeignKey("inventory.Category", on_delete=models.CASCADE, null=True, blank=False)
 
     # TODO: link to vendor common items
     # TODO: unit of measure
@@ -22,7 +24,7 @@ class CommonItem(models.Model):
 
     def make_item(self, unit_size):
         # Create a 0 quantity item from this common item.
-        return self.items.create(unit_size=unit_size)
+        return self.items.create(unit_size=unit_size, location=self.location, category=self.category)
 
 # ? items
 #     - provides a listing of all items which can be used as a dictionary/lookup table
