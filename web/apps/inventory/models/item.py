@@ -11,8 +11,14 @@ class ItemManager(models.Manager):
         """
         # exclude anything that has 0 or less quantity.  Should include negative here or in a report?
         qs = self.exclude(current_quantity__lte=0).select_related('common_item')
-        return qs.values('common_item', common_item_name=models.F('common_item__name')).annotate(
-            other_names=pg_agg.StringAgg('common_item__other_names__name', ', ', default=models.Value(''), ordering=()),
+        return qs.values(
+            'common_item', common_item_name=models.F('common_item__name'),
+            category=models.F('common_item__category__name')
+        ).annotate(
+            other_names=pg_agg.StringAgg(
+                'common_item__other_names__name', ', ', default=models.Value(''), ordering=()),
+            locations=pg_agg.StringAgg(
+                'location__name', ', ', default=models.Value(''), ordering='location__name', distinct=True),
             quantity=models.Sum('current_quantity')
         ).order_by('common_item_name')
     # TODO: need to add a category group/sort when category is added to the model.
