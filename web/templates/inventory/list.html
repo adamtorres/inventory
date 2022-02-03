@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Inventory List{% endblock %}
+{% block styles %}
+    <style type="text/css">
+    table {
+        border: solid 1px black;
+    }
+    table tbody tr td {
+        border-top: solid 1px black;
+    }
+    </style>
+{% endblock %}
+{% block content %}
+    <table>
+    <thead>
+        <tr>
+            <th>Item name</th>
+            <th>Other names</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item, item_details in inventory.items %}
+        <tr>
+        <td>{{ item_details.common_item_name }}</td>
+        <td>{{ item_details.other_names }}</td>
+        <td>{{ item_details.quantity }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

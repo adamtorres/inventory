@@ -1,8 +1,23 @@
-from django.contrib.contenttypes import fields as ct_fields
-from django.contrib.contenttypes import models as ct_models
+from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
 
 import uuid
+
+
+class ItemManager(models.Manager):
+    def get_consolidated_inventory(self):
+        """
+        Groups the common items and totals the quantities.
+        """
+        # exclude anything that has 0 or less quantity.  Should include negative here or in a report?
+        qs = self.exclude(current_quantity__lte=0).select_related('common_item')
+        return qs.values('common_item', common_item_name=models.F('common_item__name')).annotate(
+            other_names=pg_agg.StringAgg('common_item__other_names__name', ', ', default=models.Value(''), ordering=()),
+            quantity=models.Sum('current_quantity')
+        ).order_by('common_item_name')
+    # TODO: need to add a category group/sort when category is added to the model.
+    # def get_queryset(self):
+    #     return super().get_queryset().filter(author='Roald Dahl')
 
 
 class Item(models.Model):
@@ -13,6 +28,8 @@ class Item(models.Model):
     # TODO: cost and size info.  How is cost handled?  need to know the unit of measure.
     unit_size = models.CharField(max_length=1024, default='', null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
+
+    objects = ItemManager()
 
     def __str__(self):
         # don't want to just str the common_item as that includes the other_names.

@@ -25,3 +25,6 @@ class UsageItem(models.Model):
     @staticmethod
     def autocomplete_search_fields():
         return "id__icontains", "item__common_item__name__icontains", "item__common_item__other_names__name__icontains"
+
+    def get_common_item(self):
+        return self.item.common_item

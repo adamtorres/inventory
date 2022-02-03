@@ -59,7 +59,7 @@ class ItemChange(models.Model):
             return
         with transaction.atomic():
             if not self.item:
-                i = self.source_item.item.common_item.make_item(unit_size=self.source_item.unit_size)
+                i = self.source_item.get_common_item().make_item(unit_size=self.source_item.unit_size)
                 self.item = i
                 self.item.original_quantity = self.change_quantity
             self.previous_quantity = self.item.current_quantity

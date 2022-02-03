@@ -12,14 +12,14 @@ import scrap
 class IncomingItemGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
-    # vendor order/donation instance
-    #     a specific instance of incoming items group.  not a single item on the order.
-    #     This might not be a complete order as some items might not have been delivered or were sent back as damaged.
-    # TODO: any details about the order/donation
     descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=True, default='')
     change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type")
+
+    comment = models.CharField(
+        "Anything noteworthy about this order", max_length=1024, null=False, blank=True, default='')
+
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
-    # TODO: the default is UTC so evening dates are tomorrow.
+    # TODO: guessing the default is UTC timezone so filling out a form in the evening creates dates in tomorrow.
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
     def __str__(self):

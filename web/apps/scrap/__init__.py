@@ -31,4 +31,7 @@ def snip_text(text, max_length=50, snip_str="...", head_and_tail=False):
 
 
 def undecimal(value):
+    """
+    Converts a decimal value to int if there are no non-zero decimals.
+    """
     return int(value) if not value % 1 else value
