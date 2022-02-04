@@ -72,11 +72,11 @@ Or, including the user/email on the command line
     Superuser created successfully.
 ```
 
-The basic data needs to be loaded.  This covers units of measures and some other data that I didn't feel like typing
-each time the database is reset.
+The basic data needs to be loaded.  This covers common data that I didn't feel like typing each time the database is reset.
 
 ```
-./manage.py loaddata unit_of_measure
+./manage.py loaddata locations
+./manage.py loaddata categories
 ```
 
 For the debug service, the simple runserver is used.  That is started from within the `web` folder.  The following
