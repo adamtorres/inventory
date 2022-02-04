@@ -96,9 +96,12 @@ class Command(BaseCommand):
                 data[source]["records"] += 1
 
                 if item not in data[source]["items_by_name"]:
-                    data[source]["items_by_name"][item] = {"records": 0, "orders": []}
+                    data[source]["items_by_name"][item] = {"records": 0, "orders": [], "item_codes": {}}
                 data[source]["items_by_name"][item]["records"] += 1
                 data[source]["items_by_name"][item]["orders"].append(order)
+                if item_code not in data[source]["items_by_name"][item]["item_codes"]:
+                    data[source]["items_by_name"][item]["item_codes"][item_code] = []
+                data[source]["items_by_name"][item]["item_codes"][item_code].append(order)
 
                 if item_code not in data[source]["items_by_code"]:
                     data[source]["items_by_code"][item_code] = 0
@@ -123,7 +126,13 @@ class Command(BaseCommand):
                 # If there isn't a source object, there's no point going through the rest of the
                 continue
             for item_name in source_data["items_by_name"]:
-                pack_size_unit_size_combos = {}
-                for order in source_data["items_by_name"][item_name]["orders"]:
-                    pack_size_unit_size_combos.add([order["pack_quantity"], order["unit_size"]])
-                inc_models.Item(source=source_obj, name=item_name, pack_quantity='', unit_size='')
+                for item_code in source_data["items_by_name"][item_name]["item_codes"]:
+                    pack_size_unit_size_combos = set()
+                    for order in source_data["items_by_name"][item_name]["item_codes"][item_code]:
+                        pack_size_unit_size_combos.add(f"{order['pack_quantity']}, {order['unit_size']}")
+                    if len(pack_size_unit_size_combos) > 1:
+                        print(f"Item: {item_name}")
+                        print(f"\tCode: {item_code}")
+                        for psusc in pack_size_unit_size_combos:
+                            print(f"\t\t{psusc}")
+                # inc_models.Item(source=source_obj, name=item_name, pack_quantity='', unit_size='')

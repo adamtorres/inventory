@@ -20,6 +20,9 @@ class ItemManager(models.Manager):
 
 
 class Item(models.Model):
+    # A unique item needs to be identifier/name/pack_quantity/unit_size
+    # 2021-05-27 and 2021-07-29 "5239389" / "SYS CLS extract vanilla imit" / 1 and 6 / 32oz
+    # 2021-07-01 and 2021-07-15 "6639553" / "IMP/MCC seasoning steak montreal" / 1 and 6 / 29oz
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey("incoming.Source", on_delete=models.CASCADE, related_name="items")
     identifier = models.CharField(max_length=1024, null=False, blank=True, default='', help_text="code, upc, etc.")
