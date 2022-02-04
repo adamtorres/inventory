@@ -10,9 +10,9 @@ class CommonItem(models.Model):
     name = models.CharField("primary name", max_length=1024, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     location = models.ForeignKey(
-        "inventory.Location", on_delete=models.CASCADE, null=True, blank=False, related_name='common_items')
+        "inventory.Location", on_delete=models.CASCADE, null=True, blank=True, related_name='common_items')
     category = models.ForeignKey(
-        "inventory.Category", on_delete=models.CASCADE, null=True, blank=False, related_name='common_items')
+        "inventory.Category", on_delete=models.CASCADE, null=True, blank=True, related_name='common_items')
 
     # TODO: link to vendor common items
     # TODO: unit of measure
