@@ -34,7 +34,8 @@ class Item(models.Model):
     # TODO: cost and size info.  How is cost handled?  need to know the unit of measure.
     unit_size = models.CharField(max_length=1024, default='', null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
-    location = models.ForeignKey("inventory.Location", on_delete=models.CASCADE, null=True, blank=False)
+    location = models.ForeignKey(
+        "inventory.Location", on_delete=models.CASCADE, null=True, blank=False, related_name='items')
 
     objects = ItemManager()
 

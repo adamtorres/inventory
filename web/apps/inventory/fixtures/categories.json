@@ -1,0 +1,13 @@
+[
+{"model": "inventory.category", "pk": "c0ee2c50-b8bb-4045-a65e-a78e073c4bd4", "fields": {"name": "canned & dry"}},
+{"model": "inventory.category", "pk": "7b2b5aee-1c46-4f4c-8c9a-90e3cb992514", "fields": {"name": "chemical / janitorial"}},
+{"model": "inventory.category", "pk": "7e47b66c-edfa-46b0-b522-8333bfed079a", "fields": {"name": "dairy"}},
+{"model": "inventory.category", "pk": "65166d39-8761-4e71-b229-cf17289003c5", "fields": {"name": "frozen"}},
+{"model": "inventory.category", "pk": "38210c3d-af5b-4167-b37a-d64c1cd2d649", "fields": {"name": "meats"}},
+{"model": "inventory.category", "pk": "1487c451-9f91-43d1-80d7-dcb4d0976765", "fields": {"name": "misc charges"}},
+{"model": "inventory.category", "pk": "9456848f-fb51-46ac-9f94-11d05dba50c8", "fields": {"name": "paper & disp"}},
+{"model": "inventory.category", "pk": "bd271c08-5078-4847-8bfe-d942e2403c46", "fields": {"name": "poultry"}},
+{"model": "inventory.category", "pk": "a4d47eee-1953-4d94-9ebf-9cc7bfcaaf44", "fields": {"name": "produce"}},
+{"model": "inventory.category", "pk": "e4c37ce9-8b3f-4c1e-bdc9-041b37d5c571", "fields": {"name": "seafood"}},
+{"model": "inventory.category", "pk": "3d59f198-6595-4a9a-a9c6-6a80f9733fbe", "fields": {"name": "supplies & equipment"}}
+]
