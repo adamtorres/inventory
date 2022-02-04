@@ -41,6 +41,7 @@ class Command(BaseCommand):
         data = {
             "categories": {},
             "records": 0,
+            "common_names": {},
         }
         args = {
             "data": data,
@@ -48,8 +49,8 @@ class Command(BaseCommand):
         self.process_datafile(datafile, self.process_row, args=args)
         self.dump_stats(data)
         # self.update_better_names(data)
-        # self.update_categories(data)
-        self.update_common_items(data)
+        self.update_categories(data)
+        # self.update_common_items(data)
 
     def process_datafile(self, datafile, row_func, args=None, skip_first_row=True):
         with open(datafile, 'r') as csvfile:
@@ -76,6 +77,18 @@ class Command(BaseCommand):
             "third_other_name": row.third_other_name,
         }
 
+        if row.common_name not in data["common_names"]:
+            data["common_names"][row.common_name] = {
+                "categories": {},
+                "records": 0,
+            }
+        data["common_names"][row.common_name]["records"] += 1
+        if row.category not in data["common_names"][row.common_name]["categories"]:
+            data["common_names"][row.common_name]["categories"][row.category] = {
+                "items": []
+            }
+        data["common_names"][row.common_name]["categories"][row.category]["items"].append(row.item_name)
+
     def update_better_names(self, data):
         for category, category_data in data["categories"].items():
             print(f"Category: {category}")
@@ -91,13 +104,23 @@ class Command(BaseCommand):
 
     def update_categories(self, data):
         categories = {c.name.lower(): c for c in inv_models.Category.objects.all()}
-        for category, category_data in data["categories"].items():
-            print(f"Category: {category}")
+        common_items_to_update = []
+        for common_name, common_name_data in data["common_names"].items():
+            if len(common_name_data["categories"]) != 1:
+                print(f"Common Name {common_name} has multiple categories: {common_name_data['categories'].keys()}")
+                # TODO: Flesh this out.  Currently not an issue so not spending time on it yet.
+                continue
+            category = list(common_name_data["categories"])[0]
             category_obj = categories[category.lower()]
-            # items_to_update = []
-            # for item_name, item_dict in category_data["items"].items():
-            #     for item in inc_models.Item.objects.filter(name__iexact=item_name).all():
-            #         pass
+            for common_item in inv_models.CommonItem.objects.filter(name__iexact=common_name):
+                if not common_item.category:
+                    common_item.category = category_obj
+                    common_items_to_update.append(common_item)
+                elif common_item.category != category_obj:
+                    print(f"CommonItem {common_item} has category {common_item.category} but should be {category}.")
+        if common_items_to_update:
+            print(f"\tUpdating {len(common_items_to_update)} common items.")
+            inv_models.CommonItem.objects.bulk_update(common_items_to_update, ['category'])
 
     def update_common_items(self, data):
         for category, category_data in data["categories"].items():

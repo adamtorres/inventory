@@ -33,6 +33,7 @@ class IncomingItemInline(admin.TabularInline):
     model = IncomingItem
     ordering = ['item__name', ]
     extra = 1
+    autocomplete_fields = ['item', ]
 
 
 class IncomingItemGroupDetailInline(g_forms.GrappelliSortableHiddenMixin, admin.TabularInline):
@@ -53,6 +54,11 @@ class IncomingItemGroupAdmin(admin.ModelAdmin):
     actions = [add_details, make_change, ]
 
 
+class ItemAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['common_item']
+    search_fields = ['common_item__name', 'common_item__other_names__name']
+
+
 class SourceAdmin(admin.ModelAdmin):
     inlines = [SourceIncomingDetailTemplateInline, ]
     ordering = ['name', ]
@@ -60,5 +66,5 @@ class SourceAdmin(admin.ModelAdmin):
 
 # admin.site.register(IncomingItem)
 admin.site.register(IncomingItemGroup, IncomingItemGroupAdmin)
-admin.site.register(Item)
+admin.site.register(Item, ItemAdmin)
 admin.site.register(Source, SourceAdmin)

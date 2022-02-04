@@ -69,10 +69,16 @@ class ChangeAdmin(admin.ModelAdmin):
 class CommonItemAdmin(admin.ModelAdmin):
     inlines = [CommonItemOtherNameInline, ]
     ordering = ['name', ]
+    search_fields = ['name', 'other_names__name']
 
 
 class CommonItemOtherNameAdmin(admin.ModelAdmin):
     ordering = ['common_item__name', 'name']
+
+
+class ItemAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['common_item']
+    search_fields = ['common_item__name', 'common_item__other_names__name']
 
 
 class UsageAdmin(admin.ModelAdmin):
@@ -85,7 +91,7 @@ admin.site.register(Category)
 admin.site.register(Change, ChangeAdmin)
 admin.site.register(CommonItem, CommonItemAdmin)
 # admin.site.register(CommonItemOtherName, CommonItemOtherNameAdmin)
-admin.site.register(Item)
+admin.site.register(Item, ItemAdmin)
 # admin.site.register(ItemChange)
 admin.site.register(Location)
 admin.site.register(Usage, UsageAdmin)
