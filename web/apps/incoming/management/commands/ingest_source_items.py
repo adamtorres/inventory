@@ -40,7 +40,7 @@ class Command(BaseCommand):
                 "there are typos.")
         )
 
-    def dump_stats(self, data, outer_field, inner_field, add_new_sources=False):
+    def dump_stats(self, data, outer_field, inner_field):
         group_value = f"grouped by {outer_field}"
         inner_group_value = f"{inner_field}s"
         for source_name, source_data in data.items():
@@ -48,16 +48,6 @@ class Command(BaseCommand):
             print(f"Source: {source_name}")
             print(f"Total records: {source_data['records']}")
             print(f"Distinct items by {outer_field}: {len(source_data[group_value])}")
-            if add_new_sources:
-                source_obj, created = inc_models.Source.objects.get_or_create(
-                    name__iexact=source_name, defaults={"name": source_name})
-                if created:
-                    print("! Created new source object.")
-            else:
-                source_obj = inc_models.Source.objects.filter(name__iexact=source_name).first()
-            if not source_obj:
-                # If there isn't a source object, there's no point going through the rest of the
-                continue
             for outer_value in source_data[group_value]:
                 for inner_value in source_data[group_value][outer_value][inner_group_value]:
                     pack_size_unit_size_combos = set()
@@ -68,14 +58,13 @@ class Command(BaseCommand):
                         print(f"\t{inner_field}: {inner_value}")
                         for psusc in pack_size_unit_size_combos:
                             print(f"\t\t{psusc}")
-                # inc_models.Item(source=source_obj, name=item_name, pack_quantity='', unit_size='')
 
     def handle(self, *args, **options):
         datafile = options.get('datafile')
         add_new_sources = options.get('add_new_sources')
 
-        outer_field = 'item_code'
-        inner_field = 'item_name'
+        outer_field = 'item_name'
+        inner_field = 'item_code'
         data = {}
         args = {
             "data": data,
@@ -83,7 +72,8 @@ class Command(BaseCommand):
             "inner_field": inner_field,
         }
         self.process_datafile(datafile, self.process_row, args=args)
-        self.dump_stats(data, outer_field, inner_field, add_new_sources=add_new_sources)
+        self.dump_stats(data, outer_field, inner_field)
+        self.upsert_items(data, add_new_sources=add_new_sources, outer_field=outer_field, inner_field=inner_field)
 
     def probably_will_not_use(self, source_name, add_new_source=False):
         """
@@ -116,6 +106,10 @@ class Command(BaseCommand):
                 if skip_first_row and r == 0:
                     continue
                 named_row = DataRow(*row)
+                if named_row.pack_quantity == '':
+                    tmp = named_row._asdict()
+                    tmp['pack_quantity'] = 0
+                    named_row = DataRow(*tmp)
                 row_func(r, named_row, **args)
 
     def process_row(self, row_number, row, data=None, outer_field=None, inner_field=None):
@@ -135,3 +129,39 @@ class Command(BaseCommand):
         if inner_value not in data[row.source][group_value][outer_value][inner_group_value]:
             data[row.source][group_value][outer_value][inner_group_value][inner_value] = []
         data[row.source][group_value][outer_value][inner_group_value][inner_value].append(row._asdict())
+
+    def upsert_items(self, data, add_new_sources=False, outer_field=None, inner_field=None):
+        group_value = f"grouped by {outer_field}"
+        inner_group_value = f"{inner_field}s"
+        # data[source][group_value][outer_value][inner_group_value][inner_value][rows]
+        rows = 0
+        created_items = 0
+        existing_items = 0
+        for source_name, source_data in data.items():
+            # source_data[group_value][outer_value][inner_group_value][inner_value][rows]
+            if add_new_sources:
+                source_obj, created = inc_models.Source.objects.get_or_create(
+                    name__iexact=source_name, defaults={"name": source_name})
+                if created:
+                    print(f"! Created new source object for {source_name!r}.")
+            else:
+                source_obj = inc_models.Source.objects.filter(name__iexact=source_name).first()
+            if not source_obj:
+                # If there isn't a source object, there's no point going through the rest of the
+                continue
+            for outer_value, outer_data in source_data[group_value].items():
+                for inner_value in outer_data[inner_group_value]:
+                    for order_row_dict in outer_data[inner_group_value][inner_value]:
+                        rows += 1
+                        row = DataRow(**order_row_dict)
+                        _, created = inc_models.Item.objects.get_or_create(
+                            source=source_obj, identifier=row.item_code, name=row.item_name,
+                            pack_quantity=row.pack_quantity, unit_size=row.unit_size)
+                        if created:
+                            created_items += 1
+                        else:
+                            existing_items += 1
+                        if (rows % 10) == 0:
+                            print(f"row {rows}, existing={existing_items}, created={created_items}")
+        print(f"Existing Items {existing_items}")
+        print(f"Created Items {created_items}")

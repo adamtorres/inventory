@@ -64,8 +64,8 @@ class Item(models.Model):
 #     This is not actual incoming items.  This is a list of names which also link to common items.
 
     def __str__(self):
-        return f"{self.source.name} / {self.item_name} / {self.pack_quantity} / {self.unit_size}"
+        return f"{self.source.name} / {self.item_name}"
 
     @property
     def item_name(self):
-        return f"{scrap.undecimal(self.pack_quantity)} {self.unit_size}, {self.name}"
+        return f"{scrap.undecimal(self.pack_quantity)}x {self.unit_size}, {self.name}"
