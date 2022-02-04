@@ -28,7 +28,8 @@ class Item(models.Model):
     identifier = models.CharField(max_length=1024, null=False, blank=True, default='', help_text="code, upc, etc.")
     name = models.CharField("Probably cryptic item name", max_length=1024, null=False, blank=False)
     better_name = models.CharField("Less cryptic item name", max_length=1024, null=False, blank=True, default='')
-    common_item = models.ForeignKey("inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items")
+    common_item = models.ForeignKey(
+        "inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items", null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     do_not_inventory = models.BooleanField(default=False, null=False, blank=False)
 
@@ -44,6 +45,12 @@ class Item(models.Model):
 
     objects = ItemManager()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['source', 'identifier', 'name', 'pack_quantity', 'unit_size'],
+                name='unique_source_id_name_packqty_size')
+        ]
     # vendor/donation items
 #     - This is not items on an order.  This is just a way to convert between vendor and inventory.
 #     - There might be multiple items that are actually the same thing as vendors sometimes change item
@@ -57,7 +64,7 @@ class Item(models.Model):
 #     This is not actual incoming items.  This is a list of names which also link to common items.
 
     def __str__(self):
-        return f"{self.source.name} / {self.item_name}"
+        return f"{self.source.name} / {self.item_name} / {self.pack_quantity} / {self.unit_size}"
 
     @property
     def item_name(self):
