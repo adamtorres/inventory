@@ -10,29 +10,31 @@ class ItemManager(models.Manager):
         Groups the common items and totals the quantities.
         """
         # exclude anything that has 0 or less quantity.  Should include negative here or in a report?
-        qs = self.exclude(current_quantity__lte=0).select_related('common_item', 'common_item__category')
+        qs = self.exclude(current_quantity__lte=0).select_related('common_item', 'common_item__category', 'location')
         qs = qs.values(
-            'common_item', 'current_quantity',
+            'common_item',
             common_item_name=models.F('common_item__name'),
             category=models.F('common_item__category__name'),
-            current_quantity_cost=models.F('unit_cost') * models.F('current_quantity'),
-        )
-        qs = qs.values(
-            'common_item', 'category', 'common_item_name'
         )
         qs = qs.annotate(
             total_quantity=models.Sum('current_quantity'),
-            total_cost=models.Sum('current_quantity_cost'),
+            total_cost=models.Sum(models.F('unit_cost') * models.F('current_quantity')),
+            other_names=pg_agg.StringAgg(
+                'common_item__other_names__name', ', ', default=models.Value(''),
+                ordering='common_item__other_names__name', distinct=True),
+            locations=pg_agg.StringAgg(
+                'location__name', ', ', default=models.Value(''), ordering='location__name', distinct=True),
         )
-        # other_names = pg_agg.StringAgg(
-        #     'common_item__other_names__name', ', ', default=models.Value(''), ordering=()),
-        # locations = pg_agg.StringAgg(
-        #     'location__name', ', ', default=models.Value(''), ordering='location__name', distinct=True),
         return qs
         # Returns queryset of:
-        #     {'common_item': UUID('135f455f-39d3-4975-98b6-3a0c223cfd64'),
-        #      'common_item_name': 'beef roast bottom round flat', 'category': 'meats', 'other_names': '',
-        #      'locations': '', 'quantity': Decimal('7.0000')}
+        # {
+        #     'common_item': UUID('4c6a3ce1-8a24-48c7-9d1c-249394a3a381'),
+        #     'common_item_name': 'ground beef',
+        #     'category': 'meats',
+        #     'total_quantity': Decimal('3.0000'),
+        #     'total_cost': Decimal('90.06000000'),
+        #     'other_names': 'ground meat, hamburger, hamburger meat',
+        #     'locations': 'Freezer, Refrigerator'}
 
     def get_categorized_inventory(self, categories=None):
         """
@@ -47,7 +49,7 @@ class ItemManager(models.Manager):
             qs = qs.filter(category__in=[categories])
         elif isinstance(categories, (list, tuple)):
             qs = qs.filter(category__in=categories)
-        pass
+        return qs
 
     # def get_queryset(self):
     #     return super().get_queryset().filter(author='Roald Dahl')

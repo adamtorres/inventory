@@ -38,7 +38,7 @@ def test_empty_filter():
 
 
 def test_consolidated_inventory():
-    inv_dict = inv_models.Item.objects.get_consolidated_inventory()
+    inv_dict = inv_models.Item.objects.get_categorized_inventory()
     for i in inv_dict:
         print(i)
     # for category, items in inv_dict.items():
