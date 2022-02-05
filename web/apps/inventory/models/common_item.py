@@ -24,9 +24,9 @@ class CommonItem(models.Model):
             return f"{self.name} a.k.a. '{other_names}'"
         return self.name
 
-    def make_item(self, unit_size):
+    def make_item(self, unit_size, unit_cost):
         # Create a 0 quantity item from this common item.
-        return self.items.create(unit_size=unit_size, location=self.location)
+        return self.items.create(unit_size=unit_size, unit_cost=unit_cost, location=self.location)
 
 # ? items
 #     - provides a listing of all items which can be used as a dictionary/lookup table

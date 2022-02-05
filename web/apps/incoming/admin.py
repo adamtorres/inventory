@@ -26,7 +26,8 @@ def make_change(model_admin, request, queryset):
     for ig in queryset:
         c = change.objects.create(source=ig)
         for ii in ig.items.exclude(item__do_not_inventory=True):
-            c.items.create(source_item=ii, change_quantity=ii.get_inventory_quantity())
+            c.items.create(
+                source_item=ii, change_quantity=ii.get_inventory_quantity(), unit_cost=ii.get_cost_per_unit())
 
 
 class IncomingItemInline(admin.TabularInline):

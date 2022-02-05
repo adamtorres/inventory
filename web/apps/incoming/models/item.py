@@ -32,6 +32,8 @@ class Item(models.Model):
         "inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items", null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     do_not_inventory = models.BooleanField(default=False, null=False, blank=False)
+    individual_serving = models.BooleanField(
+        default=False, null=False, blank=False, help_text="Is a preportioned single-serving disposable package")
 
     # Just a helper for reports or drop downs so they are filled with garbage.
     discontinued = models.BooleanField(default=False, null=False, blank=False)
@@ -41,7 +43,6 @@ class Item(models.Model):
     unit_size = models.CharField(max_length=1024, null=False, blank=False, default='count')
 
     # price is not here as the prices change quite often.
-    # TODO: How to convert this item's quantity to a usable inventory quantity?  Should it just be up to the user?
 
     objects = ItemManager()
 
@@ -69,3 +70,13 @@ class Item(models.Model):
     @property
     def item_name(self):
         return f"{scrap.undecimal(self.pack_quantity)}x {self.unit_size}, {self.name}"
+
+    def get_delivered_unit_quantity(self, delivered_quantity):
+        # QuantityConversions:
+        # unit_size is a count.  int(unit_size [remove suffix]) * pack_quantity * delivered_quantity = total_quantity
+        # unit_size is unique to the instance but not a usable.  pack_quantity * delivered_quantity = total_quantity
+        # unit_size is constant but not a usable number. pack_quantity * delivered_quantity = total_quantity
+        # unit_size is a count/weight but should still be ignored.  pack_quantity * delivered_quantity = total_quantity
+        # TODO: quantity conversion currently hard coded to ignore unit_size.  Will need to change if/when doing more
+        #  than 'closed package' counting.
+        return self.pack_quantity * delivered_quantity

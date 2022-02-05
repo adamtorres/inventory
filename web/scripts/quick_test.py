@@ -9,6 +9,7 @@ from django.db import models
 from django_extensions.management.debug_cursor import monkey_patch_cursordebugwrapper
 
 from incoming import models as inc_models
+from inventory import models as inv_models
 
 
 def test_available_items():
@@ -36,9 +37,19 @@ def test_empty_filter():
         print("if not qs returned false.  This would not be ideal.")
 
 
+def test_consolidated_inventory():
+    inv_dict = inv_models.Item.objects.get_consolidated_inventory()
+    for i in inv_dict:
+        print(i)
+    # for category, items in inv_dict.items():
+    #     print(f"{category} has {len(items)} kinds of items")
+    #     for item in items:
+    #         print(f"{item}")
+
+
 def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
-        test_empty_filter()
+        test_consolidated_inventory()

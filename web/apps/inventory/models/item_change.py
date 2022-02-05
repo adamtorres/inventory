@@ -30,6 +30,8 @@ class ItemChange(models.Model):
     change_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False)
     new_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
 
+    unit_cost = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
+
     applied = models.BooleanField("The change been applied", default=False, null=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
@@ -59,7 +61,8 @@ class ItemChange(models.Model):
             return
         with transaction.atomic():
             if not self.item:
-                i = self.source_item.get_common_item().make_item(unit_size=self.source_item.unit_size)
+                i = self.source_item.get_common_item().make_item(
+                    unit_size=self.source_item.unit_size, unit_cost=self.unit_cost)
                 self.item = i
                 self.item.original_quantity = self.change_quantity
             self.previous_quantity = self.item.current_quantity
