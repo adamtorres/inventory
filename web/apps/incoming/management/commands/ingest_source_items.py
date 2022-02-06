@@ -109,7 +109,7 @@ class Command(BaseCommand):
                 if named_row.pack_quantity == '':
                     tmp = named_row._asdict()
                     tmp['pack_quantity'] = 0
-                    named_row = DataRow(*tmp)
+                    named_row = DataRow(**tmp)
                 row_func(r, named_row, **args)
 
     def process_row(self, row_number, row, data=None, outer_field=None, inner_field=None):
