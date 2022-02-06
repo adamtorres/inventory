@@ -17,7 +17,7 @@ class Command(BaseCommand):
     help = """
     Load incoming.Items from a file.  The input can have duplicates.  This will work out a unique list.
     Example Usage:
-        python manage.py ingest_source_items --datafile=<filename>
+        python manage.py apply_common_items --datafile=<filename>
     """
 
     def add_arguments(self, parser):
@@ -49,7 +49,7 @@ class Command(BaseCommand):
         self.process_datafile(datafile, self.process_row, args=args)
         self.dump_stats(data)
         # self.update_better_names(data)
-        self.update_categories(data)
+        # self.update_categories(data)
         # self.update_common_items(data)
 
     def process_datafile(self, datafile, row_func, args=None, skip_first_row=True):
