@@ -15,6 +15,7 @@ services:
       - ./data/pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    user: "${UID}:${GID}"
   dbadmin:
     build:
       context: ./dbadmin/
