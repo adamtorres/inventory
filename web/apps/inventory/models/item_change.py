@@ -33,6 +33,8 @@ class ItemChange(models.Model):
     unit_cost = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     extended_cost = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
 
+    line_item_position = models.PositiveSmallIntegerField("Position", null=True)
+
     applied = models.BooleanField("The change been applied", default=False, null=False)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 

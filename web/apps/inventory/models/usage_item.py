@@ -15,6 +15,8 @@ class UsageItem(models.Model):
     # TODO: quantity, size, cost, etc.
     unit_size = models.CharField(max_length=1024, null=False, blank=False, default='count')
     quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
+    line_item_position = models.PositiveSmallIntegerField("Position", null=True)
+
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
     def __str__(self):

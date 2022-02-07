@@ -16,7 +16,6 @@ class InventoryView(generic.TemplateView):
         #     'category': 'meats',
         #     'total_quantity': Decimal('3.0000'),
         #     'total_cost': Decimal('90.06000000'),
-        #     'other_names': 'ground meat, hamburger, hamburger meat',
         #     'locations': 'Freezer, Refrigerator'}
         kwargs['inventory'] = {i['common_item_name']: i for i in qs}
         return kwargs

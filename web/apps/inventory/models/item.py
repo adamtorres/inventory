@@ -19,9 +19,12 @@ class ItemManager(models.Manager):
         qs = qs.annotate(
             total_quantity=models.Sum('current_quantity'),
             total_cost=models.Sum(models.F('unit_cost') * models.F('current_quantity')),
-            other_names=pg_agg.StringAgg(
-                'common_item__other_names__name', ', ', default=models.Value(''),
-                ordering='common_item__other_names__name', distinct=True),
+            # TODO: This was making the totals incorrect.  Low priority but would like to add other names back.
+            # other_names=pg_agg.StringAgg(
+            #     'common_item__other_names__name', ', ', default=models.Value(''),
+            #     ordering='common_item__other_names__name', distinct=True),
+            # Odd that the StringAgg for other names breaks totals but locations doesn't.  Must be in how an item has
+            # exactly one location but could have many other names.  The multiple locations comes from multiple items.
             locations=pg_agg.StringAgg(
                 'location__name', ', ', default=models.Value(''), ordering='location__name', distinct=True),
         )
@@ -33,7 +36,6 @@ class ItemManager(models.Manager):
         #     'category': 'meats',
         #     'total_quantity': Decimal('3.0000'),
         #     'total_cost': Decimal('90.06000000'),
-        #     'other_names': 'ground meat, hamburger, hamburger meat',
         #     'locations': 'Freezer, Refrigerator'}
 
     def get_categorized_inventory(self, categories=None):

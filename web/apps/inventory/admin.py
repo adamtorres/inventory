@@ -30,25 +30,29 @@ def make_change(model_admin, request, queryset):
             # Since these are Adjustments or Usages, their .item is already an inventory item.
             change_quantity = ii.quantity * (-1 if is_usage else 1)
             c.items.create(
-                source_item=ii, change_quantity=change_quantity, item=ii.item, unit_cost=ii.item.unit_cost)
+                source_item=ii, change_quantity=change_quantity, item=ii.item, unit_cost=ii.item.unit_cost,
+                line_item_position=ii.line_item_position
+            )
 
 
 class AdjustmentItemInline(admin.TabularInline):
     model = AdjustmentItem
-    extra = 1
+    sortable_field_name = "line_item_position"
+    extra = 0
+    autocomplete_fields = ['item', ]
 
 
 class CommonItemOtherNameInline(admin.TabularInline):
     model = CommonItemOtherName
     ordering = ['common_item__name', 'name']
     # TODO: need to filter the potential items to the ones in the parent order
-    extra = 1
+    extra = 0
 
 
 class ItemChangeInline(admin.TabularInline):
     model = ItemChange
-    ordering = ['item__common_item__name']
-    extra = 1
+    sortable_field_name = "line_item_position"
+    extra = 0
     autocomplete_lookup_fields = {
         'generic': [['source_item_content_type', 'source_item_object_id']],
     }
@@ -56,7 +60,8 @@ class ItemChangeInline(admin.TabularInline):
 
 class UsageItemInline(admin.TabularInline):
     model = UsageItem
-    extra = 1
+    sortable_field_name = "line_item_position"
+    extra = 0
     autocomplete_fields = ['item', ]
 
 

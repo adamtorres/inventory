@@ -27,7 +27,8 @@ def make_change(model_admin, request, queryset):
         c = change.objects.create(source=ig)
         for ii in ig.items.exclude(item__do_not_inventory=True):
             c.items.create(
-                source_item=ii, change_quantity=ii.get_inventory_quantity(), unit_cost=ii.get_cost_per_unit())
+                source_item=ii, change_quantity=ii.get_inventory_quantity(), unit_cost=ii.get_cost_per_unit(),
+                line_item_position=ii.line_item_position)
 
 
 # TODO: filter items based on the selected source.
