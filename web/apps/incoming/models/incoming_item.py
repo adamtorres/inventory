@@ -23,6 +23,8 @@ class IncomingItem(models.Model):
     pack_tax = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     extended_price = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
 
+    line_item_position = models.PositiveSmallIntegerField("Position", null=True)
+
     comment = models.CharField(
         "Anything noteworthy about this item", max_length=1024, null=False, blank=True, default='')
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)

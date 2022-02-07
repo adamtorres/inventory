@@ -22,8 +22,17 @@ class IncomingItemGroup(models.Model):
     # TODO: guessing the default is UTC timezone so filling out a form in the evening creates dates in tomorrow.
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
+    _total_price = None
+    _total_packs = None
+
     def __str__(self):
-        return f"{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)}"
+        return f"{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)} - ${self.total_price}"
+
+    def _populate_calculated_fields(self):
+        values = self.items.aggregate(
+            total_price=models.Sum('extended_price'), total_packs=models.Sum('delivered_quantity'))
+        self._total_price = values["total_price"]
+        self._total_packs = values["total_packs"]
 
     @staticmethod
     def autocomplete_search_fields():
@@ -34,3 +43,19 @@ class IncomingItemGroup(models.Model):
         q = self.source.detail_templates.exclude(name__in=self.details.values_list('name', flat=True))
         for detail in q.order_by('position'):
             self.details.create(name=detail.name, position=detail.position)
+
+    def invalidate_calculated_fields(self):
+        self._total_price = None
+        self._total_packs = None
+
+    @property
+    def total_packs(self):
+        if self._total_packs is None:
+            self._populate_calculated_fields()
+        return self._total_packs
+
+    @property
+    def total_price(self):
+        if self._total_price is None:
+            self._populate_calculated_fields()
+        return self._total_price

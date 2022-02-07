@@ -39,20 +39,21 @@ def make_change(model_admin, request, queryset):
 #
 # class OrderAdmin(admin.ModelAdmin):
 #     form = OrderForm
-##  It will not work if your admin model have autocomplete_fields atribute in admin model
+#  It will not work if your admin model have autocomplete_fields attribute in admin model
+
 
 class IncomingItemInline(admin.TabularInline):
     model = IncomingItem
-    ordering = ['item__name', ]
-    extra = 1
+    extra = 0
     autocomplete_fields = ['item', ]
     readonly_fields = ('extended_price', )
+    sortable_field_name = "line_item_position"
 
 
 class IncomingItemGroupDetailInline(g_forms.GrappelliSortableHiddenMixin, admin.TabularInline):
     model = IncomingItemGroupDetail
     sortable_field_name = "position"
-    extra = 1
+    extra = 0
 
 
 class SourceIncomingDetailTemplateInline(g_forms.GrappelliSortableHiddenMixin, admin.TabularInline):
