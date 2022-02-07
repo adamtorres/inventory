@@ -8,10 +8,7 @@ class InventoryView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
-        kwargs.update({
-            'hello': "some data",
-        })
-        qs = inv_models.Item.objects.get_consolidated_inventory()
+        qs = inv_models.Item.objects.get_consolidated_inventory().order_by('category', 'locations', 'common_item_name')
         # QuerySet of:
         # {
         #     'common_item': UUID('4c6a3ce1-8a24-48c7-9d1c-249394a3a381'),

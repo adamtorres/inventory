@@ -20,8 +20,8 @@
             <th>Category</th>
             <th>Locations</th>
             <th>Item name</th>
-            <th>Other names</th>
             <th>Quantity</th>
+            <th>Cost</th>
         </tr>
     </thead>
     <tbody>
@@ -30,8 +30,8 @@
         <td>{{ item_details.category }}</td>
         <td>{{ item_details.locations }}</td>
         <td>{{ item_details.common_item_name }}</td>
-        <td>{{ item_details.other_names }}</td>
-        <td style="text-align: right;">{{ item_details.quantity|floatformat }}</td>
+        <td style="text-align: right;">{{ item_details.total_quantity|floatformat }}</td>
+        <td style="text-align: right;">${{ item_details.total_cost|floatformat:2 }}</td>
         </tr>
     {% endfor %}
     </tbody>
