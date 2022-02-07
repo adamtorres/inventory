@@ -105,7 +105,7 @@ class Command(BaseCommand):
             for r, row in enumerate(reader):
                 if skip_first_row and r == 0:
                     continue
-                named_row = DataRow(*row)
+                named_row = DataRow(*[field.lower() for field in row])
                 if named_row.pack_quantity == '':
                     tmp = named_row._asdict()
                     tmp['pack_quantity'] = 0
@@ -121,7 +121,6 @@ class Command(BaseCommand):
         if row.source not in data:
             data[row.source] = {"records": 0, group_value: {}}
         data[row.source]["records"] += 1
-
         if outer_value not in data[row.source][group_value]:
             data[row.source][group_value][outer_value] = {"records": 0, inner_group_value: {}}
         data[row.source][group_value][outer_value]["records"] += 1
