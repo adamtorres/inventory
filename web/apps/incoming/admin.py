@@ -30,6 +30,17 @@ def make_change(model_admin, request, queryset):
                 source_item=ii, change_quantity=ii.get_inventory_quantity(), unit_cost=ii.get_cost_per_unit())
 
 
+# TODO: filter items based on the selected source.
+# class OrderForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         super(OrderForm, self).__init__(*args, **kwargs)
+#         self.fields['parent_order'].queryset = Order.objects.filter(
+#             child_orders__ordernumber__exact=self.instance.pk)
+#
+# class OrderAdmin(admin.ModelAdmin):
+#     form = OrderForm
+##  It will not work if your admin model have autocomplete_fields atribute in admin model
+
 class IncomingItemInline(admin.TabularInline):
     model = IncomingItem
     ordering = ['item__name', ]

@@ -19,13 +19,18 @@ def apply_item_changes(model_admin, request, queryset):
 
 @admin.action(description='Convert to an inventory change.')
 def make_change(model_admin, request, queryset):
+    # Called on Adjustments and Usages.
     # Exclude any groups which are already associated with a Change object.
     # TODO: the item on the change was unpopulated?  Should limit that drop down based on the source item.
     queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
-    for ig in queryset:
-        c = Change.objects.create(source=ig)
-        for ii in ig.items.all():
-            c.items.create(source_item=ii, change_quantity=ii.quantity)
+    for adj_or_usage in queryset:
+        is_usage = isinstance(adj_or_usage, Usage)
+        c = Change.objects.create(source=adj_or_usage)
+        for ii in adj_or_usage.items.all():
+            # Since these are Adjustments or Usages, their .item is already an inventory item.
+            change_quantity = ii.quantity * (-1 if is_usage else 1)
+            c.items.create(
+                source_item=ii, change_quantity=change_quantity, item=ii.item, unit_cost=ii.item.unit_cost)
 
 
 class AdjustmentItemInline(admin.TabularInline):
