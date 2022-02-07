@@ -20,6 +20,7 @@ def apply_item_changes(model_admin, request, queryset):
 @admin.action(description='Convert to an inventory change.')
 def make_change(model_admin, request, queryset):
     # Exclude any groups which are already associated with a Change object.
+    # TODO: the item on the change was unpopulated?  Should limit that drop down based on the source item.
     queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
     for ig in queryset:
         c = Change.objects.create(source=ig)
@@ -51,6 +52,7 @@ class ItemChangeInline(admin.TabularInline):
 class UsageItemInline(admin.TabularInline):
     model = UsageItem
     extra = 1
+    autocomplete_fields = ['item', ]
 
 
 class AdjustmentAdmin(admin.ModelAdmin):
