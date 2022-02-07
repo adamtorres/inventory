@@ -10,7 +10,7 @@ from inventory import models as inv_models
 
 DataRow = namedtuple("DataRow", [
     "question", "count", "category", "sizes", "item_name", "better_item_name", "single_serving", "common_name",
-    "first_other_name", "second_other_name", "third_other_name"])
+    "first_other_name", "second_other_name", "third_other_name", "location"])
 
 
 class Command(BaseCommand):

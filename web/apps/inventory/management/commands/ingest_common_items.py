@@ -1,15 +1,13 @@
-from collections import namedtuple
 import csv
+from collections import namedtuple
 
 from django.core.management.base import BaseCommand
 
-from incoming import models as inc_models
 from inventory import models as inv_models
-
 
 DataRow = namedtuple("DataRow", [
     "question", "count", "category", "sizes", "item_name", "better_item_name", "single_serving", "common_name",
-    "first_other_name", "second_other_name", "third_other_name"])
+    "first_other_name", "second_other_name", "third_other_name", "location"])
 
 
 class Command(BaseCommand):
@@ -41,6 +39,7 @@ class Command(BaseCommand):
             "categories": {},
             "records": 0,
             "common_names": {},
+            "locations": {},
         }
         args = {
             "data": data,
@@ -48,8 +47,10 @@ class Command(BaseCommand):
         self.process_datafile(datafile, self.process_row, args=args)
         self.dump_stats(data)
         self.upsert_categories(data["categories"])
+        self.upsert_locations(data["locations"])
         self.upsert_common_items(data["common_names"])
         self.update_categories(data["categories"])
+        self.update_common_item_locations(data["locations"])
 
     def process_datafile(self, datafile, row_func, args=None, skip_first_row=True):
         with open(datafile, 'r') as csvfile:
@@ -71,6 +72,7 @@ class Command(BaseCommand):
         }
         self.process_categories(row, data["categories"])
         self.process_common_names(row, data["common_names"])
+        self.process_locations(row, data["locations"])
 
     def process_categories(self, row, categories):
         # Goal: keys = category names.  values = set of common names.
@@ -87,6 +89,12 @@ class Command(BaseCommand):
         common_names[cn_lower].update([
             n.lower().strip() for n in [row.first_other_name, row.second_other_name, row.third_other_name]
             if n.strip()])
+
+    def process_locations(self, row, locations):
+        l_lower = row.location.lower()
+        if l_lower not in locations:
+            locations[l_lower] = set()
+        locations[l_lower].add(row.common_name.lower())
 
     def generic_upsert(self, model, new_data, data_name):
         existing_values = set(model.objects.filter(name__in=new_data).values_list('name', flat=True))
@@ -109,27 +117,22 @@ class Command(BaseCommand):
             new_common_items = inv_models.CommonItem.objects.filter(name__in=new_names)
             category_obj.common_items.add(*list(new_common_items))
 
+    def update_common_item_locations(self, locations):
+        for location_name, location_set in locations.items():
+            print(f"Location: {location_name}")
+            location_obj = inv_models.Location.objects.filter(name=location_name).first()
+            existing_names = location_obj.common_items.filter(name__in=location_set).values_list('name', flat=True)
+            print(f"\tExisting {len(existing_names)} common items on location")
+            new_names = set(location_set).difference(existing_names)
+            print(f"\tAdding {len(new_names)} common items to location")
+            new_common_items = inv_models.CommonItem.objects.filter(name__in=new_names)
+            location_obj.common_items.add(*list(new_common_items))
+
     def upsert_categories(self, categories):
-        # existing_common_names = set(
-        #     inv_models.Category.objects.filter(name__in=categories).values_list('name', flat=True))
-        # print(f"existing common names from file: {len(existing_common_names)}")
-        # new_common_names = set(categories).difference(existing_common_names)
-        # print(f"new common names from file: {len(new_common_names)}")
-        # if new_common_names:
-        #     new_common_items = [inv_models.Category(name=n) for n in new_common_names]
-        #     inv_models.Category.objects.bulk_create(new_common_items)
         self.generic_upsert(inv_models.Category, categories, "category")
 
     def upsert_common_items(self, common_names):
         self.generic_upsert(inv_models.CommonItem, common_names, "common name")
-        # existing_common_names = set(
-        #     inv_models.CommonItem.objects.filter(name__in=common_names).values_list('name', flat=True))
-        # print(f"existing common names from file: {len(existing_common_names)}")
-        # new_common_names = set(common_names).difference(existing_common_names)
-        # print(f"new common names from file: {len(new_common_names)}")
-        # if new_common_names:
-        #     new_common_items = [inv_models.CommonItem(name=n) for n in new_common_names]
-        #     inv_models.CommonItem.objects.bulk_create(new_common_items)
 
         new_other_item_names = []
         for common_name, other_names in common_names.items():
@@ -145,3 +148,6 @@ class Command(BaseCommand):
         print(f"Total new other names: {len(new_other_item_names)}")
         if new_other_item_names:
             inv_models.CommonItemOtherName.objects.bulk_create(new_other_item_names)
+
+    def upsert_locations(self, locations):
+        self.generic_upsert(inv_models.Location, locations, "location")
