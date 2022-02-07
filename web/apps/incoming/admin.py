@@ -35,6 +35,7 @@ class IncomingItemInline(admin.TabularInline):
     ordering = ['item__name', ]
     extra = 1
     autocomplete_fields = ['item', ]
+    readonly_fields = ('extended_price', )
 
 
 class IncomingItemGroupDetailInline(g_forms.GrappelliSortableHiddenMixin, admin.TabularInline):

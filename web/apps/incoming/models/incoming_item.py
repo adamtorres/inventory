@@ -9,6 +9,7 @@ from .item import Item
 
 
 class IncomingItem(models.Model):
+    # TODO: add position field so items stay in the order on the invoice.
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     parent = models.ForeignKey(IncomingItemGroup, on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="incoming_items")
@@ -44,6 +45,7 @@ class IncomingItem(models.Model):
         Returns: a decimal amount
 
         """
+        # TODO: Should get_cost_per_unit use ordered or delivered quantity?
         # NOTE: Yes, I'm aware all the calculations are the same.  I keep thinking about how to handle partial packages
         # but that is not how the senior center currently works.  Think of this as a stub for if/when that changes.
         if self.total_weight:
@@ -62,6 +64,15 @@ class IncomingItem(models.Model):
 
     def get_inventory_quantity(self):
         return self.item.get_delivered_unit_quantity(self.delivered_quantity)
+
+    def save(self, *args, **kwargs):
+        # TODO: using ordered_quantity for now as get_cost_per_unit is doing so.
+        if not self.extended_price:
+            if self.total_weight:
+                self.extended_price = self.pack_price * self.total_weight
+            else:
+                self.extended_price = self.pack_price * self.ordered_quantity
+        super().save(*args, **kwargs)
 
     @property
     def unit_size(self):
