@@ -48,9 +48,9 @@ class Command(BaseCommand):
         }
         self.process_datafile(datafile, self.process_row, args=args)
         self.dump_stats(data)
-        # self.update_better_names(data)
-        # self.update_categories(data)
-        # self.update_common_items(data)
+        self.update_better_names(data)
+        self.update_categories(data)
+        self.update_common_items(data)
 
     def process_datafile(self, datafile, row_func, args=None, skip_first_row=True):
         with open(datafile, 'r') as csvfile:

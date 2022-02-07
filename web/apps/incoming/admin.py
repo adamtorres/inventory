@@ -57,7 +57,7 @@ class IncomingItemGroupAdmin(admin.ModelAdmin):
 
 class ItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['common_item']
-    search_fields = ['common_item__name', 'common_item__other_names__name']
+    search_fields = ['name', 'better_name', 'common_item__name', 'common_item__other_names__name']
 
 
 class SourceAdmin(admin.ModelAdmin):
