@@ -13,8 +13,7 @@ from .models import (
 @admin.action(description='Apply inventory changes.')
 def apply_item_changes(model_admin, request, queryset):
     for change in queryset.all():
-        for i in change.items.exclude(applied=True):
-            i.apply_change()
+        change.apply_changes()
 
 
 @admin.action(description='Convert to an inventory change.')

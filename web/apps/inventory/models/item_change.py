@@ -1,6 +1,7 @@
 from django.contrib.contenttypes import fields as ct_fields
 from django.contrib.contenttypes import models as ct_models
 from django.db import models, transaction
+from django.utils import timezone
 
 import uuid
 
@@ -35,12 +36,12 @@ class ItemChange(models.Model):
 
     line_item_position = models.PositiveSmallIntegerField("Position", null=True)
 
-    applied = models.BooleanField("The change been applied", default=False, null=False)
+    applied_datetime = models.DateTimeField("The change been applied", null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
     def __str__(self):
         plus_minus = "+" if self.change_quantity >= 0 else "-"
-        applied = "✓" if self.applied else " "
+        applied = "✓" if self.applied_datetime else ""
         item_name = self.item.common_item.name if self.item else "<unknown>"
         return f"{applied} {item_name} {plus_minus}{abs(self.change_quantity)}"
 
@@ -60,7 +61,7 @@ class ItemChange(models.Model):
 #     new quantity - quantity of the item after applying the change
 
     def apply_change(self):
-        if self.applied:
+        if self.applied_datetime:
             return
         with transaction.atomic():
             if not self.item:
@@ -74,5 +75,5 @@ class ItemChange(models.Model):
             self.item.save()
             self.new_quantity = self.item.current_quantity
             self.extended_cost = self.change_quantity * self.unit_cost
-            self.applied = True
+            self.applied_datetime = timezone.now()
             self.save()
