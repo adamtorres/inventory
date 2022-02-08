@@ -9,7 +9,7 @@ from .source import Source
 import scrap
 
 
-class IncomingItemGroup(models.Model):
+class IncomingItemGroup(scrap.ChangeSourceMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=True, default='')
@@ -26,7 +26,9 @@ class IncomingItemGroup(models.Model):
     _total_packs = None
 
     def __str__(self):
-        return f"{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)} - ${self.total_price}"
+        converted = "✓" if self.is_converted else ""
+        return f"{converted}{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)}" \
+               f" - ${self.total_price}"
 
     def _populate_calculated_fields(self):
         values = self.items.aggregate(

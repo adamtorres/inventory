@@ -7,7 +7,7 @@ import uuid
 import scrap
 
 
-class Adjustment(models.Model):
+class Adjustment(scrap.ChangeSourceMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # TODO: what kind of adj (audit, damaged, other group-level thing), when
     type = models.CharField("Adjustment type", max_length=1024, null=False, blank=False)
@@ -17,7 +17,8 @@ class Adjustment(models.Model):
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
     def __str__(self):
-        return f"{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.type)} - {scrap.snip_text(self.who)}"
+        converted = "✓" if self.is_converted else ""
+        return f"{converted}{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.type)} - {scrap.snip_text(self.who)}"
 
     @staticmethod
     def autocomplete_search_fields():

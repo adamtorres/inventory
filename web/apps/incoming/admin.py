@@ -20,6 +20,7 @@ def add_details(model_admin, request, queryset):
 
 @admin.action(description='Convert incoming group to an inventory change.')
 def make_change(model_admin, request, queryset):
+    # TODO: work out how to break this up so ChangeSourceMixin is involved.
     change = apps.get_model('inventory', 'Change')
     # Exclude any IIGs which are already associated with a Change object.
     queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
