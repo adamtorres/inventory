@@ -1,5 +1,8 @@
 from dateutil import parser
 
+from django.db import models
+from django_extensions.management.debug_cursor import monkey_patch_cursordebugwrapper
+
 from incoming import models as inc_models
 from inventory import models as inv_models
 from scrap import ingest_file
@@ -26,11 +29,23 @@ class Command(ingest_file.Command):
         }
 
     def preclean_row(self, raw_row_data):
-        must_be_number_fields = ["quantity", "pack_quantity", "extended_cost"]
         raw_row_data = super().preclean_row(raw_row_data)
-        for field in must_be_number_fields:
+
+        must_be_int_fields = ["quantity", "pack_quantity", "line_item_number"]
+        for field in must_be_int_fields:
             value = raw_row_data[self.field_index[field]]
-            if isinstance(value, (int, float)):
+            if isinstance(value, int):
+                continue
+            try:
+                value = int(value)
+            except ValueError:
+                value = 0
+            raw_row_data[self.field_index[field]] = value
+
+        must_be_float_fields = ["pack_cost", "pack_tax", "extended_cost", "total_weight"]
+        for field in must_be_float_fields:
+            value = raw_row_data[self.field_index[field]]
+            if isinstance(value, float):
                 continue
             try:
                 value = float(value)
@@ -98,7 +113,7 @@ class Command(ingest_file.Command):
         print(f"Total records: {data['records']}")
         print()
         print(f"Sources: {data['sources']}")
-        sources = inc_models.Source.objects.filter(name__in=data["sources"]).values_list('name', flat=True)
+        sources = list(inc_models.Source.objects.filter(name__in=data["sources"]).values_list('name', flat=True))
         print(f"DB sources: {sources}")
         if data["sources"].difference(sources):
             print("Source mismatch!")
@@ -109,7 +124,8 @@ class Command(ingest_file.Command):
             inc_models.Source.objects.bulk_create(missing_sources)
         print()
         print(f"Categories: {data['categories']}")
-        categories = inv_models.Category.objects.filter(name__in=data["categories"]).values_list('name', flat=True)
+        categories = list(
+            inv_models.Category.objects.filter(name__in=data["categories"]).values_list('name', flat=True))
         print(f"DB categories: {categories}")
         if data["categories"].difference(categories):
             print("Category mismatch!")
@@ -119,6 +135,78 @@ class Command(ingest_file.Command):
                 missing_categories.append(inv_models.Category(name=category))
             inv_models.Category.objects.bulk_create(missing_categories)
         print()
+        print(f"Items({len(data['items'])})")
+        items = list(inc_models.Item.objects.filter(name__in=data['items']).values_list('name', flat=True))
+        if data["items"].difference(items):
+            print("Item mismatch!")
+            # TODO: Flesh this out so items are created.  Need to collect more data from invoices.
+            return
+        print()
+        data["item_cache"] = {
+            f"{i.source.name}/{i.name}/{int(i.pack_quantity)}/{i.unit_size}": i
+            for i in inc_models.Item.objects.all()
+        }
+    #     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
+    #         self.show_sql(data)
+    #
+    # def show_sql(self, data):
+        item_cache = data["item_cache"]
         print(f"Invoices({len(data['invoices'])}):")
-        # for invoice_key, invoice_data in data["invoices"].items():
-        #     print(f"\t{invoice_key} has {len(invoice_data['line_items'])} records.")
+        limit = 3
+        source_dict = {s.name: s for s in inc_models.Source.objects.all()}
+        for invoice_key, invoice_data in data["invoices"].items():
+            limit -= 1
+            # if limit < 0:
+            #     break
+            print(f"\t{invoice_key} has {len(invoice_data['line_items'])} records.")
+            iig = inc_models.IncomingItemGroup(
+                source=source_dict[invoice_data["source"]],
+                action_date=invoice_data["delivery_date"],
+                descriptor=invoice_key,
+            )
+            iig.save()
+            iig.add_details()
+            # department=invoice_data["department"],
+            # order_number=invoice_data["order_number"],
+            # po_text=invoice_data["po_text"],
+            # customer_number=invoice_data["customer_number"],
+            details_to_update = []
+            for detail in iig.details.all():
+                if detail.name == 'order date':
+                    detail.content = invoice_data["order_date"]
+                    details_to_update.append(detail)
+                if detail.name == 'department':
+                    detail.content = invoice_data["department"]
+                    details_to_update.append(detail)
+                if detail.name == 'order number':
+                    detail.content = invoice_data["order_number"]
+                    details_to_update.append(detail)
+                if detail.name == 'customer number':
+                    detail.content = invoice_data["customer_number"]
+                    details_to_update.append(detail)
+                if detail.name == 'po text':
+                    detail.content = invoice_data["po_text"]
+                    details_to_update.append(detail)
+            if details_to_update:
+                inc_models.IncomingItemGroupDetail.objects.bulk_update(details_to_update, ['content'])
+            items_to_add = []
+            for item in invoice_data["line_items"]:
+                items_to_add.append(inc_models.IncomingItem(
+                    parent=iig,
+                    item=item_cache[f"{invoice_data['source']}/{item['item_name']}/{item['pack_quantity']}/{item['unit_size']}"],
+                    ordered_quantity=float(item["quantity"]),
+                    delivered_quantity=float(item["quantity"]),
+                    total_weight=item["total_weight"],
+                    pack_price=item["pack_cost"],
+                    pack_tax=item["pack_tax"],
+                    extended_price=item["extended_cost"],
+                    line_item_position=item["line_item_number"],
+                    comment=item["handwritten_notes"]
+                ))
+            inc_models.IncomingItem.objects.bulk_create(items_to_add)
+            # "category": named_row.category,
+            # "pack_quantity": named_row.pack_quantity,
+            # "unit_size": named_row.unit_size,
+            # "item_name": named_row.item_name,
+            # "extra_crap": named_row.extra_crap,
+            # "item_code": named_row.item_code,
