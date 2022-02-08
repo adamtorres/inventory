@@ -12,7 +12,7 @@ class Adjustment(scrap.ChangeSourceMixin):
     # TODO: what kind of adj (audit, damaged, other group-level thing), when
     type = models.CharField("Adjustment type", max_length=1024, null=False, blank=False)
     who = models.CharField("Who made the adjustment", max_length=1024, null=False, blank=False)
-    change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type")
+    change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type", related_query_name="adjustment")
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 

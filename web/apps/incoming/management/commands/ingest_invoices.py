@@ -24,7 +24,7 @@ class Command(ingest_file.Command):
             "records": 0,  # total record count for the file.
             "invoices": {},
             "sources": set(),
-            "items": set(),
+            "items": {},
             "categories": set(),
         }
 
@@ -71,7 +71,21 @@ class Command(ingest_file.Command):
         data["sources"].add(named_row.source)
         if named_row.category:
             data["categories"].add(named_row.category)
-        data["items"].add(named_row.item_name)
+        item = {
+            "source": named_row.source,
+            "identifier": named_row.item_code,
+            "name": named_row.item_name,
+            "pack_quantity": named_row.pack_quantity,
+            "unit_size": named_row.unit_size,
+            "records": 0,
+            "first_delivery_date": named_row.delivery_date,
+            "last_delivery_date": named_row.delivery_date,
+        }
+        item_key = f"{item['source']}/{item['identifier']}/{item['name']}/{item['pack_quantity']}/{item['unit_size']}"
+        if item_key not in data["items"]:
+            data["items"][item_key] = item
+        data["items"][item_key]["records"] += 1
+        data["items"][item_key]["last_delivery_date"] = named_row.delivery_date
 
         # Build the invoice key leaving out empty fields.
         invoice_key = " - ".join([
@@ -136,17 +150,23 @@ class Command(ingest_file.Command):
             inv_models.Category.objects.bulk_create(missing_categories)
         print()
         print(f"Items({len(data['items'])})")
-        items = list(inc_models.Item.objects.filter(name__in=data['items']).values_list('name', flat=True))
-        if data["items"].difference(items):
-            print("Item mismatch!")
-            # TODO: Flesh this out so items are created.  Need to collect more data from invoices.
-            return
-        print()
         data["item_cache"] = {
-            f"{i.source.name}/{i.name}/{int(i.pack_quantity)}/{i.unit_size}": i
+            f"{i.source.name}/{i.identifier}/{i.name}/{int(i.pack_quantity)}/{i.unit_size}": i
             for i in inc_models.Item.objects.all()
         }
-    #     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
+        db_items = set(data["item_cache"].keys())
+        file_items = set(data["items"].keys())
+        if file_items.difference(db_items):
+            print("Item mismatch!")
+            in_file_only = file_items.difference(db_items)
+            in_file_and_db = file_items.intersection(db_items)
+            print(f"Items only in file: {len(in_file_only)}")
+            print(f"Items in both file and db: {len(in_file_and_db)}")
+            for item in in_file_only:
+                print(f"\t{item}")
+            return
+        print()
+        print("items ok.")
     #         self.show_sql(data)
     #
     # def show_sql(self, data):
@@ -193,7 +213,7 @@ class Command(ingest_file.Command):
             for item in invoice_data["line_items"]:
                 items_to_add.append(inc_models.IncomingItem(
                     parent=iig,
-                    item=item_cache[f"{invoice_data['source']}/{item['item_name']}/{item['pack_quantity']}/{item['unit_size']}"],
+                    item=item_cache[f"{invoice_data['source']}/{item['item_code']}/{item['item_name']}/{item['pack_quantity']}/{item['unit_size']}"],
                     ordered_quantity=float(item["quantity"]),
                     delivered_quantity=float(item["quantity"]),
                     total_weight=item["total_weight"],

@@ -27,6 +27,8 @@ def make_change(model_admin, request, queryset):
     for ig in queryset:
         c = change.objects.create(source=ig)
         for ii in ig.items.exclude(item__do_not_inventory=True):
+            if ii.get_inventory_quantity() <= 0:
+                continue
             c.items.create(
                 source_item=ii, change_quantity=ii.get_inventory_quantity(), unit_cost=ii.get_cost_per_unit(),
                 line_item_position=ii.line_item_position)
@@ -66,7 +68,7 @@ class SourceIncomingDetailTemplateInline(g_forms.GrappelliSortableHiddenMixin, a
 
 class IncomingItemGroupAdmin(admin.ModelAdmin):
     inlines = [IncomingItemGroupDetailInline, IncomingItemInline, ]
-    # ordering = ['name', ]
+    ordering = ['-action_date', ]
     actions = [add_details, make_change, ]
 
 

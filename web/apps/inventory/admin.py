@@ -61,6 +61,7 @@ class AdjustmentAdmin(admin.ModelAdmin):
     inlines = [AdjustmentItemInline, ]
     actions = [convert_to_change, ]
     readonly_fields = ('converted_datetime', )
+    ordering = ['-action_date', ]
 
 
 class ChangeAdmin(admin.ModelAdmin):
@@ -70,6 +71,7 @@ class ChangeAdmin(admin.ModelAdmin):
         'generic': [['source_content_type', 'source_object_id']],
     }
     readonly_fields = ('applied_datetime', )
+    ordering = ['-action_date', ]
 
 
 class CommonItemAdmin(admin.ModelAdmin):
@@ -91,6 +93,7 @@ class UsageAdmin(admin.ModelAdmin):
     inlines = [UsageItemInline, ]
     actions = [convert_to_change, ]
     readonly_fields = ('converted_datetime', )
+    ordering = ['-action_date', ]
 
 
 admin.site.register(Adjustment, AdjustmentAdmin)
