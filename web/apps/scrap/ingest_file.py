@@ -57,14 +57,18 @@ class Command(BaseCommand):
         case = options.get('case')
         skip_lines = options.get('skip_lines')
 
-        data = {}
-        args = {
-            "data": data,
-        }
-        self.process_datafile(datafile, case=case, skip_lines=skip_lines)
+        print(f"skip_lines = {skip_lines!r}, case = {case!r}")
+        data = self.initialize_data()
+        self.process_datafile(datafile, data, case=case, skip_lines=skip_lines)
         self.process_output(data)
 
-    def process_datafile(self, datafile, case="ASIS", skip_lines=0):
+    def initialize_data(self):
+        """
+        Override to set up the data to collect/modify.
+        """
+        return {}
+
+    def process_datafile(self, datafile, data, case="ASIS", skip_lines=0):
         case_func = {
             "UPPER": lambda x: x.upper(),
             "LOWER": lambda x: x.lower(),
@@ -72,14 +76,14 @@ class Command(BaseCommand):
         with open(datafile, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
             for r, row in enumerate(reader):
-                while r < skip_lines:
+                if r < skip_lines:
                     continue
                 if case in ["UPPER", "LOWER"]:
                     row = [case_func(field) for field in row]
                 row = self.preclean_row(row)
                 named_row = self.DataRow(*row)
                 named_row = self.postclean_row(named_row)
-                self.process_row(r, named_row)
+                self.process_row(r, named_row, data)
 
     def process_output(self, data):
         """
@@ -87,7 +91,7 @@ class Command(BaseCommand):
         """
         pass
 
-    def process_row(self, row_number, named_row):
+    def process_row(self, row_number, named_row, data):
         """
         Called per row read in.
         """
