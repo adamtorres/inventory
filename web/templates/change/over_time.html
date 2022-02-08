@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Year of changes{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+    #outer_table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    #inner_table tr:nth-child(even) {
+        background-color: white;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+    Selected year is {{ year }}.<br />
+    Selected month is {{ month }}.<br />
+    Selected slug is {{ slug }}.<br />
+    <table id="outer_table" style="width: 100%; border: black solid 1px;">
+    {% for change in changes %}
+        <tr>
+        <td>{{ change.action_date }}</td>
+        <td>
+            <table id="inner_table" style="width: 100%; border: green solid 1px;">
+                {% for item in change.items.all %}
+                    <tr>
+                    <td>{{ item.item.common_item.name }}</td>
+                    <td>{{ item.change_quantity }}</td>
+                    <td>{{ item.unit_cost }}</td>
+                    <td>{{ item.extended_cost }}</td>
+                    <td>{{ item.line_item_position }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

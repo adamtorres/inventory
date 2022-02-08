@@ -70,6 +70,7 @@ class IncomingItemGroupAdmin(admin.ModelAdmin):
     inlines = [IncomingItemGroupDetailInline, IncomingItemInline, ]
     ordering = ['-action_date', ]
     actions = [add_details, make_change, ]
+    search_fields = ['source__name', 'descriptor', 'comment', 'action_date']
 
 
 class ItemAdmin(admin.ModelAdmin):

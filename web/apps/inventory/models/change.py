@@ -1,9 +1,24 @@
 import uuid
-
+from django.core import serializers
 from django.contrib.contenttypes import fields as ct_fields
 from django.contrib.contenttypes import models as ct_models
 from django.db import models
 from django.utils import timezone
+
+
+class ChangeManager(models.Manager):
+    def by_year_month(self, year=None, month=None):
+        qs = self.all().prefetch_related('source', 'items', 'items__item__common_item')
+        if year:
+            qs = qs.filter(action_date__year=year)
+        if month:
+            qs = qs.filter(action_date__month=month)
+        qs = qs.order_by('action_date', 'created')
+        self.for_report(qs)
+        return qs
+
+    def for_report(self, queryset):
+        print(serializers.serialize("json", queryset))
 
 
 class Change(models.Model):
@@ -30,6 +45,8 @@ class Change(models.Model):
         "adjustment": "Adjustment",
         "usage": "Usage",
     }
+
+    objects = ChangeManager()
 
     class Meta:
         ordering = ["-action_date", "-created"]

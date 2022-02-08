@@ -11,7 +11,8 @@ class Usage(scrap.ChangeSourceMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # TODO: who used, when
     who = models.CharField("Who used this stuff", max_length=1024, null=False, blank=False)
-    change = ct_fields.GenericRelation("inventory.Change", "source_object_id", "source_content_type", related_query_name="usage")
+    change = ct_fields.GenericRelation(
+        "inventory.Change", "source_object_id", "source_content_type", related_query_name="usage")
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 

@@ -27,3 +27,6 @@ pygments
 
 # to parse dates from invoice files
 python-dateutil
+
+# mainly for the serializer
+djangorestframework
