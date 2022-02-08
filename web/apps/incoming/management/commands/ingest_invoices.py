@@ -1,5 +1,7 @@
 from dateutil import parser
 
+from incoming import models as inc_models
+from inventory import models as inv_models
 from scrap import ingest_file
 
 
@@ -18,6 +20,9 @@ class Command(ingest_file.Command):
         return {
             "records": 0,  # total record count for the file.
             "invoices": {},
+            "sources": set(),
+            "items": set(),
+            "categories": set(),
         }
 
     def preclean_row(self, raw_row_data):
@@ -41,10 +46,18 @@ class Command(ingest_file.Command):
                     raw_row_data[self.field_index[field]] = parser.parse(value).strftime("%Y-%m-%d")
                 except parser.ParserError:
                     raw_row_data[self.field_index[field]] = ""
+
+        # if raw_row_data[self.field_index["category"]] == "":
+        #     raw_row_data[self.field_index["category"]] = "missing"
         return raw_row_data
 
     def process_row(self, row_number, named_row, data):
         data["records"] += 1
+        data["sources"].add(named_row.source)
+        if named_row.category:
+            data["categories"].add(named_row.category)
+        data["items"].add(named_row.item_name)
+
         # Build the invoice key leaving out empty fields.
         invoice_key = " - ".join([
             v for v in [
@@ -83,7 +96,29 @@ class Command(ingest_file.Command):
 
     def process_output(self, data):
         print(f"Total records: {data['records']}")
-
+        print()
+        print(f"Sources: {data['sources']}")
+        sources = inc_models.Source.objects.filter(name__in=data["sources"]).values_list('name', flat=True)
+        print(f"DB sources: {sources}")
+        if data["sources"].difference(sources):
+            print("Source mismatch!")
+            missing_sources = []
+            for source in data["sources"].difference(sources):
+                print(f"Missing {source}, creating...")
+                missing_sources.append(inc_models.Source(name=source))
+            inc_models.Source.objects.bulk_create(missing_sources)
+        print()
+        print(f"Categories: {data['categories']}")
+        categories = inv_models.Category.objects.filter(name__in=data["categories"]).values_list('name', flat=True)
+        print(f"DB categories: {categories}")
+        if data["categories"].difference(categories):
+            print("Category mismatch!")
+            missing_categories = []
+            for category in data["sources"].difference(sources):
+                print(f"Missing {category}, creating...")
+                missing_categories.append(inv_models.Category(name=category))
+            inv_models.Category.objects.bulk_create(missing_categories)
+        print()
         print(f"Invoices({len(data['invoices'])}):")
-        for invoice_key, invoice_data in data["invoices"].items():
-            print(f"\t{invoice_key} has {len(invoice_data['line_items'])} records.")
+        # for invoice_key, invoice_data in data["invoices"].items():
+        #     print(f"\t{invoice_key} has {len(invoice_data['line_items'])} records.")
