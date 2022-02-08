@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
 
@@ -51,7 +53,10 @@ class ItemManager(models.Manager):
             qs = qs.filter(category__in=[categories])
         elif isinstance(categories, (list, tuple)):
             qs = qs.filter(category__in=categories)
-        return qs
+        items = defaultdict(list)
+        for item in qs:
+            items[item["category"]].append(item)
+        return items
 
     # def get_queryset(self):
     #     return super().get_queryset().filter(author='Roald Dahl')
