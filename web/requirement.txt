@@ -24,3 +24,6 @@ django-grappelli
 
 # Trying to add colors to print-sql output
 pygments
+
+# to parse dates from invoice files
+python-dateutil

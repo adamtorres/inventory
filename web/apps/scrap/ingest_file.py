@@ -13,6 +13,7 @@ class Command(BaseCommand):
     help_text = "Generic help text"
     replace_empty_str_fields = []
     replace_empty_str_value = 0
+    data_row_fields = []
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super().__init__(stdout=stdout, stderr=stderr, no_color=no_color, force_color=force_color)
@@ -20,10 +21,7 @@ class Command(BaseCommand):
         Example usage:
             python manage.py {self.script_name} --datafile <filename>
         """
-        self.DataRow = namedtuple("DataRow", [
-            "source", "order_date", "delivery_date", "customer_number", "department", "PO_text", "order_number",
-            "line_item_number", "category", "quantity", "pack_quantity", "unit_size", "item_name", "extra_crap",
-            "item_code", "pack_cost", "pack_tax", "extended_cost", "total_weight", "handwritten_notes", "scan_file"])
+        self.DataRow = namedtuple("DataRow", self.data_row_fields)
         self.field_index = {field: f for f, field in enumerate(self.DataRow._fields)}
 
     def add_arguments(self, parser):
