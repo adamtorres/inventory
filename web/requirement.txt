@@ -30,3 +30,4 @@ python-dateutil
 
 # mainly for the serializer
 djangorestframework
+# django-filter for if/when more user-driven filtering is desired.
