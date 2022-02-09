@@ -123,12 +123,9 @@ class Command(ingest_file.Command):
         data["invoices"][invoice_key]["total_cost"] += named_row.extended_cost
         data["invoices"][invoice_key]["total_packs"] += named_row.quantity * named_row.pack_quantity
 
-    def process_output(self, data):
-        print(f"Total records: {data['records']}")
-        print()
+    def do_sources(self, data):
         print(f"Sources: {data['sources']}")
         sources = list(inc_models.Source.objects.filter(name__in=data["sources"]).values_list('name', flat=True))
-        print(f"DB sources: {sources}")
         if data["sources"].difference(sources):
             print("Source mismatch!")
             missing_sources = []
@@ -136,19 +133,20 @@ class Command(ingest_file.Command):
                 print(f"Missing {source}, creating...")
                 missing_sources.append(inc_models.Source(name=source))
             inc_models.Source.objects.bulk_create(missing_sources)
-        print()
+
+    def do_categories(self, data):
         print(f"Categories: {data['categories']}")
         categories = list(
             inv_models.Category.objects.filter(name__in=data["categories"]).values_list('name', flat=True))
-        print(f"DB categories: {categories}")
         if data["categories"].difference(categories):
             print("Category mismatch!")
             missing_categories = []
-            for category in data["sources"].difference(sources):
+            for category in data["categories"].difference(categories):
                 print(f"Missing {category}, creating...")
                 missing_categories.append(inv_models.Category(name=category))
             inv_models.Category.objects.bulk_create(missing_categories)
-        print()
+
+    def do_incoming_items(self, data):
         print(f"Items({len(data['items'])})")
         data["item_cache"] = {
             f"{i.source.name}/{i.identifier}/{i.name}/{int(i.pack_quantity)}/{i.unit_size}": i
@@ -165,11 +163,8 @@ class Command(ingest_file.Command):
             for item in in_file_only:
                 print(f"\t{item}")
             return
-        print()
-        print("items ok.")
-    #         self.show_sql(data)
-    #
-    # def show_sql(self, data):
+
+    def do_invoices(self, data):
         item_cache = data["item_cache"]
         print(f"Invoices({len(data['invoices'])}):")
         limit = 3
@@ -192,19 +187,19 @@ class Command(ingest_file.Command):
             # customer_number=invoice_data["customer_number"],
             details_to_update = []
             for detail in iig.details.all():
-                if detail.name == 'order date':
+                if detail.name == 'order date' and invoice_data["order_date"]:
                     detail.content = invoice_data["order_date"]
                     details_to_update.append(detail)
-                if detail.name == 'department':
+                if detail.name == 'department' and invoice_data["department"]:
                     detail.content = invoice_data["department"]
                     details_to_update.append(detail)
-                if detail.name == 'order number':
+                if detail.name == 'order number' and invoice_data["order_number"]:
                     detail.content = invoice_data["order_number"]
                     details_to_update.append(detail)
-                if detail.name == 'customer number':
+                if detail.name == 'customer number' and invoice_data["customer_number"]:
                     detail.content = invoice_data["customer_number"]
                     details_to_update.append(detail)
-                if detail.name == 'po text':
+                if detail.name == 'po text' and invoice_data["po_text"]:
                     detail.content = invoice_data["po_text"]
                     details_to_update.append(detail)
             if details_to_update:
@@ -213,7 +208,9 @@ class Command(ingest_file.Command):
             for item in invoice_data["line_items"]:
                 items_to_add.append(inc_models.IncomingItem(
                     parent=iig,
-                    item=item_cache[f"{invoice_data['source']}/{item['item_code']}/{item['item_name']}/{item['pack_quantity']}/{item['unit_size']}"],
+                    item=item_cache[
+                        f"{invoice_data['source']}/{item['item_code']}/{item['item_name']}/{item['pack_quantity']}/"
+                        f"{item['unit_size']}"],
                     ordered_quantity=float(item["quantity"]),
                     delivered_quantity=float(item["quantity"]),
                     total_weight=item["total_weight"],
@@ -230,3 +227,11 @@ class Command(ingest_file.Command):
             # "item_name": named_row.item_name,
             # "extra_crap": named_row.extra_crap,
             # "item_code": named_row.item_code,
+
+    def process_output(self, data):
+        print(f"Total records: {data['records']}")
+        self.do_sources(data)
+        self.do_categories(data)
+        self.do_incoming_items(data)
+        # self.do_invoices(data)
+        print()
