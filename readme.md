@@ -72,11 +72,16 @@ Or, including the user/email on the command line
     Superuser created successfully.
 ```
 
-The basic data needs to be loaded.  This covers common data that I didn't feel like typing each time the database is reset.
+Switched from using fixtures to using exports from two spreadsheets.  One has all of the invoices for 2021 and starting
+into 2022.  The other is a unique listing of item names with associated common names and locations.  The following will
+create the various objects including sources.
+Missing the custom IncomingItemGroupDetail fields so some of this data is getting lost.  Might add some custom logic or
+simply a new sheet from which to import the templates.
 
 ```
-./manage.py loaddata locations
-./manage.py loaddata categories
+./manage.py ingest_common_items -f ../../invoices/common_names-2022-02-08.tsv
+./manage.py ingest_invoices -f ../../invoices/incoming-2022-02-08.tsv --case LOWER --skip-lines 1
+./manage.py apply_common_names -f ../../invoices/common_names-2022-02-08.tsv
 ```
 
 For the debug service, the simple runserver is used.  That is started from within the `web` folder.  The following
