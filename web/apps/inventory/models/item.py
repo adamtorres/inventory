@@ -83,6 +83,9 @@ class Item(models.Model):
         # don't want to just str the common_item as that includes the other_names.
         return self.common_item.name
 
+    @property
+    def extended_cost(self):
+        return self.unit_cost * self.current_quantity
 # inventory items
 #     - these are the items actually in the building
 #     - there wouldn't be just one of these for a given item.  There could be one for 50lb flour from sysco and another

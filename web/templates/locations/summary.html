@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory List{% endblock %}
+{% block content %}
+    <table>
+    <thead>
+        <tr>
+            <th>Locations</th>
+            <th>Cost</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for location in locations %}
+        <tr>
+        <td>{{ location.name }}</td>
+        <td style="text-align: right;">${{ location.cost|floatformat:2 }}</td>
+        <td>
+            <ol>
+                {% for item in location.top_items %}
+                    <li>{{ item.name }}, {{ item.quantity|floatformat }}, ${{ item.cost|floatformat:2 }}</li>
+                {% endfor %}
+            </ol>
+        </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}
