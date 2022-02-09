@@ -12,10 +12,9 @@ services:
     env_file:
       - ./db.env
     volumes:
-      - ./data/pgdata:/var/lib/postgresql/data
+      - inventory_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    user: "${UID}:${GID}"
   dbadmin:
     build:
       context: ./dbadmin/
@@ -35,3 +34,6 @@ services:
     depends_on:
       - "db"
     profiles: ["debug"]
+
+volumes:
+    inventory_data:
