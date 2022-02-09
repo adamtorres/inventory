@@ -1,25 +1,73 @@
 {% extends "base.html" %}
 
 {% block title %}Inventory List{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+    #outer_table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    #inner_table tr:nth-child(odd) {
+        background-color: white;
+    }
+    #inner_table {
+        width: 100%;
+    }
+    .number {
+        text-align: right;
+    }
+    .location {
+        vertical-align: top;
+    }
+    .col-4 {
+        width: 25%;
+    }
+    .col-2 {
+        width: 50%;
+    }
+    .col-1-6 {
+        /* 1/6rd */
+        width: 16%;
+    }
+    .col-2-3 {
+        /* 2/3rd */
+        width: 66%;
+    }</style>
+{% endblock %}
+
 {% block content %}
-    <table>
+    <table id="outer_table" style="width: 75%">
     <thead>
         <tr>
-            <th>Locations</th>
-            <th>Cost</th>
+            <th class="col-1-6">Locations</th>
+            <th class="col-1-6 number">Cost</th>
+            <th class="col-2-3">Top Items</th>
         </tr>
     </thead>
     <tbody>
     {% for location in locations %}
         <tr>
-        <td>{{ location.name }}</td>
-        <td style="text-align: right;">${{ location.cost|floatformat:2 }}</td>
-        <td>
-            <ol>
+        <td class="location">{{ location.name }}</td>
+        <td class="location number">${{ location.cost|floatformat:2 }}</td>
+        <td class="">
+            <table id="inner_table">
+            <thead>
+            <tr>
+                <th class="col-2">Item</th>
+                <th class="col-4 number">Quantity</th>
+                <th class="col-4 number">Cost</th>
+            </tr>
+            </thead>
+            <tbody>
                 {% for item in location.top_items %}
-                    <li>{{ item.name }}, {{ item.quantity|floatformat }}, ${{ item.cost|floatformat:2 }}</li>
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td class="number">{{ item.quantity|floatformat }}</td>
+                        <td class="number">${{ item.cost|floatformat:2 }}</td>
+                    </tr>
                 {% endfor %}
-            </ol>
+            </tbody>
+            </table>
         </td>
         </tr>
     {% endfor %}

@@ -8,6 +8,36 @@ from .incoming_item_group import IncomingItemGroup
 from .item import Item
 
 
+class IncomingItemManager(models.Manager):
+    def cost_by_month(self, start_date=None, end_date=None):
+        """
+        A quick totaling of the cost paid by month for all time or based on the provided start/end dates.
+
+        _ = [print(i) for i in IncomingItem.objects.cost_by_month(
+            start_date=timezone.datetime(2021, 5, 1), end_date=timezone.datetime(2021, 10, 1))]
+        {'year': 2021, 'month': 9, 'month_extended_price': Decimal('3140.9300')}
+        {'year': 2021, 'month': 8, 'month_extended_price': Decimal('2164.6400')}
+        {'year': 2021, 'month': 7, 'month_extended_price': Decimal('3374.3900')}
+        {'year': 2021, 'month': 6, 'month_extended_price': Decimal('4543.6600')}
+        {'year': 2021, 'month': 5, 'month_extended_price': Decimal('4146.8900')}
+
+        Args:
+            start_date: Inclusive date from which to start.
+            end_date: Inclusive date at which to end.
+
+        Returns: A Queryset in order by year/month.
+        """
+        qs = self
+        if start_date:
+            qs = qs.filter(parent__action_date__gte=start_date)
+        if end_date:
+            qs = qs.filter(parent__action_date__lte=end_date)
+        qs = qs.annotate(year=models.F('parent__action_date__year'), month=models.F('parent__action_date__month'))
+        qs = qs.values('year', 'month').annotate(month_extended_price=models.Sum('extended_price'))
+        qs = qs.order_by('-year', '-month')
+        return qs
+
+
 class IncomingItem(models.Model):
     # TODO: add position field so items stay in the order on the invoice.
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -28,6 +58,8 @@ class IncomingItem(models.Model):
     comment = models.CharField(
         "Anything noteworthy about this item", max_length=1024, null=False, blank=True, default='')
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
+
+    objects = IncomingItemManager()
 
     def __str__(self):
         return self.item.item_name
