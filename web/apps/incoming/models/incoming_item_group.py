@@ -11,7 +11,7 @@ import scrap
 
 class IncomingItemGroup(scrap.ChangeSourceMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    source = models.ForeignKey(Source, on_delete=models.CASCADE)
+    source = models.ForeignKey(Source, on_delete=models.CASCADE, related_name='item_groups')
     descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=True, default='')
     change = ct_fields.GenericRelation(
         "inventory.Change", "source_object_id", "source_content_type", related_query_name="incomingitemgroup")

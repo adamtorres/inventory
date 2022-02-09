@@ -21,5 +21,6 @@ urlpatterns = [
     path('grappelli/', urls.include('grappelli.urls')),
     path('grappelli-docs/', urls.include('grappelli.urls_docs')), # grappelli docs URLS
     path('admin/', admin.site.urls),
+    path('dashboard/', urls.include('dashboard.urls')),
     path('', urls.include('inventory.urls')),
 ]

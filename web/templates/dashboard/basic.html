@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+#sources table th {
+    border-bottom: black solid 3px;
+}
+#sources table td {
+    border-bottom: black solid 1px;
+    padding-left: 0.5em;
+}
+.number {
+    text-align: right;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="sources">
+    <table>
+    <tr>
+        <th>Source</th>
+        <th class="number">Last Order</th>
+        <th>Descriptor</th>
+        <th class="number">Total</th>
+    </tr>
+    {% for source in most_recent_order_per_source %}
+        <tr>
+            <td>{{ source.object.name }}</td>
+            <td class="number">{{ source.most_recent_order.action_date }}</td>
+            <td>{{ source.most_recent_order.descriptor }}</td>
+            <td class="number">$ {{ source.most_recent_order.total_price|floatformat:2 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+{% endblock %}

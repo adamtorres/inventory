@@ -15,3 +15,13 @@ from .source import Source
 
 # Template for the details on orders/donations.
 from .source_incoming_detail_template import SourceIncomingDetailTemplate
+
+
+def most_recent_order_per_source():
+    results = []
+    for s in Source.objects.active_sources().order_by('name'):
+        results.append({
+            'object': s,
+            'most_recent_order': s.most_recent_order(),
+        })
+    return results
