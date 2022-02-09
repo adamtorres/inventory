@@ -124,6 +124,7 @@ class Command(ingest_file.Command):
         data["invoices"][invoice_key]["total_packs"] += named_row.quantity * named_row.pack_quantity
 
     def do_sources(self, data):
+        # TODO: Add source details somehow.
         print(f"Sources: {data['sources']}")
         sources = list(inc_models.Source.objects.filter(name__in=data["sources"]).values_list('name', flat=True))
         if data["sources"].difference(sources):
@@ -160,9 +161,28 @@ class Command(ingest_file.Command):
             in_file_and_db = file_items.intersection(db_items)
             print(f"Items only in file: {len(in_file_only)}")
             print(f"Items in both file and db: {len(in_file_and_db)}")
+            missing_items = []
+            sources = {s.name: s for s in inc_models.Source.objects.filter(name__in=data["sources"])}
             for item in in_file_only:
-                print(f"\t{item}")
-            return
+                item_dict = data["items"][item]
+                print(
+                    f"\t{item}: hits({item_dict['records']}) first({item_dict['first_delivery_date']}) "
+                    f"last({item_dict['last_delivery_date']})")
+                missing_items.append(inc_models.Item(
+                    source=sources[item_dict["source"]],
+                    identifier=item_dict["identifier"],
+                    name=item_dict["name"],
+                    # individual_serving="?",
+                    pack_quantity=item_dict["pack_quantity"],
+                    unit_size=item_dict["unit_size"],
+                ))
+            inc_models.Item.objects.bulk_create(missing_items)
+        # bulk_create doesn't return the created items.  Could possibly work out how to select only the new ones.
+        # Just redo the entire dict.
+        data["item_cache"] = {
+            f"{i.source.name}/{i.identifier}/{i.name}/{int(i.pack_quantity)}/{i.unit_size}": i
+            for i in inc_models.Item.objects.all()
+        }
 
     def do_invoices(self, data):
         item_cache = data["item_cache"]
@@ -233,5 +253,5 @@ class Command(ingest_file.Command):
         self.do_sources(data)
         self.do_categories(data)
         self.do_incoming_items(data)
-        # self.do_invoices(data)
+        self.do_invoices(data)
         print()
