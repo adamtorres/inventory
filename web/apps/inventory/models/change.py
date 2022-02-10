@@ -1,4 +1,6 @@
 import uuid
+
+from dateutil.relativedelta import relativedelta
 from django.core import serializers
 from django.contrib.contenttypes import fields as ct_fields
 from django.contrib.contenttypes import models as ct_models
@@ -13,12 +15,44 @@ class ChangeManager(models.Manager):
             qs = qs.filter(action_date__year=year)
         if month:
             qs = qs.filter(action_date__month=month)
+        # if months_ago:
+        #     qs = qs.filter(action_date__month=timezone.datetime.today() + relativedelta(months=-1 * months_ago))
         qs = qs.order_by('action_date', 'created')
         self.for_report(qs)
         return qs
 
     def for_report(self, queryset):
         print(serializers.serialize("json", queryset))
+
+    def summary_relative_by_month(self, months_ago=1):
+        qs = self.all().prefetch_related('source', 'items', 'items__item__common_item')
+        first_of_month = timezone.datetime.today().replace(day=1) - relativedelta(months=months_ago-1)
+        qs = qs.filter(action_date__gte=first_of_month)
+        qs = qs.values(action_date_year=models.F('action_date__year'), action_date_month=models.F('action_date__month'))
+        qs = qs.annotate(
+            unapplied_cost=models.Sum(models.Case(
+                models.When(items__applied_datetime__isnull=True, then=models.F('items__extended_cost')),
+                default=models.Value(0.0),
+                output_field=models.DecimalField()
+            )),
+            unapplied_items=models.Sum(models.Case(
+                models.When(items__applied_datetime__isnull=True, then=models.F('items__change_quantity')),
+                default=models.Value(0.0),
+                output_field=models.DecimalField()
+            )),
+            applied_cost=models.Sum(models.Case(
+                models.When(items__applied_datetime__isnull=False, then=models.F('items__extended_cost')),
+                default=models.Value(0.0),
+                output_field=models.DecimalField()
+            )),
+            applied_items=models.Sum(models.Case(
+                models.When(items__applied_datetime__isnull=False, then=models.F('items__change_quantity')),
+                default=models.Value(0.0),
+                output_field=models.DecimalField()
+            )),
+        )
+        qs = qs.order_by('-action_date_year', '-action_date_month')
+        return qs
 
 
 class Change(models.Model):

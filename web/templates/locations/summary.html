@@ -48,7 +48,7 @@
     {% for location in locations %}
         <tr>
         <td class="location">{{ location.name }}</td>
-        <td class="location number">${{ location.cost|floatformat:2 }}</td>
+        <td class="location number">$ {{ location.cost|floatformat:2 }}</td>
         <td class="">
             <table id="inner_table">
             <thead>
@@ -63,7 +63,7 @@
                     <tr>
                         <td>{{ item.name }}</td>
                         <td class="number">{{ item.quantity|floatformat }}</td>
-                        <td class="number">${{ item.cost|floatformat:2 }}</td>
+                        <td class="number">$ {{ item.cost|floatformat:2 }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

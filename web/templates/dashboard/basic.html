@@ -4,36 +4,54 @@
 
 {% block styles %}
 <style type="text/css">
-#sources table th {
+#sources {
+    border: yellow solid 3px;
+    width: max-content;
+}
+#locations {
+    border: green solid 3px;
+    width: max-content;
+}
+#changes_by_month {
+    border: blue solid 3px;
+    width: 50%;
+}
+.summary table th {
     border-bottom: black solid 3px;
 }
-#sources table td {
-    border-bottom: black solid 1px;
+.summary table td {
+    border-bottom: grey solid 1px;
     padding-left: 0.5em;
 }
 .number {
     text-align: right;
 }
+
+.dollar_container {
+    width: 100%;
+}
+.dollar_line{
+    border-bottom:1px dotted black;
+    position:relative;
+    height:16px;
+}
+.dollar_line span{
+    display:inline-block;
+    position:relative;
+    background:white;
+    bottom:-2px;
+    height:100%;
+    padding:0 5px;
+}
+.dollar_line .dollar_content{
+    position:absolute;
+    right:0;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div id="sources">
-    <table>
-    <tr>
-        <th>Source</th>
-        <th class="number">Last Order</th>
-        <th>Descriptor</th>
-        <th class="number">Total</th>
-    </tr>
-    {% for source in most_recent_order_per_source %}
-        <tr>
-            <td>{{ source.object.name }}</td>
-            <td class="number">{{ source.most_recent_order.action_date }}</td>
-            <td>{{ source.most_recent_order.descriptor }}</td>
-            <td class="number">$ {{ source.most_recent_order.total_price|floatformat:2 }}</td>
-        </tr>
-    {% endfor %}
-    </table>
-</div>
+{% include "dashboard/card_source.html" %}
+{% include "dashboard/card_location.html" %}
+{% include "dashboard/card_changes_by_month.html" %}
 {% endblock %}

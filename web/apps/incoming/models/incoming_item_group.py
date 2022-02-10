@@ -29,7 +29,7 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
     def __str__(self):
         converted = "✓" if self.is_converted else ""
         return f"{converted}{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)}" \
-               f" - ${self.total_price}"
+               f" - $ {self.total_price}"
 
     def _populate_calculated_fields(self):
         values = self.items.aggregate(

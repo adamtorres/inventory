@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
+    'django.contrib.humanize',
     'inventory.apps.InventoryConfig',
     'incoming.apps.IncomingConfig',
 ]

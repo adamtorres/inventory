@@ -1,0 +1,28 @@
+{% load humanize %}
+
+<div id="locations" class="summary">
+    <h2>Locations</h2>
+    <table>
+    <tr>
+        <th style="width: 25%;">Location</th>
+        <th class="number" style="width: 25%;">Items</th>
+        <th class="number" style="width: 25%;">Item Quantity</th>
+        <th class="number" style="width: 25%;">Total Cost</th>
+    </tr>
+    {% for location in location_summary %}
+        <tr>
+            <td>{{ location.name }}</td>
+            <td class="number">{{ location.total_items }}</td>
+            <td class="number">{{ location.total_item_units|floatformat|intcomma }}</td>
+            <td>
+                <div class="dollar_container">
+                    <div class="dollar_line">
+                        <span>$</span>
+                        <span class="dollar_content">{{ location.total_cost|floatformat:2|intcomma }}</span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>

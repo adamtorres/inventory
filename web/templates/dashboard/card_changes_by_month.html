@@ -1,0 +1,39 @@
+{% load humanize %}
+
+<div id="changes_by_month" class="summary">
+    <h2>Inventory Changes by Month</h2>
+    <table>
+    <tr>
+        <th class="number" style="width: 16%;">Year</th>
+        <th class="number" style="width: 16%;">Month</th>
+        <th class="number" style="width: 32%;">Applied Cost</th>
+        <th class="number" style="width: 16%;">Applied Items</th>
+        <th class="number" style="width: 32%;">Unapplied Cost</th>
+        <th class="number" style="width: 16%;">Unapplied Items</th>
+    </tr>
+    {% for month_changes in inventory_changes_by_month %}
+        <tr>
+            <td class="number">{{ month_changes.action_date_year }}</td>
+            <td class="number">{{ month_changes.action_date_month }}</td>
+            <td>
+                <div class="dollar_container">
+                    <div class="dollar_line">
+                        <span>$</span>
+                        <span class="dollar_content">{{ month_changes.applied_cost|floatformat:2|intcomma }}</span>
+                    </div>
+                </div>
+            </td>
+            <td class="number">{{ month_changes.applied_items|floatformat|intcomma }}</td>
+            <td>
+                <div class="dollar_container">
+                    <div class="dollar_line">
+                        <span>$</span>
+                        <span class="dollar_content">{{ month_changes.unapplied_cost|floatformat:2|intcomma }}</span>
+                    </div>
+                </div>
+            </td>
+            <td class="number">{{ month_changes.unapplied_items|floatformat|intcomma }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>

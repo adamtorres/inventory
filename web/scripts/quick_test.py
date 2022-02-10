@@ -47,9 +47,27 @@ def test_consolidated_inventory():
     #         print(f"{item}")
 
 
+def test_location():
+    for l in inv_models.Change.objects.summary_relative_by_month(12):
+        print(l)
+
+
+def update_action_date_from_bulk_load():
+    # TODO: need a way to convert IIG to Change and then apply with action_date preserved.
+    changes_to_update = []
+    for i, c in enumerate(inv_models.Change.objects.exclude(action_date=models.F('incomingitemgroup__action_date'))):
+        print(f"{c.action_date} | {c.source.action_date}")
+        c.action_date = c.source.action_date
+        changes_to_update.append(c)
+    if changes_to_update:
+        inv_models.Change.objects.bulk_update(changes_to_update, ['action_date'])
+    # inv_models.Change.objects.all().update(action_date=models.F('incomingitemgroup__action_date'))
+
+
 def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
-        test_consolidated_inventory()
+        test_location()
+        # update_action_date_from_bulk_load()
