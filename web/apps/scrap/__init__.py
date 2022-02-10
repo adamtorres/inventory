@@ -1,20 +1,5 @@
-from django.conf import settings
-from django.utils import timezone
-
-import pytz
-
 from .change_source_mixin import ChangeSourceMixin
-
-
-def humanize_date(dt):
-    dt = timezone.make_aware(timezone.datetime.combine(dt, timezone.datetime.min.time()), pytz.timezone(settings.TIME_ZONE))
-    local_dt = timezone.localtime(dt, pytz.timezone(settings.TIME_ZONE))
-    return f'{local_dt.strftime("%Y-%m-%d")}'
-
-
-def humanize_datetime(dt):
-    local_dt = timezone.localtime(dt, pytz.timezone(settings.TIME_ZONE))
-    return f'{local_dt.strftime("%Y-%m-%d %H:%M")}'
+from .dates import humanize_date, humanize_datetime, first_of_month, last_of_month
 
 
 def snip_text(text, max_length=50, snip_str="...", head_and_tail=False):

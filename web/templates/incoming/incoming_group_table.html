@@ -1,0 +1,28 @@
+{% load humanize %}
+<div>
+<h2>{{ group_name }}</h2>
+<table>
+<thead>
+    <tr>
+        <th>Action date</th>
+        <th>Source</th>
+        <th>Descriptor</th>
+        <th>Total Products</th>
+        <th>Total Packs</th>
+        <th>Total Price</th>
+    </tr>
+</thead>
+<tbody>
+{% for incoming_group in incoming_groups %}
+    <tr>
+    <td>{{ incoming_group.action_date }}</td>
+    <td>{{ incoming_group.source_name }}</td>
+    <td>{{ incoming_group.descriptor }}</td>
+    <td>{{ incoming_group.total_items|floatformat|intcomma }}</td>
+    <td>{{ incoming_group.total_pack_quantity|floatformat|intcomma }}</td>
+    <td>{{ incoming_group.total_cost|floatformat:2|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+</div>

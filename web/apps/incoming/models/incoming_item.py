@@ -33,7 +33,10 @@ class IncomingItemManager(models.Manager):
         if end_date:
             qs = qs.filter(parent__action_date__lte=end_date)
         qs = qs.annotate(year=models.F('parent__action_date__year'), month=models.F('parent__action_date__month'))
-        qs = qs.values('year', 'month').annotate(month_extended_price=models.Sum('extended_price'))
+        qs = qs.values('year', 'month').annotate(
+            month_extended_price=models.Sum('extended_price'),
+            groups=models.Count('parent__id', distinct=True)
+        )
         qs = qs.order_by('-year', '-month')
         return qs
 

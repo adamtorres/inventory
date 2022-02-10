@@ -148,3 +148,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+SHELL_PLUS_IMPORTS = [
+    'from incoming import models as inc_models',
+    'from inventory import models as inv_models',
+    'import scrap',
+]

@@ -52,6 +52,24 @@ def test_location():
         print(l)
 
 
+def test_incoming_item_group_listing():
+    lines = []
+    data = inc_models.IncomingItemGroup.objects.list_groups_by_converted_state()
+    for i in data['converted']:
+        line = []
+        line.append(f"{i.source_name.ljust(10)}")
+        line.append(f"{i.converted_state.ljust(15)}")
+        line.append(f"{i.descriptor.ljust(50)}")
+        line.append(f"{str(i.total_cost).rjust(10)}")
+        line.append(f"{str(i.total_items).rjust(10)}")
+        line.append(f"{str(i.total_pack_quantity).rjust(10)}")
+        lines.append(" | ".join(line))
+        # lines.append(f"{i.descriptor.ljust(50)} | {str(i.total_price).rjust(10)} | {str(i.total_packs).rjust(10)}")
+    print("\n".join(lines[:5]))
+    print("... snip ...")
+    print("\n".join(lines[-5:]))
+
+
 def update_action_date_from_bulk_load():
     # TODO: need a way to convert IIG to Change and then apply with action_date preserved.
     changes_to_update = []
@@ -69,5 +87,5 @@ def run():
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
-        test_location()
+        test_incoming_item_group_listing()
         # update_action_date_from_bulk_load()

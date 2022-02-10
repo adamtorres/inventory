@@ -9,6 +9,30 @@ from .source import Source
 import scrap
 
 
+class IncomingItemGroupManager(models.Manager):
+    def list_groups(self, start_date=None):
+        qs = IncomingItemGroup.objects.all().select_related('source')
+        if start_date:
+            qs = qs.filter(action_date__gte=start_date)
+        qs = qs.annotate(
+            converted_state=models.Case(
+                models.When(converted_datetime__isnull=False, then=models.Value('converted')),
+                default=models.Value('not converted')),
+            source_name=models.F('source__name'),
+            total_cost=models.Sum('items__extended_price'),
+            total_items=models.Count('items'),
+            total_pack_quantity=models.Sum('items__delivered_quantity'),
+        )
+        qs = qs.order_by('-converted_state', '-action_date')
+        return qs
+
+    def list_groups_by_converted_state(self, start_date=None):
+        qs = self.list_groups(start_date=start_date)
+        conv = list(qs.filter(converted_state='converted'))
+        not_conv = list(qs.filter(converted_state='not converted'))
+        return {'converted': conv, 'not_converted': not_conv}
+
+
 class IncomingItemGroup(scrap.ChangeSourceMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(Source, on_delete=models.CASCADE, related_name='item_groups')
@@ -25,6 +49,8 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
 
     _total_price = None
     _total_packs = None
+
+    objects = IncomingItemGroupManager()
 
     def __str__(self):
         converted = "✓" if self.is_converted else ""
