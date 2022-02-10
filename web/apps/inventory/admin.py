@@ -6,8 +6,8 @@ from django.utils import timezone
 from django.shortcuts import render
 
 from .models import (
-    Adjustment, AdjustmentItem, Category, Change, CommonItem, CommonItemOtherName, Item, ItemChange, Location, Usage,
-    UsageItem)
+    Adjustment, AdjustmentItem, Category, Change, CommonItem, CommonItemOtherName, ConfigItem, Item, ItemChange,
+    Location, Usage, UsageItem)
 
 
 @admin.action(description='Apply inventory changes.')
@@ -37,6 +37,12 @@ class CommonItemOtherNameInline(admin.TabularInline):
     model = CommonItemOtherName
     ordering = ['common_item__name', 'name']
     # TODO: need to filter the potential items to the ones in the parent order
+    extra = 0
+
+
+class ConfigItemInline(admin.TabularInline):
+    model = ConfigItem
+    ordering = ['name', ]
     extra = 0
 
 
@@ -84,6 +90,17 @@ class CommonItemOtherNameAdmin(admin.ModelAdmin):
     ordering = ['common_item__name', 'name']
 
 
+class ConfigItemAdmin(admin.ModelAdmin):
+    inlines = [ConfigItemInline, ]
+    ordering = ['parent__name', 'name', ]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "parent":
+            id = request.resolver_match.kwargs.get('object_id')
+            kwargs["queryset"] = ConfigItem.objects.exclude(id=id)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
 class ItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['common_item']
     search_fields = ['common_item__name', 'common_item__other_names__name']
@@ -101,6 +118,7 @@ admin.site.register(Category)
 admin.site.register(Change, ChangeAdmin)
 admin.site.register(CommonItem, CommonItemAdmin)
 # admin.site.register(CommonItemOtherName, CommonItemOtherNameAdmin)
+admin.site.register(ConfigItem, ConfigItemAdmin)
 admin.site.register(Item, ItemAdmin)
 # admin.site.register(ItemChange)
 admin.site.register(Location)
