@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Incoming Group List{% endblock %}
+
+{% block styles %}
+    <style type="text/css">
+    table {
+        border: solid 1px black;
+    }
+    table tbody tr td {
+        border-top: solid 1px black;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <table>
+    <thead>
+        <tr>
+            <th>Action date</th>
+            <th>Source</th>
+            <th>Descriptor</th>
+            <th>Total Packs</th>
+            <th>Total Price</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for incoming_group in incoming_groups %}
+        <tr>
+        <td>{{ incoming_group.action_date }}</td>
+        <td>{{ incoming_group.source.name }}</td>
+        <td>{{ incoming_group.descriptor }}</td>
+        <td>{{ incoming_group.total_packs|floatformat|intcomma }}</td>
+        <td>{{ incoming_group.total_price|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}
