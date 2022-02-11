@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django.forms',
     'rest_framework',
     'django.contrib.humanize',
     'inventory.apps.InventoryConfig',
@@ -60,6 +61,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 TEMPLATES = [
     {

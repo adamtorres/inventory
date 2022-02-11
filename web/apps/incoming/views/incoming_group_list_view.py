@@ -15,22 +15,24 @@ class IncomingGroupListView(generic.FormView):
 
     def get_initial(self):
         print("View.get_initial")
-        data = inc_models.IncomingItemGroup.objects.list_groups_by_converted_state(scrap.first_of_month())
-        # source_name, total_cost, total_items, total_pack_quantity, action_date
-        # return Model.objects.filter(status='whatever').values()  # values() is required
-
-        return super().get_initial()
+        qs_values = inc_models.IncomingItemGroup.objects.list_groups()[:5].values()
+        for iig in qs_values:
+            iig['selected'] = False
+        return qs_values
 
     def get_success_url(self):
         return urls.reverse('incoming_groups')
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
-        limit_to = scrap.first_of_month() - relativedelta.relativedelta(months=6)
-        data = inc_models.IncomingItemGroup.objects.list_groups_by_converted_state()
-        kwargs.update(data)
         return kwargs
 
     def form_valid(self, form):
-        print(f"yay! {form.cleaned_data}")
+        iig_to_convert = []
+        for item in form.cleaned_data:
+            if item.get('selected'):
+                iig_to_convert.append(item['id'])
+        if iig_to_convert:
+            print(f"Converting {len(iig_to_convert)} IIGs. {iig_to_convert}")
+            # TODO: call the conversion function for each IIG.
         return super().form_valid(form)

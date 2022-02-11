@@ -17,9 +17,20 @@
 {% block content %}
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+   <table>
+<tr>
+    <td></td>
+    <td>Converted?</td>
+    <td>Source</td>
+    <td>Action Date</td>
+    <td>Total Cost</td>
+    <td>Total Items</td>
+    <td>Total Pack Quantity</td>
+    <td>Descriptor</td>
+</tr>
+        {{ form.as_table }}
+    </table>
     <input type="submit" value="Submit">
 </form>
-{% include "incoming/incoming_group_table.html" with group_name="Not converted to Change" incoming_groups=not_converted %}
-{% include "incoming/incoming_group_table.html" with group_name="Converted to Change" incoming_groups=converted %}
+
 {% endblock %}

@@ -11,7 +11,7 @@ import scrap
 
 
 class IncomingItemGroupManager(models.Manager):
-    def list_groups(self, start_date=None):
+    def list_groups(self, start_date=None, values=False):
         qs = IncomingItemGroup.objects.all().select_related('source')
         if start_date:
             qs = qs.filter(action_date__gte=start_date)
@@ -25,12 +25,18 @@ class IncomingItemGroupManager(models.Manager):
             total_pack_quantity=models.Sum('items__delivered_quantity'),
         )
         qs = qs.order_by('-converted_state', '-action_date')
+        if values:
+            return qs.values()
         return qs
 
-    def list_groups_by_converted_state(self, start_date=None):
+    def list_groups_by_converted_state(self, start_date=None, values=False):
         qs = self.list_groups(start_date=start_date)
-        conv = list(qs.filter(converted_state='converted'))
-        not_conv = list(qs.filter(converted_state='not converted'))
+        if values:
+            conv = list(qs.filter(converted_state='converted').values())
+            not_conv = list(qs.filter(converted_state='not converted').values())
+        else:
+            conv = list(qs.filter(converted_state='converted'))
+            not_conv = list(qs.filter(converted_state='not converted'))
         return {'converted': conv, 'not_converted': not_conv}
 
 
