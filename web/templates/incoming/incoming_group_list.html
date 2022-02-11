@@ -17,20 +17,20 @@
 {% block content %}
 <form method="post">
     {% csrf_token %}
-   <table>
-<tr>
-    <td></td>
-    <td>Converted?</td>
-    <td>Source</td>
-    <td>Action Date</td>
-    <td>Total Cost</td>
-    <td>Total Items</td>
-    <td>Total Pack Quantity</td>
-    <td>Descriptor</td>
-</tr>
-        {{ form.as_table }}
-    </table>
     <input type="submit" value="Submit">
+    <table>
+    <tr>
+        <td></td>
+        <td>Converted?</td>
+        <td>Source</td>
+        <td>Action Date</td>
+        <td>Total Cost</td>
+        <td>Total Items</td>
+        <td>Total Pack Quantity</td>
+        <td>Descriptor</td>
+    </tr>
+    {{ form.as_table }}
+    </table>
 </form>
 
 {% endblock %}

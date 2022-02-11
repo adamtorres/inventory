@@ -1,12 +1,7 @@
 from django import urls
-from django.db import models
 from django.views import generic
-from django.utils import timezone
-
-from dateutil import relativedelta
 
 from incoming import models as inc_models, forms as inc_forms
-import scrap
 
 
 class IncomingGroupListView(generic.FormView):
@@ -14,8 +9,8 @@ class IncomingGroupListView(generic.FormView):
     form_class = inc_forms.IncomingGroupListFormSet
 
     def get_initial(self):
-        print("View.get_initial")
-        qs_values = inc_models.IncomingItemGroup.objects.list_groups()[:5].values()
+        # TODO: Loading IncomingGroupListView page is slow.
+        qs_values = inc_models.IncomingItemGroup.objects.list_groups().filter(converted_datetime__isnull=True).values()
         for iig in qs_values:
             iig['selected'] = False
         return qs_values
@@ -34,5 +29,6 @@ class IncomingGroupListView(generic.FormView):
                 iig_to_convert.append(item['id'])
         if iig_to_convert:
             print(f"Converting {len(iig_to_convert)} IIGs. {iig_to_convert}")
-            # TODO: call the conversion function for each IIG.
+            for iig in inc_models.IncomingItemGroup.objects.filter(id__in=iig_to_convert):
+                iig.convert_to_change_from_iig()
         return super().form_valid(form)

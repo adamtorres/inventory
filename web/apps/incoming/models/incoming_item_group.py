@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes import fields as ct_fields
 from django.db import models
 from django import urls
