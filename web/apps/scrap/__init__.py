@@ -1,5 +1,5 @@
 from .change_source_mixin import ChangeSourceMixin
-from .dates import humanize_date, humanize_datetime, first_of_month, last_of_month
+from .dates import humanize_date, humanize_datetime, first_of_month, last_of_month, relative_months
 
 
 def snip_text(text, max_length=50, snip_str="...", head_and_tail=False):

@@ -15,6 +15,11 @@
 {% endblock %}
 
 {% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
 {% include "incoming/incoming_group_table.html" with group_name="Not converted to Change" incoming_groups=not_converted %}
 {% include "incoming/incoming_group_table.html" with group_name="Converted to Change" incoming_groups=converted %}
 {% endblock %}

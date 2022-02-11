@@ -1,5 +1,6 @@
 from django.contrib.contenttypes import fields as ct_fields
 from django.db import models
+from django import urls
 from django.utils import timezone
 
 
@@ -72,6 +73,9 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
         q = self.source.detail_templates.exclude(name__in=self.details.values_list('name', flat=True))
         for detail in q.order_by('position'):
             self.details.create(name=detail.name, position=detail.position)
+
+    # def get_absolute_url(self):
+    #     return urls.reverse('incominggroup-detail', kwargs={'pk': self.pk})
 
     def invalidate_calculated_fields(self):
         self._total_price = None

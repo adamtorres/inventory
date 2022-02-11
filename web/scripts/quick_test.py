@@ -4,12 +4,14 @@
 #         truncate=truncate,
 #         print_sql_location=options["print_sql_location"],
 #         confprefix="SHELL_PLUS"):
+import datetime
 
 from django.db import models
 from django_extensions.management.debug_cursor import monkey_patch_cursordebugwrapper
 
 from incoming import models as inc_models
 from inventory import models as inv_models
+import scrap
 
 
 def test_available_items():
@@ -70,6 +72,24 @@ def test_incoming_item_group_listing():
     print("\n".join(lines[-5:]))
 
 
+def test_date_math():
+    def _date_math(m):
+        print(f"months_ago({m}) = {scrap.relative_months(m)}")
+        print("")
+        for dow in ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']:
+            print(f"months_ago({m}, first_dow='{dow}') = {scrap.relative_months(m, first_dow=dow)}")
+        for dow in ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']:
+            print(f"months_ago({m}, last_dow='{dow}') = {scrap.relative_months(m, last_dow=dow)}")
+        print("")
+        print(f"months_ago({m}, start_of_month=True) = {scrap.relative_months(m, start_of_month=True)}")
+        print("")
+        print(f"months_ago({m}, end_of_month=True) = {scrap.relative_months(m, end_of_month=True)}")
+
+    dt = datetime.datetime.today()
+    _date_math(dt)
+    _date_math(0)
+
+
 def update_action_date_from_bulk_load():
     # TODO: need a way to convert IIG to Change and then apply with action_date preserved.
     changes_to_update = []
@@ -87,5 +107,6 @@ def run():
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
-        test_incoming_item_group_listing()
+        # test_incoming_item_group_listing()
+        test_date_math()
         # update_action_date_from_bulk_load()
