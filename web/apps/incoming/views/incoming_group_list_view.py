@@ -20,6 +20,8 @@ class IncomingGroupListView(generic.FormView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
+        qs_values = inc_models.IncomingItemGroup.objects.list_groups().filter(converted_datetime__isnull=False).values()
+        kwargs['converted'] = qs_values
         return kwargs
 
     def form_valid(self, form):

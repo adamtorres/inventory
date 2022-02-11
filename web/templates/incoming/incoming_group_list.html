@@ -30,6 +30,18 @@
         <td>Descriptor</td>
     </tr>
     {{ form.as_table }}
+    {% for iig in converted %}
+        <tr>
+            <td></td>
+            <td>{{ iig.converted_state }}</td>
+            <td>{{ iig.source_name }}</td>
+            <td>{{ iig.action_date }}</td>
+            <td>{{ iig.total_cost }}</td>
+            <td>{{ iig.total_items }}</td>
+            <td>{{ iig.total_pack_quantity }}</td>
+            <td>{{ iig.descriptor }}</td>
+        </tr>
+    {% endfor %}
     </table>
 </form>
 
