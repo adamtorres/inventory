@@ -3,6 +3,7 @@ from django.forms import formset_factory
 
 
 class IncomingGroupListForm(forms.Form):
+    # TODO: Custom widget for disabled fields?  Something to make it look less like disabled form fields?
     template_name_table = "forms/table.html"
 
     id = forms.UUIDField(widget=forms.HiddenInput)

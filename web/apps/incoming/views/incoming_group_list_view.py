@@ -16,10 +16,12 @@ class IncomingGroupListView(generic.FormView):
         return qs_values
 
     def get_success_url(self):
+        # urls.reverse cannot be used at the class level as the urls haven't been loaded when needed.
         return urls.reverse('incoming_groups')
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
+        # TODO: Style table so converted/unconverted look similar.
         qs_values = inc_models.IncomingItemGroup.objects.list_groups().filter(converted_datetime__isnull=False).values()
         kwargs['converted'] = qs_values
         return kwargs
@@ -30,7 +32,6 @@ class IncomingGroupListView(generic.FormView):
             if item.get('selected'):
                 iig_to_convert.append(item['id'])
         if iig_to_convert:
-            print(f"Converting {len(iig_to_convert)} IIGs. {iig_to_convert}")
             for iig in inc_models.IncomingItemGroup.objects.filter(id__in=iig_to_convert):
                 iig.convert_to_change_from_iig()
         return super().form_valid(form)
