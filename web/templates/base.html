@@ -3,11 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Title{% endblock %}</title>
+<style type="text/css">
+    #left-nav {
+        width: 14em;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        border: black solid 1px;
+    }
+    #main-content {
+        margin-left: 14.5em;
+        border: red solid 1px;
+    }
+</style>
 {% block styles %}
 {% endblock %}
 </head>
 <body>
+<div id="left-nav">
+<ul>
+    <li><a href="{% url "dashboard" %}">Dashboard</a></li>
+    <li><a href="{% url "incoming_groups" %}">Incoming Groups</a></li>
+    <li><a href="{% url "locations" %}">Locations</a></li>
+</ul>
+</div>
+<div id="main-content">
 {% block content %}
 {% endblock %}
+</div>
 </body>
 </html>

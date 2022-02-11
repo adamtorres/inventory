@@ -4,5 +4,5 @@ from . import views
 
 
 urlpatterns = [
-    path('incominggroups/', views.IncomingGroupListView.as_view()),
+    path('incominggroups/', views.IncomingGroupListView.as_view(), name="incoming_groups"),
 ]
