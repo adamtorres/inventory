@@ -4,9 +4,14 @@
 {% block title %}Incoming Group List{% endblock %}
 
 {% block content %}
-<ul>
+<table>
+    <tr>
+        <td></td>
+    </tr>
 {% for iig in object_list %}
-    <li>{{ iig }}</li>
+    <tr>
+        <td>{{ iig }}</td>
+    </tr>
 {% endfor %}
-</ul>
+</table>
 {% endblock %}

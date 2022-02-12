@@ -13,6 +13,7 @@ import scrap
 
 class IncomingItemGroupManager(models.Manager):
     def list_groups(self, start_date=None, values=False):
+        # TODO: does this need reworked after adding total_price and total_packs?
         qs = IncomingItemGroup.objects.all().select_related('source')
         if start_date:
             qs = qs.filter(action_date__gte=start_date)
@@ -21,9 +22,7 @@ class IncomingItemGroupManager(models.Manager):
                 models.When(converted_datetime__isnull=False, then=models.Value('converted')),
                 default=models.Value('not converted')),
             source_name=models.F('source__name'),
-            total_cost=models.Sum('items__extended_price'),
             total_items=models.Count('items'),
-            total_pack_quantity=models.Sum('items__delivered_quantity'),
         )
         qs = qs.order_by('-converted_state', '-action_date')
         if values:
@@ -55,8 +54,8 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
     # TODO: guessing the default is UTC timezone so filling out a form in the evening creates dates in tomorrow.
     action_date = models.DateField(null=False, blank=False, default=timezone.now)
 
-    _total_price = None
-    _total_packs = None
+    total_price = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
+    total_packs = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
 
     objects = IncomingItemGroupManager()
 
@@ -65,11 +64,18 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
         return f"{converted}{scrap.humanize_date(self.action_date)} - {scrap.snip_text(self.descriptor)}" \
                f" - $ {self.total_price}"
 
-    def _populate_calculated_fields(self):
+    def recalculate_calculated_fields(self):
         values = self.items.aggregate(
             total_price=models.Sum('extended_price'), total_packs=models.Sum('delivered_quantity'))
-        self._total_price = values["total_price"]
-        self._total_packs = values["total_packs"]
+        changed = False
+        if self.total_price != values["total_price"]:
+            self.total_price = values["total_price"]
+            changed = True
+        if self.total_packs != values["total_packs"]:
+            self.total_packs = values["total_packs"]
+            changed = True
+        if changed:
+            self.save()
 
     @staticmethod
     def autocomplete_search_fields():
@@ -87,15 +93,3 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
     def invalidate_calculated_fields(self):
         self._total_price = None
         self._total_packs = None
-
-    @property
-    def total_packs(self):
-        if self._total_packs is None:
-            self._populate_calculated_fields()
-        return self._total_packs
-
-    @property
-    def total_price(self):
-        if self._total_price is None:
-            self._populate_calculated_fields()
-        return self._total_price

@@ -10,6 +10,7 @@ class IncomingGroupView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        qs = qs.prefetch_related('source', 'items__item__common_item')
         return qs.order_by('-action_date')
 
     def get_context_data(self, *args, object_list=None, **kwargs):

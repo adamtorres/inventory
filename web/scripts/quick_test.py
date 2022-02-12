@@ -63,9 +63,9 @@ def test_incoming_item_group_listing():
             line.append(f"{i.source_name.ljust(10)}")
             line.append(f"{i.converted_state.ljust(15)}")
             line.append(f"{i.descriptor.ljust(50)}")
-            line.append(f"{str(i.total_cost).rjust(10)}")
+            line.append(f"{str(i.total_price).rjust(10)}")
             line.append(f"{str(i.total_items).rjust(10)}")
-            line.append(f"{str(i.total_pack_quantity).rjust(10)}")
+            line.append(f"{str(i.total_packs).rjust(10)}")
             lines.append(" | ".join(line))
             # lines.append(f"{i.descriptor.ljust(50)} | {str(i.total_price).rjust(10)} | {str(i.total_packs).rjust(10)}")
         print(f"Key: {k}")
@@ -117,4 +117,4 @@ def run():
     # highlighting to the generated SQL.
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
-        test_incoming_item_group_listing_values()
+        test_incoming_item_group_listing()

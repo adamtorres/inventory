@@ -36,9 +36,9 @@
             <td><a href="{% url "incoming_group" iig.id %}">{{ iig.converted_state }}</a></td>
             <td>{{ iig.source_name }}</td>
             <td>{{ iig.action_date }}</td>
-            <td>{{ iig.total_cost }}</td>
+            <td>{{ iig.total_price }}</td>
             <td>{{ iig.total_items }}</td>
-            <td>{{ iig.total_pack_quantity }}</td>
+            <td>{{ iig.total_packs }}</td>
             <td>{{ iig.descriptor }}</td>
         </tr>
     {% endfor %}

@@ -102,6 +102,10 @@ class IncomingItem(models.Model):
     def get_inventory_quantity(self):
         return self.item.get_delivered_unit_quantity(self.delivered_quantity)
 
+    def recalculate_calculated_fields(self):
+        self.extended_price = self.delivered_quantity * self.pack_price + self.pack_tax
+        self.save()
+
     def save(self, *args, **kwargs):
         # TODO: using ordered_quantity for now as get_cost_per_unit is doing so.
         if not self.extended_price:
