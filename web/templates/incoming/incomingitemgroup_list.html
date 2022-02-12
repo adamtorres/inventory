@@ -3,14 +3,90 @@
 
 {% block title %}Incoming Group List{% endblock %}
 
+{% block styles %}
+<style type="text/css">
+.table-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+.table-header tr td {
+    /*border: black solid 1px;*/
+}
+.table-data tr {
+    cursor: pointer;
+}
+.table-data tr:nth-child(odd) {
+    background-color: #f0f0c0;
+}
+.table-data tr:nth-child(even) {
+    background-color: white;
+}
+.table-data tr td {
+    /*border: black solid 1px;*/
+    background-color: inherit;
+    vertical-align: top;
+}
+.table-data tr td p {
+    margin: 0;
+}
+.text-col {
+    width: 20em;
+}
+.short-text-col {
+    width: 5em;
+}
+.date-col {
+    width: 8em;
+}
+.checkbox-col {
+    width: 2em;
+    text-align: center;
+}
+.col {
+    text-align: right;
+    width: 7em;
+}
+
+</style>
+{% endblock %}
+
 {% block content %}
-<table>
-    <tr>
-        <td></td>
-    </tr>
+<table class="table-header">
+<tr>
+    <td class="checkbox-col"></td>
+    <td class="short-text-col">Converted?</td>
+    <td class="short-text-col">Source</td>
+    <td class="date-col">Action Date</td>
+    <td class="text-col">Descriptor/Comment</td>
+    <td class="col">Items</td>
+    <td class="col">Total Packs</td>
+    <td class="col">Total Price</td>
+</tr>
+</table>
+<table class="table-data">
 {% for iig in object_list %}
-    <tr>
-        <td>{{ iig }}</td>
+    <tr onclick="window.location='{% url "incoming_group" iig.id %}';">
+        <td class="checkbox-col">[ ]</td>
+        <td class="short-text-col">{% if iig.is_converted %}Converted{% endif %}</td>
+        <td class="short-text-col">{{ iig.source.name }}</td>
+        <td class="date-col">{{ iig.action_date }}</td>
+        <td class="text-col">
+            <p>{{ iig.descriptor }}</p>
+            <p>{{ iig.comment }}</p>
+        </td>
+        <td class="col">{{ iig.items.count|floatformat|intcomma }}</td>
+        <td class="col">{{ iig.total_packs|floatformat|intcomma }}</td>
+        <td class="col">
+            <div class="dollar_container">
+                <div class="dollar_line">
+                    <span>$</span>
+                    <span class="dollar_content">{% if iig.total_price %}{{ iig.total_price|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
+                </div>
+            </div>
+
+        </td>
     </tr>
 {% endfor %}
 </table>
