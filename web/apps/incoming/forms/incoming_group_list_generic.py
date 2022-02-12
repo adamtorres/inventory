@@ -23,4 +23,12 @@ class IncomingGroupListGenericForm(forms.Form):
         return True
 
 
+def as_my_table(self):
+    """Render as <tr> elements excluding the surrounding <table> tag."""
+    # Copied
+    return self.render(self.template_name_my_table)
+
+
 IncomingGroupListGenericFormSet = formset_factory(IncomingGroupListGenericForm, extra=0, can_delete=False)
+setattr(IncomingGroupListGenericFormSet, 'template_name_my_table', "incoming/forms/my_table.html")
+setattr(IncomingGroupListGenericFormSet, 'as_my_table', as_my_table)

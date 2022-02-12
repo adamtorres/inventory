@@ -67,33 +67,37 @@
 </table>
 <form method="post">
     {% csrf_token %}
-    <input type="submit" value="Submit">
-<table class="table-data">
-{{ form.as_table }}
-
-{% for iig in object_list %}
-    <tr onclick="window.location='{% url "incoming_group" iig.id %}';">
-        <td class="checkbox-col">[ ]</td>
-        <td class="short-text-col">{% if iig.is_converted %}Converted{% endif %}</td>
-        <td class="short-text-col">{{ iig.source.name }}</td>
-        <td class="date-col">{{ iig.action_date }}</td>
-        <td class="text-col">
-            <p>{{ iig.descriptor }}</p>
-            <p>{{ iig.comment }}</p>
-        </td>
-        <td class="col">{{ iig.items.count|floatformat|intcomma }}</td>
-        <td class="col">{{ iig.total_packs|floatformat|intcomma }}</td>
-        <td class="col">
-            <div class="dollar_container">
-                <div class="dollar_line">
-                    <span>$</span>
-                    <span class="dollar_content">{% if iig.total_price %}{{ iig.total_price|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
-                </div>
-            </div>
-
-        </td>
-    </tr>
-{% endfor %}
-</table>
+    <input type="submit" value="Convert selected to Change">
+    <table class="table-data" id="table-data">
+    {{ form.as_table }}
+    </table>
 </form>
+<script language="JavaScript">
+function generete_detail_url(id){
+    // Needed to supply the argument with javascript but wanted to use the url reverse lookup.
+    // Found this as a suggestion online - using a dummy argument and replacing with javascript.
+    return "{% url "incoming_group" pk="00000000-0000-0000-0000-000000000000" %}".replace("00000000-0000-0000-0000-000000000000", id);
+}
+
+// Get the table that contains all we want to work with.
+var el = document.getElementById('table-data');
+
+// Link the converted label column to change the checkbox.
+var converted_tds = el.querySelectorAll('[data-checkbox-id]');
+for (var ctd_i=0, ctd_len=converted_tds.length; ctd_i<ctd_len; ctd_i++) {
+    converted_tds[ctd_i].onclick = function() {
+        var cb = document.getElementById(this.attributes["data-checkbox-id"].value);
+        cb.checked = !cb.checked;
+    }
+}
+
+// Link all of the other cells in a row to take the user to the detail page.
+var link_tds = el.querySelectorAll('[data-link-to-detail]');
+for (var ltd_i=0, ltd_len=link_tds.length; ltd_i<ltd_len; ltd_i++) {
+    link_tds[ltd_i].onclick = function() {
+        var detail_id = this.attributes["data-link-to-detail"].value;
+        window.location = generete_detail_url(detail_id);
+    }
+}
+</script>
 {% endblock %}

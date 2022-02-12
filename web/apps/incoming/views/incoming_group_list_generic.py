@@ -36,7 +36,7 @@ class IncomingGroupView(FormView):
         return qs.order_by('-action_date')
 
     def get_success_url(self):
-        return urls.reverse("bob")
+        return urls.reverse("incoming_groups")
 
     def form_valid(self, form):
         iigs_to_convert = []

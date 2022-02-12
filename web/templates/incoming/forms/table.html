@@ -9,17 +9,20 @@
   </tr>
 {% endif %}
 <tr>
+{# document.getElementById('id_form-2-selected').checked = !document.getElementById('id_form-2-selected').checked; #}
+{# onclick="window.location='{% url form.reverse_url_name form.id.value %}';" #}
         <td class="checkbox-col">{{ form.selected }}</td>
-        <td class="short-text-col">{{ form.converted_state }}</td>
-        <td class="short-text-col">{{ form.source_name }}</td>
-        <td class="date-col">{{ form.action_date }}</td>
-        <td class="text-col">
+        <td data-checkbox-id="id_{{ form.prefix }}-{{ form.selected.name }}" class="short-text-col">{{ form.converted_state }}</td>
+        <td data-link-to-detail="{{ form.id.value }}" class="short-text-col">{{ form.source_name }}</td>
+        <td data-link-to-detail="{{ form.id.value }}" class="date-col">{{ form.action_date }}</td>
+        <td data-link-to-detail="{{ form.id.value }}" class="text-col">
             <p>{{ form.descriptor }}</p>
             <p>{{ form.comment }}</p>
         </td>
-        <td class="col">{{ form.total_items }}</td>
-        <td class="col">{{ form.total_packs }}</td>
-        <td class="col">{{ form.total_price }}
+        <td data-link-to-detail="{{ form.id.value }}" class="col">{{ form.total_items }}</td>
+        <td data-link-to-detail="{{ form.id.value }}" class="col">{{ form.total_packs }}</td>
+        <td data-link-to-detail="{{ form.id.value }}" class="col">
+            {{ form.total_price }}
             {% for field in hidden_fields %}{{ field }}{% endfor %}
         </td>
 </tr>
