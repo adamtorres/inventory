@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Incoming Group List{% endblock %}
+
+{% block content %}
+<ul>
+{% for iig in object_list %}
+    <li>{{ iig }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
