@@ -1,0 +1,2 @@
+{% load humanize %}
+{% if widget.value %}{{ widget.value|floatformat|intcomma }}{% else %}-{% endif %}

@@ -65,7 +65,12 @@
     <td class="col">Total Price</td>
 </tr>
 </table>
+<form method="post">
+    {% csrf_token %}
+    <input type="submit" value="Submit">
 <table class="table-data">
+{{ form.as_table }}
+
 {% for iig in object_list %}
     <tr onclick="window.location='{% url "incoming_group" iig.id %}';">
         <td class="checkbox-col">[ ]</td>
@@ -90,4 +95,5 @@
     </tr>
 {% endfor %}
 </table>
+</form>
 {% endblock %}
