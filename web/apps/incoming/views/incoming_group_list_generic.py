@@ -1,4 +1,5 @@
 from django.views.generic import ListView
+
 from incoming import models as inc_models
 
 
