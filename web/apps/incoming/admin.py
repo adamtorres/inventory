@@ -25,13 +25,7 @@ def make_change(model_admin, request, queryset):
     # Exclude any IIGs which are already associated with a Change object.
     queryset = queryset.exclude(change__in=queryset.values_list('id', flat=True))
     for ig in queryset:
-        c = change.objects.create(source=ig)
-        for ii in ig.items.exclude(item__do_not_inventory=True):
-            if ii.get_inventory_quantity() <= 0:
-                continue
-            c.items.create(
-                source_item=ii, change_quantity=ii.get_inventory_quantity(), unit_cost=ii.get_cost_per_unit(),
-                line_item_position=ii.line_item_position)
+        ig.convert_to_change_from_iig()
 
 
 # TODO: filter items based on the selected source.

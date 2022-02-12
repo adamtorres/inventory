@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('dashboard/', urls.include('dashboard.urls')),
     path('', urls.include('inventory.urls')),
+    path('', urls.include('incoming.urls')),
 ]

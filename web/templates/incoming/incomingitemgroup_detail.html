@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Incoming Group Detail{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+.text-col {
+    width: 20em;
+}
+.top-of-row {
+    border-left: black solid 1px;
+    border-top: black solid 3px;
+    border-right: black solid 1px;
+}
+.middle-of-row {
+    border-left: black solid 1px;
+    border-right: black solid 1px;
+}
+.important-cell {
+    font-weight: bold;
+    background-color: lightgray;
+}
+.important-cell-number {
+    font-weight: bold;
+    background-color: #e0e0e0;
+}
+.left-row {
+    border-left: black solid 1px;
+}
+.right-row {
+    border-right: black solid 1px;
+}
+.last-row {
+    border-bottom: black solid 1px;
+}
+.col {
+    text-align: right;
+    width: 7em;
+}
+.col-border {
+    border-right: lightgray solid 1px;
+}
+.table-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+.table-data tr td {
+    background-color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <ul>
+        <li>Source: {{ object.source.name }}</li>
+        <li>Active: {{ object.source.active }}</li>
+        <li>Comment: {{ object.comment }}</li>
+        <li>Action Date: {{ object.action_date }}</li>
+        <li>Converted DateTime: {{ object.converted_datetime }}</li>
+    </ul>
+    <table class="table-header">
+    <tr>
+        <td class="col col-border left-row">Ordered Quantity</td>
+        <td class="col col-border">Delivered Quantity</td>
+        <td class="col col-border">Total Weight</td>
+        <td class="col col-border">Pack Size</td>
+        <td class="col col-border">Unit Size</td>
+        <td class="col col-border">Pack Price</td>
+        <td class="col col-border">Pack Tax</td>
+        <td class="col right-row">Extended Price</td>
+    </tr>
+    </table>
+    <table class="table-data">
+    {% for item in object.items.all %}
+    <tr>
+        <td class="top-of-row important-cell" colspan="8">
+        {{ item.line_item_position }}:
+        {{ item.item.name }}
+        </td>
+    </tr>
+    <tr>
+        <td class="middle-of-row" colspan="8">
+        {{ item.item.common_item }}
+        {% if item.comment %}, {{ item.comment }}{% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col col-border left-row {% if forloop.last %}last-row{% endif %}">{{ item.ordered_quantity|floatformat }}</td>
+        <td class="col col-border important-cell-number {% if forloop.last %}last-row{% endif %}">{{ item.delivered_quantity|floatformat }}</td>
+        <td class="col col-border {% if forloop.last %}last-row{% endif %}">
+            {% if item.total_weight %}{{ item.total_weight|floatformat:2|intcomma }}{% else %}-{% endif %}
+        </td>
+        <td class="col col-border {% if forloop.last %}last-row{% endif %}">{{ item.item.pack_quantity|floatformat|intcomma }}</td>
+        <td class="col col-border {% if forloop.last %}last-row{% endif %}">{{ item.unit_size }}</td>
+        <td class="col col-border {% if forloop.last %}last-row{% endif %}">
+            <div class="dollar_container">
+                <div class="dollar_line">
+                    <span>$</span>
+                    <span class="dollar_content">{% if item.pack_price %}{{ item.pack_price|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
+                </div>
+            </div>
+        </td>
+        <td class="col col-border {% if forloop.last %}last-row{% endif %}">
+            <div class="dollar_container">
+                <div class="dollar_line">
+                    <span>$</span>
+                    <span class="dollar_content">{% if item.pack_tax %}{{ item.pack_tax|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
+                </div>
+            </div>
+        </td>
+        <td class="col right-row important-cell-number {% if forloop.last %}last-row{% endif %}">
+            <div class="dollar_container">
+                <div class="dollar_line">
+                    <span>$</span>
+                    <span class="dollar_content">{% if item.extended_price %}{{ item.extended_price|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

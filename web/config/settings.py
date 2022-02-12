@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django.forms',
     'rest_framework',
     'django.contrib.humanize',
     'inventory.apps.InventoryConfig',
@@ -60,6 +61,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 TEMPLATES = [
     {
@@ -148,3 +151,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+SHELL_PLUS_IMPORTS = [
+    'from incoming import models as inc_models',
+    'from inventory import models as inv_models',
+    'import scrap',
+]
