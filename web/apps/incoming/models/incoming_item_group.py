@@ -19,8 +19,8 @@ class IncomingItemGroupManager(models.Manager):
             qs = qs.filter(action_date__gte=start_date)
         qs = qs.annotate(
             converted_state=models.Case(
-                models.When(converted_datetime__isnull=False, then=models.Value('converted')),
-                default=models.Value('not converted')),
+                models.When(converted_datetime__isnull=False, then=models.Value('')),
+                default=models.Value('nope')),
             source_name=models.F('source__name'),
             total_items=models.Count('items'),
         )

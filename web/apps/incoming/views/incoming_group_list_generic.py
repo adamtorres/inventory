@@ -26,14 +26,12 @@ class IncomingGroupView(FormView):
             if not iig['converted_datetime']:
                 iig['selected'] = False
                 selectable += 1
-            if count == 1:
-                print(iig)
         return qs_values
 
     def get_queryset(self):
         qs = self.model.objects.list_groups()
         qs = qs.prefetch_related('source', 'items')
-        return qs.order_by('-action_date')
+        return qs.order_by('-action_date', 'id')
 
     def get_success_url(self):
         return urls.reverse("incoming_groups")
@@ -45,4 +43,6 @@ class IncomingGroupView(FormView):
                 iigs_to_convert.append(f.cleaned_data.get('id'))
         if iigs_to_convert:
             print(f"Convert these: {iigs_to_convert}")
+            for iig in inc_models.IncomingItemGroup.objects.filter(id__in=iigs_to_convert).exclude(converted_datetime__isnull=False):
+                iig.convert_to_change_from_iig()
         return super().form_valid(form)
