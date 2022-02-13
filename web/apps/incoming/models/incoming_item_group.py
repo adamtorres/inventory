@@ -87,8 +87,8 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
         for detail in q.order_by('position'):
             self.details.create(name=detail.name, position=detail.position)
 
-    # def get_absolute_url(self):
-    #     return urls.reverse('incominggroup-detail', kwargs={'pk': self.pk})
+    def get_absolute_url(self):
+        return urls.reverse('incoming_group', kwargs={'pk': self.pk})
 
     def invalidate_calculated_fields(self):
         self._total_price = None

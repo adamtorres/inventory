@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Incoming Group Create{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    {{ item_formset }}
+    <input type="submit" value="Create">
+    <input type="submit" value="Cancel">
+</form>
+{% endblock %}

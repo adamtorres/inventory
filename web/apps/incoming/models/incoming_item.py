@@ -44,7 +44,8 @@ class IncomingItemManager(models.Manager):
 class IncomingItem(models.Model):
     # TODO: add position field so items stay in the order on the invoice.
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    parent = models.ForeignKey(IncomingItemGroup, on_delete=models.CASCADE, related_name="items")
+    parent = models.ForeignKey(
+        IncomingItemGroup, on_delete=models.CASCADE, related_name="items", related_query_name="items")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="incoming_items")
     # Won't have this for OUT items for Sysco orders as the invoice just shows "OUT" for the quantity.
     ordered_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)

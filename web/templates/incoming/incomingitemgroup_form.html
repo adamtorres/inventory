@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Incoming Group Edit{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+.text-col {
+    width: 20em;
+}
+.top-of-row {
+    border-left: black solid 1px;
+    border-top: black solid 3px;
+    border-right: black solid 1px;
+}
+.middle-of-row {
+    border-left: black solid 1px;
+    border-right: black solid 1px;
+}
+.important-cell {
+    font-weight: bold;
+    background-color: lightgray;
+}
+.important-cell-number {
+    font-weight: bold;
+    background-color: #e0e0e0;
+}
+.left-row {
+    border-left: black solid 1px;
+}
+.right-row {
+    border-right: black solid 1px;
+}
+.last-row {
+    border-bottom: black solid 1px;
+}
+.col {
+    text-align: right;
+    width: 7em;
+}
+.col-border {
+    border-right: lightgray solid 1px;
+}
+.table-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+.table-data tr td {
+    background-color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <table>
+    {{ item_formset.as_table }}
+    </table>
+    <input type="submit" value="Update">
+    <input type="submit" value="Cancel">
+</form>
+{% endblock %}
