@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Editing items for {{ incomingitemgroup.descriptor }}{% endblock %}
+
+{% block content %}
+  <form action="" method="post" enctype="multipart/form-data">
+
+    {% for hidden_field in form.hidden_fields %}
+      {{ hidden_field.errors }}
+      {{ hidden_field }}
+    {% endfor %}
+
+    {% csrf_token %}
+
+    {{ form.management_form }}
+    {{ form.non_form_errors }}
+
+    <h3>Update Items</h3>
+    {% for item_form in form.forms %}
+      <hr>
+      <h5>
+        {% if item_form.instance.id %}
+          Item: {{ item_form.instance.item }}
+        {% else %}
+          {% if form.forms|length > 1 %}
+            Add another book
+          {% else %}
+            Add a book
+          {% endif %}
+        {% endif %}
+      </h5>
+      {% for hidden_field in book_form.hidden_fields %}
+        {{ hidden_field.errors }}
+      {% endfor %}
+      <table>
+        {{ item_form.as_table }}
+      </table>
+    {% endfor %}
+    <hr>
+    <p>
+        <input type="submit" value="Create">
+        <input type="submit" value="Cancel">
+        <a href="{{ incomingitemgroup.get_absolute_url  }}" role="button" class="btn btn-secondary w-100">Cancel</a>
+    </p>
+  </form>
+
+{% endblock content %}

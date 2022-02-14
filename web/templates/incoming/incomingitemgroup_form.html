@@ -60,6 +60,6 @@
     {{ item_formset.as_table }}
     </table>
     <input type="submit" value="Update">
-    <input type="submit" value="Cancel">
+    <a href="{% url "incoming_groups" %}">Cancel</a>
 </form>
 {% endblock %}

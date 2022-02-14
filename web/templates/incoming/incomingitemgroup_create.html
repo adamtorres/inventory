@@ -8,6 +8,6 @@
     {{ form.as_p }}
     {{ item_formset }}
     <input type="submit" value="Create">
-    <input type="submit" value="Cancel">
+    <a href="{% url "incoming_groups" %}">Cancel</a>
 </form>
 {% endblock %}

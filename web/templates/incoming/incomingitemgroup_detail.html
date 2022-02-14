@@ -54,7 +54,7 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{% url "incoming_group_edit" object.pk %}">Edit</a>
+    <a href="{% url "ex_edit" object.pk %}">Edit</a>
     <ul>
         <li>Source: {{ object.source.name }}</li>
         <li>Active: {{ object.source.active }}</li>
