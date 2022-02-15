@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Editing items for {{ incomingitemgroup.descriptor }}{% endblock %}
 
@@ -36,12 +37,21 @@
         {{ item_form.as_table }}
       </table>
     {% endfor %}
+    <div class='form-row' id='empty-row' style="display:none;">
+      <hr>
+      <table>
+        {{ form.empty_form.as_table }}
+      </table>
+    </div>
     <hr>
     <p>
         <input type="submit" value="Create">
         <input type="submit" value="Cancel">
         <a href="{{ incomingitemgroup.get_absolute_url  }}" role="button" class="btn btn-secondary w-100">Cancel</a>
+        <a class='btn btn-link add-new-form' href='#'>+ Add new form</a>
     </p>
   </form>
+<script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'add_new_form.js' %}"></script>
 
 {% endblock content %}

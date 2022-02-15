@@ -25,6 +25,6 @@ IncomingItemFormSet = inlineformset_factory(
     fields=[
         'item', 'ordered_quantity', 'delivered_quantity', 'total_weight', 'pack_price', 'pack_tax',
         'line_item_position', 'comment'
-    ], extra=1, can_delete=True
+    ], extra=0, can_delete=True
 )
 
