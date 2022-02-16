@@ -18,6 +18,38 @@ class ItemManager(models.Manager):
                 qs = qs.filter(source=source)
         return qs
 
+    def autocomplete_search(self, terms, sources=None):
+        """
+        Provided a single or list of terms, search item names, common names, and other names for the terms.  Return a
+        queryset of the found items.
+
+        Args:
+            terms: single string or list of strings.
+
+        Returns:
+            queryset with the result.
+        """
+        # TODO: Should this be expanded to handle multi-term phrases?  as in "ham meat" would not return "hamburger bun"
+        if not terms:
+            return self.none()
+        if isinstance(terms, str):
+            terms = [terms]
+
+        q = models.Q()
+
+        for term in terms:
+            q = (
+                q | models.Q(name__icontains=term) | models.Q(common_item__name__icontains=term) |
+                models.Q(common_item__other_names__name__icontains=term))
+        source_q = models.Q()
+        if sources and sources != ['']:
+            if isinstance(sources, str):
+                sources = [sources]
+            for source in sources:
+                source_q = source_q | models.Q(source__name__iexact=source)
+        return self.prefetch_related(
+            'common_item', 'common_item__other_names', 'source').filter(q, source_q).order_by('name')
+
 
 class Item(models.Model):
     # A unique item needs to be identifier/name/pack_quantity/unit_size
