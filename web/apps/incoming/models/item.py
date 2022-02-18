@@ -21,34 +21,39 @@ class ItemManager(models.Manager):
     def autocomplete_search(self, terms, sources=None):
         """
         Provided a single or list of terms, search item names, common names, and other names for the terms.  Return a
-        queryset of the found items.
+        queryset of the found items.  Optionally filter on source(s) when provided with a single or list of UUIDs.
 
         Args:
             terms: single string or list of strings.
+            sources: list of UUIDs as strings
 
         Returns:
             queryset with the result.
         """
         # TODO: Should this be expanded to handle multi-term phrases?  as in "ham meat" would not return "hamburger bun"
+        # TODO: returning duplicates for "stick" - ids are duplicated, at least.
         if not terms:
             return self.none()
         if isinstance(terms, str):
             terms = [terms]
 
-        q = models.Q()
+        term_q = models.Q()
 
         for term in terms:
-            q = (
-                q | models.Q(name__icontains=term) | models.Q(common_item__name__icontains=term) |
+            term_q = (
+                term_q | models.Q(name__icontains=term) | models.Q(common_item__name__icontains=term) |
                 models.Q(common_item__other_names__name__icontains=term))
         source_q = models.Q()
         if sources and sources != ['']:
-            if isinstance(sources, str):
+            print(f"sources before = {sources!r}")
+            if isinstance(sources, (str, uuid.UUID)):
+                print("sources is a singular str or uuid.   Making it a list.")
                 sources = [sources]
+            print(f"sources after = {sources!r}, type = {type(sources)}")
             for source in sources:
-                source_q = source_q | models.Q(source__name__iexact=source)
+                source_q = source_q | models.Q(source__id=source)
         return self.prefetch_related(
-            'common_item', 'common_item__other_names', 'source').filter(q, source_q).order_by('name')
+            'common_item', 'common_item__other_names', 'source').filter(term_q, source_q).order_by('name')
 
 
 class Item(models.Model):

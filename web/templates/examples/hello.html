@@ -1,0 +1,246 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
+    <link href="{% static '3rdparty/bootstrap-5.1.3-dist/css/bootstrap.css' %}" rel="stylesheet">
+    <script src="{% static '3rdparty/bootstrap-5.1.3-dist/js/bootstrap.bundle.js' %}"></script>
+
+
+    <title>Hello, world!</title>
+    <style type="text/css">
+    .dropdown-menu {
+        max-height: 200px;
+        width: 45em;
+        overflow-y: auto;
+    }
+    #jquery-example-2-text {
+        width: 50em;
+    }
+    </style>
+</head>
+<body>
+    <h1>Hello, world!</h1>
+<hr />
+<h2>bootstrap container sizes (change width of window)</h2>
+<div class="border bg-light container">container is the same as container-sm</div>
+<div class="border bg-light container-sm">100% wide until small breakpoint</div>
+<div class="border bg-light container-md">100% wide until medium breakpoint</div>
+<div class="border bg-light container-lg">100% wide until large breakpoint</div>
+<div class="border bg-light container-xl">100% wide until extra large breakpoint</div>
+<div class="border bg-light container-xxl">100% wide until extra extra large breakpoint</div>
+<hr />
+<h2>bootstrap row/column</h2>
+  <div class="shadow-lg container">
+  <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3 gy-2">
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 1</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 2</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 3</div>
+    </div>
+    <div class="opacity-25 col">
+      <div class="p-3 border bg-light">Row column 4</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 5</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 6</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 7</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 8</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 9</div>
+    </div>
+    <div class="col">
+      <div class="p-3 border bg-light">Row column 10</div>
+    </div>
+  </div>
+</div>
+<hr />
+<h2>bootstrap float clearfix</h2>
+<div clas="container-md border bg-light">
+    <div class="bg-info clearfix">
+      <button type="button" class="btn btn-secondary float-start">Example Button floated left</button>
+      <button type="button" class="btn btn-secondary float-end">Example Button floated right</button>
+    </div>
+</div>
+<hr />
+<h2>bootstrap carousel</h2>
+<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <svg class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" width="800" height="400"
+           xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: First slide"
+           preserveAspectRatio="xMidYMid slice" focusable="false">
+          <title>Placeholder</title>
+          <rect width="100%" height="100%" fill="#555"></rect>
+          <text x="50%" y="50%" fill="#333" dy=".3em">First slide</text>
+      </svg>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>First slide label</h5>
+        <p>Some representative placeholder content for the first slide.</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <svg class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" width="800" height="400"
+           xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Second slide"
+           preserveAspectRatio="xMidYMid slice" focusable="false">
+          <title>Placeholder</title>
+          <rect width="100%" height="100%" fill="#555"></rect>
+          <text x="50%" y="50%" fill="#333" dy=".3em">Second slide</text>
+      </svg>
+    </div>
+    <div class="carousel-item">
+      <svg class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" width="800" height="400"
+           xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Third slide"
+           preserveAspectRatio="xMidYMid slice" focusable="false">
+          <title>Placeholder</title>
+          <rect width="100%" height="100%" fill="#555"></rect>
+          <text x="50%" y="50%" fill="#333" dy=".3em">Third slide</text>
+      </svg>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+<hr />
+<h2>jquery append to element on event</h2>
+<div class="container" id="jquery-example-1">
+  <div class="inner" id="jquery-example-1-inner-1">Inner 1</div>
+  <div class="inner" id="jquery-example-1-inner-2">Inner 2</div>
+</div>
+<script type="text/javascript">
+var example_element = $("#jquery-example-1");
+example_element.find(".inner").append( "<p>Added to both .inner divs inside the container.</p>" );
+
+var $newdiv1 = $( "<div id='object1'>Created using $('') with $ on variable.</div>" ),
+    $newdiv2 = $( "<div id='object2'></div>")
+    existingdiv1 = $( "#jquery-example-1-inner-1" );
+
+$newdiv2.append($("<p>Added to element before it got added to the DOM.  Variable was created via $('').</p>"));
+example_element.append( $newdiv1, $newdiv2 );
+
+$newdiv2.append(existingdiv1);
+existingdiv1.append("<p>Moved to within a script-created div.  Existing div var gotten via $() and doesn't have $.</p>");
+</script>
+
+<hr />
+<h2>jquery events and timer</h2>
+<div class="container">
+<p>Click button and watch log.  Type in the textbox and wait a moment.  Type then immediately click out of the textbox.</p>
+<div id="jquery-example-2-controls">
+    <button id="jquery-example-2-btn" type="button" class="btn btn-secondary dropdown-toggle">button with events</button>
+    <div class="dropdown" id="dropdown1">
+        <input id="jquery-example-2-text" type="text" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+        <ul class="dropdown-menu shadow-lg" aria-labelledby="jquery-example-2-text" id="dropdown-menu1">
+        </ul>
+    </div>
+</div>
+<pre id="jquery-example-2-log">
+</pre>
+
+</div>
+<script type="text/javascript">
+    var keypress_timer;
+    var autocomplete_url = "{% url 'autocomplete' %}";
+
+    function logit(stuff, clear=false) {
+        if (clear) {
+            $("#jquery-example-2-log").empty();
+        }
+        $("#jquery-example-2-log").append(stuff + "\n");
+    }
+    function timer_elapsed_func() {
+        var text_value = $("#jquery-example-2-text").val()
+        if (text_value.length < 1) {
+            // don't want to send empty requests.
+            logit("timer: empty string.  Not sending ajax.");
+            return;
+        }
+        logit("timer: send &quot;" + text_value + "&quot; to " + autocomplete_url);
+        var jqxhr = $.ajax({
+            url: autocomplete_url,
+            type: "get",
+            data: {
+                terms: text_value
+            }
+        })
+        .done(function(data) {
+            var ddlist = $("#dropdown-menu1");
+            ddlist.empty();
+            $.each(data, function(index){
+                ddlist.append($(`<li><a class='dropdown-item' data-id="${this['id']}"><code>${this['identifier']}</code> : ${this['name']}</a></li>`));
+            });
+            {#$('#dropdown-menu1').dropdown();#}
+            {#$('#dropdown1').addClass('open');#}
+            if ($('#dropdown1').find('.dropdown-menu').is(":hidden")){
+                logit("toggling dropdown");
+                $('#jquery-example-2-btn').dropdown('toggle');
+            } else {
+                logit("NOT toggling dropdown");
+            }
+        })
+        .fail(function() {
+            logit("ajax fail");
+        })
+        .always(function() {
+            logit("ajax complete");
+        });
+    }
+    $("#jquery-example-2-btn").click(function() {
+        logit("Log of jquery events.", clear=true);
+    });
+    $("#jquery-example-2-text").keypress(function () {
+        {#logit("key");#}
+        window.clearTimeout(keypress_timer);
+        keypress_timer = setTimeout(timer_elapsed_func, 750);
+    })
+    $("#jquery-example-2-text").focusout(function () {
+        {#logit("out of focus - cancel timer");#}
+        window.clearTimeout(keypress_timer);
+    })
+    $("#dropdown-menu1 a").click(function () {
+    })
+    $('#dropdown-menu1').on('click', 'a', function() {
+        {#$( "div" ).data( "role" ) === "page";#}
+
+        var selected_item = $(this).text();
+        logit(`clicked dropdown item: &quot;${selected_item}&quot; ${$(this).data("id")}`);
+        $("#jquery-example-2-text").val(selected_item);
+    });
+
+</script>
+<hr />
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  </body>
+</html>
