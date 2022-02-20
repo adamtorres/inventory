@@ -61,7 +61,8 @@ function timer_elapsed_func(caller_obj) {
         url: autocomplete_url,
         type: "get",
         data: {
-            terms: text_value
+            terms: text_value,
+            sources: $( "#source" ).val()
         },
         caller_id: caller.prop('id'),
         terms: text_value

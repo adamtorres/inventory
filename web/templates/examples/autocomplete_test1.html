@@ -24,9 +24,18 @@
 
 {% block content %}
 <h2>jquery events and timer</h2>
+
+<p>
+    Since an invoice/receipt can only be from one source, all of the items must be from that source.  Pick the source
+to use for the autocompletes.
+</p>
+<select id="source">
+{% for source in sources %}
+    <option value="{{ source.id }}">{{ source.name }}</option>
+{% endfor %}
+</select>
+<hr />
 <div class="container" id="item-list">
-<p>Click button and watch log.  Type in the textbox and wait a moment.  Type then immediately click out of the textbox.</p>
-<button id="jquery-example-2-btn" type="button" class="btn btn-secondary" >Clear log</button>
 
 <div style="display: none;" name="template-container">
     <li id="dropdown-item-template">
@@ -57,6 +66,9 @@
     </div>
 </div>
 </div>
+
+<hr />
+<button id="jquery-example-2-btn" type="button" class="btn btn-secondary" >Clear log</button>
 <pre id="jquery-example-2-log">
 </pre>
 
