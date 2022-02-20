@@ -4,6 +4,7 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
+    <link rel="icon" href="data:,">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
@@ -12,16 +13,6 @@
 
 
     <title>Hello, world!</title>
-    <style type="text/css">
-    .dropdown-menu {
-        max-height: 200px;
-        width: 45em;
-        overflow-y: auto;
-    }
-    #jquery-example-2-text {
-        width: 50em;
-    }
-    </style>
 </head>
 <body>
     <h1>Hello, world!</h1>
@@ -148,99 +139,36 @@ $newdiv2.append(existingdiv1);
 existingdiv1.append("<p>Moved to within a script-created div.  Existing div var gotten via $() and doesn't have $.</p>");
 </script>
 
+
 <hr />
-<h2>jquery events and timer</h2>
-<div class="container">
-<p>Click button and watch log.  Type in the textbox and wait a moment.  Type then immediately click out of the textbox.</p>
-<div id="jquery-example-2-controls">
-    <button id="jquery-example-2-btn" type="button" class="btn btn-secondary dropdown-toggle">button with events</button>
-    <div class="dropdown" id="dropdown1">
-        <input id="jquery-example-2-text" type="text" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
-        <ul class="dropdown-menu shadow-lg" aria-labelledby="jquery-example-2-text" id="dropdown-menu1">
-        </ul>
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Dropdown button
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton4">
+    <a class="dropdown-item" href="#">Action</a>
+    <a class="dropdown-item" href="#">Another action</a>
+    <a class="dropdown-item" href="#">Something else here</a>
+  </div>
+</div>
+
+<h2>bootstrap dropdown as part of textbox input group</h2>
+<div class="input-group mb-3">
+  <div class="input-group-prepend dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="#">Action</a>
+      <a class="dropdown-item" href="#">Another action</a>
+      <a class="dropdown-item" href="#">Something else here</a>
+      <div role="separator" class="dropdown-divider"></div>
+      <a class="dropdown-item" href="#">Separated link</a>
     </div>
+  </div>
+  <input type="text" class="form-control" aria-label="Text input with dropdown button">
 </div>
-<pre id="jquery-example-2-log">
-</pre>
 
-</div>
-<script type="text/javascript">
-    var keypress_timer;
-    var autocomplete_url = "{% url 'autocomplete' %}";
 
-    function logit(stuff, clear=false) {
-        if (clear) {
-            $("#jquery-example-2-log").empty();
-        }
-        $("#jquery-example-2-log").append(stuff + "\n");
-    }
-    function timer_elapsed_func() {
-        var text_value = $("#jquery-example-2-text").val()
-        if (text_value.length < 1) {
-            // don't want to send empty requests.
-            logit("timer: empty string.  Not sending ajax.");
-            return;
-        }
-        logit("timer: send &quot;" + text_value + "&quot; to " + autocomplete_url);
-        var jqxhr = $.ajax({
-            url: autocomplete_url,
-            type: "get",
-            data: {
-                terms: text_value
-            }
-        })
-        .done(function(data) {
-            var ddlist = $("#dropdown-menu1");
-            ddlist.empty();
-            $.each(data, function(index){
-                ddlist.append($(`<li><a class='dropdown-item' data-id="${this['id']}"><code>${this['identifier']}</code> : ${this['name']}</a></li>`));
-            });
-            {#$('#dropdown-menu1').dropdown();#}
-            {#$('#dropdown1').addClass('open');#}
-            if ($('#dropdown1').find('.dropdown-menu').is(":hidden")){
-                logit("toggling dropdown");
-                $('#jquery-example-2-btn').dropdown('toggle');
-            } else {
-                logit("NOT toggling dropdown");
-            }
-        })
-        .fail(function() {
-            logit("ajax fail");
-        })
-        .always(function() {
-            logit("ajax complete");
-        });
-    }
-    $("#jquery-example-2-btn").click(function() {
-        logit("Log of jquery events.", clear=true);
-    });
-    $("#jquery-example-2-text").keypress(function () {
-        {#logit("key");#}
-        window.clearTimeout(keypress_timer);
-        keypress_timer = setTimeout(timer_elapsed_func, 750);
-    })
-    $("#jquery-example-2-text").focusout(function () {
-        {#logit("out of focus - cancel timer");#}
-        window.clearTimeout(keypress_timer);
-    })
-    $("#dropdown-menu1 a").click(function () {
-    })
-    $('#dropdown-menu1').on('click', 'a', function() {
-        {#$( "div" ).data( "role" ) === "page";#}
-
-        var selected_item = $(this).text();
-        logit(`clicked dropdown item: &quot;${selected_item}&quot; ${$(this).data("id")}`);
-        $("#jquery-example-2-text").val(selected_item);
-    });
-
-</script>
 <hr />
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+
   </body>
 </html>

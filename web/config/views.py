@@ -7,3 +7,7 @@ class ExampleView(generic.TemplateView):
 
 class DropdownExampleView(generic.TemplateView):
     template_name = "examples/dropdown.html"
+
+
+class AutocompleteTestOne(generic.TemplateView):
+    template_name = "examples/autocomplete_test1.html"

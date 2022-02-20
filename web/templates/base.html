@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="data:,">
     <title>{% block title %}Title{% endblock %}</title>
 <style type="text/css">
     #left-nav {
@@ -41,6 +42,8 @@
 </style>
 {% block styles %}
 {% endblock %}
+{% block head_scripts %}
+{% endblock %}
 </head>
 <body>
 <div id="left-nav">
@@ -57,5 +60,7 @@
 {% block content %}
 {% endblock %}
 </div>
+{% block body_scripts %}
+{% endblock %}
 </body>
 </html>
