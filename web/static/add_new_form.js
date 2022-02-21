@@ -6,11 +6,12 @@ function add_new_form() {
     total_forms = $('#id_items-TOTAL_FORMS')
 
     total_forms_value = parseInt(total_forms.val())
-    logit(`total_forms_value = ${total_forms_value}.`)
 
-    empty_obj.find('input, label, select, textarea, div, ul').each(function(){
+    empty_obj.find('input, label, select, textarea, div, ul').each(function() {
         to_edit_attributes = ['id', 'name', 'for', 'aria-labelledby']
-
+        if ((this.type === 'number') && (this.id.endsWith("-line_item_position"))) {
+            this.value = total_forms_value + 1;
+        }
         for(var i in to_edit_attributes){
             attribute = to_edit_attributes[i]
 
@@ -30,9 +31,6 @@ function add_new_form() {
 }
 
 $('.add-new-form').click(function(e) {
-    logit("add-new-form.click!")
     e.preventDefault();
-    logit("add-new-form.click! prevented default")
     add_new_form();
-    logit("add-new-form.click! added form")
 });

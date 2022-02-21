@@ -65,6 +65,9 @@ class IncomingItem(models.Model):
 
     objects = IncomingItemManager()
 
+    class Meta:
+        ordering = ("parent", "line_item_position", )
+
     def __str__(self):
         return self.item.item_name
 
