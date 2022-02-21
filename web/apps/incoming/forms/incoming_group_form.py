@@ -14,21 +14,30 @@ class IncomingGroupForm(forms.ModelForm):
 
 class IncomingItemForm(forms.ModelForm):
     template_name_table = 'incoming/forms/edit_item.html'
-    # item = forms.CharField(widget=sc_widgets.AutocompleteWidget)
     item = forms.ModelChoiceField(inc_models.Item.objects.available_items(), widget=sc_widgets.AutocompleteWidget)
-    ordered_quantity = forms.DecimalField()
-    delivered_quantity = forms.DecimalField()
-    total_weight = forms.DecimalField()
-    pack_price = forms.DecimalField()
-    pack_tax = forms.DecimalField()
+    ordered_quantity = forms.DecimalField(max_digits=10, decimal_places=4, required=False)
+    delivered_quantity = forms.DecimalField(max_digits=10, decimal_places=4, required=False)
+    total_weight = forms.DecimalField(max_digits=10, decimal_places=4, required=False)
+    pack_price = forms.DecimalField(max_digits=10, decimal_places=4, required=False)
+    pack_tax = forms.DecimalField(max_digits=10, decimal_places=4, required=False)
     line_item_position = forms.IntegerField()
-    comment = forms.CharField()
+    comment = forms.CharField(required=False)
 
     class Meta:
         model = inc_models.IncomingItem
         fields = [
             'item', 'ordered_quantity', 'delivered_quantity', 'total_weight', 'pack_price', 'pack_tax',
             'line_item_position', 'comment']
+
+    def clean_total_weight(self):
+        return self.cleaned_data['total_weight'] or 0.0
+
+    def clean_pack_tax(self):
+        return self.cleaned_data['pack_tax'] or 0.0
+
+    def clean_comment(self):
+        return self.cleaned_data['comment'] or ''
+
 
 
 IncomingItemFormSet = inlineformset_factory(

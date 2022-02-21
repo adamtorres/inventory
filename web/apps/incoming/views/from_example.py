@@ -34,7 +34,12 @@ class ExampleIncomingItemGroupEditView(SingleObjectMixin, FormView):
         if self.request.method == 'GET':
             context["itemformset"] = inc_forms.IncomingItemFormSet(instance=self.object)
         if self.request.method == 'POST':
-            context["itemformset"] = inc_forms.IncomingItemFormSet(self.request.POST, instance=self.object)
+            post = {}
+            for k in list(self.request.POST.keys()):
+                if "__prefix__" in k:
+                    continue
+                post[k] = self.request.POST[k]
+            context["itemformset"] = inc_forms.IncomingItemFormSet(post, instance=self.object)
         return context
 
     def get(self, request, *args, **kwargs):
@@ -54,6 +59,7 @@ class ExampleIncomingItemGroupEditView(SingleObjectMixin, FormView):
             context["itemformset"].save()
         else:
             # TODO: invalid itemformset?
+            print(f'ERRORS: {context["itemformset"].errors}')
             pass
         form.save()
 

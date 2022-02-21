@@ -11,8 +11,8 @@ $('.add-new-form').click(function(e) {
 
     total_forms_value = parseInt(total_forms.val())
 
-    empty_obj.find('input, label, select, textarea').each(function(){
-        to_edit_attributes = ['id', 'name', 'for']
+    empty_obj.find('input, label, select, textarea, div, ul').each(function(){
+        to_edit_attributes = ['id', 'name', 'for', 'aria-labelledby']
 
         for(var i in to_edit_attributes){
             attribute = to_edit_attributes[i]
