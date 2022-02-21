@@ -38,6 +38,20 @@ class IncomingItemForm(forms.ModelForm):
     def clean_comment(self):
         return self.cleaned_data['comment'] or ''
 
+    def get_context(self):
+        context = super().get_context()
+        # TODO: I don't really like how the placeholder is being set for the AutocompleteWidget.
+        # print("=" * 80)
+        # print(f"IncomingItemForm.get_context: {context}")
+        # print(f"item.html_name = {context['form']['item'].html_name}")
+        value = context['form']['item'].value()
+        # print(f"item.value() = {value}")
+        if value:
+            # print(f"item.form.is_bound = {context['form']['item'].form.is_bound}")
+            # print(f"form.instance = {context['form'].instance}")
+            # print(f"item.field.widget = {context['form']['item'].field.widget}")
+            context['form']['item'].field.widget.attrs['placeholder'] = str(context['form'].instance)
+        return context
 
 
 IncomingItemFormSet = inlineformset_factory(

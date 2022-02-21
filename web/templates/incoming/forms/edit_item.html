@@ -9,9 +9,8 @@
   <!-- new item -->
 {% endif %}
     <td>
-        {{ form.line_item_position.errors }}
-        {{ form.line_item_position }}
-        {# TODO: populate this via the add_new_form.js call?  Recalculate on edit page load to fix gaps? #}
+        {{ form.DELETE.errors }}
+        {{ form.DELETE }}
         <span id="hidden-fields-{{ form.instance.id }}">
             {% for hidden_field in form.hidden_fields %}
                 {{ hidden_field.errors }}
@@ -20,12 +19,9 @@
         </span>
     </td>
     <td>
-        {{ form.comment.errors }}
-        {{ form.comment }}
-    </td>
-    <td>
-        {{ form.DELETE.errors }}
-        {{ form.DELETE }}
+        {{ form.line_item_position.errors }}
+        {{ form.line_item_position }}
+        {# TODO: populate this via the add_new_form.js call?  Recalculate on edit page load to fix gaps? #}
     </td>
     <td>
         {{ form.ordered_quantity.errors }}
@@ -38,6 +34,7 @@
     <td>
         {{ form.item.errors }}
         {{ form.item }}
+{#                  Item: {{ form.instance.item }}#}
     </td>
     <td>
         {{ form.total_weight.errors }}
@@ -50,6 +47,10 @@
     <td>
         {{ form.pack_tax.errors }}
         {{ form.pack_tax }}
+    </td>
+    <td>
+        {{ form.comment.errors }}
+        {{ form.comment }}
     </td>
 
 {# TODO: add a javascript calculated extended price? #}
