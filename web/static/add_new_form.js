@@ -6,6 +6,7 @@ function add_new_form() {
     total_forms = $('#id_items-TOTAL_FORMS')
 
     total_forms_value = parseInt(total_forms.val())
+    focus_after_add_id = "";
 
     empty_obj.find('input, label, select, textarea, div, ul').each(function() {
         to_edit_attributes = ['id', 'name', 'for', 'aria-labelledby']
@@ -20,7 +21,9 @@ function add_new_form() {
                 new_value = old_value.replace(/__prefix__/g, total_forms_value)
                 $(this).attr(attribute, new_value)
             }
-
+            if (this.id.endsWith("-ordered_quantity")){
+                focus_after_add_id = this.id;
+            }
         }
     })
 
@@ -28,6 +31,9 @@ function add_new_form() {
 
     empty_obj.show()
     $('#formset-table > tbody:last-child').append(empty_obj);
+    if (focus_after_add_id) {
+        document.getElementById(focus_after_add_id).focus()
+    }
 }
 
 $('.add-new-form').click(function(e) {
