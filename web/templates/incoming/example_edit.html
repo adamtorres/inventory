@@ -42,9 +42,7 @@
     {{ itemformset.management_form }}
     <div class="container" id="item-list">
     <table id="formset-table">
-    {% for item_form in itemformset.forms %}
-        {% if forloop.first %}
-            <thead>
+        <thead>
             <tr>
                 <td>{{ itemformset.empty_form.DELETE.label }}</td>
                 <td>{{ itemformset.empty_form.line_item_position.label }}</td>
@@ -56,17 +54,17 @@
                 <td>{{ itemformset.empty_form.pack_tax.label }}</td>
                 <td>{{ itemformset.empty_form.comment.label }}</td>
             </tr>
-            </thead>
-        {% endif %}
+        </thead>
         <tbody>
         <tr class='form-row' id='empty-row' style="display:none;">
             {{ itemformset.empty_form.as_table }}
         </tr>
+    {% for item_form in itemformset.forms %}
         <tr>
             {{ item_form.as_table }}
         </tr>
-        </tbody>
     {% endfor %}
+        </tbody>
     </table>
 
 <div style="display: none;" name="template-container">
