@@ -41,29 +41,33 @@
     <h3>Update Items</h3>
     {{ itemformset.management_form }}
     <div class="container" id="item-list">
+    <table id="formset-table">
     {% for item_form in itemformset.forms %}
-      <hr>
-      <h5>
-        {% if item_form.instance.id %}
-          Item: {{ item_form.instance.item }}
-        {% else %}
-          {% if form.forms|length > 1 %}
-            Add another book
-          {% else %}
-            Add a book
-          {% endif %}
+        {% if forloop.first %}
+            <thead>
+            <tr>
+                <td>{{ itemformset.empty_form.line_item_position.label }}</td>
+                <td>{{ itemformset.empty_form.comment.label }}</td>
+                <td>{{ itemformset.empty_form.DELETE.label }}</td>
+                <td>{{ itemformset.empty_form.ordered_quantity.label }}</td>
+                <td>{{ itemformset.empty_form.delivered_quantity.label }}</td>
+                <td>{{ itemformset.empty_form.item.label }}</td>
+                <td>{{ itemformset.empty_form.total_weight.label }}</td>
+                <td>{{ itemformset.empty_form.pack_price.label }}</td>
+                <td>{{ itemformset.empty_form.pack_tax.label }}</td>
+            </tr>
+            </thead>
         {% endif %}
-      </h5>
-        <div id="hidden-fields-{{ item_form.instance.id }}">
-      {% for hidden_field in item_form.hidden_fields %}
-        {{ hidden_field.errors }}
-        {{ hidden_field }}
-      {% endfor %}
-        </div>
-      <table>
-        {{ item_form.as_table }}
-      </table>
+        <tbody>
+        <tr class='form-row' id='empty-row' style="display:none;">
+            {{ itemformset.empty_form.as_table }}
+        </tr>
+        <tr>
+            {{ item_form.as_table }}
+        </tr>
+        </tbody>
     {% endfor %}
+    </table>
 
 <div style="display: none;" name="template-container">
     <li id="dropdown-item-template">
@@ -77,12 +81,6 @@
         </a>
     </li>
 </div>
-    <div class='form-row' id='empty-row' style="display:none;">
-      <hr>
-      <table>
-        {{ itemformset.empty_form.as_table }}
-      </table>
-    </div>
 </div>
     <hr>
     <p>

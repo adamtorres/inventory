@@ -29,5 +29,5 @@ $('.add-new-form').click(function(e) {
     total_forms.val(total_forms_value + 1)
 
     empty_obj.show()
-    empty_obj.insertAfter($('#empty-row'))
+    $('#formset-table > tbody:last-child').append(empty_obj);
 });

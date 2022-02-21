@@ -3,69 +3,53 @@
 {# which uses IncomingItemFormSet #}
 {# which uses IncomingItemForm #}
 {# which uses this file. #}
-<tbody>
-    <tr>
-        <th>{{ form.item.label_tag }}</th>
-        <td>
-            {{ form.item.errors }}
-            {{ form.item }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.ordered_quantity.label_tag }}</th>
-        <td>
-            {{ form.ordered_quantity.errors }}
-            {{ form.ordered_quantity }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.delivered_quantity.label_tag }}</th>
-        <td>
-            {{ form.delivered_quantity.errors }}
-            {{ form.delivered_quantity }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.total_weight.label_tag }}</th>
-        <td>
-            {{ form.total_weight.errors }}
-            {{ form.total_weight }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.pack_price.label_tag }}</th>
-        <td>
-            {{ form.pack_price.errors }}
-            {{ form.pack_price }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.pack_tax.label_tag }}</th>
-        <td>
-            {{ form.pack_tax.errors }}
-            {{ form.pack_tax }}
-        </td>
+{% if form.instance.id %}
+  <!-- existing item -->
+{% else %}
+  <!-- new item -->
+{% endif %}
+    <td>
+        {{ form.line_item_position.errors }}
+        {{ form.line_item_position }}
+        {# TODO: populate this via the add_new_form.js call?  Recalculate on edit page load to fix gaps? #}
+        <span id="hidden-fields-{{ form.instance.id }}">
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field.errors }}
+                {{ hidden_field }}
+            {% endfor %}
+        </span>
+    </td>
+    <td>
+        {{ form.comment.errors }}
+        {{ form.comment }}
+    </td>
+    <td>
+        {{ form.DELETE.errors }}
+        {{ form.DELETE }}
+    </td>
+    <td>
+        {{ form.ordered_quantity.errors }}
+        {{ form.ordered_quantity }}
+    </td>
+    <td>
+        {{ form.delivered_quantity.errors }}
+        {{ form.delivered_quantity }}
+    </td>
+    <td>
+        {{ form.item.errors }}
+        {{ form.item }}
+    </td>
+    <td>
+        {{ form.total_weight.errors }}
+        {{ form.total_weight }}
+    </td>
+    <td>
+        {{ form.pack_price.errors }}
+        {{ form.pack_price }}
+    </td>
+    <td>
+        {{ form.pack_tax.errors }}
+        {{ form.pack_tax }}
+    </td>
 
-    </tr>
-    <tr>
-        <th>{{ form.line_item_position.label_tag }}</th>
-        <td>
-            {{ form.line_item_position.errors }}
-            {{ form.line_item_position }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.comment.label_tag }}</th>
-        <td>
-            {{ form.comment.errors }}
-            {{ form.comment }}
-        </td>
-    </tr>
-    <tr>
-        <th>{{ form.DELETE.label_tag }}</th>
-        <td>
-            {{ form.DELETE.errors }}
-            {{ form.DELETE }}
-        </td>
-    </tr>
-</tbody>
+{# TODO: add a javascript calculated extended price? #}
