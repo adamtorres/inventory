@@ -122,6 +122,12 @@ def test_autocomplete():
     print(f"{count} items")
 
 
+def test_autocomplete_widget():
+    from scrap import widgets
+    w = widgets.AutocompleteWidget(attrs={'id': 'some-id'})
+    print(w.render(name='CUSTOM', value='VALUE'))
+
+
 def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
@@ -129,4 +135,5 @@ def run():
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
         # test_incoming_item_group_listing()
-        test_autocomplete()
+        # test_autocomplete()
+        test_autocomplete_widget()

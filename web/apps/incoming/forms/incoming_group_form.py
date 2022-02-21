@@ -2,7 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory, modelformset_factory
 
 from incoming import models as inc_models
-from scrap import forms as sc_forms
+from scrap import forms as sc_forms, widgets as sc_widgets
 
 
 class IncomingGroupForm(forms.ModelForm):
@@ -14,6 +14,15 @@ class IncomingGroupForm(forms.ModelForm):
 
 class IncomingItemForm(forms.ModelForm):
     template_name_table = 'incoming/forms/edit_item.html'
+    # item = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    item = forms.ModelChoiceField(inc_models.Item.objects.available_items(), widget=sc_widgets.AutocompleteWidget)
+    ordered_quantity = forms.DecimalField()
+    delivered_quantity = forms.DecimalField()
+    total_weight = forms.DecimalField()
+    pack_price = forms.DecimalField()
+    pack_tax = forms.DecimalField()
+    line_item_position = forms.IntegerField()
+    comment = forms.CharField()
 
     class Meta:
         model = inc_models.IncomingItem
