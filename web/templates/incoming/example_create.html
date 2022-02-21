@@ -3,6 +3,17 @@
 
 {% block title %}Example Incoming Group Create{% endblock %}
 
+{% block styles %}
+<style type="text/css">
+    .main-form {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+    .main-form input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
 {% block content %}
 <form action="" method="post">
     {% csrf_token %}
@@ -12,8 +23,11 @@
     {% endfor %}
     {{ form.non_form_errors }}
 
-    {{ form.as_p }}
-    <input type="submit" value="Create">
-    <a href="{% url "incoming_groups" %}">Cancel</a>
+    {% include "incoming/forms/example_incoming_item_group.html" %}
+
+    <div class="row row-cols-3">
+        <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Create</button></div>
+        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{% url "incoming_groups" %}" role="button">Cancel</a></div>
+    </div>
 </form>
 {% endblock %}

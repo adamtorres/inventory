@@ -13,6 +13,13 @@
     .item-name-field {
         width: 50em;
     }
+    .main-form {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+    .main-form input {
+        width: 100%;
+    }
     #item-list {
         width: 100%;
         {#overflow: scroll;#}
@@ -20,8 +27,21 @@
     #formset-table {
 
     }
+    #formset-table th {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 1;
+        vertical-align: bottom;
+    }
+    #formset-table th {
+        border-left: black solid 1px;
+    }
+    #formset-table th:first-of-type {
+        border-left: none;
+    }
     #formset-table td {
-        border: black solid 1px;
+        border-top: black solid 1px;
     }
     #formset-table td * {
     }
@@ -66,7 +86,7 @@
         width: 20em;
         text-align: left;
     }
-    .item_col * {
+    .item_col input {
         width: 100%;
         text-align: left;
     }
@@ -109,14 +129,8 @@
     </style>
 {% endblock %}
 
-{% block head_scripts %}
-    <script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
-    <link href="{% static '3rdparty/bootstrap-5.1.3-dist/css/bootstrap.css' %}" rel="stylesheet">
-    <script src="{% static '3rdparty/bootstrap-5.1.3-dist/js/bootstrap.bundle.js' %}"></script>
-{% endblock %}
-{# id_source #}
 {% block content %}
-  <form action="" method="post" enctype="multipart/form-data">
+<form action="" method="post" enctype="multipart/form-data">
     <div id="hidden-fields-main">
     {% for hidden_field in form.hidden_fields %}
       {{ hidden_field.errors }}
@@ -129,23 +143,23 @@
     {{ form.management_form }}
     {{ form.non_form_errors }}
 
-    {{ form.as_p }}
+    {% include "incoming/forms/example_incoming_item_group.html" %}
 
-    <h3>Update Items</h3>
+    <h3 style="margin-left: 1em;">Update Items</h3>
     {{ itemformset.management_form }}
     <div class="container" id="item-list">
     <table id="formset-table">
         <thead>
             <tr>
-                <td class="delete_col">{{ itemformset.empty_form.DELETE.label }}</td>
-                <td class="line_item_position_col">{{ itemformset.empty_form.line_item_position.label }}</td>
-                <td class="ordered_quantity_col">{{ itemformset.empty_form.ordered_quantity.label }}</td>
-                <td class="delivered_quantity_col">{{ itemformset.empty_form.delivered_quantity.label }}</td>
-                <td class="item_col">{{ itemformset.empty_form.item.label }}</td>
-                <td class="total_weight_col">{{ itemformset.empty_form.total_weight.label }}</td>
-                <td class="pack_price_col">{{ itemformset.empty_form.pack_price.label }}</td>
-                <td class="pack_tax_col">{{ itemformset.empty_form.pack_tax.label }}</td>
-                <td class="comment_col">{{ itemformset.empty_form.comment.label }}</td>
+                <th class="delete_col">{{ itemformset.empty_form.DELETE.label }}</th>
+                <th class="line_item_position_col">{{ itemformset.empty_form.line_item_position.label }}</th>
+                <th class="ordered_quantity_col">{{ itemformset.empty_form.ordered_quantity.label }}</th>
+                <th class="delivered_quantity_col">{{ itemformset.empty_form.delivered_quantity.label }}</th>
+                <th class="item_col">{{ itemformset.empty_form.item.label }}</th>
+                <th class="total_weight_col">{{ itemformset.empty_form.total_weight.label }}</th>
+                <th class="pack_price_col">{{ itemformset.empty_form.pack_price.label }}</th>
+                <th class="pack_tax_col">{{ itemformset.empty_form.pack_tax.label }}</th>
+                <th class="comment_col">{{ itemformset.empty_form.comment.label }}</th>
             </tr>
         </thead>
         <tbody>
@@ -187,7 +201,6 @@ hello
 {% endblock content %}
 
 {% block body_scripts %}
-<script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'add_new_form.js' %}"></script>
 <script src="{% static 'autocomplete.js' %}"></script>
 <script type="text/javascript">
