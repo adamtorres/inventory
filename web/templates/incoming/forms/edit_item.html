@@ -8,7 +8,7 @@
 {% else %}
   <!-- new item -->
 {% endif %}
-    <td>
+    <td class="delete_col">
         {{ form.DELETE.errors }}
         {{ form.DELETE }}
         <span id="hidden-fields-{{ form.instance.id }}">
@@ -18,37 +18,37 @@
             {% endfor %}
         </span>
     </td>
-    <td>
+    <td class="line_item_position_col">
         {{ form.line_item_position.errors }}
         {{ form.line_item_position }}
         {# TODO: populate this via the add_new_form.js call?  Recalculate on edit page load to fix gaps? #}
     </td>
-    <td>
+    <td class="ordered_quantity_col">
         {{ form.ordered_quantity.errors }}
         {{ form.ordered_quantity }}
     </td>
-    <td>
+    <td class="delivered_quantity_col">
         {{ form.delivered_quantity.errors }}
         {{ form.delivered_quantity }}
     </td>
-    <td>
+    <td class="item_col">
         {{ form.item.errors }}
         {{ form.item }}
 {#                  Item: {{ form.instance.item }}#}
     </td>
-    <td>
+    <td class="total_weight_col">
         {{ form.total_weight.errors }}
         {{ form.total_weight }}
     </td>
-    <td>
+    <td class="pack_price_col">
         {{ form.pack_price.errors }}
         {{ form.pack_price }}
     </td>
-    <td>
+    <td class="pack_tax_col">
         {{ form.pack_tax.errors }}
         {{ form.pack_tax }}
     </td>
-    <td>
+    <td class="comment_col">
         {{ form.comment.errors }}
         {{ form.comment }}
     </td>

@@ -15,10 +15,96 @@
     }
     #item-list {
         width: 100%;
-        overflow: scroll;
+        {#overflow: scroll;#}
     }
     #formset-table {
 
+    }
+    #formset-table td {
+        border: black solid 1px;
+    }
+    #formset-table td * {
+    }
+
+    .delete_col {
+        width: 2em;
+        text-align: center;
+    }
+    .delete_col * {
+        width: 2em;
+        text-align: center;
+    }
+
+    .line_item_position_col {
+        width: 2em;
+        text-align: right;
+    }
+    .line_item_position_col * {
+        width: 100%;
+        text-align: right;
+    }
+
+    .ordered_quantity_col {
+        width: 5em;
+        text-align: right;
+    }
+    .ordered_quantity_col * {
+        width: 100%;
+        text-align: right;
+    }
+
+    .delivered_quantity_col {
+        width: 5em;
+        text-align: right;
+    }
+    .delivered_quantity_col * {
+        width: 100%;
+        text-align: right;
+    }
+
+    .item_col {
+        width: 20em;
+        text-align: left;
+    }
+    .item_col * {
+        width: 100%;
+        text-align: left;
+    }
+
+    .total_weight_col {
+        width: 5em;
+        text-align: right;
+    }
+    .total_weight_col * {
+        width: 100%;
+        text-align: right;
+    }
+
+    .pack_price_col {
+        width: 5em;
+        text-align: right;
+    }
+    .pack_price_col * {
+        width: 100%;
+        text-align: right;
+    }
+
+    .pack_tax_col {
+        width: 5em;
+        text-align: right;
+    }
+    .pack_tax_col * {
+        width: 100%;
+        text-align: right;
+    }
+
+    .comment_col {
+        width: 20em;
+        text-align: left;
+    }
+    .comment_col * {
+        width: 100%;
+        text-align: left;
     }
     </style>
 {% endblock %}
@@ -51,15 +137,15 @@
     <table id="formset-table">
         <thead>
             <tr>
-                <td>{{ itemformset.empty_form.DELETE.label }}</td>
-                <td>{{ itemformset.empty_form.line_item_position.label }}</td>
-                <td>{{ itemformset.empty_form.ordered_quantity.label }}</td>
-                <td>{{ itemformset.empty_form.delivered_quantity.label }}</td>
-                <td>{{ itemformset.empty_form.item.label }}</td>
-                <td>{{ itemformset.empty_form.total_weight.label }}</td>
-                <td>{{ itemformset.empty_form.pack_price.label }}</td>
-                <td>{{ itemformset.empty_form.pack_tax.label }}</td>
-                <td>{{ itemformset.empty_form.comment.label }}</td>
+                <td class="delete_col">{{ itemformset.empty_form.DELETE.label }}</td>
+                <td class="line_item_position_col">{{ itemformset.empty_form.line_item_position.label }}</td>
+                <td class="ordered_quantity_col">{{ itemformset.empty_form.ordered_quantity.label }}</td>
+                <td class="delivered_quantity_col">{{ itemformset.empty_form.delivered_quantity.label }}</td>
+                <td class="item_col">{{ itemformset.empty_form.item.label }}</td>
+                <td class="total_weight_col">{{ itemformset.empty_form.total_weight.label }}</td>
+                <td class="pack_price_col">{{ itemformset.empty_form.pack_price.label }}</td>
+                <td class="pack_tax_col">{{ itemformset.empty_form.pack_tax.label }}</td>
+                <td class="comment_col">{{ itemformset.empty_form.comment.label }}</td>
             </tr>
         </thead>
         <tbody>
@@ -88,11 +174,11 @@
 </div>
 </div>
     <hr>
-    <p>
-        <button class="btn btn-primary" type="submit">Submit</button>
-        <a href="{{ incomingitemgroup.get_absolute_url  }}" role="button" class="btn btn-secondary w-20">Cancel</a>
-        <a class='btn btn-info add-new-form' href='#'>+ Add new form</a>
-    </p>
+    <div class="row row-cols-3">
+        <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Submit</button></div>
+        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{{ incomingitemgroup.get_absolute_url  }}" role="button">Cancel</a></div>
+        <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
+    </div>
   </form>
 
 <pre id="jquery-example-2-log">
