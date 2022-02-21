@@ -107,16 +107,15 @@ class IncomingItem(models.Model):
         return self.item.get_delivered_unit_quantity(self.delivered_quantity)
 
     def recalculate_calculated_fields(self):
-        self.extended_price = self.delivered_quantity * self.pack_price + self.pack_tax
-        self.save()
+        if self.total_weight:
+            # when given a total_weight, it is the weight of the entire order, not just a single pack.
+            self.extended_price = self.pack_price * self.total_weight + self.pack_tax
+        else:
+            self.extended_price = self.pack_price * self.ordered_quantity + self.pack_tax
 
     def save(self, *args, **kwargs):
         # TODO: using ordered_quantity for now as get_cost_per_unit is doing so.
-        if not self.extended_price:
-            if self.total_weight:
-                self.extended_price = self.pack_price * self.total_weight
-            else:
-                self.extended_price = self.pack_price * self.ordered_quantity
+        self.recalculate_calculated_fields()
         super().save(*args, **kwargs)
 
     @property

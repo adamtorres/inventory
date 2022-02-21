@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 
 from .signals import recalculate_incoming_item_group
 
@@ -11,3 +11,4 @@ class IncomingConfig(AppConfig):
     def ready(self):
         IncomingItem = self.get_model('IncomingItem')
         post_save.connect(recalculate_incoming_item_group, sender=IncomingItem)
+        post_delete.connect(recalculate_incoming_item_group, sender=IncomingItem)
