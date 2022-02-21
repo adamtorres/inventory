@@ -13,6 +13,8 @@ class IncomingGroupForm(forms.ModelForm):
 
 
 class IncomingItemForm(forms.ModelForm):
+    template_name_table = 'incoming/forms/edit_item.html'
+
     class Meta:
         model = inc_models.IncomingItem
         fields = [
@@ -21,7 +23,7 @@ class IncomingItemForm(forms.ModelForm):
 
 
 IncomingItemFormSet = inlineformset_factory(
-    inc_models.IncomingItemGroup, inc_models.IncomingItem,
+    inc_models.IncomingItemGroup, inc_models.IncomingItem, IncomingItemForm,
     fields=[
         'item', 'ordered_quantity', 'delivered_quantity', 'total_weight', 'pack_price', 'pack_tax',
         'line_item_position', 'comment'

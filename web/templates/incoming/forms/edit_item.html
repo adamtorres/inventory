@@ -1,0 +1,71 @@
+{# Used by urls.reverse("ex_edit") #}
+{# which points to ExampleIncomingItemGroupEditView #}
+{# which uses IncomingItemFormSet #}
+{# which uses IncomingItemForm #}
+{# which uses this file. #}
+<tbody>
+    <tr>
+        <th>{{ form.item.label_tag }}</th>
+        <td>
+            {{ form.item.errors }}
+            {{ form.item }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.ordered_quantity.label_tag }}</th>
+        <td>
+            {{ form.ordered_quantity.errors }}
+            {{ form.ordered_quantity }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.delivered_quantity.label_tag }}</th>
+        <td>
+            {{ form.delivered_quantity.errors }}
+            {{ form.delivered_quantity }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.total_weight.label_tag }}</th>
+        <td>
+            {{ form.total_weight.errors }}
+            {{ form.total_weight }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.pack_price.label_tag }}</th>
+        <td>
+            {{ form.pack_price.errors }}
+            {{ form.pack_price }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.pack_tax.label_tag }}</th>
+        <td>
+            {{ form.pack_tax.errors }}
+            {{ form.pack_tax }}
+        </td>
+
+    </tr>
+    <tr>
+        <th>{{ form.line_item_position.label_tag }}</th>
+        <td>
+            {{ form.line_item_position.errors }}
+            {{ form.line_item_position }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.comment.label_tag }}</th>
+        <td>
+            {{ form.comment.errors }}
+            {{ form.comment }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ form.DELETE.label_tag }}</th>
+        <td>
+            {{ form.DELETE.errors }}
+            {{ form.DELETE }}
+        </td>
+    </tr>
+</tbody>

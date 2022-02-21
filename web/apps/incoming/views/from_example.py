@@ -27,6 +27,15 @@ class ExampleIncomingItemGroupCreateView(CreateView):
 class ExampleIncomingItemGroupEditView(SingleObjectMixin, FormView):
     model = inc_models.IncomingItemGroup
     template_name = 'incoming/example_edit.html'
+    form_class = inc_forms.IncomingGroupForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == 'GET':
+            context["itemformset"] = inc_forms.IncomingItemFormSet(instance=self.object)
+        if self.request.method == 'POST':
+            context["itemformset"] = inc_forms.IncomingItemFormSet(self.request.POST, instance=self.object)
+        return context
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -37,9 +46,15 @@ class ExampleIncomingItemGroupEditView(SingleObjectMixin, FormView):
         return super().post(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
-        return inc_forms.IncomingItemFormSet(**self.get_form_kwargs(), instance=self.object)
+        return inc_forms.IncomingGroupForm(**self.get_form_kwargs(), instance=self.object)
 
     def form_valid(self, form):
+        context = self.get_context_data()
+        if context["itemformset"].is_valid():
+            context["itemformset"].save()
+        else:
+            # TODO: invalid itemformset?
+            pass
         form.save()
 
         messages.add_message(

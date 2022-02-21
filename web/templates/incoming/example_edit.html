@@ -5,19 +5,23 @@
 
 {% block content %}
   <form action="" method="post" enctype="multipart/form-data">
-
+    <div id="hidden-fields-main">
     {% for hidden_field in form.hidden_fields %}
       {{ hidden_field.errors }}
       {{ hidden_field }}
     {% endfor %}
+    </div>
 
     {% csrf_token %}
 
     {{ form.management_form }}
     {{ form.non_form_errors }}
 
+    {{ form.as_p }}
+
     <h3>Update Items</h3>
-    {% for item_form in form.forms %}
+    {{ itemformset.management_form }}
+    {% for item_form in itemformset.forms %}
       <hr>
       <h5>
         {% if item_form.instance.id %}
@@ -30,9 +34,12 @@
           {% endif %}
         {% endif %}
       </h5>
-      {% for hidden_field in book_form.hidden_fields %}
+        <div id="hidden-fields-{{ item_form.instance.id }}">
+      {% for hidden_field in item_form.hidden_fields %}
         {{ hidden_field.errors }}
+        {{ hidden_field }}
       {% endfor %}
+        </div>
       <table>
         {{ item_form.as_table }}
       </table>
@@ -45,12 +52,12 @@
     </div>
     <hr>
     <p>
-        <input type="submit" value="Create">
-        <input type="submit" value="Cancel">
+        <button type="submit">Submit</button>
         <a href="{{ incomingitemgroup.get_absolute_url  }}" role="button" class="btn btn-secondary w-100">Cancel</a>
         <a class='btn btn-link add-new-form' href='#'>+ Add new form</a>
     </p>
   </form>
+
 <script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'add_new_form.js' %}"></script>
 
