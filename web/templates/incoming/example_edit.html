@@ -13,6 +13,13 @@
     .item-name-field {
         width: 50em;
     }
+    #item-list {
+        width: 100%;
+        overflow: scroll;
+    }
+    #formset-table {
+
+    }
     </style>
 {% endblock %}
 
@@ -82,9 +89,9 @@
 </div>
     <hr>
     <p>
-        <button type="submit">Submit</button>
-        <a href="{{ incomingitemgroup.get_absolute_url  }}" role="button" class="btn btn-secondary w-100">Cancel</a>
-        <a class='btn btn-link add-new-form' href='#'>+ Add new form</a>
+        <button class="btn btn-primary" type="submit">Submit</button>
+        <a href="{{ incomingitemgroup.get_absolute_url  }}" role="button" class="btn btn-secondary w-20">Cancel</a>
+        <a class='btn btn-info add-new-form' href='#'>+ Add new form</a>
     </p>
   </form>
 
