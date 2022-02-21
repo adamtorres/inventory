@@ -133,6 +133,11 @@ function get_dropdown_textbox(p) {
 function get_dropdown_list(p) {
     return p.children(".dropdown-menu");
 }
+function get_hidden_model_field(p) {
+    id_text = p.prop("id");
+    id_text = id_text.substring(0, id_text.length - "-dropdown".length);
+    return $(document.getElementById(id_text));
+}
 $('#item-list').on('click', 'a.dropdown-item', function() {
     // $( "div" ).data( "role" ) === "page";
     var e = $(this);
@@ -140,8 +145,10 @@ $('#item-list').on('click', 'a.dropdown-item', function() {
     var n = e.find('div[name="name"]');
     var selected_item = n.text();
     var t = get_dropdown_textbox(p);
-    logit(`clicked dropdown item: &quot;${selected_item}&quot; ${e.data("id")} and setting ${t.prop("id")}`);
+    var h = get_hidden_model_field(p);
+    logit(`clicked dropdown item: &quot;${selected_item}&quot; ${e.data("id")} and setting ${t.prop("id")} AND ${h.prop("id")}`);
     t.val(n.text());
+    h.val(e.data("id"));
     // $("#jquery-example-2-text").val(n.text());
 })
 $('#item-list').on('show.bs.dropdown', 'div.dropdown', function () {

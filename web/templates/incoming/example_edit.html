@@ -92,7 +92,18 @@
     </p>
   </form>
 
+<pre id="jquery-example-2-log">
+hello
+</pre>
+{% endblock content %}
+
+{% block body_scripts %}
 <script src="{% static '3rdparty/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'add_new_form.js' %}"></script>
-
-{% endblock content %}
+<script src="{% static 'autocomplete.js' %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    autocomplete_url = "{% url 'autocomplete' %}";
+})
+</script>
+{% endblock %}
