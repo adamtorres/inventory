@@ -7,6 +7,10 @@ import uuid
 
 
 class ItemManager(models.Manager):
+    def available_items(self):
+        qs = self.exclude(current_quantity__lte=0)
+        return qs
+
     def get_consolidated_inventory(self):
         """
         Groups the common items and totals the quantities.

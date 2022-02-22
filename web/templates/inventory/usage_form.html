@@ -17,6 +17,7 @@
     <hr />
     <h3>Items:</h3>
     {{ usageitemformset.management_form }}
+<div class="container" id="item-list">
     <table id="formset-table">
     <thead>
         <tr>
@@ -28,15 +29,58 @@
     </thead>
     <tbody>
         <tr class='form-row' id='empty-row' style="display:none;">
-            {{ usageitemformset.empty_form.as_table }}
+            <td>
+                {{ usageitem_form.empty_form.line_item_position.errors }}
+                {{ usageitem_form.empty_form.line_item_position }}
+            </td>
+            <td>
+                {{ usageitem_form.empty_form.unit_size.errors }}
+                {{ usageitem_form.empty_form.unit_size }}
+            </td>
+            <td>
+                {{ usageitem_form.empty_form.quantity.errors }}
+                {{ usageitem_form.empty_form.quantity }}
+            </td>
+            <td>
+                {{ usageitem_form.empty_form.item.errors }}
+                {{ usageitem_form.empty_form.item }}
+            </td>
         </tr>
         {% for usageitem_form in usageitemformset.forms %}
-            <tr>
-                {{ usageitem_form.as_table }}
-            </tr>
+        <tr>
+            <td>
+                {{ usageitem_form.line_item_position.errors }}
+                {{ usageitem_form.line_item_position }}
+            </td>
+            <td>
+                {{ usageitem_form.unit_size.errors }}
+                {{ usageitem_form.unit_size }}
+            </td>
+            <td>
+                {{ usageitem_form.quantity.errors }}
+                {{ usageitem_form.quantity }}
+            </td>
+            <td>
+                {{ usageitem_form.item.errors }}
+                {{ usageitem_form.item }}
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
     </table>
+<div style="display: none;" name="template-container">
+    <li id="dropdown-item-template">
+        <a class='dropdown-item' data-id="nope">
+        <div class="row row-cols-12">
+            <div class="col-sm-2 border" name="pack_quantity">__pack_quantity__</div>
+            <div class="col-sm-2 border" name="unit_size">__unit_size__</div>
+            <div class="col-sm-2 border" name="identifier">__identifier__</div>
+            <div class="col-lg-6 border" name="name">__name__</div>
+        </div>
+        </a>
+    </li>
+</div>
+</div>
     <hr />
 
     <div class="row row-cols-3">
@@ -51,13 +95,17 @@
         <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
     </div>
 </form>
-
+<pre id="jquery-example-2-log">
+hello
+</pre>
 {% endblock %}
 
 {% block body_scripts %}
 <script src="{% static 'add_new_form.js' %}"></script>
 <script type="text/javascript">
 $( document ).ready(function() {
+    {# TODO: make an autocomplete url for inventory items instead of incoming items. #}
+    autocomplete_url = "{% url 'autocomplete' %}";
     after_add_focus_suffix = "-unit_size";
 })
 </script>
