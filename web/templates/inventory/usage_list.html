@@ -3,17 +3,39 @@
 
 {% block title %}Usage Reports{% endblock %}
 
+{% block styles %}
+<style type="text/css">
+#usage-list {
+
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid w-50">
+<div class="container-fluid w-50" id="usage-list">
 <div class="row row-cols-2">
     <div class="col">Who</div>
     <div class="col">When</div>
 </div>
 {% for usage in object_list %}
-    <div class="row row-cols-2">
+    <div class="row row-cols-2" data-link-to-detail="{{ usage.id }}">
         <div class="col">{{ usage.who }}</div>
         <div class="col">{{ usage.action_date }}</div>
     </div>
 {% endfor %}
 </div>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+function generete_detail_url(id){
+    // Needed to supply the argument with javascript but wanted to use the url reverse lookup.
+    // Found this as a suggestion online - using a dummy argument and replacing with javascript.
+    return "{% url "usage_report" pk="00000000-0000-0000-0000-000000000000" %}".replace("00000000-0000-0000-0000-000000000000", id);
+}
+$('div[data-link-to-detail]').on('click', function () {
+    var id = $(this).data("link-to-detail");
+    window.location = generete_detail_url(id);
+});
+</script>
 {% endblock %}

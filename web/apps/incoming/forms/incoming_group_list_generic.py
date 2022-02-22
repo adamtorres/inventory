@@ -5,7 +5,7 @@ from scrap import forms as sc_forms
 
 
 class IncomingGroupListGenericForm(forms.Form):
-    template_name_table = "incoming/forms/table.html"
+    template_name_table = "incoming/forms/incomingitemgroup_list_table.html"
 
     id = forms.CharField(widget=forms.HiddenInput)
     selected = forms.BooleanField()
