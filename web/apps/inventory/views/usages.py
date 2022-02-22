@@ -14,14 +14,19 @@ class UsageView(generic.TemplateView):
         return kwargs
 
 
-class UsageReportCreate(generic.CreateView):
+class UsageReportCreateView(generic.CreateView):
     model = inv_models.Usage
     fields = ('who', 'action_date', )
 
 
-class UsageReportDetail(generic.DetailView):
+class UsageReportDetailView(generic.DetailView):
     model = inv_models.Usage
 
 
-class UsageReportList(generic.ListView):
+class UsageReportListView(generic.ListView):
     model = inv_models.Usage
+
+
+class UsageReportEditView(generic.UpdateView):
+    model = inv_models.Usage
+    fields = ('who', 'action_date', )

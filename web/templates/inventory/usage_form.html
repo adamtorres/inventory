@@ -15,8 +15,14 @@
     {{ form.as_p }}
 
     <div class="row row-cols-3">
-        <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Create</button></div>
-        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{% url "usage_reports" %}" role="button">Cancel</a></div>
+        <div class="col w-25 text-center">
+            <button class="btn btn-primary w-75" type="submit">
+                {% if object %}Update{% else %}Create{% endif %}
+            </button>
+        </div>
+        <div class="col w-25 text-center">
+            <a class="btn btn-secondary w-75" href="{% if object %}{% url "usage_report" pk=object.id %}{% else %}{% url "usage_reports" %}{% endif %}" role="button">Cancel</a>
+        </div>
     </div>
 </form>
 

@@ -12,17 +12,17 @@
 {% endblock %}
 
 {% block content %}
-<div id="usage-list">
-<div class="row row-cols-2">
-    <div class="col">Who</div>
-    <div class="col">When</div>
-</div>
-{% for usage in object_list %}
-    <div class="row row-cols-2" data-link-to-detail="{{ usage.id }}">
-        <div class="col">{{ usage.who }}</div>
-        <div class="col">{{ usage.action_date }}</div>
+<div id="usage-list" class="container-fluid m-3">
+    <div class="row row-cols-2 text-warning bg-secondary">
+        <div class="col">Who</div>
+        <div class="col">When</div>
     </div>
-{% endfor %}
+    {% for usage in object_list %}
+        <div class="row row-cols-2" data-link-to-detail="{{ usage.id }}">
+            <div class="col">{{ usage.who }}</div>
+            <div class="col">{{ usage.action_date }}</div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
