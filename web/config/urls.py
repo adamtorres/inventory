@@ -17,6 +17,9 @@ from django.conf import urls
 from django.contrib import admin
 from django.urls import path
 
+from . import views as my_views
+
+
 urlpatterns = [
     path('grappelli/', urls.include('grappelli.urls')),
     path('grappelli-docs/', urls.include('grappelli.urls_docs')), # grappelli docs URLS
@@ -24,4 +27,7 @@ urlpatterns = [
     path('dashboard/', urls.include('dashboard.urls')),
     path('', urls.include('inventory.urls')),
     path('', urls.include('incoming.urls')),
+    path('hello/', my_views.ExampleView.as_view(), name='example_hello'),
+    path('hello/dropdown/', my_views.DropdownExampleView.as_view(), name='example_dropdown'),
+    path('hello/autocomplete/', my_views.AutocompleteTestOne.as_view(), name='example_autocomplete_1'),
 ]

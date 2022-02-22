@@ -1,3 +1,4 @@
+<tr><td>file: templates/forms/table.html</td></tr>
 {% if errors %}
   <tr>
     <td colspan="2">
@@ -22,8 +23,11 @@
       {% endif %}
     </td>
   </td>
+{% empty %}
+    <td>No fields</td>
 {% endfor %}
 </tr>
 {% if not fields and not errors %}
+    <p>not fields and not errors</p>
   {% for field in hidden_fields %}{{ field }}{% endfor %}
 {% endif %}

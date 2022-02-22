@@ -1,0 +1,14 @@
+<input type="hidden" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+<div id="{{ widget.attrs.id }}-div" class="autocomplete-widget">
+    {# TODO: Add readonly fields for pack_quantity and unit_size #}
+    <div class="dropdown" id="{{ widget.attrs.id }}-dropdown">
+        <input id="{{ widget.attrs.id }}-text" type="text" class="dropdown-toggle" data-bs-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false" placeholder="{{ widget.attrs.placeholder }}" />
+        <ul class="dropdown-menu shadow-lg" aria-labelledby="{{ widget.attrs.id }}-text" id="{{ widget.attrs.id }}-dropdown-menu">
+        </ul>
+    </div>
+    {# TODO: Add readonly fields for identifier #}
+</div>
+
+{#<select name="items-0-item" id="id_items-0-item">#}
+{#  <option value="6ba8b330-3f5b-40c7-8e88-d83ed859ef74">sysco / 6x 14oz, sys imp pan coating arsl butter i</option>#}

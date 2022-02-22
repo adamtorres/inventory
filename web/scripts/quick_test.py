@@ -111,10 +111,29 @@ def update_action_date_from_bulk_load():
     # inv_models.Change.objects.all().update(action_date=models.F('incomingitemgroup__action_date'))
 
 
+def test_autocomplete():
+    from incoming import serializers
+    qs = inc_models.Item.objects.autocomplete_search(['sugar'])
+    count = 0
+    for item in qs:
+        s = serializers.ItemSerializer(item)
+        print(s.data)
+        count += 1
+    print(f"{count} items")
+
+
+def test_autocomplete_widget():
+    from scrap import widgets
+    w = widgets.AutocompleteWidget(attrs={'id': 'some-id'})
+    print(w.render(name='CUSTOM', value='VALUE'))
+
+
 def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
-        test_incoming_item_group_listing()
+        # test_incoming_item_group_listing()
+        # test_autocomplete()
+        test_autocomplete_widget()

@@ -50,17 +50,64 @@
 .table-data tr td {
     background-color: white;
 }
+.main-form {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.main-form>div>div {
+    border: black solid 1px;
+}
+.header {
+    text-align: right;
+}
 </style>
 {% endblock %}
 
+
 {% block content %}
-    <ul>
-        <li>Source: {{ object.source.name }}</li>
-        <li>Active: {{ object.source.active }}</li>
-        <li>Comment: {{ object.comment }}</li>
-        <li>Action Date: {{ object.action_date }}</li>
-        <li>Converted DateTime: {{ object.converted_datetime }}</li>
-    </ul>
+    <a href="{% url "ex_edit" object.pk %}">Edit</a>
+
+<div class="main-form container w-50">
+    <div class="row row-cols-2">
+        <div class="col-4 header">Source</div>
+        <div class="col-8">{{ object.source }}</div>
+    </div>
+
+    <div class="row row-cols-2">
+        <div class="col-4 header">Descriptor</div>
+        <div class="col-8">{{ object.descriptor }}</div>
+    </div>
+
+    <div class="row row-cols-2">
+        <div class="col-4 header">Comment</div>
+        <div class="col-8">{{ object.comment }}</div>
+    </div>
+
+    <div class="row row-cols-2">
+        <div class="col-4 header">Action Date</div>
+        <div class="col-8">{{ object.action_date }}</div>
+    </div>
+    <div class="row row-cols-2">
+        <div class="col-4 header">Converted Date</div>
+        <div class="col-8">{{ object.converted_datetime }}</div>
+    </div>
+    <div class="row row-cols-2">
+        <div class="col-4 header">Total Price</div>
+        <div class="col-8" style="background-color: white;">
+            <div class="dollar_container">
+                <div class="dollar_line">
+                    <span>$</span>
+                    <span class="dollar_content">{% if object.total_price %}{{ object.total_price|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-2">
+        <div class="col-4 header">Total Packs</div>
+        <div class="col-8">{{ object.total_packs }}</div>
+    </div>
+</div>
+
     <table class="table-header">
     <tr>
         <td class="col col-border left-row">Ordered Quantity</td>
