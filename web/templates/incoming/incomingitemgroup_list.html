@@ -74,7 +74,10 @@
     {{ form.as_table }}
     </table>
 </form>
-<script language="JavaScript">
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
 function generete_detail_url(id){
     // Needed to supply the argument with javascript but wanted to use the url reverse lookup.
     // Found this as a suggestion online - using a dummy argument and replacing with javascript.
