@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Usage Report{% endblock %}
+
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    {% for hidden_field in form.hidden_fields %}
+      {{ hidden_field.errors }}
+      {{ hidden_field }}
+    {% endfor %}
+    {{ form.non_form_errors }}
+
+    {{ form.as_p }}
+
+    <div class="row row-cols-3">
+        <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Create</button></div>
+        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{% url "usage_reports" %}" role="button">Cancel</a></div>
+    </div>
+</form>
+
+{% endblock %}

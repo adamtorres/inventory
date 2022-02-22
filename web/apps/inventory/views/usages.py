@@ -12,3 +12,16 @@ class UsageView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
         return kwargs
+
+
+class UsageReportCreate(generic.CreateView):
+    model = inv_models.Usage
+    fields = ('who', 'action_date', )
+
+
+class UsageReportDetail(generic.DetailView):
+    model = inv_models.Usage
+
+
+class UsageReportList(generic.ListView):
+    model = inv_models.Usage

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Usage Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid w-50">
+<div class="row row-cols-2">
+    <div class="col">Who</div>
+    <div class="col">When</div>
+</div>
+{% for usage in object_list %}
+    <div class="row row-cols-2">
+        <div class="col">{{ usage.who }}</div>
+        <div class="col">{{ usage.action_date }}</div>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}
