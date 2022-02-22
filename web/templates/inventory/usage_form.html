@@ -14,6 +14,31 @@
 
     {{ form.as_p }}
 
+    <hr />
+    <h3>Items:</h3>
+    {{ usageitemformset.management_form }}
+    <table id="formset-table">
+    <thead>
+        <tr>
+            <th>line item</th>
+            <th>unit size</th>
+            <th>quantity</th>
+            <th>item</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class='form-row' id='empty-row' style="display:none;">
+            {{ usageitemformset.empty_form.as_table }}
+        </tr>
+        {% for usageitem_form in usageitemformset.forms %}
+            <tr>
+                {{ usageitem_form.as_table }}
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    <hr />
+
     <div class="row row-cols-3">
         <div class="col w-25 text-center">
             <button class="btn btn-primary w-75" type="submit">
@@ -23,7 +48,17 @@
         <div class="col w-25 text-center">
             <a class="btn btn-secondary w-75" href="{% if object %}{% url "usage_report" pk=object.id %}{% else %}{% url "usage_reports" %}{% endif %}" role="button">Cancel</a>
         </div>
+        <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
     </div>
 </form>
 
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static 'add_new_form.js' %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    after_add_focus_suffix = "-unit_size";
+})
+</script>
 {% endblock %}
