@@ -55,6 +55,9 @@ class UsageReportEditView(generic.UpdateView):
             context["usageitemformset"].save()
         else:
             # TODO: invalid usageitemformset?
+            for k in self.request.POST.keys():
+                if k.startswith("items"):
+                    print(f"POST[{k}] = {self.request.POST[k]!r}")
             print(f'ERRORS: {context["usageitemformset"].errors}')
             pass
         form.save()

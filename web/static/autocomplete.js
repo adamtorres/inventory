@@ -1,10 +1,27 @@
 // TODO: cache responses?  seems fast at the moment.  Put cache on a later list.
 var keypress_timer;
 var autocomplete_url = "set from page as it likely uses django template tags.";
-
+var autocomplete_fields = ["list", "of", "fields", "to", "include", "in", "dropdown"];
+var autocomplete_display_field = "name of the field to use when clicking on a dropdown item";
 $( document ).ready(function() {
     no_results();
 })
+function is_date(possibly_a_date) {
+    // Specifically made to test if a string is a date string.  Not meant to be a generic date function.
+    if (!(typeof(possibly_a_date) === typeof("string"))) {
+        return false;
+    }
+    if (!(['-', '/'].some(date_sep_char => possibly_a_date.includes(date_sep_char)))){
+        return false;
+    }
+    return (!isNaN(Date.parse(v)));
+}
+function format_date_str(full_date_str) {
+    // Given a date string as provided by Django/Postgresql, convert it to American M/D/Y.
+    // "2022-02-09T01:36:04.239259-07:00" to "2/9/2022"
+    let d = new Date(full_date_str);
+    return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+}
 function logit(stuff, clear=false) {
     if (clear) {
         $("#jquery-example-2-log").empty();
@@ -26,21 +43,25 @@ function new_dropdown_item(data) {
     var new_ddi = ddit.clone();
     new_ddi.attr('id', null);
     $(new_ddi.find('a')).attr("data-id", data['id']);
-    to_edit_attributes = ["identifier", "name", "pack_quantity", "unit_size"];
+    let remove_decimals = ["pack_quantity", "current_quantity"];
     new_ddi.find('div').each(function() {
         var e = $(this);
         var key = e.attr('name');
         if (key === undefined){
             return true;
         }
-        if (to_edit_attributes.includes(key)) {
+        if (autocomplete_fields.includes(key)) {
             v = data[key];
-            if (key === "pack_quantity") {
+            if (remove_decimals.includes(key)) {
                 // The data from the server includes decimal places when not needed.  This seems to work to only show
                 // decimal places when needed.
                 v = Math.round(v * 100) / 100;
             }
-            e.text(v);
+            if (is_date(v)){
+                e.text(format_date_str(v));
+            } else {
+                e.text(v);
+            }
         }
     });
     new_ddi.removeClass("hidden");
@@ -49,9 +70,9 @@ function new_dropdown_item(data) {
 function timer_elapsed_func(caller_obj) {
     var caller = $(caller_obj);
     var t = get_dropdown_textbox(caller);
-    var text_value = t.val()
+    var text_value = t.val().trim()
 
-    if (text_value.length < 1) {
+    if (text_value === "") {
         // don't want to send empty requests.
         no_results();
         return;
@@ -142,7 +163,7 @@ $('#item-list').on('click', 'a.dropdown-item', function() {
     // $( "div" ).data( "role" ) === "page";
     var e = $(this);
     var p = get_dropdown_parent(e);
-    var n = e.find('div[name="name"]');
+    var n = e.find(`div[name="${autocomplete_display_field}"]`);
     var selected_item = n.text();
     var t = get_dropdown_textbox(p);
     var h = get_hidden_model_field(p);

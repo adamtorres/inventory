@@ -112,8 +112,8 @@ def update_action_date_from_bulk_load():
 
 
 def test_autocomplete():
-    from incoming import serializers
-    qs = inc_models.Item.objects.autocomplete_search(['sugar'])
+    from inventory import serializers
+    qs = inv_models.Item.objects.autocomplete_search(['jello'])
     count = 0
     for item in qs:
         s = serializers.ItemSerializer(item)
@@ -128,6 +128,25 @@ def test_autocomplete_widget():
     print(w.render(name='CUSTOM', value='VALUE'))
 
 
+def test_map_partial():
+    from functools import partial
+
+    class Bob(object):
+        x = None
+        y = None
+        z = None
+
+        def __init__(self, x, y, z):
+            self.x = x
+            self.y = y
+            self.z = z
+
+    b = Bob("a", 4, "c")
+    my_getattr = partial(getattr, b)
+    fields = ["z", "y"]
+    print(", ".join(map(str, map(my_getattr, fields))))
+
+
 def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
@@ -135,5 +154,5 @@ def run():
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
         # test_incoming_item_group_listing()
-        # test_autocomplete()
-        test_autocomplete_widget()
+        test_autocomplete()
+        # test_map_partial()

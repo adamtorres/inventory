@@ -19,6 +19,8 @@ class CommonItem(models.Model):
     # TODO: closed quantity flag
 
     def __str__(self):
+        # TODO: this habit of putting querysets in the __str__ is causing all kinds of db access unnecessarily.
+        # when serializing something that shows the common_item as a string, it runs this query for each item.
         other_names = "', '".join(self.other_names.all().values_list('name', flat=True))
         if other_names:
             return f"{self.name} a.k.a. '{other_names}'"
