@@ -3,6 +3,15 @@
 
 {% block title %}Add Usage Report{% endblock %}
 
+{% block styles %}
+<style type="text/css">
+#formset-table td {
+    border: black solid 1px;
+}
+</style>
+
+{% endblock %}
+
 {% block content %}
 <form action="" method="post">
     {% csrf_token %}
@@ -24,7 +33,7 @@
             <th>line item</th>
             <th>unit size</th>
             <th>quantity</th>
-            <th>item</th>
+            <th style="width: 30em;">item</th>
         </tr>
     </thead>
     <tbody>
@@ -47,8 +56,15 @@
             </td>
         </tr>
         {% for usageitem_form in usageitemformset.forms %}
+
         <tr>
             <td>
+                <span id="hidden-fields-{{ usageitem_form.instance.id }}">
+                    {% for hidden_field in usageitem_form.hidden_fields %}
+                        {{ hidden_field.errors }}
+                        {{ hidden_field }}
+                    {% endfor %}
+                </span>
                 {{ usageitem_form.line_item_position.errors }}
                 {{ usageitem_form.line_item_position }}
             </td>

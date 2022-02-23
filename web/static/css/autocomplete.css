@@ -3,3 +3,6 @@
     width: 55em;
     overflow-y: auto;
 }
+.autocomplete-widget input {
+    width: 100%;
+}
