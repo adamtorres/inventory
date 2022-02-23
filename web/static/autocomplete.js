@@ -3,6 +3,8 @@ var keypress_timer;
 var autocomplete_url = "set from page as it likely uses django template tags.";
 var autocomplete_fields = ["list", "of", "fields", "to", "include", "in", "dropdown"];
 var autocomplete_display_field = "name of the field to use when clicking on a dropdown item";
+var autocomplete_copy_values = {}; // dict of autocomplete_column:form_field pairs to copy when an item is selected.
+
 $( document ).ready(function() {
     no_results();
 })
@@ -168,14 +170,37 @@ function get_hidden_model_field(p) {
     id_text = id_text.substring(0, id_text.length - "-dropdown".length);
     return $(document.getElementById(id_text));
 }
+function get_autocomplete_field(e, field_name) {
+    return e.find(`div[name="${field_name}"]`);
+}
+function get_form_field(field_name){
+    //field_name = id=id_items-0-unit_size, name=items-0-unit_size
+}
+function get_form_prefix(p) {
+    // "id_items-0-item-dropdown"
+    // returns "id_items-0-"
+    let id_text = p.prop("id");
+    return id_text.substring(0, id_text.length - "item-dropdown".length);
+}
+function get_form_field(p, form_prefix, form_field) {
+    // return $(document.getElementById(`${form_prefix}${form_field}`));
+    return $(`#${form_prefix}${form_field}`);
+}
 $('#item-list').on('click', 'a.dropdown-item', function() {
     // $( "div" ).data( "role" ) === "page";
     var e = $(this);
     var p = get_dropdown_parent(e);
-    var n = e.find(`div[name="${autocomplete_display_field}"]`);
+    var n = get_autocomplete_field(e, autocomplete_display_field);
     var selected_item = n.text();
     var t = get_dropdown_textbox(p);
     var h = get_hidden_model_field(p);
+    let form_prefix = get_form_prefix(p);
+
+    for (const [key, value] of Object.entries(autocomplete_copy_values)) {
+        copy_field = get_autocomplete_field(e, key);
+        form_field = get_form_field(p, form_prefix, value);
+        form_field.val(copy_field.text());
+    }
     logit(`clicked dropdown item: &quot;${selected_item}&quot; ${e.data("id")} and setting ${t.prop("id")} AND ${h.prop("id")}`);
     t.val(n.text());
     h.val(e.data("id"));

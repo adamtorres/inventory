@@ -57,7 +57,7 @@
         </tr>
         {% for usageitem_form in usageitemformset.forms %}
 
-        <tr>
+        <tr class="form-row">
             <td>
                 <span id="hidden-fields-{{ usageitem_form.instance.id }}">
                     {% for hidden_field in usageitem_form.hidden_fields %}
@@ -130,7 +130,8 @@ $( document ).ready(function() {
     autocomplete_fields = ["current_quantity", "unit_size", "created", "common_item", "location"];
     autocomplete_display_field = "common_item";
     autocomplete_copy_values = {
-        "unit_size autocomplete field": "unit_size field name",
+        {# "column in autocomplete list": "form field name" #}
+        "unit_size": "unit_size",
     }
 })
 </script>
