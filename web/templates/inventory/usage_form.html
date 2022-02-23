@@ -39,20 +39,20 @@
     <tbody>
         <tr class='form-row' id='empty-row' style="display:none;">
             <td>
-                {{ usageitem_form.empty_form.line_item_position.errors }}
-                {{ usageitem_form.empty_form.line_item_position }}
+                {{ usageitemformset.empty_form.line_item_position.errors }}
+                {{ usageitemformset.empty_form.line_item_position }}
             </td>
             <td>
-                {{ usageitem_form.empty_form.unit_size.errors }}
-                {{ usageitem_form.empty_form.unit_size }}
+                {{ usageitemformset.empty_form.unit_size.errors }}
+                {{ usageitemformset.empty_form.unit_size }}
             </td>
             <td>
-                {{ usageitem_form.empty_form.quantity.errors }}
-                {{ usageitem_form.empty_form.quantity }}
+                {{ usageitemformset.empty_form.quantity.errors }}
+                {{ usageitemformset.empty_form.quantity }}
             </td>
             <td>
-                {{ usageitem_form.empty_form.item.errors }}
-                {{ usageitem_form.empty_form.item }}
+                {{ usageitemformset.empty_form.item.errors }}
+                {{ usageitemformset.empty_form.item }}
             </td>
         </tr>
         {% for usageitem_form in usageitemformset.forms %}
@@ -129,6 +129,9 @@ $( document ).ready(function() {
     after_add_focus_suffix = "-unit_size";
     autocomplete_fields = ["current_quantity", "unit_size", "created", "common_item", "location"];
     autocomplete_display_field = "common_item";
+    autocomplete_copy_values = {
+        "unit_size autocomplete field": "unit_size field name",
+    }
 })
 </script>
 {% endblock %}

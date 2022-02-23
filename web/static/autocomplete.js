@@ -6,14 +6,23 @@ var autocomplete_display_field = "name of the field to use when clicking on a dr
 $( document ).ready(function() {
     no_results();
 })
-function is_date(possibly_a_date) {
+function is_date_field(possible_a_date_field){
+    if (possible_a_date_field.includes('date')) {
+        return true;
+    }
+    if (['created', 'modified'].includes(possible_a_date_field)) {
+        return true;
+    }
+    return false
+}
+function is_date_value(possibly_a_date_value) {
     // Specifically made to test if a string is a date string.  Not meant to be a generic date function.
-    if (!(typeof(possibly_a_date) === typeof("string"))) {
+    if (!(typeof(possibly_a_date_value) === typeof("string"))) {
         return false;
     }
-    if (!(['-', '/'].some(date_sep_char => possibly_a_date.includes(date_sep_char)))){
-        return false;
-    }
+    // if (!(['-', '/'].some(date_sep_char => possibly_a_date.includes(date_sep_char)))){
+    //     return false;
+    // }
     return (!isNaN(Date.parse(v)));
 }
 function format_date_str(full_date_str) {
@@ -57,7 +66,7 @@ function new_dropdown_item(data) {
                 // decimal places when needed.
                 v = Math.round(v * 100) / 100;
             }
-            if (is_date(v)){
+            if (is_date_value(v) && is_date_field(key)){
                 e.text(format_date_str(v));
             } else {
                 e.text(v);
