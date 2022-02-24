@@ -113,10 +113,10 @@ def update_action_date_from_bulk_load():
 
 def test_autocomplete():
     from inventory import serializers
-    qs = inv_models.Item.objects.autocomplete_search(['jello'])
+    qs = inv_models.CommonItem.objects.autocomplete_search('beef')
     count = 0
     for item in qs:
-        s = serializers.ItemSerializer(item)
+        s = serializers.CommonItemSerializer(item)
         print(s.data)
         count += 1
     print(f"{count} items")

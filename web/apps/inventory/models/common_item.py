@@ -1,8 +1,53 @@
 from django.contrib.contenttypes import fields as ct_fields
 from django.contrib.contenttypes import models as ct_models
+from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
 
 import uuid
+
+
+class CommonItemManager(models.Manager):
+    def autocomplete_search(self, terms):
+        """
+        Provided a single or list of terms, search item names and other names for the terms.  Return a queryset of the
+        found items along with current quantity in stock.
+
+        Args:
+            terms: single string or list of strings.
+
+        Returns:
+            queryset with the result.
+        """
+        if not terms:
+            return self.none()
+        if isinstance(terms, str):
+            terms = [terms]
+        # TODO: some of this autocomplete stuff is duplicated.  Base class?  Or at least a scrap function?
+
+        term_q = models.Q()
+
+        for term in terms:
+            term_q = (
+                term_q | models.Q(name__icontains=term) |
+                models.Q(other_names__name__icontains=term) |
+                models.Q(incoming_items__name__icontains=term) |
+                models.Q(incoming_items__better_name__icontains=term)
+            )
+        qs = self.prefetch_related('other_names', 'location', 'category').filter(term_q)
+        qs = qs.annotate(
+            quantity=models.Sum('items__current_quantity'),
+            extended_price=models.Sum(models.F('items__unit_cost')*models.F('items__current_quantity')),
+            groups=models.Count(
+                models.Case(
+                    models.When(models.Q(items__current_quantity__gt=0), models.F('items__id')),
+                    default=None
+                ), distinct=True),
+            unit_sizes=pg_agg.StringAgg(
+                'items__unit_size', ', ', default=models.Value(''), ordering='items__unit_size', distinct=True),
+        )
+        # TODO: might not be the right place, but an average price would be nice.
+        qs = qs.order_by('name', 'created')
+        return qs
 
 
 class CommonItem(models.Model):
@@ -14,9 +59,13 @@ class CommonItem(models.Model):
     category = models.ForeignKey(
         "inventory.Category", on_delete=models.CASCADE, null=True, blank=True, related_name='common_items')
 
+    objects = CommonItemManager()
     # TODO: link to vendor common items
     # TODO: unit of measure
     # TODO: closed quantity flag
+
+    class Meta:
+        ordering = ('name', 'created', )
 
     def __str__(self):
         # TODO: this habit of putting querysets in the __str__ is causing all kinds of db access unnecessarily.

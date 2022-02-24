@@ -13,5 +13,6 @@ urlpatterns = [
     path('usagereport/<uuid:pk>/', views.UsageReportDetailView.as_view(), name="usage_report"),
     path('usagereport/<uuid:pk>/edit', views.UsageReportEditView.as_view(), name="usage_report_edit"),
     path('usagereports/', views.UsageReportListView.as_view(), name="usage_reports"),
-    path('items/autocomplete', views.AutocompleteView.as_view(), name="inv_autocomplete")
+    path('items/autocomplete', views.AutocompleteView.as_view(), name="inv_autocomplete"),
+    path('commonitems/autocomplete', views.AutocompleteCommonItemView.as_view(), name="inv_autocomplete_commonitem"),
 ]
