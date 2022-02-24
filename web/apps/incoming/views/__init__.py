@@ -5,3 +5,4 @@ from .incoming_group_edit import IncomingGroupUpdateView
 from .incoming_group_create import IncomingGroupCreateView
 from .from_example import ExampleIncomingItemGroupEditView, ExampleIncomingItemGroupCreateView
 from .autocomplete_api import AutocompleteView
+from .incoming_item_lookup import IncomingGroupItemLookupView

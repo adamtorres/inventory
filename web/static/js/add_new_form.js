@@ -9,8 +9,6 @@ function add_new_form(focus_suffix="") {
 
     total_forms_value = parseInt(total_forms.val())
     focus_after_add_id = "";
-    console.log(`total_forms_value = ${total_forms_value}.`);
-    console.log(`focus_suffix = ${focus_suffix}.`);
     empty_obj.find('input, label, select, textarea, div, ul').each(function() {
         to_edit_attributes = ['id', 'name', 'for', 'aria-labelledby']
         if ((this.type === 'number') && (this.id.endsWith("-line_item_position"))) {
@@ -42,7 +40,6 @@ function add_new_form(focus_suffix="") {
 }
 
 $('.add-new-form').click(function(e) {
-    console.log("CLICK!");
     e.preventDefault();
     add_new_form(after_add_focus_suffix);
 });

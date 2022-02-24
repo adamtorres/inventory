@@ -12,4 +12,5 @@ urlpatterns = [
     path('incominggroup/ex_create/', views.ExampleIncomingItemGroupCreateView.as_view(), name='ex_create'),
     path('incominggroup/<uuid:pk>/ex_edit', views.ExampleIncomingItemGroupEditView.as_view(), name='ex_edit'),
     path('incoming/autocomplete', views.AutocompleteView.as_view(), name='autocomplete'),
+    path('incominggroupitem/lookup/', views.IncomingGroupItemLookupView.as_view(), name='incoming_group_item_lookup'),
 ]
