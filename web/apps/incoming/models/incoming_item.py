@@ -11,7 +11,7 @@ from scrap import models as sc_models
 
 class IncomingItemManager(models.Manager, sc_models.FilterMixin):
     fields_to_filter_with_terms = [
-        "item__name", "item__better_name"
+        "item__name", "item__better_name",
         "item__common_item__name", "item__common_item__other_names__name"]
     filter_prefetch = ['item', 'item__common_item', 'parent']
     filter_order = ['item__common_item__name', 'parent__action_date']

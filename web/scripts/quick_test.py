@@ -116,7 +116,7 @@ def test_autocomplete_incoming(terms, model='item'):
     print(f"Searching incoming.{model} for {terms!r}")
     from incoming import serializers
     source = {
-        'incoming_item': {'model': inc_models.IncomingItem, 'serializer': None},
+        'incoming_item': {'model': inc_models.IncomingItem, 'serializer': serializers.IncomingItemSerializer},
         'item': {'model': inc_models.Item, 'serializer': serializers.ItemSerializer},
     }
 
