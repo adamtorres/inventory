@@ -5,14 +5,9 @@
 
 {% block styles %}
     <style type="text/css">
-    body
+    #edit_form_div
     {
         padding-bottom: 50em;
-    }
-    .dropdown-menu {
-        max-height: 200px;
-        width: 45em;
-        overflow-y: auto;
     }
     .item-name-field {
         width: 50em;
@@ -134,82 +129,89 @@
 {% endblock %}
 
 {% block content %}
-<form action="" method="post" enctype="multipart/form-data">
-    <div id="hidden-fields-main">
-    {% for hidden_field in form.hidden_fields %}
-      {{ hidden_field.errors }}
-      {{ hidden_field }}
-    {% endfor %}
-    </div>
-
-    {% csrf_token %}
-
-    {{ form.management_form }}
-    {{ form.non_form_errors }}
-
-    {% include "incoming/forms/example_incoming_item_group.html" %}
-
-    <h3 style="margin-left: 1em;">Update Items</h3>
-    {{ itemformset.management_form }}
-    <div class="container" id="item-list">
-    <table id="formset-table">
-        <thead>
-            <tr>
-                <th class="delete_col">{{ itemformset.empty_form.DELETE.label }}</th>
-                <th class="line_item_position_col">{{ itemformset.empty_form.line_item_position.label }}</th>
-                <th class="ordered_quantity_col">{{ itemformset.empty_form.ordered_quantity.label }}</th>
-                <th class="delivered_quantity_col">{{ itemformset.empty_form.delivered_quantity.label }}</th>
-                <th class="item_col">{{ itemformset.empty_form.item.label }}</th>
-                <th class="total_weight_col">{{ itemformset.empty_form.total_weight.label }}</th>
-                <th class="pack_price_col">{{ itemformset.empty_form.pack_price.label }}</th>
-                <th class="pack_tax_col">{{ itemformset.empty_form.pack_tax.label }}</th>
-                <th class="comment_col">{{ itemformset.empty_form.comment.label }}</th>
-            </tr>
-        </thead>
-        <tbody>
-        <tr class='form-row' id='empty-row' style="display:none;">
-            {{ itemformset.empty_form.as_table }}
-        </tr>
-    {% for item_form in itemformset.forms %}
-        <tr>
-            {{ item_form.as_table }}
-        </tr>
-    {% endfor %}
-        </tbody>
-    </table>
-
-<div style="display: none;" name="template-container">
-    <li id="dropdown-item-template">
-        <a class='dropdown-item' data-id="nope">
-        <div class="row row-cols-12">
-            <div class="col-sm-2 border" name="pack_quantity">__pack_quantity__</div>
-            <div class="col-sm-2 border" name="unit_size">__unit_size__</div>
-            <div class="col-sm-2 border" name="identifier">__identifier__</div>
-            <div class="col-lg-6 border" name="name">__name__</div>
+<div id="edit_form_div">
+    <form action="" method="post" enctype="multipart/form-data">
+        <div id="hidden-fields-main">
+        {% for hidden_field in form.hidden_fields %}
+          {{ hidden_field.errors }}
+          {{ hidden_field }}
+        {% endfor %}
         </div>
-        </a>
-    </li>
-</div>
-</div>
-    <hr>
-    <div class="row row-cols-3">
-        <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Submit</button></div>
-        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{{ incomingitemgroup.get_absolute_url  }}" role="button">Cancel</a></div>
-        <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
-    </div>
-  </form>
 
-<pre id="jquery-example-2-log">
-hello
-</pre>
+        {% csrf_token %}
+
+        {{ form.management_form }}
+        {{ form.non_form_errors }}
+
+        {% include "incoming/forms/example_incoming_item_group.html" %}
+
+        <h3 style="margin-left: 1em;">Update Items</h3>
+        {{ itemformset.management_form }}
+        <div class="container" id="item-list">
+        <table id="formset-table">
+            <thead>
+                <tr>
+                    <th class="delete_col">{{ itemformset.empty_form.DELETE.label }}</th>
+                    <th class="line_item_position_col">{{ itemformset.empty_form.line_item_position.label }}</th>
+                    <th class="ordered_quantity_col">{{ itemformset.empty_form.ordered_quantity.label }}</th>
+                    <th class="delivered_quantity_col">{{ itemformset.empty_form.delivered_quantity.label }}</th>
+                    <th class="item_col">{{ itemformset.empty_form.item.label }}</th>
+                    <th class="total_weight_col">{{ itemformset.empty_form.total_weight.label }}</th>
+                    <th class="pack_price_col">{{ itemformset.empty_form.pack_price.label }}</th>
+                    <th class="pack_tax_col">{{ itemformset.empty_form.pack_tax.label }}</th>
+                    <th class="comment_col">{{ itemformset.empty_form.comment.label }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr class='form-row' id='empty-row' style="display:none;">
+                {{ itemformset.empty_form.as_table }}
+            </tr>
+        {% for item_form in itemformset.forms %}
+            <tr>
+                {{ item_form.as_table }}
+            </tr>
+        {% endfor %}
+            </tbody>
+        </table>
+    {# TODO: need to move this to a reusable file #}
+    <div style="display: none;" name="template-container">
+        <li id="dropdown-item-template">
+            <a class='dropdown-item' data-id="nope">
+            <div class="row row-cols-12">
+                <div class="col-sm-2 border" name="pack_quantity">__pack_quantity__</div>
+                <div class="col-sm-2 border" name="unit_size">__unit_size__</div>
+                <div class="col-sm-2 border" name="identifier">__identifier__</div>
+                <div class="col-lg-6 border" name="name">__name__</div>
+            </div>
+            </a>
+        </li>
+    </div>
+    </div>
+        <hr>
+        <div class="row row-cols-3">
+            <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Submit</button></div>
+            <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{{ incomingitemgroup.get_absolute_url  }}" role="button">Cancel</a></div>
+            <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
+        </div>
+      </form>
+
+    <pre id="jquery-example-2-log">
+    hello
+    </pre>
+</div>
 {% endblock content %}
 
 {% block body_scripts %}
 <script src="{% static 'add_new_form.js' %}"></script>
 <script src="{% static 'autocomplete.js' %}"></script>
+<link href="{% static 'css/autocomplete.css' %}" rel="stylesheet">
+
 <script type="text/javascript">
 $( document ).ready(function() {
     autocomplete_url = "{% url 'autocomplete' %}";
+    after_add_focus_suffix = "-ordered_quantity";
+    autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];
+    autocomplete_display_field = "name";
 })
 </script>
 {% endblock %}

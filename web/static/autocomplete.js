@@ -1,10 +1,38 @@
 // TODO: cache responses?  seems fast at the moment.  Put cache on a later list.
 var keypress_timer;
 var autocomplete_url = "set from page as it likely uses django template tags.";
+var autocomplete_fields = ["list", "of", "fields", "to", "include", "in", "dropdown"];
+var autocomplete_display_field = "name of the field to use when clicking on a dropdown item";
+var autocomplete_copy_values = {}; // dict of autocomplete_column:form_field pairs to copy when an item is selected.
 
 $( document ).ready(function() {
     no_results();
 })
+function is_date_field(possible_a_date_field){
+    if (possible_a_date_field.includes('date')) {
+        return true;
+    }
+    if (['created', 'modified'].includes(possible_a_date_field)) {
+        return true;
+    }
+    return false
+}
+function is_date_value(possibly_a_date_value) {
+    // Specifically made to test if a string is a date string.  Not meant to be a generic date function.
+    if (!(typeof(possibly_a_date_value) === typeof("string"))) {
+        return false;
+    }
+    // if (!(['-', '/'].some(date_sep_char => possibly_a_date.includes(date_sep_char)))){
+    //     return false;
+    // }
+    return (!isNaN(Date.parse(v)));
+}
+function format_date_str(full_date_str) {
+    // Given a date string as provided by Django/Postgresql, convert it to American M/D/Y.
+    // "2022-02-09T01:36:04.239259-07:00" to "2/9/2022"
+    let d = new Date(full_date_str);
+    return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+}
 function logit(stuff, clear=false) {
     if (clear) {
         $("#jquery-example-2-log").empty();
@@ -26,21 +54,25 @@ function new_dropdown_item(data) {
     var new_ddi = ddit.clone();
     new_ddi.attr('id', null);
     $(new_ddi.find('a')).attr("data-id", data['id']);
-    to_edit_attributes = ["identifier", "name", "pack_quantity", "unit_size"];
+    let remove_decimals = ["pack_quantity", "current_quantity"];
     new_ddi.find('div').each(function() {
         var e = $(this);
         var key = e.attr('name');
         if (key === undefined){
             return true;
         }
-        if (to_edit_attributes.includes(key)) {
+        if (autocomplete_fields.includes(key)) {
             v = data[key];
-            if (key === "pack_quantity") {
+            if (remove_decimals.includes(key)) {
                 // The data from the server includes decimal places when not needed.  This seems to work to only show
                 // decimal places when needed.
                 v = Math.round(v * 100) / 100;
             }
-            e.text(v);
+            if (is_date_value(v) && is_date_field(key)){
+                e.text(format_date_str(v));
+            } else {
+                e.text(v);
+            }
         }
     });
     new_ddi.removeClass("hidden");
@@ -49,9 +81,9 @@ function new_dropdown_item(data) {
 function timer_elapsed_func(caller_obj) {
     var caller = $(caller_obj);
     var t = get_dropdown_textbox(caller);
-    var text_value = t.val()
+    var text_value = t.val().trim()
 
-    if (text_value.length < 1) {
+    if (text_value === "") {
         // don't want to send empty requests.
         no_results();
         return;
@@ -138,14 +170,37 @@ function get_hidden_model_field(p) {
     id_text = id_text.substring(0, id_text.length - "-dropdown".length);
     return $(document.getElementById(id_text));
 }
+function get_autocomplete_field(e, field_name) {
+    return e.find(`div[name="${field_name}"]`);
+}
+function get_form_field(field_name){
+    //field_name = id=id_items-0-unit_size, name=items-0-unit_size
+}
+function get_form_prefix(p) {
+    // "id_items-0-item-dropdown"
+    // returns "id_items-0-"
+    let id_text = p.prop("id");
+    return id_text.substring(0, id_text.length - "item-dropdown".length);
+}
+function get_form_field(p, form_prefix, form_field) {
+    // return $(document.getElementById(`${form_prefix}${form_field}`));
+    return $(`#${form_prefix}${form_field}`);
+}
 $('#item-list').on('click', 'a.dropdown-item', function() {
     // $( "div" ).data( "role" ) === "page";
     var e = $(this);
     var p = get_dropdown_parent(e);
-    var n = e.find('div[name="name"]');
+    var n = get_autocomplete_field(e, autocomplete_display_field);
     var selected_item = n.text();
     var t = get_dropdown_textbox(p);
     var h = get_hidden_model_field(p);
+    let form_prefix = get_form_prefix(p);
+
+    for (const [key, value] of Object.entries(autocomplete_copy_values)) {
+        copy_field = get_autocomplete_field(e, key);
+        form_field = get_form_field(p, form_prefix, value);
+        form_field.val(copy_field.text());
+    }
     logit(`clicked dropdown item: &quot;${selected_item}&quot; ${e.data("id")} and setting ${t.prop("id")} AND ${h.prop("id")}`);
     t.val(n.text());
     h.val(e.data("id"));

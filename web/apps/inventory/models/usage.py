@@ -1,3 +1,4 @@
+from django import urls
 from django.contrib.contenttypes import fields as ct_fields
 from django.db import models
 from django.utils import timezone
@@ -26,3 +27,6 @@ class Usage(scrap.ChangeSourceMixin):
     @staticmethod
     def autocomplete_search_fields():
         return "id__icontains", "who__icontains"
+
+    def get_absolute_url(self):
+        return urls.reverse('usage_report', kwargs={'pk': self.pk})

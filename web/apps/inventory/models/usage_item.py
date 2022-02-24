@@ -19,6 +19,9 @@ class UsageItem(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
 
+    class Meta:
+        ordering = ('parent', 'line_item_position', )
+
     def __str__(self):
         # TODO: should item changes store the name at the time of creation in case it changes?
         # Also, doing it as item.common_item.name depends on children knowing more than one level up.

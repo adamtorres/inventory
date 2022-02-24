@@ -66,7 +66,8 @@ class Item(models.Model):
     name = models.CharField("Probably cryptic item name", max_length=1024, null=False, blank=False)
     better_name = models.CharField("Less cryptic item name", max_length=1024, null=False, blank=True, default='')
     common_item = models.ForeignKey(
-        "inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items", null=True, blank=True)
+        "inventory.CommonItem", on_delete=models.CASCADE, related_name="incoming_items", null=True, blank=True,
+        related_query_name="incoming_items")
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     do_not_inventory = models.BooleanField(default=False, null=False, blank=False)
     individual_serving = models.BooleanField(

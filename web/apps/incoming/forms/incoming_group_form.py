@@ -61,4 +61,3 @@ IncomingItemFormSet = inlineformset_factory(
         'line_item_position', 'comment'
     ], extra=0, can_delete=True
 )
-

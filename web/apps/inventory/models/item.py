@@ -7,6 +7,10 @@ import uuid
 
 
 class ItemManager(models.Manager):
+    def available_items(self):
+        qs = self.exclude(current_quantity__lte=0)
+        return qs
+
     def get_consolidated_inventory(self):
         """
         Groups the common items and totals the quantities.
@@ -61,6 +65,37 @@ class ItemManager(models.Manager):
     # def get_queryset(self):
     #     return super().get_queryset().filter(author='Roald Dahl')
 
+    def autocomplete_search(self, terms):
+        """
+        Provided a single or list of terms, search item names, common names, and other names for the terms.  Return a
+        queryset of the found items.  Only items with positive current_quantity are returned.
+
+        Args:
+            terms: single string or list of strings.
+
+        Returns:
+            queryset with the result.
+        """
+        # TODO: Should this be expanded to handle multi-term phrases?  as in "ham meat" would not return "hamburger bun"
+        # TODO: returning duplicates for "stick" - ids are duplicated, at least.
+        if not terms:
+            return self.none()
+        if isinstance(terms, str):
+            terms = [terms]
+
+        term_q = models.Q()
+
+        for term in terms:
+            term_q = (
+                term_q | models.Q(common_item__name__icontains=term) |
+                models.Q(common_item__other_names__name__icontains=term) |
+                models.Q(common_item__incoming_items__name__icontains=term) |
+                models.Q(common_item__incoming_items__better_name__icontains=term)
+            )
+        qs = self.available_items().prefetch_related('common_item', 'location').filter(term_q)
+        qs = qs.distinct('common_item__name', 'created', 'id').order_by('common_item__name', 'created')
+        return qs
+
 
 class Item(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -77,7 +112,7 @@ class Item(models.Model):
     objects = ItemManager()
 
     class Meta:
-        pass
+        ordering = ('common_item__name', 'created', )
 
     def __str__(self):
         # don't want to just str the common_item as that includes the other_names.

@@ -25,7 +25,7 @@ urlpatterns = [
     path('grappelli-docs/', urls.include('grappelli.urls_docs')), # grappelli docs URLS
     path('admin/', admin.site.urls),
     path('dashboard/', urls.include('dashboard.urls')),
-    path('', urls.include('inventory.urls')),
+    path('inventory/', urls.include('inventory.urls')),
     path('', urls.include('incoming.urls')),
     path('hello/', my_views.ExampleView.as_view(), name='example_hello'),
     path('hello/dropdown/', my_views.DropdownExampleView.as_view(), name='example_dropdown'),

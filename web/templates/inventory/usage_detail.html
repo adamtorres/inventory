@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Usage Report{% endblock %}
+
+{% block content %}
+    <div class="container-fluid m-3">
+        <div class="row">
+            <div class="col-sm-2">Who:</div>
+            <div class="col-sm-2">{{ object.who }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">Action Date</div>
+            <div class="col-sm-2">{{ object.action_date }}</div>
+        </div>
+    </div>
+
+    <hr />
+    <h3>Items:</h3>
+    <div class="container-fluid">
+    <div class="row">
+        <div class="border col-sm-2">Line item position</div>
+        <div class="border col-sm-1">Quantity</div>
+        <div class="border col-sm-2">Unit Size</div>
+        <div class="border col">Item</div>
+    </div>
+    {% for usage_item in object.items.all %}
+        <div class="row">
+            <div class="border col-sm-2">{{ usage_item.line_item_position }}</div>
+            <div class="border col-sm-1">{{ usage_item.quantity }}</div>
+            <div class="border col-sm-2">{{ usage_item.unit_size }}</div>
+            <div class="border col">{{ usage_item.item }}</div>
+        </div>
+    {% endfor %}
+    </div>
+    <hr />
+
+    <div class="row row-cols-3">
+        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{% url "usage_report_edit" pk=object.id %}" role="button">Edit</a></div>
+        <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{% url "usage_reports" %}" role="button">Back to list</a></div>
+
+    </div>
+
+
+{% endblock %}
