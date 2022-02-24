@@ -5,8 +5,17 @@ from django.db import models
 
 import uuid
 
+from scrap import models as sc_models
 
-class ItemManager(models.Manager):
+
+class ItemManager(models.Manager, sc_models.FilterMixin):
+    fields_to_filter_with_terms = [
+        "common_item__name", "common_item__other_names__name", "common_item__incoming_items__name",
+        "common_item__incoming_items__better_name"]
+    filter_prefetch = ['common_item', 'location']
+    filter_order = ['common_item__name', 'created']
+    filter_initial_qs = 'available_items'
+
     def available_items(self):
         qs = self.exclude(current_quantity__lte=0)
         return qs
@@ -62,9 +71,6 @@ class ItemManager(models.Manager):
             items[item["category"]].append(item)
         return items
 
-    # def get_queryset(self):
-    #     return super().get_queryset().filter(author='Roald Dahl')
-
     def autocomplete_search(self, terms):
         """
         Provided a single or list of terms, search item names, common names, and other names for the terms.  Return a
@@ -76,24 +82,8 @@ class ItemManager(models.Manager):
         Returns:
             queryset with the result.
         """
-        # TODO: Should this be expanded to handle multi-term phrases?  as in "ham meat" would not return "hamburger bun"
-        # TODO: returning duplicates for "stick" - ids are duplicated, at least.
-        if not terms:
-            return self.none()
-        if isinstance(terms, str):
-            terms = [terms]
-
-        term_q = models.Q()
-
-        for term in terms:
-            term_q = (
-                term_q | models.Q(common_item__name__icontains=term) |
-                models.Q(common_item__other_names__name__icontains=term) |
-                models.Q(common_item__incoming_items__name__icontains=term) |
-                models.Q(common_item__incoming_items__better_name__icontains=term)
-            )
-        qs = self.available_items().prefetch_related('common_item', 'location').filter(term_q)
-        qs = qs.distinct('common_item__name', 'created', 'id').order_by('common_item__name', 'created')
+        qs = super().autocomplete_search(terms)
+        qs = qs.distinct('common_item__name', 'created', 'id')
         return qs
 
 

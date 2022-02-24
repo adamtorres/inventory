@@ -111,23 +111,36 @@ def update_action_date_from_bulk_load():
     # inv_models.Change.objects.all().update(action_date=models.F('incomingitemgroup__action_date'))
 
 
-def test_autocomplete_incoming():
+def test_autocomplete_incoming(terms, model='item'):
+    print("="*120)
+    print(f"Searching incoming.{model} for {terms!r}")
     from incoming import serializers
-    qs = inc_models.Item.objects.autocomplete_search(['burger', 'meat'], all_terms=False)
+    source = {
+        'incoming_item': {'model': inc_models.IncomingItem, 'serializer': None},
+        'item': {'model': inc_models.Item, 'serializer': serializers.ItemSerializer},
+    }
+
+    qs = source[model]['model'].objects.autocomplete_search(terms)
     count = 0
     for item in qs:
-        s = serializers.ItemSerializer(item)
+        s = source[model]['serializer'](item)
         print(s.data)
         count += 1
     print(f"{count} items")
 
 
-def test_autocomplete_inventory():
+def test_autocomplete_inventory(terms, model='common_item'):
+    print("="*120)
+    print(f"Searching incoming.{model} for {terms!r}")
     from inventory import serializers
-    qs = inv_models.CommonItem.objects.autocomplete_search('beef')
+    source = {
+        'common_item': {'model': inv_models.CommonItem, 'serializer': serializers.CommonItemSerializer},
+        'item': {'model': inv_models.Item, 'serializer': serializers.ItemSerializer},
+    }
+    qs = source[model]['model'].objects.autocomplete_search(terms)
     count = 0
     for item in qs:
-        s = serializers.CommonItemSerializer(item)
+        s = source[model]['serializer'](item)
         print(s.data)
         count += 1
     print(f"{count} items")
@@ -162,8 +175,11 @@ def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
-    with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
+    with monkey_patch_cursordebugwrapper(print_sql=False, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
         # test_incoming_item_group_listing()
-        test_autocomplete_incoming()
+        test_autocomplete_incoming('cake mix', model='item')
+        test_autocomplete_incoming('cake mix', model='incoming_item')
+        test_autocomplete_inventory('cake mix', model='common_item')
+        test_autocomplete_inventory('cake mix', model='item')
         # test_map_partial()

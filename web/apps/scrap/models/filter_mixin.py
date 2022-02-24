@@ -7,6 +7,7 @@ class FilterMixin(object):
     fields_to_filter_with_terms = []
     filter_prefetch = []
     filter_order = []
+    filter_initial_qs = None
 
     def autocomplete_search(self, terms=None, sources=None, all_terms=True):
         """
@@ -21,11 +22,14 @@ class FilterMixin(object):
         Returns:
             queryset with the result.
         """
-        # TODO: Should this be expanded to handle multi-term phrases?  as in "ham meat" would not return "hamburger bun"
-        # TODO: returning duplicates for "stick" - ids are duplicated, at least.
+        # TODO: should .distinct() be part of this?  Default to whatever is in filter_order or 'id'?
         term_q = self.get_terms_filter(terms, all_terms=all_terms)
         source_q = self.get_source_filter(sources)
-        return self.order_filter(self.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
+        if self.filter_initial_qs:
+            qs = getattr(self, self.filter_initial_qs)()
+        else:
+            qs = self
+        return self.order_filter(qs.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
 
     def order_filter(self, qs):
         if self.filter_order:
@@ -50,7 +54,7 @@ class FilterMixin(object):
         if not terms:
             return models.Q()
         if isinstance(terms, str):
-            terms = [terms]
+            terms = terms.split()
 
         term_q = models.Q()
         for field in self.fields_to_filter_with_terms:
