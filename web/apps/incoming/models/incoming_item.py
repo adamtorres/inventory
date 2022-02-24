@@ -40,6 +40,9 @@ class IncomingItemManager(models.Manager):
         qs = qs.order_by('-year', '-month')
         return qs
 
+    def live_filter(self, terms=None, sources=None):
+        pass
+
 
 class IncomingItem(models.Model):
     # TODO: add position field so items stay in the order on the invoice.

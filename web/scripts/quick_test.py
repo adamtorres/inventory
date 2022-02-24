@@ -111,7 +111,18 @@ def update_action_date_from_bulk_load():
     # inv_models.Change.objects.all().update(action_date=models.F('incomingitemgroup__action_date'))
 
 
-def test_autocomplete():
+def test_autocomplete_incoming():
+    from incoming import serializers
+    qs = inc_models.Item.objects.autocomplete_search(['burger', 'meat'], all_terms=False)
+    count = 0
+    for item in qs:
+        s = serializers.ItemSerializer(item)
+        print(s.data)
+        count += 1
+    print(f"{count} items")
+
+
+def test_autocomplete_inventory():
     from inventory import serializers
     qs = inv_models.CommonItem.objects.autocomplete_search('beef')
     count = 0
@@ -154,5 +165,5 @@ def run():
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
         # test_incoming_item_group_listing()
-        test_autocomplete()
+        test_autocomplete_incoming()
         # test_map_partial()
