@@ -87,11 +87,12 @@
 <div style="display: none;" name="template-container">
     <li id="dropdown-item-template">
         <a class='dropdown-item' data-id="nope">
-        <div class="row row-cols-4">
-            <div class="col-sm-1 border" name="quantity">__current_quantity__</div>
-            <div class="col-sm-2 border" name="unit_sizes">__unit_size__</div>
-            <div class="col-sm-2 border" name="category">__created__</div>
-            <div class="col-lg-5 border" name="name">__common_item__</div>
+        <div class="row row-cols-5">
+            <div class="col-sm-1 border" name="current_quantity">__current_quantity__</div>
+            <div class="col-sm-2 border" name="unit_size">__unit_size__</div>
+            <div class="col-sm-2 border" name="created">__created__</div>
+            <div class="col-lg-5 border" name="common_item">__common_item__</div>
+            <div class="col-lg-2 border" name="location">__location__</div>
         </div>
         </a>
     </li>
@@ -124,13 +125,13 @@ hello
 <script type="text/javascript">
 $( document ).ready(function() {
     {# TODO: make an autocomplete url for inventory items instead of incoming items. #}
-    autocomplete_url = "{% url 'inv_autocomplete_commonitem' %}";
+    autocomplete_url = "{% url 'inv_autocomplete' %}";
     after_add_focus_suffix = "-unit_size";
-    autocomplete_fields = ["quantity", "unit_sizes", "category", "name"];
-    autocomplete_display_field = "name";
+    autocomplete_fields = ["current_quantity", "unit_size", "created", "common_item", "location"];
+    autocomplete_display_field = "common_item";
     autocomplete_copy_values = {
         {# "column in autocomplete list": "form field name" #}
-        {# "unit_size": "unit_size", #}
+        "unit_size": "unit_size",
     }
 })
 </script>
