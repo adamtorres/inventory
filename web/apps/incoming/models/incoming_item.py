@@ -15,6 +15,7 @@ class IncomingItemManager(models.Manager, sc_models.FilterMixin):
         "item__common_item__name", "item__common_item__other_names__name"]
     filter_prefetch = ['item', 'item__common_item', 'parent']
     filter_order = ['item__common_item__name', 'parent__action_date']
+    source_field = 'parent__source'
 
     def cost_by_month(self, start_date=None, end_date=None):
         """
@@ -46,9 +47,6 @@ class IncomingItemManager(models.Manager, sc_models.FilterMixin):
         )
         qs = qs.order_by('-year', '-month')
         return qs
-
-    def live_filter(self, terms=None, sources=None):
-        pass
 
 
 class IncomingItem(models.Model):

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load humanize %}
 
 {% block title %}Incoming Group Item Lookup{% endblock %}
@@ -9,54 +10,61 @@
 {% endblock %}
 
 {% block content %}
-The lookup page.
 <div class="container-fluid">
-    <form method="post">{% csrf_token %}
-        {{ form.management_form }}
-        {{ form.non_form_errors }}
-        {% for hidden_field in form.hidden_fields %}
-          {{ hidden_field.errors }}
-          {{ hidden_field }}
-        {% endfor %}
-        <div class="row row-cols-4">
-            <div class="col">
-                <p>
-                {{ form.name.label_tag }}
-                </p>
-                {{ form.name.errors }}
-                {{ form.name }}
-            </div>
-            <div class="col">
-                <p>
-                {{ form.unit_size.label_tag }}
-                </p>
-                {{ form.unit_size.errors }}
-                {{ form.unit_size }}
-            </div>
-            <div class="col">
-                <p>
-                {{ form.source.label_tag }}
-                </p>
-                {{ form.source.errors }}
-                {{ form.source }}
-            </div>
-            <div class="col">
-                <p>
-                {{ form.pack_quantity.label_tag }}
-                </p>
-                {{ form.pack_quantity.errors }}
-                {{ form.pack_quantity }}
-            </div>
-        </div>
-        <div class="row row-cols-3">
-            <div class="col w-25 text-center"><button class="btn btn-primary w-75" type="submit">Filter</button></div>
-            <div class="col w-25 text-center"><a class="btn btn-secondary w-75" href="{% url 'incoming_group_item_lookup' %}" role="button">Reset filter</a></div>
-        </div>
-    </form>
+    <p>The lookup page.</p>
+
+    <div style="display: none;" class="filtered-item-template-container">
+        <li id="filtered-item-template" class="filtered-item-top">
+            <a class='filtered-item-link' data-id="nope">
+                <div class="row row-cols-5">
+                    <div class="col-sm-2 border" data-field="extended_price">__extended_price__</div>
+                    <div class="col-sm-2 border" data-field="pack_price">__pack_price__</div>
+                    <div class="col-lg-5 border" data-field="item">__item__</div>
+                </div>
+            </a>
+        </li>
+    </div>
+    <div id="filter-controls">
+        <p>
+            <label for="filter-unit-size">Unit size:</label>
+            <input type="text" id="filter-unit-size" class="filter-input" />
+        </p>
+        <p>
+            <label for="filter-name">Item name:</label>
+            <input type="text" id="filter-name" class="filter-input" />
+        </p>
+    </div>
+    <div id="calculation-div">
+        <p>
+            Selected item
+        </p>
+        <input id="calc-extended-price" placeholder="extended price">
+        <input id="calc-item" placeholder="item name">
+    </div>
+    <div id="result-div">
+
+    </div>
+    <pre id="on-page-log">
+Log.
+    </pre>
 </div>
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
+var filter_url = "{% url 'inc_live_filter_incomingitems' %}";
+var filter_fields = ["item", "extended_price", "pack_price"];
+var remove_decimals = ["pack_price", "total_weight", "pack_tax", "extended_price", "ordered_quantity", "delivered_quantity"];
+var filter_input_fields = [
+    {element: "#filter-unit-size", ajax_var: "unit_size"},
+    {element: "#filter-name", ajax_var: "name"},
+];
+filter_result_fields = [
+    {element: "data-field='item'", destination_field_id: "calc-item"},
+    {element: "data-field='extended_price'", destination_field_id: "calc-extended-price"},
+];
 </script>
 {% endblock %}

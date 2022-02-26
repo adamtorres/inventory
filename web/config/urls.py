@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('dashboard/', urls.include('dashboard.urls')),
     path('inventory/', urls.include('inventory.urls')),
-    path('', urls.include('incoming.urls')),
+    path('incoming/', urls.include('incoming.urls')),
     path('hello/', my_views.ExampleView.as_view(), name='example_hello'),
     path('hello/dropdown/', my_views.DropdownExampleView.as_view(), name='example_dropdown'),
     path('hello/autocomplete/', my_views.AutocompleteTestOne.as_view(), name='example_autocomplete_1'),

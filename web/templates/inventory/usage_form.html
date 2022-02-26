@@ -112,7 +112,7 @@
         <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
     </div>
 </form>
-<pre id="jquery-example-2-log">
+<pre id="on-page-log">
 hello
 </pre>
 {% endblock %}
@@ -120,11 +120,12 @@ hello
 {% block body_scripts %}
 <script src="{% static 'js/add_new_form.js' %}"></script>
 <script src="{% static 'js/autocomplete.js' %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
 <link href="{% static 'css/autocomplete.css' %}" rel="stylesheet">
 
 <script type="text/javascript">
 $( document ).ready(function() {
-    {# TODO: make an autocomplete url for inventory items instead of incoming items. #}
     autocomplete_url = "{% url 'inv_autocomplete' %}";
     after_add_focus_suffix = "-unit_size";
     autocomplete_fields = ["current_quantity", "unit_size", "created", "common_item", "location"];

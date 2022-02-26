@@ -63,7 +63,7 @@ to use for the autocompletes.
 
 <hr />
 <button id="jquery-example-2-btn" type="button" class="btn btn-secondary" >Clear log</button>
-<pre id="jquery-example-2-log">
+<pre id="on-page-log">
 </pre>
 
 <hr />
@@ -78,10 +78,12 @@ to use for the autocompletes.
 
 {% block body_scripts %}
 <script type="text/javascript" src="{% static "js/autocomplete.js" %}">
+<script type="text/javascript" src="{% static "js/date_str.js" %}">
+<script type="text/javascript" src="{% static "js/on_page_log.js" %}">
 </script>
 <script type="text/javascript">
 $( document ).ready(function() {
-    autocomplete_url = "{% url 'autocomplete' %}";
+    autocomplete_url = "{% url 'inc_autocomplete_items' %}";
 })
 </script>
 {% endblock %}

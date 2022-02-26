@@ -8,6 +8,7 @@ class FilterMixin(object):
     filter_prefetch = []
     filter_order = []
     filter_initial_qs = None
+    source_field = None
 
     def autocomplete_search(self, terms=None, sources=None, all_terms=True):
         """
@@ -23,6 +24,8 @@ class FilterMixin(object):
             queryset with the result.
         """
         # TODO: should .distinct() be part of this?  Default to whatever is in filter_order or 'id'?
+        if not terms and not sources:
+            return self.none()
         term_q = self.get_terms_filter(terms, all_terms=all_terms)
         source_q = self.get_source_filter(sources)
         if self.filter_initial_qs:
@@ -40,14 +43,15 @@ class FilterMixin(object):
         return self.filter_prefetch
 
     def get_source_filter(self, sources):
-        if not sources:
+        if not sources or not self.source_field:
             return models.Q()
         if isinstance(sources, (str, uuid.UUID)):
             sources = [sources]
         source_q = models.Q()
         if sources != ['']:
+            source_kwarg = f"{self.source_field}__id"
             for source in sources:
-                source_q = source_q | models.Q(source__id=source)
+                source_q = source_q | models.Q(**{source_kwarg: source})
         return source_q
 
     def get_terms_filter(self, terms, all_terms=False):
@@ -67,3 +71,18 @@ class FilterMixin(object):
                     field_q = field_q | models.Q(**kwargs)
             term_q = term_q | field_q
         return term_q
+
+    def live_filter(self, terms=None, sources=None):
+        """
+        Similar to the autocomplete except in that it searches more fields than just name and can keep the terms
+        separated between same.
+
+        Args:
+            terms:
+            sources:
+
+        Returns:
+
+        """
+        # TODO: terminology conflict with autocomplete attributes.
+        pass
