@@ -4,11 +4,12 @@ import uuid
 
 
 class FilterMixin(object):
-    fields_to_filter_with_terms = []
+    autocomplete_fields = []
     filter_prefetch = []
     filter_order = []
-    filter_initial_qs = None
+    autocomplete_initial_qs = None
     source_field = None
+    live_filter_keys_to_fields = {}
 
     def autocomplete_search(self, terms=None, sources=None, all_terms=True):
         """
@@ -26,10 +27,10 @@ class FilterMixin(object):
         # TODO: should .distinct() be part of this?  Default to whatever is in filter_order or 'id'?
         if not terms and not sources:
             return self.none()
-        term_q = self.get_terms_filter(terms, all_terms=all_terms)
+        term_q = self.get_autocomplete_terms_filter(terms, all_terms=all_terms)
         source_q = self.get_source_filter(sources)
-        if self.filter_initial_qs:
-            qs = getattr(self, self.filter_initial_qs)()
+        if self.autocomplete_initial_qs:
+            qs = getattr(self, self.autocomplete_initial_qs)()
         else:
             qs = self
         return self.order_filter(qs.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
@@ -54,14 +55,14 @@ class FilterMixin(object):
                 source_q = source_q | models.Q(**{source_kwarg: source})
         return source_q
 
-    def get_terms_filter(self, terms, all_terms=False):
+    def get_autocomplete_terms_filter(self, terms, all_terms=False):
         if not terms:
             return models.Q()
         if isinstance(terms, str):
             terms = terms.split()
 
         term_q = models.Q()
-        for field in self.fields_to_filter_with_terms:
+        for field in self.autocomplete_fields:
             field_q = models.Q()
             for term in terms:
                 kwargs = {f"{field}__icontains": term}
@@ -72,17 +73,33 @@ class FilterMixin(object):
             term_q = term_q | field_q
         return term_q
 
-    def live_filter(self, terms=None, sources=None):
+    def live_filter(self, sources=None, **kwargs):
         """
         Similar to the autocomplete except in that it searches more fields than just name and can keep the terms
         separated between same.
 
         Args:
-            terms:
-            sources:
+            sources: filter by source(s)
+            kwargs: any additional fields with associated values
 
         Returns:
-
+            queryset
         """
-        # TODO: terminology conflict with autocomplete attributes.
-        pass
+        # if not terms and not sources:
+        #     return self.none()
+        combined_filter = models.Q()
+        for key in self.live_filter_keys_to_fields.keys():
+            if key not in kwargs:
+                continue
+            field_list = self.live_filter_keys_to_fields[key]
+            if isinstance(field_list, str):
+                field_list = [field_list]
+            field_q = models.Q()
+            for field in field_list:
+                term_q = models.Q()
+                for term in kwargs[key]:
+                    term_q = term_q & models.Q(**{f"{field}__icontains": term})
+                field_q = field_q | term_q
+            combined_filter = combined_filter & field_q
+        combined_filter = combined_filter & self.get_source_filter(sources)
+        return self.filter(combined_filter)

@@ -9,7 +9,7 @@ from scrap import models as sc_models
 
 
 class ItemManager(models.Manager, sc_models.FilterMixin):
-    fields_to_filter_with_terms = ['name', 'common_item__name', 'common_item__other_names__name']
+    autocomplete_fields = ['name', 'common_item__name', 'common_item__other_names__name']
     filter_prefetch = ['common_item', 'common_item__other_names', 'source']
     filter_order = ['name']
     source_field = 'source'

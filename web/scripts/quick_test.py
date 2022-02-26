@@ -171,15 +171,21 @@ def test_map_partial():
     print(", ".join(map(str, map(my_getattr, fields))))
 
 
+def test_live_filter():
+    # quantity, unit_size, item
+    print(inc_models.IncomingItem.objects.live_filter(item=['burger', 'meat']))
+
+
 def run():
     print((("=" * 150) + "\n") * 3)
     # The configprefix is used to get some settings.  In this case, SHELL_PLUS_PYGMENTS_ENABLED which adds some syntax
     # highlighting to the generated SQL.
-    with monkey_patch_cursordebugwrapper(print_sql=False, confprefix="SHELL_PLUS", print_sql_location=False):
+    with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # update_action_date_from_bulk_load()
         # test_incoming_item_group_listing()
-        test_autocomplete_incoming('cake mix', model='item')
-        test_autocomplete_incoming('cake mix', model='incoming_item')
-        test_autocomplete_inventory('cake mix', model='common_item')
-        test_autocomplete_inventory('cake mix', model='item')
+        # test_autocomplete_incoming('cake mix', model='item')
+        # test_autocomplete_incoming('cake mix', model='incoming_item')
+        # test_autocomplete_inventory('cake mix', model='common_item')
+        # test_autocomplete_inventory('cake mix', model='item')
         # test_map_partial()
+        test_live_filter()

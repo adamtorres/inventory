@@ -9,12 +9,12 @@ from scrap import models as sc_models
 
 
 class ItemManager(models.Manager, sc_models.FilterMixin):
-    fields_to_filter_with_terms = [
+    autocomplete_fields = [
         "common_item__name", "common_item__other_names__name", "common_item__incoming_items__name",
         "common_item__incoming_items__better_name"]
     filter_prefetch = ['common_item', 'location']
     filter_order = ['common_item__name', 'created']
-    filter_initial_qs = 'available_items'
+    autocomplete_initial_qs = 'available_items'
 
     def available_items(self):
         qs = self.exclude(current_quantity__lte=0)
