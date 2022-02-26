@@ -102,4 +102,4 @@ class FilterMixin(object):
                 field_q = field_q | term_q
             combined_filter = combined_filter & field_q
         combined_filter = combined_filter & self.get_source_filter(sources)
-        return self.filter(combined_filter)
+        return self.prefetch_related(*self.get_filter_prefetch()).filter(combined_filter)

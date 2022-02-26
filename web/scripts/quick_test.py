@@ -173,7 +173,10 @@ def test_map_partial():
 
 def test_live_filter():
     # quantity, unit_size, item
-    print(inc_models.IncomingItem.objects.live_filter(item=['burger', 'meat']))
+    from incoming import serializers
+    qs = inc_models.IncomingItem.objects.live_filter(item=['burger', 'meat'])
+    s = serializers.IncomingItemSerializer(qs, many=True)
+    print(s.data)
 
 
 def run():
