@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block navpanel_css %}
+    <link href="{% static "css/collapsible_sidebar.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block navpanel_body %}
+{% include "examples/collapsible_sidebar.html" %}
+{% endblock %}
+
+{% block navpanel_js %}
+
+{% endblock %}
