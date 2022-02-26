@@ -85,10 +85,6 @@ function filtered_results_received(data) {
     }
     logit(`Got ${count} results.`, true);
 }
-function get_filtered_item_parent(e) {
-    // Given any element within a filtered item tree, return the top-most element.
-    return $(e).parents(".filtered-item-top");
-}
 function get_filtered_item_field(p, field) {
     return p.find(`[${field}]`);
 }
@@ -97,7 +93,6 @@ function setup_filtered_results_events() {
     result_list_obj.on('click', '.filtered-item-link', filtered_item_click)
 }
 function filtered_item_click() {
-    // let p = get_filtered_item_parent(this);
     let p = $(this);
     filter_result_fields.forEach(tag => {
         let item_data_attr = tag['element'];
@@ -107,8 +102,6 @@ function filtered_item_click() {
         $(`#${dest_tag_id}`).val(item_val);
     });
 }
-
-
 
 var keypress_timer;
 function start_timer() {
