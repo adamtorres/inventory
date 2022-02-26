@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf import urls
 from django.contrib import admin
 from django.urls import path
+from django.views import generic
 
 from . import views as my_views
 
@@ -30,4 +31,5 @@ urlpatterns = [
     path('hello/', my_views.ExampleView.as_view(), name='example_hello'),
     path('hello/dropdown/', my_views.DropdownExampleView.as_view(), name='example_dropdown'),
     path('hello/autocomplete/', my_views.AutocompleteTestOne.as_view(), name='example_autocomplete_1'),
+    path('', generic.RedirectView.as_view(pattern_name="dashboard", permanent=False), name="homepage"),
 ]
