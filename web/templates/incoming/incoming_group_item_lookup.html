@@ -13,37 +13,62 @@
 <div class="container-fluid">
     <p>The lookup page.</p>
 
-    <div style="display: none;" class="filtered-item-template-container">
-        <li id="filtered-item-template" class="filtered-item-top">
-            <a class='filtered-item-link' data-id="nope">
-                <div class="row row-cols-5">
-                    <div class="col-sm-2 border" data-field="extended_price">__extended_price__</div>
-                    <div class="col-sm-2 border" data-field="pack_price">__pack_price__</div>
-                    <div class="col-lg-5 border" data-field="item">__item__</div>
-                </div>
-            </a>
-        </li>
-    </div>
+    <table style="display: none;" class="filtered-item-template-container">
+        <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
+            <td class="border" data-field="ordered_quantity">__ordered_quantity__</td>
+            <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border" data-field="total_weight">__total_weight__</td>
+            <td class="border" data-field="pack_price">__pack_price__</td>
+            <td class="border" data-field="pack_tax">__pack_tax__</td>
+            <td class="border" data-field="extended_price">__extended_price__</td>
+            <td class="border" data-field="line_item_position">__line_item_position__</td>
+            <td class="border" data-field="comment">__comment__</td>
+            <td class="border" data-field="parent">__parent__</td>
+            <td class="border" data-field="item">__item__</td>
+        </tr>
+    </table>
     <div id="filter-controls">
+        <p>
+            <label for="filter-quantity">Quantity:</label>
+            <input type="text" id="filter-quantity" class="filter-input" />
+        </p>
         <p>
             <label for="filter-unit-size">Unit size:</label>
             <input type="text" id="filter-unit-size" class="filter-input" />
         </p>
         <p>
-            <label for="filter-name">Item name:</label>
-            <input type="text" id="filter-name" class="filter-input" />
+            <label for="filter-item">Item name:</label>
+            <input type="text" id="filter-item" class="filter-input" />
         </p>
     </div>
     <div id="calculation-div">
         <p>
             Selected item
         </p>
-        <input id="calc-extended-price" placeholder="extended price">
+        <input id="calc-quantity" placeholder="quantity">
+        <input id="calc-price" placeholder="price">
+        <input id="calc-weight" placeholder="weight">
         <input id="calc-item" placeholder="item name">
     </div>
-    <div id="result-div">
 
-    </div>
+<table>
+    <thead>
+        <tr>
+            <th class="border">Ordered Quantity</th>
+            <th class="border">Delivered Quantity</th>
+            <th class="border">Total Weight</th>
+            <th class="border">Pack Price</th>
+            <th class="border">Pack Tax</th>
+            <th class="border">Extended Price</th>
+            <th class="border">Line Item Position</th>
+            <th class="border">Comment</th>
+            <th class="border">Incoming Group</th>
+            <th class="border">Item</th>
+        </tr>
+    </thead>
+    <tbody id="result-div">
+    </tbody>
+</table>
     <pre id="on-page-log">
 Log.
     </pre>
@@ -56,15 +81,18 @@ Log.
 <script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
 var filter_url = "{% url 'inc_live_filter_incomingitems' %}";
-var filter_fields = ["item", "extended_price", "pack_price"];
-var remove_decimals = ["pack_price", "total_weight", "pack_tax", "extended_price", "ordered_quantity", "delivered_quantity"];
+var filter_fields = ["ordered_quantity", "delivered_quantity", "total_weight", "pack_price", "pack_tax", "extended_price", "line_item_position", "comment", "parent", "item"];
+var remove_decimals = ["ordered_quantity", "delivered_quantity", "total_weight", "pack_price", "pack_tax", "extended_price", "line_item_position"];
 var filter_input_fields = [
+    {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
-    {element: "#filter-name", ajax_var: "name"},
+    {element: "#filter-item", ajax_var: "item"},
 ];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
-    {element: "data-field='extended_price'", destination_field_id: "calc-extended-price"},
+    {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
+    {element: "data-field='extended_price'", destination_field_id: "calc-price"},
+    {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
 ];
 </script>
 {% endblock %}

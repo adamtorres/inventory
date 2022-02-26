@@ -24,13 +24,13 @@ function no_results() {
     // TODO: Need classes to disable the link without it being a dropdown menu.
     let result_list = get_result_list();
     result_list.empty();
-    result_list.append($("<li><a class='filtered-result-top disabled'>No results</a></li>"));
+    result_list.append($("<tr><a class='filtered-result-top disabled'><td colspan='0'>No results</td></a></tr>"));
 }
 function new_item(data) {
     let item_clone = $(`#${filter_result_item_template_id}`).clone();
     item_clone.attr('id', null);
-    $(item_clone.find('a')).attr("data-id", data['id']);
-    item_clone.find('div[data-field]').each(function() {
+    item_clone.attr("data-id", data['id']);
+    item_clone.find('[data-field]').each(function() {
         let e = $(this);
         let key = e.data('field');
         if (key === undefined){
@@ -90,14 +90,15 @@ function get_filtered_item_parent(e) {
     return $(e).parents(".filtered-item-top");
 }
 function get_filtered_item_field(p, field) {
-    return p.find(`div[${field}]`);
+    return p.find(`[${field}]`);
 }
 function setup_filtered_results_events() {
     let result_list_obj = get_result_list();
     result_list_obj.on('click', '.filtered-item-link', filtered_item_click)
 }
 function filtered_item_click() {
-    let p = get_filtered_item_parent(this);
+    // let p = get_filtered_item_parent(this);
+    let p = $(this);
     filter_result_fields.forEach(tag => {
         let item_data_attr = tag['element'];
         let dest_tag_id = tag['destination_field_id'];
