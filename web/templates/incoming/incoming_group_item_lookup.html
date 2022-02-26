@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Incoming Group Item Lookup{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <p>The lookup page.</p>
+
+    <table style="display: none;" class="filtered-item-template-container">
+        <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
+            <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border" data-field="total_weight">__total_weight__</td>
+            <td class="border" data-field="pack_quantity">__pack_quantity__</td>
+            <td class="border" data-field="unit_size">__unit_size__</td>
+            <td class="border" data-field="pack_price">__pack_price__</td>
+            <td class="border" data-field="pack_tax">__pack_tax__</td>
+            <td class="border" data-field="extended_price">__extended_price__</td>
+            <td class="border" data-field="comment">__comment__</td>
+            <td class="border" data-field="parent">__parent__</td>
+            <td class="border" data-field="item">__item__</td>
+        </tr>
+    </table>
+    <div id="filter-controls">
+        <p>
+            <label for="filter-quantity">Quantity:</label>
+            <input type="text" id="filter-quantity" class="filter-input" />
+        </p>
+        <p>
+            <label for="filter-unit-size">Unit size:</label>
+            <input type="text" id="filter-unit-size" class="filter-input" />
+        </p>
+        <p>
+            <label for="filter-item">Item name:</label>
+            <input type="text" id="filter-item" class="filter-input" />
+        </p>
+    </div>
+    <div id="calculation-div">
+        <p>
+            Selected item
+        </p>
+        <input id="calc-quantity" placeholder="quantity">
+        <input id="calc-price" placeholder="price">
+        <input id="calc-pack-price" placeholder="pack price">
+        <input id="calc-weight" placeholder="weight">
+        <input id="calc-item" placeholder="item name">
+    </div>
+
+<table>
+    <thead>
+        <tr>
+            <th class="border">Delivered Quantity</th>
+            <th class="border">Total Weight</th>
+            <th class="border">Pack Quantity</th>
+            <th class="border">Unit Size</th>
+            <th class="border">Pack Price</th>
+            <th class="border">Pack Tax</th>
+            <th class="border">Extended Price</th>
+            <th class="border">Comment</th>
+            <th class="border">Incoming Group</th>
+            <th class="border">Item</th>
+        </tr>
+    </thead>
+    <tbody id="result-div">
+    </tbody>
+</table>
+    <pre id="on-page-log">
+Log.
+    </pre>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/live_filter.js' %}"></script>
+<script type="text/javascript">
+var filter_url = "{% url 'inc_live_filter_incomingitems' %}";
+var filter_fields = ["delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price", "comment", "parent", "item"];
+var remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
+var filter_input_fields = [
+    {element: "#filter-quantity", ajax_var: "quantity"},
+    {element: "#filter-unit-size", ajax_var: "unit_size"},
+    {element: "#filter-item", ajax_var: "item"},
+];
+filter_result_fields = [
+    {element: "data-field='item'", destination_field_id: "calc-item"},
+    {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
+    {element: "data-field='extended_price'", destination_field_id: "calc-price"},
+    {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
+    {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
+];
+</script>
+{% endblock %}

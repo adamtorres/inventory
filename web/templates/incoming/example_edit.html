@@ -195,20 +195,22 @@
         </div>
       </form>
 
-    <pre id="jquery-example-2-log">
+    <pre id="on-page-log">
     hello
     </pre>
 </div>
 {% endblock content %}
 
 {% block body_scripts %}
-<script src="{% static 'add_new_form.js' %}"></script>
-<script src="{% static 'autocomplete.js' %}"></script>
+<script src="{% static 'js/add_new_form.js' %}"></script>
+<script src="{% static 'js/autocomplete.js' %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
 <link href="{% static 'css/autocomplete.css' %}" rel="stylesheet">
 
 <script type="text/javascript">
 $( document ).ready(function() {
-    autocomplete_url = "{% url 'autocomplete' %}";
+    autocomplete_url = "{% url 'inc_autocomplete_items' %}";
     after_add_focus_suffix = "-ordered_quantity";
     autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];
     autocomplete_display_field = "name";

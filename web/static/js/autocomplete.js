@@ -8,36 +8,12 @@ var autocomplete_copy_values = {}; // dict of autocomplete_column:form_field pai
 $( document ).ready(function() {
     no_results();
 })
-function is_date_field(possible_a_date_field){
-    if (possible_a_date_field.includes('date')) {
-        return true;
-    }
-    if (['created', 'modified'].includes(possible_a_date_field)) {
-        return true;
-    }
-    return false
-}
-function is_date_value(possibly_a_date_value) {
-    // Specifically made to test if a string is a date string.  Not meant to be a generic date function.
-    if (!(typeof(possibly_a_date_value) === typeof("string"))) {
-        return false;
-    }
-    // if (!(['-', '/'].some(date_sep_char => possibly_a_date.includes(date_sep_char)))){
-    //     return false;
-    // }
-    return (!isNaN(Date.parse(v)));
-}
-function format_date_str(full_date_str) {
-    // Given a date string as provided by Django/Postgresql, convert it to American M/D/Y.
-    // "2022-02-09T01:36:04.239259-07:00" to "2/9/2022"
-    let d = new Date(full_date_str);
-    return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
-}
+
 function logit(stuff, clear=false) {
     if (clear) {
-        $("#jquery-example-2-log").empty();
+        $("#on-page-log").empty();
     }
-    $("#jquery-example-2-log").append(stuff + "\n");
+    $("#on-page-log").append(stuff + "\n");
 }
 function start_timer(caller) {
     window.clearTimeout(keypress_timer);
@@ -81,7 +57,7 @@ function new_dropdown_item(data) {
 function timer_elapsed_func(caller_obj) {
     var caller = $(caller_obj);
     var t = get_dropdown_textbox(caller);
-    var text_value = t.val().trim()
+    var text_value = t.val().trim();
 
     if (text_value === "") {
         // don't want to send empty requests.
@@ -128,7 +104,7 @@ function timer_elapsed_func(caller_obj) {
     });
 }
 $("#item-list").on("click", "button", function(e) {
-    logit("Log of jquery events.", clear=true);
+    logit("Log of jquery events.", true);
 });
 $("#item-list").on("keypress", "input", function(e) {
     start_timer(get_dropdown_parent(this));

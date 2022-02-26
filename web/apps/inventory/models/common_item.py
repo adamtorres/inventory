@@ -5,8 +5,14 @@ from django.db import models
 
 import uuid
 
+from scrap import models as sc_models
 
-class CommonItemManager(models.Manager):
+
+class CommonItemManager(models.Manager, sc_models.FilterMixin):
+    autocomplete_fields = ['name', 'other_names__name', 'incoming_items__name', 'incoming_items__better_name']
+    filter_prefetch = ['other_names', 'location', 'category']
+    filter_order = ['name']
+
     def autocomplete_search(self, terms):
         """
         Provided a single or list of terms, search item names and other names for the terms.  Return a queryset of the
@@ -18,22 +24,7 @@ class CommonItemManager(models.Manager):
         Returns:
             queryset with the result.
         """
-        if not terms:
-            return self.none()
-        if isinstance(terms, str):
-            terms = [terms]
-        # TODO: some of this autocomplete stuff is duplicated.  Base class?  Or at least a scrap function?
-
-        term_q = models.Q()
-
-        for term in terms:
-            term_q = (
-                term_q | models.Q(name__icontains=term) |
-                models.Q(other_names__name__icontains=term) |
-                models.Q(incoming_items__name__icontains=term) |
-                models.Q(incoming_items__better_name__icontains=term)
-            )
-        qs = self.prefetch_related('other_names', 'location', 'category').filter(term_q)
+        qs = super().autocomplete_search(terms)
         qs = qs.annotate(
             quantity=models.Sum('items__current_quantity'),
             extended_price=models.Sum(models.F('items__unit_cost')*models.F('items__current_quantity')),
