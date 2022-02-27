@@ -18,6 +18,10 @@
 
     <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
+            <td class="border" data-field="parent">__parent__</td>
+            <td class="border" data-field="item">__item__</td>
+            <td class="border" data-field="comment">__comment__</td>
+            <td class="border" data-field="item_comment">__item_comment__</td>
             <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
             <td class="border" data-field="total_weight">__total_weight__</td>
             <td class="border" data-field="pack_quantity">__pack_quantity__</td>
@@ -25,9 +29,6 @@
             <td class="border" data-field="pack_price">__pack_price__</td>
             <td class="border" data-field="pack_tax">__pack_tax__</td>
             <td class="border" data-field="extended_price">__extended_price__</td>
-            <td class="border" data-field="comment">__comment__</td>
-            <td class="border" data-field="parent">__parent__</td>
-            <td class="border" data-field="item">__item__</td>
         </tr>
     </table>
     <div id="filter-controls">
@@ -48,9 +49,32 @@
         <p>
             Selected item
         </p>
+        <div class="row">
+            <div class="col">
+                <div class="col col-sm-3">
+                    <label for="calc-item">Item</label>
+                    <input id="calc-item" placeholder="item name">
+                </div>
+            </div>
+            <div class="row row-cols-5">
+                <div class="col col-sm-3">
+                    <label for="calc-comment">Comment</label>
+                    <input id="calc-comment" placeholder="comment">
+                </div>
+            </div>
+            <div class="row row-cols-5">
+                <div class="col col-sm-3">
+                    <label for="calc-item-comment">Item Comment</label>
+                    <input id="calc-item-comment" placeholder="item comment">
+                </div>
+            </div>
+        </div>
         <div class="row row-cols-5">
             <div class="col col-sm-1">
                 <label for="calc-quantity">Quantity</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-pack-quantity">Pack Quantity</label>
             </div>
             <div class="col col-sm-2">
                 <label for="calc-price">Price</label>
@@ -61,13 +85,13 @@
             <div class="col col-sm-2">
                 <label for="calc-weight">Weight</label>
             </div>
-            <div class="col col-sm-3">
-                <label for="calc-item">Item</label>
-            </div>
         </div>
         <div class="row row-cols-5">
             <div class="col col-sm-1">
                 <input id="calc-quantity" placeholder="quantity">
+            </div>
+            <div class="col col-sm-1">
+                <input id="calc-pack-quantity" placeholder="pack quantity">
             </div>
             <div class="col col-sm-2">
                 <input id="calc-price" placeholder="price">
@@ -78,9 +102,6 @@
             <div class="col col-sm-2">
                 <input id="calc-weight" placeholder="weight">
             </div>
-            <div class="col col-sm-3">
-                <input id="calc-item" placeholder="item name">
-            </div>
         </div>
 
     </div>
@@ -88,6 +109,10 @@
 <table>
     <thead>
         <tr>
+            <th class="border">Incoming Group</th>
+            <th class="border">Item</th>
+            <th class="border">Comment</th>
+            <th class="border">Item Comment</th>
             <th class="border">Delivered Quantity</th>
             <th class="border">Total Weight</th>
             <th class="border">Pack Quantity</th>
@@ -95,9 +120,6 @@
             <th class="border">Pack Price</th>
             <th class="border">Pack Tax</th>
             <th class="border">Extended Price</th>
-            <th class="border">Comment</th>
-            <th class="border">Incoming Group</th>
-            <th class="border">Item</th>
         </tr>
     </thead>
     <tbody id="result-table-body">
@@ -115,7 +137,7 @@ Log.
 <script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
 filter_url = "{% url 'inc_live_filter_incomingitems' %}";
-filter_fields = ["delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price", "comment", "parent", "item"];
+filter_fields = ["delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price", "comment", "item_comment", "parent", "item"];
 remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
@@ -125,7 +147,10 @@ filter_input_fields = [
 ];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
+    {element: "data-field='item_comment'", destination_field_id: "calc-item-comment"},
+    {element: "data-field='comment'", destination_field_id: "calc-comment"},
     {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
+    {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"},
     {element: "data-field='extended_price'", destination_field_id: "calc-price"},
     {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},

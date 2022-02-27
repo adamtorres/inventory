@@ -49,6 +49,9 @@ class Item(models.Model):
     pack_quantity = models.DecimalField(max_digits=10, decimal_places=4, null=False, blank=False, default=0)
     unit_size = models.CharField(max_length=1024, null=False, blank=False, default='count')
 
+    comment = models.CharField(
+        "Anything noteworthy about this item", max_length=1024, null=False, blank=True, default='')
+
     # price is not here as the prices change quite often.
 
     objects = ItemManager()
@@ -59,6 +62,7 @@ class Item(models.Model):
                 fields=['source', 'identifier', 'name', 'pack_quantity', 'unit_size'],
                 name='unique_source_id_name_packqty_size')
         ]
+        # NOTE: Sysco has changed the name and pack_quantity without changing the item_code(identifier).
     # vendor/donation items
 #     - This is not items on an order.  This is just a way to convert between vendor and inventory.
 #     - There might be multiple items that are actually the same thing as vendors sometimes change item
@@ -76,7 +80,9 @@ class Item(models.Model):
 
     @property
     def item_name(self):
-        return f"{scrap.undecimal(self.pack_quantity)}x {self.unit_size}, {self.name}"
+        if self.unit_size:
+            return f"{scrap.undecimal(self.pack_quantity)}x {self.unit_size}, {self.name}"
+        return f"{scrap.undecimal(self.pack_quantity)}x {self.name}"
 
     def get_delivered_unit_quantity(self, delivered_quantity):
         # QuantityConversions:

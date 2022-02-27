@@ -16,6 +16,7 @@ class IncomingItemSerializer(serializers.Serializer):
     line_item_position = serializers.IntegerField()
 
     comment = serializers.CharField()
+    item_comment = serializers.SerializerMethodField()
 
     parent = serializers.StringRelatedField()
     item = serializers.StringRelatedField()
@@ -25,6 +26,9 @@ class IncomingItemSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         raise NotImplementedError()
+
+    def get_item_comment(self, obj):
+        return obj.item.comment
 
     def get_pack_quantity(self, obj):
         return obj.item.pack_quantity
