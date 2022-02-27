@@ -6,9 +6,8 @@
 
 {% block styles %}
 <style type="text/css">
-#bob {
-    max-height: 100vh;
-    overflow-y: auto;
+#calculation-div .col-sm-1 input {
+    width: 100%;
 }
 </style>
 {% endblock %}
@@ -49,11 +48,41 @@
         <p>
             Selected item
         </p>
-        <input id="calc-quantity" placeholder="quantity">
-        <input id="calc-price" placeholder="price">
-        <input id="calc-pack-price" placeholder="pack price">
-        <input id="calc-weight" placeholder="weight">
-        <input id="calc-item" placeholder="item name">
+        <div class="row row-cols-5">
+            <div class="col col-sm-1">
+                <label for="calc-quantity">Quantity</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-price">Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-pack-price">Pack Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-weight">Weight</label>
+            </div>
+            <div class="col col-sm-3">
+                <label for="calc-item">Item</label>
+            </div>
+        </div>
+        <div class="row row-cols-5">
+            <div class="col col-sm-1">
+                <input id="calc-quantity" placeholder="quantity">
+            </div>
+            <div class="col col-sm-2">
+                <input id="calc-price" placeholder="price">
+            </div>
+            <div class="col col-sm-2">
+                <input id="calc-pack-price" placeholder="pack price">
+            </div>
+            <div class="col col-sm-2">
+                <input id="calc-weight" placeholder="weight">
+            </div>
+            <div class="col col-sm-3">
+                <input id="calc-item" placeholder="item name">
+            </div>
+        </div>
+
     </div>
 
 <table>
@@ -71,7 +100,7 @@
             <th class="border">Item</th>
         </tr>
     </thead>
-    <tbody id="result-div">
+    <tbody id="result-table-body">
     </tbody>
 </table>
     <pre id="on-page-log">
@@ -85,10 +114,11 @@ Log.
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
-var filter_url = "{% url 'inc_live_filter_incomingitems' %}";
-var filter_fields = ["delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price", "comment", "parent", "item"];
-var remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
-var filter_input_fields = [
+filter_url = "{% url 'inc_live_filter_incomingitems' %}";
+filter_fields = ["delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price", "comment", "parent", "item"];
+remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
+filter_results_div_id = "result-table-body";
+filter_input_fields = [
     {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item", ajax_var: "item"},
