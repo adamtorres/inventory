@@ -32,13 +32,17 @@
 </head>
 <body>
 <main>
-<div class="container-fluid m-0 d-flex">
+<div class="wrapper">
     {% block navpanel_body %}
     {% endblock %}
-
-    <div id="main-content" class="p-2 flex-grow-1">
-    {% block content %}
-    {% endblock %}
+    <div id="content">
+        {% block navpanel_header %}
+        {% endblock %}
+        <div id="main-content" class="p-2 flex-grow-1">
+            {% block content %}
+                main-content
+            {% endblock %}
+        </div>
     </div>
 </div>
 </main>

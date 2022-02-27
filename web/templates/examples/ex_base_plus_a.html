@@ -1,0 +1,16 @@
+{% extends "examples/ex_base.html" %}
+
+{% block title %}ex_base_plus_a{% endblock %}
+
+{% block content %}
+    <div>
+    {{ block.super }}
+    </div>
+    <div>
+    Content from A - {{ hello }}
+    </div>
+{% endblock %}
+
+{% block does_not_exist %}
+    Hi
+{% endblock %}
