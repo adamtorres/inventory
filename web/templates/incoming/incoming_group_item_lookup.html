@@ -95,6 +95,9 @@ label {
                 <label for="calc-pack-price" id="calc-pack-price-label">Pack Price</label>
             </div>
             <div class="col col-sm-2">
+                <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
+            </div>
+            <div class="col col-sm-2">
                 <label for="calc-weight">Weight</label>
             </div>
         </div>
@@ -103,27 +106,49 @@ label {
                 <span id="calc-quantity"></span>
             </div>
             <div class="col col-sm-1">
-                <span id="calc-pack-quantity" placeholder="pack quantity"></span>
+                <span id="calc-pack-quantity"></span>
             </div>
             <div class="col col-sm-1">
-                <span id="calc-unit-size" placeholder="unit size"></span>
+                <span id="calc-unit-size"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-price" placeholder="price"></span>
+                <span id="calc-price"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-pack-price" placeholder="pack price"></span>
+                <span id="calc-pack-price"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-weight" placeholder="weight"></span>
+                <span id="calc-unit-price"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-weight"></span>
             </div>
         </div>
         <div class="row">
-            <div class="col">
+            <div class="col" id="calculated-results">
+                <table style="display: none;">
+                    <tr id="per_unit_row_template">
+                        <td data-field="units">__units__</td>
+                        <td data-field="cost_for_the_units">__cost_for_the_units__</td>
+                    </tr>
+                </table>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Units</th>
+                        <th>Price</th>
+                    </tr>
+                    </thead>
+                    <tbody id="calculated-per-unit-prices">
 
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    <pre id="on-page-log">
+Log.
+    </pre>
 
 <table>
     <thead>
@@ -144,9 +169,6 @@ label {
     <tbody id="result-table-body">
     </tbody>
 </table>
-    <pre id="on-page-log">
-Log.
-    </pre>
 </div>
 {% endblock %}
 
@@ -176,6 +198,9 @@ filter_result_fields = [
     {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
 ];
+function round(v) {
+    return Math.round(v * 100) / 100;
+}
 $( document ).ready(function() {
     let w = $(window);
     w.on("resize", function() {
@@ -186,20 +211,51 @@ $( document ).ready(function() {
         content_obj.css("max-height", window_height - content_offset);
     });
     w.trigger("resize");
+    w.on(filter_requested_event_name, function() {
+        $("#calculation-div").addClass("d-none");
+    });
+    w.on(filter_results_populated_event_name, function() {
+
+    });
     w.on(item_selected_event_name, function() {
-        let weight = parseFloat($("#calc-weight").text());
-        let pack_quantity = parseFloat($("#calc-pack-quantity").text());
-        let quantity = parseFloat($("#calc-quantity").text());
-        let pack_price = parseFloat($("#calc-pack-price").text());
-        let total_price = parseFloat($("#calc-price").text());
-        let pack_price_per_weight = 0;
+        var weight = parseFloat($("#calc-weight").text());
+        var pack_quantity = parseFloat($("#calc-pack-quantity").text());
+        var quantity = parseFloat($("#calc-quantity").text());
+        var pack_price = parseFloat($("#calc-pack-price").text());
+        var total_price = parseFloat($("#calc-price").text());
+        var pack_price_per_weight = 0;
+        var price_per_unit = total_price / quantity / pack_quantity;
+        $("#calc-unit-price").text(round(price_per_unit));
 
         if (weight > 0) {
-            logit("weight is populated.");
             pack_price_per_weight = pack_price;
-            let price_per_quantity = total_price / quantity;
-            let price_per_pack_quantity = price_per_quantity / pack_quantity;
+            price_per_unit = weight / quantity / pack_quantity * pack_price_per_weight;
+            pack_price = round(price_per_unit * pack_quantity);
+            $("#calc-pack-price").text(pack_price);
         }
+        let total_units = pack_quantity * quantity;
+        row_template = $(`#per_unit_row_template`);
+        per_unit_table = $(`#calculated-per-unit-prices`);
+        per_unit_table.empty();
+        for(i = 0; i < total_units; i++) {
+            let item_clone = row_template.clone();
+            item_clone.attr('id', null);
+            item_clone.find('[data-field]').each(function() {
+                let e = $(this);
+                let key = e.data('field');
+                if (key === "units") {
+                    e.text(round(i+1));
+                }
+                if (key === "cost_for_the_units") {
+                    e.text(round(price_per_unit * (i+1)));
+                }
+            });
+            // item_clone.removeClass("hidden");
+            per_unit_table.append(item_clone);
+        }
+        $("#calculation-div").removeClass("d-none");
+        //
+        // calculated-per-unit-prices
     })
 });
 

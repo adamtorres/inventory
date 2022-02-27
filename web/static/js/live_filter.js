@@ -13,6 +13,8 @@ var filter_result_fields = [
     {element: "data-field='name'", destination_field_id: "where to put the value when clicked"},
 ];
 const item_selected_event_name = 'item_selected';
+const filter_requested_event_name = 'filter_requested';
+const filter_results_populated_event_name = 'filtered_results_populated';
 
 $( document ).ready(function() {
     no_results();
@@ -82,10 +84,12 @@ function filtered_results_received(data) {
         d_result_list.append(new_item(this));
         count++;
     });
+    logit(`Got ${count} results.`, true);
     if (count === 0) {
         no_results();
+    } else {
+        $(window).trigger(filter_results_populated_event_name);
     }
-    logit(`Got ${count} results.`, true);
 }
 function get_filtered_item_field(p, field) {
     return p.find(`[${field}]`);
@@ -125,6 +129,7 @@ function timer_elapsed_func() {
         no_results();
         return;
     }
+    $(window).trigger(filter_requested_event_name);
     var jqxhr = $.ajax({
         url: filter_url,
         type: "get",
