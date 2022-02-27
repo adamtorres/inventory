@@ -6,13 +6,15 @@
 
 {% block styles %}
 <style type="text/css">
+#bob {
+    max-height: 100vh;
+    overflow-y: auto;
+}
 </style>
 {% endblock %}
 
-{% block on_page_title %}Incoming Group Item Lookup{% endblock %}
-
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid" id="lookup-content">
     <p>The lookup page.</p>
 
     <table style="display: none;" class="filtered-item-template-container">
@@ -98,5 +100,14 @@ filter_result_fields = [
     {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
 ];
+$( document ).ready(function() {
+    $(window).on("resize", function() {
+        let w = $(window);
+        let window_height = w.height();
+        let content_obj = $("#lookup-content");
+        let content_offset = content_obj.offset().top - w.scrollTop();
+        content_obj.css("max-height", window_height - content_offset);
+    });
+});
 </script>
 {% endblock %}

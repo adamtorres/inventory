@@ -8,6 +8,7 @@ class InventoryView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
+        kwargs['on_page_title'] = "Inventory"
         qs = inv_models.Item.objects.get_consolidated_inventory().order_by('category', 'locations', 'common_item_name')
         # QuerySet of:
         # {

@@ -16,6 +16,7 @@ class IncomingGroupUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
+        data['on_page_title'] = "Edit Item Group"
         if self.request.POST:
             data['item_formset'] = inc_forms.IncomingItemFormSet(self.request.POST)
             print(f"POST: {data['item_formset'].__dict__}")

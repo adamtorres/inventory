@@ -20,8 +20,12 @@ class ExampleIncomingItemGroupCreateView(CreateView):
             messages.SUCCESS,
             'The incoming item group has been added'
         )
-
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['on_page_title'] = "Create Item Group"
+        return context
 
 
 class ExampleIncomingItemGroupEditView(SingleObjectMixin, FormView):
@@ -31,6 +35,7 @@ class ExampleIncomingItemGroupEditView(SingleObjectMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['on_page_title'] = "Edit Item Group"
         if self.request.method == 'GET':
             context["itemformset"] = inc_forms.IncomingItemFormSet(instance=self.object)
         if self.request.method == 'POST':

@@ -17,6 +17,11 @@ class IncomingGroupView(FormView):
     #     context = super().get_context_data(object_list=object_list, **kwargs)
     #     return context
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['on_page_title'] = "Item Group List"
+        return context
+
     def get_initial(self):
         qs_values = self.get_queryset().values()
         count = 0
