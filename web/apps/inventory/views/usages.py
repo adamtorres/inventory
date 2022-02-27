@@ -13,6 +13,7 @@ class UsageView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
+        kwargs['on_page_title'] = "Usage Reports (template view)"
         return kwargs
 
 
@@ -20,9 +21,19 @@ class UsageReportCreateView(generic.CreateView):
     model = inv_models.Usage
     fields = ('who', 'action_date', )
 
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs['on_page_title'] = "Create Usage Report"
+        return kwargs
+
 
 class UsageReportDetailView(generic.DetailView):
     model = inv_models.Usage
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs['on_page_title'] = "Usage Report Detail"
+        return kwargs
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -33,6 +44,11 @@ class UsageReportDetailView(generic.DetailView):
 class UsageReportListView(generic.ListView):
     model = inv_models.Usage
 
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs['on_page_title'] = "Usage Reports"
+        return kwargs
+
 
 class UsageReportEditView(generic.UpdateView):
     model = inv_models.Usage
@@ -40,6 +56,7 @@ class UsageReportEditView(generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['on_page_title'] = "Edit Usage Report"
         if self.request.method == 'GET':
             context["usageitemformset"] = inv_forms.UsageReportItemFormSet(instance=self.object)
         if self.request.method == 'POST':

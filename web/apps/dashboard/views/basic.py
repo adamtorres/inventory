@@ -12,4 +12,5 @@ class BasicDashboardView(generic.TemplateView):
         kwargs["most_recent_order_per_source"] = inc_models.most_recent_order_per_source()
         kwargs["location_summary"] = inv_models.Location.objects.get_cost()
         kwargs["inventory_changes_by_month"] = inv_models.Change.objects.summary_relative_by_month(12)
+        kwargs['on_page_title'] = "Dashboard"
         return kwargs

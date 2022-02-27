@@ -31,5 +31,7 @@ urlpatterns = [
     path('hello/', my_views.ExampleView.as_view(), name='example_hello'),
     path('hello/dropdown/', my_views.DropdownExampleView.as_view(), name='example_dropdown'),
     path('hello/autocomplete/', my_views.AutocompleteTestOne.as_view(), name='example_autocomplete_1'),
+    path('hello/template/', my_views.TemplateFun.as_view(), name='example_template_no_value'),
+    path('hello/template/<slug:template_name>', my_views.TemplateFun.as_view(), name='example_template'),
     path('', generic.RedirectView.as_view(pattern_name="dashboard", permanent=False), name="homepage"),
 ]

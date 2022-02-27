@@ -9,6 +9,7 @@ class LocationView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
+        kwargs['on_page_title'] = "Locations"
         kwargs['locations'] = []
         for l in inv_models.Location.objects.exclude(name='garbage'):
             location_data = {

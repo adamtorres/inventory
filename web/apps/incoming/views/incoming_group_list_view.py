@@ -24,6 +24,7 @@ class IncomingGroupListView(generic.FormView):
         # TODO: Style table so converted/unconverted look similar.
         qs_values = inc_models.IncomingItemGroup.objects.list_groups().filter(converted_datetime__isnull=False).values()
         kwargs['converted'] = qs_values
+        kwargs['on_page_title'] = "Item Group List? 2"
         return kwargs
 
     def form_valid(self, form):
