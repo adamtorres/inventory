@@ -44,6 +44,9 @@ class CommonItemManager(models.Manager, sc_models.FilterMixin):
 class CommonItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField("primary name", max_length=1024, null=False, blank=False)
+    comment = models.CharField(
+        max_length=1024, null=False, blank=True, default='',
+        help_text="anything particularly interesting about this item (in general, not specific to any brand)")
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     location = models.ForeignKey(
         "inventory.Location", on_delete=models.CASCADE, null=True, blank=True, related_name='common_items')

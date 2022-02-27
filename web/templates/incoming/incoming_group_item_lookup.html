@@ -9,6 +9,9 @@
 #calculation-div .col-sm-1 input {
     width: 100%;
 }
+label {
+    font-weight: bold;
+}
 </style>
 {% endblock %}
 
@@ -32,40 +35,46 @@
         </tr>
     </table>
     <div id="filter-controls">
-        <p>
-            <label for="filter-quantity">Quantity:</label>
-            <input type="text" id="filter-quantity" class="filter-input" />
-        </p>
-        <p>
-            <label for="filter-unit-size">Unit size:</label>
-            <input type="text" id="filter-unit-size" class="filter-input" />
-        </p>
-        <p>
-            <label for="filter-item">Item name:</label>
-            <input type="text" id="filter-item" class="filter-input" />
-        </p>
+        <div class="row">
+            <div class="col">
+                <label for="filter-quantity">Quantity:</label>
+                <input type="text" id="filter-quantity" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-unit-size">Unit size:</label>
+                <input type="text" id="filter-unit-size" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-item">Item name:</label>
+                <input type="text" id="filter-item" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-comment">Comment:</label>
+                <input type="text" id="filter-comment" class="filter-input" />
+            </div>
+        </div>
     </div>
     <div id="calculation-div">
         <p>
             Selected item
         </p>
         <div class="row">
-            <div class="col">
-                <div class="col col-sm-3">
-                    <label for="calc-item">Item</label>
-                    <input id="calc-item" placeholder="item name">
+            <div class="row">
+                <div class="col">
+                    <label for="calc-item">Item: </label>
+                    <span id="calc-item">[item name]</span>
                 </div>
             </div>
-            <div class="row row-cols-5">
-                <div class="col col-sm-3">
-                    <label for="calc-comment">Comment</label>
-                    <input id="calc-comment" placeholder="comment">
+            <div class="row">
+                <div class="col">
+                    <label for="calc-comment">Comment: </label>
+                    <span id="calc-comment">[comment on the line item]</span>
                 </div>
             </div>
-            <div class="row row-cols-5">
-                <div class="col col-sm-3">
-                    <label for="calc-item-comment">Item Comment</label>
-                    <input id="calc-item-comment" placeholder="item comment">
+            <div class="row">
+                <div class="col">
+                    <label for="calc-item-comment">Item Comment: </label>
+                    <span id="calc-item-comment">[comment on the item itself]</span>
                 </div>
             </div>
         </div>
@@ -76,11 +85,14 @@
             <div class="col col-sm-1">
                 <label for="calc-pack-quantity">Pack Quantity</label>
             </div>
+            <div class="col col-sm-1">
+                <label for="calc-unit-size">Unit Size</label>
+            </div>
             <div class="col col-sm-2">
                 <label for="calc-price">Price</label>
             </div>
             <div class="col col-sm-2">
-                <label for="calc-pack-price">Pack Price</label>
+                <label for="calc-pack-price" id="calc-pack-price-label">Pack Price</label>
             </div>
             <div class="col col-sm-2">
                 <label for="calc-weight">Weight</label>
@@ -88,22 +100,29 @@
         </div>
         <div class="row row-cols-5">
             <div class="col col-sm-1">
-                <input id="calc-quantity" placeholder="quantity">
+                <span id="calc-quantity"></span>
             </div>
             <div class="col col-sm-1">
-                <input id="calc-pack-quantity" placeholder="pack quantity">
+                <span id="calc-pack-quantity" placeholder="pack quantity"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-unit-size" placeholder="unit size"></span>
             </div>
             <div class="col col-sm-2">
-                <input id="calc-price" placeholder="price">
+                <span id="calc-price" placeholder="price"></span>
             </div>
             <div class="col col-sm-2">
-                <input id="calc-pack-price" placeholder="pack price">
+                <span id="calc-pack-price" placeholder="pack price"></span>
             </div>
             <div class="col col-sm-2">
-                <input id="calc-weight" placeholder="weight">
+                <span id="calc-weight" placeholder="weight"></span>
             </div>
         </div>
+        <div class="row">
+            <div class="col">
 
+            </div>
+        </div>
     </div>
 
 <table>
@@ -144,6 +163,7 @@ filter_input_fields = [
     {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item", ajax_var: "item"},
+    {element: "#filter-comment", ajax_var: "comment"},
 ];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
@@ -151,18 +171,37 @@ filter_result_fields = [
     {element: "data-field='comment'", destination_field_id: "calc-comment"},
     {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
     {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"},
+    {element: "data-field='unit_size'", destination_field_id: "calc-unit-size"},
     {element: "data-field='extended_price'", destination_field_id: "calc-price"},
     {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
 ];
 $( document ).ready(function() {
-    $(window).on("resize", function() {
+    let w = $(window);
+    w.on("resize", function() {
         let w = $(window);
         let window_height = w.height();
         let content_obj = $("#lookup-content");
         let content_offset = content_obj.offset().top - w.scrollTop();
         content_obj.css("max-height", window_height - content_offset);
     });
+    w.trigger("resize");
+    w.on(item_selected_event_name, function() {
+        let weight = parseFloat($("#calc-weight").text());
+        let pack_quantity = parseFloat($("#calc-pack-quantity").text());
+        let quantity = parseFloat($("#calc-quantity").text());
+        let pack_price = parseFloat($("#calc-pack-price").text());
+        let total_price = parseFloat($("#calc-price").text());
+        let pack_price_per_weight = 0;
+
+        if (weight > 0) {
+            logit("weight is populated.");
+            pack_price_per_weight = pack_price;
+            let price_per_quantity = total_price / quantity;
+            let price_per_pack_quantity = price_per_quantity / pack_quantity;
+        }
+    })
 });
+
 </script>
 {% endblock %}

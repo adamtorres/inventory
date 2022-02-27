@@ -12,6 +12,8 @@ var filter_result_item_template_id = "filtered-item-template";
 var filter_result_fields = [
     {element: "data-field='name'", destination_field_id: "where to put the value when clicked"},
 ];
+const item_selected_event_name = 'item_selected';
+
 $( document ).ready(function() {
     no_results();
     setup_timer_events();
@@ -99,8 +101,14 @@ function filtered_item_click() {
         let dest_tag_id = tag['destination_field_id'];
         let item_tag = get_filtered_item_field(p, item_data_attr);
         let item_val = item_tag.text().trim();
-        $(`#${dest_tag_id}`).val(item_val);
+        let dest_tag = $(`#${dest_tag_id}`);
+        if (dest_tag.is("input")) {
+            dest_tag.val(item_val);
+        } else {
+            dest_tag.text(item_val);
+        }
     });
+    $(window).trigger(item_selected_event_name);
 }
 
 var keypress_timer;
