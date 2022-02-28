@@ -122,6 +122,7 @@ label {
                 <label for="filter-comment">Comment:</label>
                 <input type="text" id="filter-comment" class="filter-input" />
             </div>
+            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ item_id }}" />
         </div>
     </div>
     <div id="calculation-div">
@@ -303,6 +304,7 @@ filter_input_fields = [
     {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item", ajax_var: "item"},
+    {element: "#filter-item-id", ajax_var: "item_id"},
     {element: "#filter-comment", ajax_var: "comment"},
     {element: "[name='filter-department']", ajax_var: "departments"},
     {element: "[name='filter-source']", ajax_var: "sources"},
@@ -375,10 +377,18 @@ function update_calculations() {
     }
     $("#calculation-div").removeClass("d-none");
 }
-$( document ).ready(function() {
+function load_from_item_id() {
+    let item_id_tag = $("#filter-item-id");
+    if (item_id_tag.val() !== "") {
+        $(window).trigger(force_filter_refresh_event_name);
+
+    }
+}
+function setup_event_handlers() {
     let w = $(window);
-    w.on("resize", resize_lookup_content);
-    w.trigger("resize");
+    let d = $(document);
+    d.on("resize", resize_lookup_content);
+    d.trigger("resize");
 
     // Hide the calculations by default as there's no selected item on page load.
     $("#calculation-div").addClass("d-none");
@@ -390,11 +400,21 @@ $( document ).ready(function() {
     w.on(filter_results_populated_event_name, function() {
         // filter results arrived.  Still no selected item.
         $("#calculation-div").addClass("d-none");
+        let item_id_tag = $("#filter-item-id");
+        if (item_id_tag.val() !== "") {
+            let item_row = $(`#${filter_results_div_id} tr:first`);
+            item_row.trigger("click");
+            item_id_tag.val("");
+        }
     });
     w.on(item_selected_event_name, function() {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
         update_calculations();
-    })
+    });
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+    load_from_item_id();
 });
 
 </script>

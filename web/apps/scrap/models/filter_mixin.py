@@ -121,7 +121,10 @@ class FilterMixin(object):
             for field in field_list:
                 term_q = models.Q()
                 for term in kwargs[key]:
-                    term_q = term_q & models.Q(**{f"{field}__icontains": term})
+                    if field == "id" or field.endswith("__id"):
+                        term_q = term_q & models.Q(**{field: term})
+                    else:
+                        term_q = term_q & models.Q(**{f"{field}__icontains": term})
                 field_q = field_q | term_q
             combined_filter = combined_filter & field_q
         combined_filter = combined_filter & self.get_source_filter(sources)

@@ -16,6 +16,7 @@ var filter_result_fields = [
 const item_selected_event_name = 'item_selected';
 const filter_requested_event_name = 'filter_requested';
 const filter_results_populated_event_name = 'filtered_results_populated';
+const force_filter_refresh_event_name = 'force_filter_refresh';
 
 $( document ).ready(function() {
     no_results();
@@ -186,6 +187,7 @@ function setup_timer_events() {
             tag_obj.on("click", start_timer);
         }
     });
+    $(window).on(force_filter_refresh_event_name, timer_elapsed_func);
 }
 function input_focusout() {
     // logit(" > clear timer from focusout");
