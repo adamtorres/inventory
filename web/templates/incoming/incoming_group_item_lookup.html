@@ -6,6 +6,17 @@
 
 {% block styles %}
 <style type="text/css">
+.faded-dollar::before {
+    content: "$ ";
+    color: lightgreen;
+}
+#calculation-div {
+    border: green solid 2px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
 #calculation-div .col-sm-1 input {
     width: 100%;
 }
@@ -172,13 +183,13 @@ label {
                 <span id="calc-unit-size"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-price"></span>
+                <span id="calc-price" class="faded-dollar"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-pack-price"></span>
+                <span id="calc-pack-price" class="faded-dollar"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-unit-price"></span>
+                <span id="calc-unit-price" class="faded-dollar"></span>
             </div>
         </div>
         <hr />
@@ -230,11 +241,12 @@ Log.
 
 <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
-            <td class="border" data-field="parent">__parent__</td>
             <td class="border" data-field="item">__item__</td>
             <td class="border d-none" data-field="common_name">__common_name__</td>
-            <td class="border" data-field="comment">__comment__</td>
-            <td class="border" data-field="item_comment">__item_comment__</td>
+            <td class="border" >
+                <div data-field="comment">__comment__</div>
+                <div data-field="item_comment">__item_comment__</div>
+            </td>
             <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
             <td class="border" data-field="total_weight">__total_weight__</td>
             <td class="border" data-field="pack_quantity">__pack_quantity__</td>
@@ -247,11 +259,9 @@ Log.
 <table>
     <thead>
         <tr>
-            <th class="border">Incoming Group</th>
             <th class="border">Item</th>
             <th class="border d-none">Common Name</th>
-            <th class="border">Comment</th>
-            <th class="border">Item Comment</th>
+            <th class="border">Comments</th>
             <th class="border">Delivered Quantity</th>
             <th class="border">Total Weight</th>
             <th class="border">Pack Quantity</th>
@@ -275,7 +285,7 @@ Log.
 filter_url = "{% url 'inc_live_filter_incomingitems' %}";
 filter_fields = [
     "delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price",
-    "comment", "item_comment", "parent", "item", "common_name", "department"];
+    "comment", "item_comment", "item", "common_name", "department"];
 remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
@@ -345,7 +355,7 @@ function update_calculations() {
                 e.text(round(i+1));
             }
             if (key === "cost_for_the_units") {
-                e.html("<span style='color:lightgrey;'>$</span>" + round(price_per_unit * (i+1)).toFixed(2));
+                e.html("<span class='faded-dollar'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
             }
         });
         // item_clone.removeClass("hidden");

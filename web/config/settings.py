@@ -143,6 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SHELL_PLUS_PYGMENTS_ENABLED = True
 SHELL_PLUS_PRINT_SQL_TRUNCATE = 0
+RUNSERVER_PLUS_PRINT_SQL_TRUNCATE = 0
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
