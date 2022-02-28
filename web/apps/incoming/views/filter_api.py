@@ -17,7 +17,10 @@ class FilterView(views.APIView):
         filter_fields = request.GET.getlist('filter_fields[]')
         filter_fields_and_values = {}
         for filter_field in filter_fields:
-            filter_fields_and_values[filter_field] = (request.GET.get(filter_field) or '').split()
+            if filter_field in request.GET:
+                filter_fields_and_values[filter_field] = (request.GET.get(filter_field) or '').split()
+            if f"{filter_field}[]" in request.GET:
+                filter_fields_and_values[filter_field] = (request.GET.getlist(f"{filter_field}[]") or [])
         if (request.GET.get('empty') or 'true') == 'true':
             return response.Response(self.serializer(self.get_queryset(), many=True).data)
         return response.Response(self.serializer(self.filter_qs(**filter_fields_and_values), many=True).data)

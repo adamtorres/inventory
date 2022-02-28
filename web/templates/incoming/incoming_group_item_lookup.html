@@ -53,6 +53,25 @@ label {
 {% block content %}
 <div class="container-fluid" id="lookup-content">
     <div id="filter-controls">
+        <div>
+            <div>
+                <span>Limit to selected source(s) </span>
+                <span style="color: lightgrey;">or select none for no filter</span>
+            </div>
+            <div style="display: inline-block;">
+                {% for source in sources %}
+                    <div style="display: inline-block; margin-right: 2em;">
+                        <div style="display: inline-block;">
+                            <input type="checkbox" name="filter-source" id="filter-source-{{ source.id }}" value="{{ source.id }}">
+                        </div>
+                        <div style="display: inline-block;">
+                            <label for="filter-source-{{ source.id }}">{{ source.name|title }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr />
         <div class="row">
             <div class="col">
                 <label for="filter-quantity">Quantity:</label>
@@ -245,7 +264,9 @@ filter_input_fields = [
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item", ajax_var: "item"},
     {element: "#filter-comment", ajax_var: "comment"},
+    {element: "[name='filter-source']", ajax_var: "sources"},
 ];
+filter_input_empty_if_only = ['sources'];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
     {element: "data-field='common_name'", destination_field_id: "calc-common-name"},
