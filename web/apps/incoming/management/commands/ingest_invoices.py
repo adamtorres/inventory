@@ -159,7 +159,9 @@ class Command(ingest_file.Command):
             missing_departments = []
             for department in data["departments"].difference(departments):
                 print(f"Missing {department}, creating...")
-                missing_departments.append(inv_models.Department(name=department))
+                missing_departments.append(inv_models.Department(
+                    name=department, abbreviation=department[:4]
+                ))
             inv_models.Department.objects.bulk_create(missing_departments)
 
     def do_incoming_items(self, data):

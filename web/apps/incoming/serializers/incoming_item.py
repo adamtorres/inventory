@@ -37,7 +37,7 @@ class IncomingItemSerializer(serializers.Serializer):
         return obj.item.common_item.name
 
     def get_department(self, obj):
-        return obj.parent.department.name
+        return obj.parent.department.abbreviation or obj.parent.department.name
 
     def get_item_comment(self, obj):
         return obj.item.comment
