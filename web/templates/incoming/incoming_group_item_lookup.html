@@ -12,6 +12,33 @@
 label {
     font-weight: bold;
 }
+.per_unit_cell {
+    display: inline-block;
+    border: grey solid 1px;
+    justify-content: space-between !important;
+    min-width: 10em;
+}
+.per_unit_cell * {
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.5em;
+}
+.per_unit_cell *[data-field="units"] {
+    width: 4em;
+}
+.per_unit_cell *[data-field="cost_for_the_units"] {
+    width: 6em;
+}
+.per_unit_cell:first-child {
+
+}
+.per_unit_cell:last-child {
+
+}
+#calculated-per-unit-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
 </style>
 {% endblock %}
 
@@ -97,9 +124,6 @@ label {
             <div class="col col-sm-2">
                 <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
             </div>
-            <div class="col col-sm-2">
-                <label for="calc-weight">Weight</label>
-            </div>
         </div>
         <div class="row row-cols-5">
             <div class="col col-sm-1">
@@ -120,14 +144,35 @@ label {
             <div class="col col-sm-2">
                 <span id="calc-unit-price"></span>
             </div>
-            <div class="col col-sm-2">
-                <span id="calc-weight"></span>
+        </div>
+        <div id="calc-weight-specific-cells" class="d-none">
+            <div class="row row-cols-5">
+                <div class="col col-sm-1">
+                    <label for="calc-weight">Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-avg-pack-weight">Avg Pack Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-avg-unit-weight">Avg Unit Weight</label>
+                </div>
+            </div>
+            <div class="row row-cols-5">
+                <div class="col col-sm-1">
+                    <span id="calc-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-avg-pack-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-avg-unit-weight"></span>
+                </div>
             </div>
         </div>
         <div class="row">
             <div class="col" id="calculated-results">
                 <table style="display: none;">
-                    <tr id="per_unit_row_template">
+                    <tr id="was-per_unit_row_template">
                         <td data-field="units">__units__</td>
                         <td data-field="cost_for_the_units">__cost_for_the_units__</td>
                     </tr>
@@ -139,10 +184,19 @@ label {
                         <th>Price</th>
                     </tr>
                     </thead>
-                    <tbody id="calculated-per-unit-prices">
+                    <tbody id="was-calculated-per-unit-prices">
 
                     </tbody>
                 </table>
+                <div class="d-none">
+                    <div class="per_unit_cell" id="per_unit_row_template">
+                        <div class="" data-field="units">__units__</div>
+                        <div class="" data-field="cost_for_the_units">__cost_for_the_units__</div>
+                    </div>
+                </div>
+                <div class="" id="calculated-per-unit-prices">
+
+                </div>
             </div>
         </div>
     </div>
@@ -229,9 +283,15 @@ $( document ).ready(function() {
 
         if (weight > 0) {
             pack_price_per_weight = pack_price;
-            price_per_unit = weight / quantity / pack_quantity * pack_price_per_weight;
+            let avg_pack_weight = weight / quantity;
+            let avg_unit_weight = weight / quantity / pack_quantity;
+            $("#calc-avg-pack-weight").text(avg_pack_weight);
+            $("#calc-avg-unit-weight").text(avg_unit_weight);
             pack_price = round(price_per_unit * pack_quantity);
             $("#calc-pack-price").text(pack_price);
+            $("#calc-weight-specific-cells").removeClass("d-none");
+        } else {
+            $("#calc-weight-specific-cells").addClass("d-none");
         }
         let total_units = pack_quantity * quantity;
         row_template = $(`#per_unit_row_template`);
@@ -247,7 +307,7 @@ $( document ).ready(function() {
                     e.text(round(i+1));
                 }
                 if (key === "cost_for_the_units") {
-                    e.text(round(price_per_unit * (i+1)));
+                    e.html("<span style='color:lightgrey;'>$</span>" + round(price_per_unit * (i+1)).toFixed(2));
                 }
             });
             // item_clone.removeClass("hidden");
