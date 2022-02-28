@@ -11,7 +11,7 @@ from scrap import models as sc_models
 class CommonItemManager(models.Manager, sc_models.FilterMixin):
     autocomplete_fields = ['name', 'other_names__name', 'incoming_items__name', 'incoming_items__better_name']
     filter_prefetch = ['other_names', 'location', 'category']
-    filter_order = ['name']
+    autocomplete_order = ['name']
 
     def autocomplete_search(self, terms):
         """

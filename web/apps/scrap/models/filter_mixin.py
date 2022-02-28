@@ -6,9 +6,11 @@ import uuid
 class FilterMixin(object):
     autocomplete_fields = []
     filter_prefetch = []
+    autocomplete_order = []
     filter_order = []
     autocomplete_initial_qs = None
     source_field = None
+    department_field = None
     live_filter_keys_to_fields = {}
 
     def autocomplete_search(self, terms=None, sources=None, all_terms=True):
@@ -33,12 +35,33 @@ class FilterMixin(object):
             qs = getattr(self, self.autocomplete_initial_qs)()
         else:
             qs = self
-        return self.order_filter(qs.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
+        return self.order_autocomplete(qs.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
+
+    def order_autocomplete(self, qs):
+        if self.autocomplete_order:
+            qs = qs.order_by(*self.autocomplete_order)
+        return qs
 
     def order_filter(self, qs):
         if self.filter_order:
             qs = qs.order_by(*self.filter_order)
         return qs
+
+    def get_field_filter(self, field_name):
+        # TODO: get_department_filter and get_source_filter are twins.  Find a way to make this generic.
+        pass
+
+    def get_department_filter(self, departments):
+        if not departments or not self.department_field:
+            return models.Q()
+        if isinstance(departments, (str, uuid.UUID)):
+            departments = [departments]
+        department_q = models.Q()
+        if departments != ['']:
+            department_kwarg = f"{self.department_field}__id"
+            for department in departments:
+                department_q = department_q | models.Q(**{department_kwarg: department})
+        return department_q
 
     def get_filter_prefetch(self):
         return self.filter_prefetch
@@ -98,8 +121,12 @@ class FilterMixin(object):
             for field in field_list:
                 term_q = models.Q()
                 for term in kwargs[key]:
-                    term_q = term_q & models.Q(**{f"{field}__icontains": term})
+                    if field == "id" or field.endswith("__id"):
+                        term_q = term_q & models.Q(**{field: term})
+                    else:
+                        term_q = term_q & models.Q(**{f"{field}__icontains": term})
                 field_q = field_q | term_q
             combined_filter = combined_filter & field_q
         combined_filter = combined_filter & self.get_source_filter(sources)
-        return self.prefetch_related(*self.get_filter_prefetch()).filter(combined_filter)
+        combined_filter = combined_filter & self.get_department_filter(kwargs.get("departments", []))
+        return self.order_filter(self.prefetch_related(*self.get_filter_prefetch()).filter(combined_filter))

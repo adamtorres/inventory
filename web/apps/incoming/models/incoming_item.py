@@ -13,14 +13,17 @@ class IncomingItemManager(models.Manager, sc_models.FilterMixin):
     autocomplete_fields = [
         "item__name", "item__better_name",
         "item__common_item__name", "item__common_item__other_names__name"]
-    filter_prefetch = ['item', 'item__common_item', 'parent']
-    filter_order = ['item__common_item__name', 'parent__action_date']
+    filter_prefetch = ['item', 'item__common_item', 'parent', 'parent__department']
+    autocomplete_order = ['item__common_item__name', 'parent__action_date']
+    filter_order = ['-parent__action_date', 'item__common_item__name']
     source_field = 'parent__source'
+    department_field = "parent__department"
     live_filter_keys_to_fields = {
         "quantity": "item__pack_quantity",
         "unit_size": "item__unit_size",
         "item": ["item__name", "item__better_name", "item__common_item__name", "item__common_item__other_names__name"],
         "comment": ["comment", "item__comment", "item__common_item__comment"],
+        "item_id": "id",
     }
 
     def cost_by_month(self, start_date=None, end_date=None):

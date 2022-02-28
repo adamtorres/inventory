@@ -13,7 +13,7 @@ class ItemManager(models.Manager, sc_models.FilterMixin):
         "common_item__name", "common_item__other_names__name", "common_item__incoming_items__name",
         "common_item__incoming_items__better_name"]
     filter_prefetch = ['common_item', 'location']
-    filter_order = ['common_item__name', 'created']
+    autocomplete_order = ['common_item__name', 'created']
     autocomplete_initial_qs = 'available_items'
 
     def available_items(self):

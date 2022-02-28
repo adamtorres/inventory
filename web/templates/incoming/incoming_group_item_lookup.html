@@ -6,6 +6,21 @@
 
 {% block styles %}
 <style type="text/css">
+.faded-dollar::before {
+    content: "$ ";
+    color: lightgreen;
+}
+.number-cell, .date-cell {
+    text-align: right;
+    padding-right: 0.5em;
+}
+#calculation-div {
+    border: green solid 2px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
 #calculation-div .col-sm-1 input {
     width: 100%;
 }
@@ -72,6 +87,25 @@ label {
             </div>
         </div>
         <hr />
+        <div>
+            <div>
+                <span>Limit to selected department(s) </span>
+                <span style="color: lightgrey;">or select none for no filter</span>
+            </div>
+            <div style="display: inline-block;">
+                {% for department in departments %}
+                    <div style="display: inline-block; margin-right: 2em;">
+                        <div style="display: inline-block;">
+                            <input type="checkbox" name="filter-department" id="filter-department-{{ department.id }}" value="{{ department.id }}">
+                        </div>
+                        <div style="display: inline-block;">
+                            <label for="filter-department-{{ department.id }}">{{ department.name|title }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr />
         <div class="row">
             <div class="col">
                 <label for="filter-quantity">Quantity:</label>
@@ -89,6 +123,7 @@ label {
                 <label for="filter-comment">Comment:</label>
                 <input type="text" id="filter-comment" class="filter-input" />
             </div>
+            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ item_id }}" />
         </div>
     </div>
     <div id="calculation-div">
@@ -153,13 +188,13 @@ label {
                 <span id="calc-unit-size"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-price"></span>
+                <span id="calc-price" class="faded-dollar"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-pack-price"></span>
+                <span id="calc-pack-price" class="faded-dollar"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-unit-price"></span>
+                <span id="calc-unit-price" class="faded-dollar"></span>
             </div>
         </div>
         <hr />
@@ -174,6 +209,9 @@ label {
                 <div class="col col-sm-1">
                     <label for="calc-avg-unit-weight">Avg Unit Weight</label>
                 </div>
+                <div class="col col-sm-1">
+                    <label for="calc-price-per-weight">Price per unit of weight</label>
+                </div>
             </div>
             <div class="row row-cols-3 selected-item-row">
                 <div class="col col-sm-1">
@@ -184,6 +222,9 @@ label {
                 </div>
                 <div class="col col-sm-1">
                     <span id="calc-avg-unit-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-price-per-weight" class="faded-dollar"></span>
                 </div>
             </div>
         </div>
@@ -211,35 +252,38 @@ Log.
 
 <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
-            <td class="border" data-field="parent">__parent__</td>
+            <td class="border date-cell" data-field="action_date">__action_date__</td>
+            <td class="border" data-field="department">__department__</td>
             <td class="border" data-field="item">__item__</td>
             <td class="border d-none" data-field="common_name">__common_name__</td>
-            <td class="border" data-field="comment">__comment__</td>
-            <td class="border" data-field="item_comment">__item_comment__</td>
-            <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
-            <td class="border" data-field="total_weight">__total_weight__</td>
-            <td class="border" data-field="pack_quantity">__pack_quantity__</td>
-            <td class="border" data-field="unit_size">__unit_size__</td>
-            <td class="border" data-field="pack_price">__pack_price__</td>
-            <td class="border" data-field="pack_tax">__pack_tax__</td>
-            <td class="border" data-field="extended_price">__extended_price__</td>
+            <td class="border" >
+                <div data-field="comment">__comment__</div>
+                <div data-field="item_comment">__item_comment__</div>
+            </td>
+            <td class="border number-cell" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border number-cell" data-field="total_weight">__total_weight__</td>
+            <td class="border number-cell" data-field="pack_quantity">__pack_quantity__</td>
+            <td class="border number-cell" data-field="unit_size">__unit_size__</td>
+            <td class="border number-cell" data-field="pack_price">__pack_price__</td>
+            <td class="border number-cell" data-field="pack_tax">__pack_tax__</td>
+            <td class="border number-cell" data-field="extended_price">__extended_price__</td>
         </tr>
     </table>
 <table>
     <thead>
         <tr>
-            <th class="border">Incoming Group</th>
+            <th class="border date-cell">Date</th>
+            <th class="border">Dept</th>
             <th class="border">Item</th>
             <th class="border d-none">Common Name</th>
-            <th class="border">Comment</th>
-            <th class="border">Item Comment</th>
-            <th class="border">Delivered Quantity</th>
-            <th class="border">Total Weight</th>
-            <th class="border">Pack Quantity</th>
-            <th class="border">Unit Size</th>
-            <th class="border">Pack Price</th>
-            <th class="border">Pack Tax</th>
-            <th class="border">Extended Price</th>
+            <th class="border">Comments</th>
+            <th class="border number-cell">Delivered Quantity</th>
+            <th class="border number-cell">Total Weight</th>
+            <th class="border number-cell">Pack Quantity</th>
+            <th class="border number-cell">Unit Size</th>
+            <th class="border number-cell">Pack Price</th>
+            <th class="border number-cell">Pack Tax</th>
+            <th class="border number-cell">Extended Price</th>
         </tr>
     </thead>
     <tbody id="result-table-body">
@@ -256,17 +300,19 @@ Log.
 filter_url = "{% url 'inc_live_filter_incomingitems' %}";
 filter_fields = [
     "delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price",
-    "comment", "item_comment", "parent", "item", "common_name"];
+    "comment", "item_comment", "item", "common_name", "department", "action_date"];
 remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
     {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item", ajax_var: "item"},
+    {element: "#filter-item-id", ajax_var: "item_id"},
     {element: "#filter-comment", ajax_var: "comment"},
+    {element: "[name='filter-department']", ajax_var: "departments"},
     {element: "[name='filter-source']", ajax_var: "sources"},
 ];
-filter_input_empty_if_only = ['sources'];
+filter_input_empty_if_only = ['sources', 'departments'];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
     {element: "data-field='common_name'", destination_field_id: "calc-common-name"},
@@ -301,10 +347,11 @@ function update_calculations() {
 
     if (weight > 0) {
         pack_price_per_weight = pack_price;
+        $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
         let avg_pack_weight = weight / quantity;
         let avg_unit_weight = weight / quantity / pack_quantity;
-        $("#calc-avg-pack-weight").text(avg_pack_weight);
-        $("#calc-avg-unit-weight").text(avg_unit_weight);
+        $("#calc-avg-pack-weight").text(round(avg_pack_weight));
+        $("#calc-avg-unit-weight").text(round(avg_unit_weight));
         pack_price = round(price_per_unit * pack_quantity);
         $("#calc-pack-price").text(round(pack_price).toFixed(2));
         $("#calc-weight-specific-cells").removeClass("d-none");
@@ -325,7 +372,7 @@ function update_calculations() {
                 e.text(round(i+1));
             }
             if (key === "cost_for_the_units") {
-                e.html("<span style='color:lightgrey;'>$</span>" + round(price_per_unit * (i+1)).toFixed(2));
+                e.html("<span class='faded-dollar'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
             }
         });
         // item_clone.removeClass("hidden");
@@ -333,10 +380,18 @@ function update_calculations() {
     }
     $("#calculation-div").removeClass("d-none");
 }
-$( document ).ready(function() {
+function load_from_item_id() {
+    let item_id_tag = $("#filter-item-id");
+    if (item_id_tag.val() !== "") {
+        $(window).trigger(force_filter_refresh_event_name);
+
+    }
+}
+function setup_event_handlers() {
     let w = $(window);
-    w.on("resize", resize_lookup_content);
-    w.trigger("resize");
+    let d = $(document);
+    d.on("resize", resize_lookup_content);
+    d.trigger("resize");
 
     // Hide the calculations by default as there's no selected item on page load.
     $("#calculation-div").addClass("d-none");
@@ -348,11 +403,21 @@ $( document ).ready(function() {
     w.on(filter_results_populated_event_name, function() {
         // filter results arrived.  Still no selected item.
         $("#calculation-div").addClass("d-none");
+        let item_id_tag = $("#filter-item-id");
+        if (item_id_tag.val() !== "") {
+            let item_row = $(`#${filter_results_div_id} tr:first`);
+            item_row.trigger("click");
+            item_id_tag.val("");
+        }
     });
     w.on(item_selected_event_name, function() {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
         update_calculations();
-    })
+    });
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+    load_from_item_id();
 });
 
 </script>
