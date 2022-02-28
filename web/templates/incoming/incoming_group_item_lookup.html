@@ -72,6 +72,25 @@ label {
             </div>
         </div>
         <hr />
+        <div>
+            <div>
+                <span>Limit to selected department(s) </span>
+                <span style="color: lightgrey;">or select none for no filter</span>
+            </div>
+            <div style="display: inline-block;">
+                {% for department in departments %}
+                    <div style="display: inline-block; margin-right: 2em;">
+                        <div style="display: inline-block;">
+                            <input type="checkbox" name="filter-department" id="filter-department-{{ department.id }}" value="{{ department.id }}">
+                        </div>
+                        <div style="display: inline-block;">
+                            <label for="filter-department-{{ department.id }}">{{ department.name|title }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr />
         <div class="row">
             <div class="col">
                 <label for="filter-quantity">Quantity:</label>
@@ -256,7 +275,7 @@ Log.
 filter_url = "{% url 'inc_live_filter_incomingitems' %}";
 filter_fields = [
     "delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price",
-    "comment", "item_comment", "parent", "item", "common_name"];
+    "comment", "item_comment", "parent", "item", "common_name", "department"];
 remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
@@ -264,9 +283,10 @@ filter_input_fields = [
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item", ajax_var: "item"},
     {element: "#filter-comment", ajax_var: "comment"},
+    {element: "[name='filter-department']", ajax_var: "departments"},
     {element: "[name='filter-source']", ajax_var: "sources"},
 ];
-filter_input_empty_if_only = ['sources'];
+filter_input_empty_if_only = ['sources', 'departments'];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
     {element: "data-field='common_name'", destination_field_id: "calc-common-name"},

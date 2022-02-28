@@ -6,8 +6,8 @@ from django.utils import timezone
 from django.shortcuts import render
 
 from .models import (
-    Adjustment, AdjustmentItem, Category, Change, CommonItem, CommonItemOtherName, ConfigItem, Item, ItemChange,
-    Location, Usage, UsageItem)
+    Adjustment, AdjustmentItem, Category, Change, CommonItem, CommonItemOtherName, ConfigItem, Department, Item,
+    ItemChange, Location, Usage, UsageItem)
 
 
 @admin.action(description='Apply inventory changes.')
@@ -119,6 +119,7 @@ admin.site.register(Change, ChangeAdmin)
 admin.site.register(CommonItem, CommonItemAdmin)
 # admin.site.register(CommonItemOtherName, CommonItemOtherNameAdmin)
 admin.site.register(ConfigItem, ConfigItemAdmin)
+admin.site.register(Department)
 admin.site.register(Item, ItemAdmin)
 # admin.site.register(ItemChange)
 admin.site.register(Location)

@@ -9,6 +9,7 @@ class FilterMixin(object):
     filter_order = []
     autocomplete_initial_qs = None
     source_field = None
+    department_field = None
     live_filter_keys_to_fields = {}
 
     def autocomplete_search(self, terms=None, sources=None, all_terms=True):
@@ -39,6 +40,22 @@ class FilterMixin(object):
         if self.filter_order:
             qs = qs.order_by(*self.filter_order)
         return qs
+
+    def get_field_filter(self, field_name):
+        # TODO: get_department_filter and get_source_filter are twins.  Find a way to make this generic.
+        pass
+
+    def get_department_filter(self, departments):
+        if not departments or not self.department_field:
+            return models.Q()
+        if isinstance(departments, (str, uuid.UUID)):
+            departments = [departments]
+        department_q = models.Q()
+        if departments != ['']:
+            department_kwarg = f"{self.department_field}__id"
+            for department in departments:
+                department_q = department_q | models.Q(**{department_kwarg: department})
+        return department_q
 
     def get_filter_prefetch(self):
         return self.filter_prefetch
@@ -102,4 +119,5 @@ class FilterMixin(object):
                 field_q = field_q | term_q
             combined_filter = combined_filter & field_q
         combined_filter = combined_filter & self.get_source_filter(sources)
+        combined_filter = combined_filter & self.get_department_filter(kwargs.get("departments", []))
         return self.prefetch_related(*self.get_filter_prefetch()).filter(combined_filter)

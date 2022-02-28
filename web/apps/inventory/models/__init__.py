@@ -5,6 +5,7 @@ from .category import Category
 from .change import Change
 from .common_item import CommonItem, CommonItemOtherName
 from .config_item import ConfigItem
+from .department import Department
 from .item import Item
 # ItemChange = single item to add/remove quantity from existing
 from .item_change import ItemChange

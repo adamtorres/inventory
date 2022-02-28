@@ -43,12 +43,20 @@ class IncomingItemGroupManager(models.Manager):
 class IncomingItemGroup(scrap.ChangeSourceMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(Source, on_delete=models.CASCADE, related_name='item_groups')
-    descriptor = models.CharField("some uniquish descriptor", max_length=1024, null=False, blank=True, default='')
+    descriptor = models.CharField(
+        max_length=1024, null=False, blank=True, default='', help_text="some uniquish descriptor")
+    department = models.ForeignKey(
+        "inventory.Department", on_delete=models.CASCADE, related_name="item_groups", null=True, blank=True)
+    order_number = models.CharField(
+        max_length=1024, null=False, blank=True, default='',
+        help_text="possibly unique text - some sources repeat this for backordered items")
+    po_text = models.CharField(
+        max_length=1024, null=False, blank=True, default='', help_text="optional text likely on the invoice")
     change = ct_fields.GenericRelation(
         "inventory.Change", "source_object_id", "source_content_type", related_query_name="incomingitemgroup")
 
     comment = models.CharField(
-        "Anything noteworthy about this order", max_length=1024, null=False, blank=True, default='')
+        max_length=1024, null=False, blank=True, default='', help_text="Anything noteworthy about this order")
 
     created = models.DateTimeField(auto_now_add=True, null=False, blank=False, editable=False)
     # TODO: guessing the default is UTC timezone so filling out a form in the evening creates dates in tomorrow.

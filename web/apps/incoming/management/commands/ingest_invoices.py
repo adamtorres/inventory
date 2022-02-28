@@ -26,6 +26,7 @@ class Command(ingest_file.Command):
             "sources": set(),
             "items": {},
             "categories": set(),
+            "departments": set(),
         }
 
     def preclean_row(self, raw_row_data):
@@ -71,6 +72,8 @@ class Command(ingest_file.Command):
         data["sources"].add(named_row.source)
         if named_row.category:
             data["categories"].add(named_row.category)
+        if named_row.department:
+            data["departments"].add(named_row.department)
         item = {
             "source": named_row.source,
             "identifier": named_row.item_code,
@@ -147,6 +150,18 @@ class Command(ingest_file.Command):
                 missing_categories.append(inv_models.Category(name=category))
             inv_models.Category.objects.bulk_create(missing_categories)
 
+    def do_departments(self, data):
+        print(f"Departments: {data['departments']}")
+        departments = list(
+            inv_models.Department.objects.filter(name__in=data["departments"]).values_list('name', flat=True))
+        if data["departments"].difference(departments):
+            print("Department mismatch!")
+            missing_departments = []
+            for department in data["departments"].difference(departments):
+                print(f"Missing {department}, creating...")
+                missing_departments.append(inv_models.Department(name=department))
+            inv_models.Department.objects.bulk_create(missing_departments)
+
     def do_incoming_items(self, data):
         print(f"Items({len(data['items'])})")
         data["item_cache"] = {
@@ -189,6 +204,7 @@ class Command(ingest_file.Command):
         print(f"Invoices({len(data['invoices'])}):")
         limit = 3
         source_dict = {s.name: s for s in inc_models.Source.objects.all()}
+        department_dict = {d.name: d for d in inv_models.Department.objects.all()}
         for invoice_key, invoice_data in data["invoices"].items():
             limit -= 1
             # if limit < 0:
@@ -198,6 +214,9 @@ class Command(ingest_file.Command):
                 source=source_dict[invoice_data["source"]],
                 action_date=invoice_data["delivery_date"],
                 descriptor=invoice_key,
+                order_number=invoice_data["order_number"],
+                po_text=invoice_data["po_text"],
+                department=department_dict[invoice_data["department"]],
             )
             iig.save()
             iig.add_details()
@@ -210,17 +229,8 @@ class Command(ingest_file.Command):
                 if detail.name == 'order date' and invoice_data["order_date"]:
                     detail.content = invoice_data["order_date"]
                     details_to_update.append(detail)
-                if detail.name == 'department' and invoice_data["department"]:
-                    detail.content = invoice_data["department"]
-                    details_to_update.append(detail)
-                if detail.name == 'order number' and invoice_data["order_number"]:
-                    detail.content = invoice_data["order_number"]
-                    details_to_update.append(detail)
                 if detail.name == 'customer number' and invoice_data["customer_number"]:
                     detail.content = invoice_data["customer_number"]
-                    details_to_update.append(detail)
-                if detail.name == 'po text' and invoice_data["po_text"]:
-                    detail.content = invoice_data["po_text"]
                     details_to_update.append(detail)
             if details_to_update:
                 inc_models.IncomingItemGroupDetail.objects.bulk_update(details_to_update, ['content'])
@@ -252,6 +262,7 @@ class Command(ingest_file.Command):
         print(f"Total records: {data['records']}")
         self.do_sources(data)
         self.do_categories(data)
+        self.do_departments(data)
         self.do_incoming_items(data)
         self.do_invoices(data)
         print()

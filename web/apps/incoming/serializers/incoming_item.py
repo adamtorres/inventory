@@ -19,6 +19,7 @@ class IncomingItemSerializer(serializers.Serializer):
     item_comment = serializers.SerializerMethodField()
 
     parent = serializers.StringRelatedField()
+    department = serializers.SerializerMethodField()
     item = serializers.StringRelatedField()
     common_name = serializers.SerializerMethodField()
 
@@ -30,6 +31,9 @@ class IncomingItemSerializer(serializers.Serializer):
 
     def get_common_name(self, obj):
         return obj.item.common_item.name
+
+    def get_department(self, obj):
+        return obj.parent.department.name
 
     def get_item_comment(self, obj):
         return obj.item.comment
