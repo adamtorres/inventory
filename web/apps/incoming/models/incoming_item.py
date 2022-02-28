@@ -20,6 +20,7 @@ class IncomingItemManager(models.Manager, sc_models.FilterMixin):
         "quantity": "item__pack_quantity",
         "unit_size": "item__unit_size",
         "item": ["item__name", "item__better_name", "item__common_item__name", "item__common_item__other_names__name"],
+        "comment": ["comment", "item__comment", "item__common_item__comment"],
     }
 
     def cost_by_month(self, start_date=None, end_date=None):

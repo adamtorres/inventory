@@ -7,11 +7,16 @@ var filter_input_fields = [
     {element: "#id-of-the-input-control", ajax_var: "name_of_the_var_when_ajax"},
     {element: "#second-id-of-the-input-control", ajax_var: "second_name_of_the_var_when_ajax"},
 ];
+var filter_input_empty_if_only = [];
 var filter_results_div_id = "result-div";
 var filter_result_item_template_id = "filtered-item-template";
 var filter_result_fields = [
     {element: "data-field='name'", destination_field_id: "where to put the value when clicked"},
 ];
+const item_selected_event_name = 'item_selected';
+const filter_requested_event_name = 'filter_requested';
+const filter_results_populated_event_name = 'filtered_results_populated';
+
 $( document ).ready(function() {
     no_results();
     setup_timer_events();
@@ -64,10 +69,38 @@ function get_values_to_send() {
         "filter_fields": []
     };
     filter_input_fields.forEach(tag => {
-        values_to_send[tag['ajax_var']] = $(tag['element']).val().trim();
-        values_to_send["filter_fields"].push(tag['ajax_var']);
-        if (values_to_send[tag['ajax_var']] !== "") {
-            values_to_send['empty'] = false;
+        let tag_obj = $(tag['element']);
+        if (tag_obj.length === 1) {
+            values_to_send[tag['ajax_var']] = tag_obj.val().trim();
+            values_to_send["filter_fields"].push(tag['ajax_var']);
+            if (values_to_send[tag['ajax_var']] !== "") {
+                values_to_send['empty'] = false;
+            }
+        } else if (tag_obj.length > 1) {
+            $.each(tag_obj, function(index) {
+                let obj = $(this);
+                if (obj.is("input[type='checkbox']")) {
+                    if (!(tag['ajax_var'] in values_to_send)) {
+                        values_to_send[tag['ajax_var']] = [];
+                    }
+                    if (obj.is(":checked")) {
+                        values_to_send[tag['ajax_var']].push(obj.val().trim());
+                    }
+                } else {
+                    values_to_send[tag['ajax_var']] = obj.val().trim();
+                }
+
+                if (!values_to_send["filter_fields"].includes(tag['ajax_var'])) {
+                    values_to_send["filter_fields"].push(tag['ajax_var']);
+                }
+                if (!filter_input_empty_if_only.includes(tag['ajax_var'])){
+                    if ((typeof(values_to_send[tag['ajax_var']]) === typeof("string")) && (values_to_send[tag['ajax_var']] !== "")) {
+                        values_to_send['empty'] = false;
+                    } else if ((typeof(values_to_send[tag['ajax_var']]) === typeof(['an', 'array'])) && (values_to_send[tag['ajax_var']].length !== 0)) {
+                        values_to_send['empty'] = false;
+                    }
+                }
+            });
         }
     });
     return values_to_send;
@@ -80,10 +113,12 @@ function filtered_results_received(data) {
         d_result_list.append(new_item(this));
         count++;
     });
+    logit(`Got ${count} results.`, true);
     if (count === 0) {
         no_results();
+    } else {
+        $(window).trigger(filter_results_populated_event_name);
     }
-    logit(`Got ${count} results.`, true);
 }
 function get_filtered_item_field(p, field) {
     return p.find(`[${field}]`);
@@ -99,8 +134,14 @@ function filtered_item_click() {
         let dest_tag_id = tag['destination_field_id'];
         let item_tag = get_filtered_item_field(p, item_data_attr);
         let item_val = item_tag.text().trim();
-        $(`#${dest_tag_id}`).val(item_val);
+        let dest_tag = $(`#${dest_tag_id}`);
+        if (dest_tag.is("input")) {
+            dest_tag.val(item_val);
+        } else {
+            dest_tag.text(item_val);
+        }
     });
+    $(window).trigger(item_selected_event_name);
 }
 
 var keypress_timer;
@@ -114,9 +155,12 @@ function timer_elapsed_func() {
     let values_to_send = get_values_to_send();
     if (values_to_send['empty']) {
         // don't want to send empty requests.
+        logit(`Got 0 results - no filter specified.`, true);
         no_results();
+        $(window).trigger(filter_requested_event_name);
         return;
     }
+    $(window).trigger(filter_requested_event_name);
     var jqxhr = $.ajax({
         url: filter_url,
         type: "get",
@@ -134,8 +178,13 @@ function timer_elapsed_func() {
 function setup_timer_events() {
     filter_input_fields.forEach(tag => {
         let tag_obj = $(tag['element']);
-        tag_obj.on("keydown", filter_keydown);
-        tag_obj.on("focusout", input_focusout);
+        if (tag_obj.is('input[type="text"]')) {
+            tag_obj.on("keydown", filter_keydown);
+            tag_obj.on("focusout", input_focusout);
+        }
+        if (tag_obj.is('input[type="checkbox"]')) {
+            tag_obj.on("click", start_timer);
+        }
     });
 }
 function input_focusout() {

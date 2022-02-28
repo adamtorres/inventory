@@ -20,12 +20,16 @@ class IncomingItemSerializer(serializers.Serializer):
 
     parent = serializers.StringRelatedField()
     item = serializers.StringRelatedField()
+    common_name = serializers.SerializerMethodField()
 
     def update(self, instance, validated_data):
         raise NotImplementedError()
 
     def create(self, validated_data):
         raise NotImplementedError()
+
+    def get_common_name(self, obj):
+        return obj.item.common_item.name
 
     def get_item_comment(self, obj):
         return obj.item.comment
