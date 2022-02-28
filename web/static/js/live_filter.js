@@ -126,7 +126,9 @@ function timer_elapsed_func() {
     let values_to_send = get_values_to_send();
     if (values_to_send['empty']) {
         // don't want to send empty requests.
+        logit(`Got 0 results - no filter specified.`, true);
         no_results();
+        $(window).trigger(filter_requested_event_name);
         return;
     }
     $(window).trigger(filter_requested_event_name);

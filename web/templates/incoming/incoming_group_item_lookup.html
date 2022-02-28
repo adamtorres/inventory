@@ -12,6 +12,14 @@
 label {
     font-weight: bold;
 }
+.selected-item-text-row .col {
+    border: grey solid 1px;
+    text-align: left;
+}
+.selected-item-row .col {
+    border: grey solid 1px;
+    text-align: right;
+}
 .per_unit_cell {
     display: inline-block;
     border: grey solid 1px;
@@ -44,21 +52,6 @@ label {
 
 {% block content %}
 <div class="container-fluid" id="lookup-content">
-    <table style="display: none;" class="filtered-item-template-container">
-        <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
-            <td class="border" data-field="parent">__parent__</td>
-            <td class="border" data-field="item">__item__</td>
-            <td class="border" data-field="comment">__comment__</td>
-            <td class="border" data-field="item_comment">__item_comment__</td>
-            <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
-            <td class="border" data-field="total_weight">__total_weight__</td>
-            <td class="border" data-field="pack_quantity">__pack_quantity__</td>
-            <td class="border" data-field="unit_size">__unit_size__</td>
-            <td class="border" data-field="pack_price">__pack_price__</td>
-            <td class="border" data-field="pack_tax">__pack_tax__</td>
-            <td class="border" data-field="extended_price">__extended_price__</td>
-        </tr>
-    </table>
     <div id="filter-controls">
         <div class="row">
             <div class="col">
@@ -83,28 +76,34 @@ label {
         <h5>
             Selected item
         </h5>
-        <div class="row">
+        <div class="row selected-item-text-row">
             <div class="row">
-                <div class="col">
+                <div class="col text-left">
                     <label for="calc-item">Item: </label>
                     <span id="calc-item">[item name]</span>
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col text-left">
+                    <label for="calc-common-name">Common Name: </label>
+                    <span id="calc-common-name">[common name]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
                     <label for="calc-comment">Comment: </label>
                     <span id="calc-comment">[comment on the line item]</span>
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col text-left">
                     <label for="calc-item-comment">Item Comment: </label>
                     <span id="calc-item-comment">[comment on the item itself]</span>
                 </div>
             </div>
         </div>
         <hr />
-        <div class="row row-cols-5">
+        <div class="row row-cols-5 selected-item-row">
             <div class="col col-sm-1">
                 <label for="calc-quantity">Quantity</label>
             </div>
@@ -124,7 +123,7 @@ label {
                 <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
             </div>
         </div>
-        <div class="row row-cols-5">
+        <div class="row row-cols-5 selected-item-row">
             <div class="col col-sm-1">
                 <span id="calc-quantity"></span>
             </div>
@@ -145,7 +144,7 @@ label {
             </div>
         </div>
         <hr />
-        <div id="calc-weight-specific-cells" class="d-none">
+        <div id="calc-weight-specific-cells" class="d-none selected-item-row">
             <div class="row row-cols-3">
                 <div class="col col-sm-1">
                     <label for="calc-weight">Weight</label>
@@ -157,7 +156,7 @@ label {
                     <label for="calc-avg-unit-weight">Avg Unit Weight</label>
                 </div>
             </div>
-            <div class="row row-cols-3">
+            <div class="row row-cols-3 selected-item-row">
                 <div class="col col-sm-1">
                     <span id="calc-weight"></span>
                 </div>
@@ -191,11 +190,28 @@ label {
 Log.
     </pre>
 
+<table style="display: none;" class="filtered-item-template-container">
+        <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
+            <td class="border" data-field="parent">__parent__</td>
+            <td class="border" data-field="item">__item__</td>
+            <td class="border d-none" data-field="common_name">__common_name__</td>
+            <td class="border" data-field="comment">__comment__</td>
+            <td class="border" data-field="item_comment">__item_comment__</td>
+            <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border" data-field="total_weight">__total_weight__</td>
+            <td class="border" data-field="pack_quantity">__pack_quantity__</td>
+            <td class="border" data-field="unit_size">__unit_size__</td>
+            <td class="border" data-field="pack_price">__pack_price__</td>
+            <td class="border" data-field="pack_tax">__pack_tax__</td>
+            <td class="border" data-field="extended_price">__extended_price__</td>
+        </tr>
+    </table>
 <table>
     <thead>
         <tr>
             <th class="border">Incoming Group</th>
             <th class="border">Item</th>
+            <th class="border d-none">Common Name</th>
             <th class="border">Comment</th>
             <th class="border">Item Comment</th>
             <th class="border">Delivered Quantity</th>
@@ -219,7 +235,9 @@ Log.
 <script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
 filter_url = "{% url 'inc_live_filter_incomingitems' %}";
-filter_fields = ["delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price", "comment", "item_comment", "parent", "item"];
+filter_fields = [
+    "delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price",
+    "comment", "item_comment", "parent", "item", "common_name"];
 remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
@@ -230,6 +248,7 @@ filter_input_fields = [
 ];
 filter_result_fields = [
     {element: "data-field='item'", destination_field_id: "calc-item"},
+    {element: "data-field='common_name'", destination_field_id: "calc-common-name"},
     {element: "data-field='item_comment'", destination_field_id: "calc-item-comment"},
     {element: "data-field='comment'", destination_field_id: "calc-comment"},
     {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
@@ -266,16 +285,16 @@ function update_calculations() {
         $("#calc-avg-pack-weight").text(avg_pack_weight);
         $("#calc-avg-unit-weight").text(avg_unit_weight);
         pack_price = round(price_per_unit * pack_quantity);
-        $("#calc-pack-price").text(pack_price);
+        $("#calc-pack-price").text(round(pack_price).toFixed(2));
         $("#calc-weight-specific-cells").removeClass("d-none");
     } else {
         $("#calc-weight-specific-cells").addClass("d-none");
     }
     let total_units = pack_quantity * quantity;
-    row_template = $(`#per_unit_row_template`);
-    per_unit_table = $(`#calculated-per-unit-prices`);
+    let row_template = $(`#per_unit_row_template`);
+    let per_unit_table = $(`#calculated-per-unit-prices`);
     per_unit_table.empty();
-    for(i = 0; i < total_units; i++) {
+    for(let i = 0; i < total_units; i++) {
         let item_clone = row_template.clone();
         item_clone.attr('id', null);
         item_clone.find('[data-field]').each(function() {
@@ -292,8 +311,6 @@ function update_calculations() {
         per_unit_table.append(item_clone);
     }
     $("#calculation-div").removeClass("d-none");
-    //
-    // calculated-per-unit-prices
 }
 $( document ).ready(function() {
     let w = $(window);
@@ -309,6 +326,7 @@ $( document ).ready(function() {
     });
     w.on(filter_results_populated_event_name, function() {
         // filter results arrived.  Still no selected item.
+        $("#calculation-div").addClass("d-none");
     });
     w.on(item_selected_event_name, function() {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
