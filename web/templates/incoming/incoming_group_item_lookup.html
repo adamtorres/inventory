@@ -10,6 +10,9 @@
     content: "$ ";
     color: lightgreen;
 }
+.number-cell, .date-cell {
+    text-align: right;
+}
 #calculation-div {
     border: green solid 2px;
     margin-top: 1em;
@@ -204,6 +207,9 @@ label {
                 <div class="col col-sm-1">
                     <label for="calc-avg-unit-weight">Avg Unit Weight</label>
                 </div>
+                <div class="col col-sm-1">
+                    <label for="calc-price-per-weight">Price per unit of weight</label>
+                </div>
             </div>
             <div class="row row-cols-3 selected-item-row">
                 <div class="col col-sm-1">
@@ -214,6 +220,9 @@ label {
                 </div>
                 <div class="col col-sm-1">
                     <span id="calc-avg-unit-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-price-per-weight" class="faded-dollar"></span>
                 </div>
             </div>
         </div>
@@ -241,34 +250,36 @@ Log.
 
 <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" id="filtered-item-template">
+            <td class="border date-cell" data-field="action_date">__action_date__</td>
             <td class="border" data-field="item">__item__</td>
             <td class="border d-none" data-field="common_name">__common_name__</td>
             <td class="border" >
                 <div data-field="comment">__comment__</div>
                 <div data-field="item_comment">__item_comment__</div>
             </td>
-            <td class="border" data-field="delivered_quantity">__delivered_quantity__</td>
-            <td class="border" data-field="total_weight">__total_weight__</td>
-            <td class="border" data-field="pack_quantity">__pack_quantity__</td>
-            <td class="border" data-field="unit_size">__unit_size__</td>
-            <td class="border" data-field="pack_price">__pack_price__</td>
-            <td class="border" data-field="pack_tax">__pack_tax__</td>
-            <td class="border" data-field="extended_price">__extended_price__</td>
+            <td class="border number-cell" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border number-cell" data-field="total_weight">__total_weight__</td>
+            <td class="border number-cell" data-field="pack_quantity">__pack_quantity__</td>
+            <td class="border number-cell" data-field="unit_size">__unit_size__</td>
+            <td class="border number-cell" data-field="pack_price">__pack_price__</td>
+            <td class="border number-cell" data-field="pack_tax">__pack_tax__</td>
+            <td class="border number-cell" data-field="extended_price">__extended_price__</td>
         </tr>
     </table>
 <table>
     <thead>
         <tr>
+            <th class="border date-cell">Date</th>
             <th class="border">Item</th>
             <th class="border d-none">Common Name</th>
             <th class="border">Comments</th>
-            <th class="border">Delivered Quantity</th>
-            <th class="border">Total Weight</th>
-            <th class="border">Pack Quantity</th>
-            <th class="border">Unit Size</th>
-            <th class="border">Pack Price</th>
-            <th class="border">Pack Tax</th>
-            <th class="border">Extended Price</th>
+            <th class="border number-cell">Delivered Quantity</th>
+            <th class="border number-cell">Total Weight</th>
+            <th class="border number-cell">Pack Quantity</th>
+            <th class="border number-cell">Unit Size</th>
+            <th class="border number-cell">Pack Price</th>
+            <th class="border number-cell">Pack Tax</th>
+            <th class="border number-cell">Extended Price</th>
         </tr>
     </thead>
     <tbody id="result-table-body">
@@ -285,7 +296,7 @@ Log.
 filter_url = "{% url 'inc_live_filter_incomingitems' %}";
 filter_fields = [
     "delivered_quantity", "total_weight", "pack_quantity", "unit_size", "pack_price", "pack_tax", "extended_price",
-    "comment", "item_comment", "item", "common_name", "department"];
+    "comment", "item_comment", "item", "common_name", "department", "action_date"];
 remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity", "pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
@@ -331,10 +342,11 @@ function update_calculations() {
 
     if (weight > 0) {
         pack_price_per_weight = pack_price;
+        $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
         let avg_pack_weight = weight / quantity;
         let avg_unit_weight = weight / quantity / pack_quantity;
-        $("#calc-avg-pack-weight").text(avg_pack_weight);
-        $("#calc-avg-unit-weight").text(avg_unit_weight);
+        $("#calc-avg-pack-weight").text(round(avg_pack_weight));
+        $("#calc-avg-unit-weight").text(round(avg_unit_weight));
         pack_price = round(price_per_unit * pack_quantity);
         $("#calc-pack-price").text(round(pack_price).toFixed(2));
         $("#calc-weight-specific-cells").removeClass("d-none");

@@ -11,7 +11,7 @@ from scrap import models as sc_models
 class ItemManager(models.Manager, sc_models.FilterMixin):
     autocomplete_fields = ['name', 'common_item__name', 'common_item__other_names__name']
     filter_prefetch = ['common_item', 'common_item__other_names', 'source']
-    filter_order = ['name']
+    autocomplete_order = ['name']
     source_field = 'source'
 
     def available_items(self, source=None):

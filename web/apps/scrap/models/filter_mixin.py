@@ -6,6 +6,7 @@ import uuid
 class FilterMixin(object):
     autocomplete_fields = []
     filter_prefetch = []
+    autocomplete_order = []
     filter_order = []
     autocomplete_initial_qs = None
     source_field = None
@@ -34,7 +35,12 @@ class FilterMixin(object):
             qs = getattr(self, self.autocomplete_initial_qs)()
         else:
             qs = self
-        return self.order_filter(qs.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
+        return self.order_autocomplete(qs.prefetch_related(*self.get_filter_prefetch()).filter(term_q, source_q))
+
+    def order_autocomplete(self, qs):
+        if self.autocomplete_order:
+            qs = qs.order_by(*self.autocomplete_order)
+        return qs
 
     def order_filter(self, qs):
         if self.filter_order:
@@ -120,4 +126,4 @@ class FilterMixin(object):
             combined_filter = combined_filter & field_q
         combined_filter = combined_filter & self.get_source_filter(sources)
         combined_filter = combined_filter & self.get_department_filter(kwargs.get("departments", []))
-        return self.prefetch_related(*self.get_filter_prefetch()).filter(combined_filter)
+        return self.order_filter(self.prefetch_related(*self.get_filter_prefetch()).filter(combined_filter))

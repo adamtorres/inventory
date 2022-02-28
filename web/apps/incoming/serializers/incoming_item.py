@@ -22,12 +22,16 @@ class IncomingItemSerializer(serializers.Serializer):
     department = serializers.SerializerMethodField()
     item = serializers.StringRelatedField()
     common_name = serializers.SerializerMethodField()
+    action_date = serializers.SerializerMethodField()
 
     def update(self, instance, validated_data):
         raise NotImplementedError()
 
     def create(self, validated_data):
         raise NotImplementedError()
+
+    def get_action_date(self, obj):
+        return obj.parent.action_date
 
     def get_common_name(self, obj):
         return obj.item.common_item.name
