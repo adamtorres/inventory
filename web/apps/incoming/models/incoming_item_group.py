@@ -77,10 +77,10 @@ class IncomingItemGroup(scrap.ChangeSourceMixin):
             total_price=models.Sum('extended_price'), total_packs=models.Sum('delivered_quantity'))
         changed = False
         if self.total_price != values["total_price"]:
-            self.total_price = values["total_price"]
+            self.total_price = values["total_price"] or 0
             changed = True
         if self.total_packs != values["total_packs"]:
-            self.total_packs = values["total_packs"]
+            self.total_packs = values["total_packs"] or 0
             changed = True
         if changed:
             self.save()

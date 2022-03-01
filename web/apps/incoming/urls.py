@@ -16,4 +16,5 @@ urlpatterns = [
     path('items/live_filter', views.FilterItemView.as_view(), name='inc_live_filter_items'),
     path('incomingitems/live_filter', views.FilterIncomingItemsView.as_view(), name='inc_live_filter_incomingitems'),
     path('incomingitems/lookup/', views.IncomingGroupItemLookupView.as_view(), name='incoming_group_item_lookup'),
+    path('items/missing_common_item/', views.MissingCommonItemView.as_view(), name='missing_common_item'),
 ]
