@@ -1,3 +1,4 @@
+import collections
 from django.contrib.contenttypes import fields as ct_fields
 from django.contrib.contenttypes import models as ct_models
 from django.db import models
@@ -23,6 +24,23 @@ class ItemManager(models.Manager, sc_models.FilterMixin):
             else:
                 qs = qs.filter(source=source)
         return qs
+
+    def dupes(self, by_field='name'):
+        """
+        Find duplicates based on the specified field.
+
+        Returns: Queryset
+        """
+        count_names = Item.objects.values(by_field).annotate(dupes=models.Count('id'))
+        dupes_list = count_names.filter(dupes__gt=1).values_list(by_field, flat=True)
+        qs = Item.objects.select_related('source').filter(**{f"{by_field}__in": dupes_list})
+        return qs.order_by(by_field, 'source__name', 'identifier', 'created')
+
+    def dupes_dict(self, by_field='name'):
+        dupes = collections.defaultdict(list)
+        for item in self.dupes(by_field=by_field):
+            dupes[getattr(item, by_field)].append(item)
+        return dict(dupes)
 
 
 class Item(models.Model):
