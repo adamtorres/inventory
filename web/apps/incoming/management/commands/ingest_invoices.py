@@ -17,7 +17,8 @@ class Command(ingest_file.Command):
     data_row_fields = [
         "source", "order_date", "delivery_date", "customer_number", "department", "po_text", "order_number",
         "line_item_number", "category", "quantity", "pack_quantity", "unit_size", "item_name", "extra_crap",
-        "item_code", "pack_cost", "pack_tax", "extended_cost", "total_weight", "handwritten_notes", "scan_file"]
+        "item_code", "pack_cost", "pack_tax", "extended_cost", "total_weight", "handwritten_notes", "scan_file",
+        "checked"]
 
     def initialize_data(self):
         return {
