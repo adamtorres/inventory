@@ -40,7 +40,7 @@
     {% for item_group, items in dupes_by_name.items %}
         <tr class="group-header"><td colspan="20">{{ item_group|default_if_none:"NONE" }}</td></tr>
         {% for item in items %}
-            <tr>
+            <tr data-id="{{ item.id }}">
                 <td>{{ item.source.name }}</td>
                 <td>{{ item.identifier }}</td>
                 <td class="d-none">{{ item.name }}</td>
@@ -80,7 +80,7 @@
     {% for item_group, items in dupes_by_identifier.items %}
         <tr class="group-header"><td colspan="20">{{ item_group }}</td></tr>
         {% for item in items %}
-            <tr>
+            <tr data-id="{{ item.id }}">
                 <td>{{ item.source.name }}</td>
                 <td class="d-none">{{ item.identifier }}</td>
                 <td>{{ item.name }}</td>

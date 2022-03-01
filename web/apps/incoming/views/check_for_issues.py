@@ -11,8 +11,6 @@ class DupeItemView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # TODO: group by name and show dupes - highlight differences - show action_dates?
-        # TODO: group by identifier and show dupes - highlight differences - show action_dates?
         dupes = inc_models.Item.objects.dupes_dict('name')
         if "" in dupes.keys():
             dupes["[empty string]"] = dupes[""]
