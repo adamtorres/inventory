@@ -1,0 +1,9 @@
+FROM postgres:latest
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_NAME
+ENV DB_USER=${DB_USER}
+ENV DB_PASSWORD=${DB_PASSWORD}
+ENV DB_NAME=${DB_NAME}
+COPY *.sql /docker-entrypoint-initdb.d/
+EXPOSE 5432

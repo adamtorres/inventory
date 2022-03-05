@@ -1,0 +1,8 @@
+.dropdown-menu {
+    max-height: 200px;
+    width: 55em;
+    overflow-y: auto;
+}
+.autocomplete-widget input {
+    width: 100%;
+}
