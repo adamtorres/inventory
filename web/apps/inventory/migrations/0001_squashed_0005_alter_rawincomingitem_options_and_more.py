@@ -42,6 +42,23 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='RawState',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('name', scrap.fields.char_field.CharField(blank=True, default='', help_text='short name of the status', max_length=1024)),
+                ('description', scrap.fields.char_field.CharField(blank=True, default='', help_text='Short description of the status', max_length=1024)),
+                ('value', models.IntegerField(help_text='incrementing value to help sort progress')),
+            ],
+        ),
+        migrations.AddConstraint(
+            model_name='rawstate',
+            constraint=models.UniqueConstraint(fields=('value',), name='unique_raw_state_value'),
+        ),
+        migrations.AlterModelOptions(
+            name='rawstate',
+            options={'ordering': ('value',)},
+        ),
+        migrations.CreateModel(
             name='RawIncomingItem',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
@@ -67,40 +84,14 @@ class Migration(migrations.Migration):
                 ('pack_tax', scrap.fields.money_field.MoneyField(decimal_places=4, default=0, max_digits=10)),
                 ('extended_price', scrap.fields.money_field.MoneyField(decimal_places=4, default=0, max_digits=10)),
                 ('item_comment', scrap.fields.char_field.CharField(blank=True, default='', help_text='Anything noteworthy about this item', max_length=1024)),
+                ('state', models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='raw_items', related_query_name='raw_items', to='inventory.rawstate', to_field='value')),
             ],
             options={
                 'abstract': False,
             },
         ),
-        migrations.CreateModel(
-            name='RawState',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', scrap.fields.char_field.CharField(blank=True, default='', help_text='short name of the status', max_length=1024)),
-                ('description', scrap.fields.char_field.CharField(blank=True, default='', help_text='Short description of the status', max_length=1024)),
-                ('value', models.IntegerField(help_text='incrementing value to help sort progress')),
-            ],
-        ),
-        migrations.AddConstraint(
-            model_name='rawstate',
-            constraint=models.UniqueConstraint(fields=('value',), name='unique_raw_state_value'),
-        ),
-        migrations.AlterModelOptions(
-            name='rawstate',
-            options={'ordering': ('value',)},
-        ),
-        migrations.AddField(
-            model_name='rawincomingitem',
-            name='state',
-            field=models.ForeignKey(default=45, on_delete=django.db.models.deletion.CASCADE, related_name='raw_items', related_query_name='raw_items', to='inventory.rawstate', to_field='value'),
-        ),
         migrations.AlterModelOptions(
             name='rawincomingitem',
             options={'ordering': ('delivery_date', 'source', 'line_item_position')},
-        ),
-        migrations.AlterField(
-            model_name='rawincomingitem',
-            name='state',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, related_name='raw_items', related_query_name='raw_items', to='inventory.rawstate', to_field='value'),
         ),
     ]
