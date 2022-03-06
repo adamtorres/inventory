@@ -41,7 +41,9 @@ class RawIncomingItem(sc_models.DatedModel):
     item_comment = sc_fields.CharField(help_text="Anything noteworthy about this item")
 
     state = models.ForeignKey(
-        "inventory.RawState", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items")
+        "inventory.RawState", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
+        to_field="value", default=0
+    )
 
     class Meta:
-        ordering = ("parent", "line_item_position", )
+        ordering = ("delivery_date", "source", "line_item_position")
