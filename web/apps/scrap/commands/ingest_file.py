@@ -137,12 +137,13 @@ class Command(BaseCommand):
         Convert all specified fields from text to _type.  If there's a problem, use the default.
         """
         for field in fields:
-            value = raw_row_data[self.field_index[field]]
+            value = (raw_row_data[self.field_index[field]] or "").strip(' $')
             if isinstance(value, _type):
                 continue
             try:
                 value = _type(value)
             except ValueError:
+
                 value = default
             raw_row_data[self.field_index[field]] = value
         return raw_row_data
