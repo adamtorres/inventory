@@ -3,6 +3,15 @@ from django.db import models
 from scrap import models as sc_models, fields as sc_fields
 
 
+class RawIncomingItemManager(models.Manager):
+    def get_queryset(self):
+        """
+        Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
+        separate query for every record.
+        """
+        return super().get_queryset().select_related('state')
+
+
 class RawIncomingItem(sc_models.DatedModel):
     """
     This is the line as it would be on a spreadsheet.  All information is included verbatim.  Any individual line item
@@ -39,11 +48,18 @@ class RawIncomingItem(sc_models.DatedModel):
     extended_price = sc_fields.MoneyField()
 
     item_comment = sc_fields.CharField(help_text="Anything noteworthy about this item")
+    scanned_image_filename = sc_fields.CharField(
+        help_text="Filename of the scanned file.  Might have multiple per order.")
 
     state = models.ForeignKey(
         "inventory.RawState", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
         to_field="value", default=0
     )
 
+    objects = RawIncomingItemManager()
+
     class Meta:
         ordering = ("delivery_date", "source", "line_item_position")
+
+    def __str__(self):
+        return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}"
