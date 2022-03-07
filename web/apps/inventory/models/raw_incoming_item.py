@@ -12,7 +12,7 @@ class RawIncomingItemManager(models.Manager):
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
         separate query for every record.
         """
-        return super().get_queryset().select_related('state')
+        return super().get_queryset().select_related('state', 'state__next_state', 'state__next_error_state')
 
     def __getattr__(self, item):
         ready_prefix = "ready_to_"
@@ -25,6 +25,11 @@ class RawIncomingItemManager(models.Manager):
     def ready_to_do_action(self, action, *args):
         state_name = RawState.action_to_state_name(action)
         return self.filter(state__next_state__name=state_name)
+
+
+class RawIncomingItemReportManager(models.Manager):
+    def group_by_current_state(self):
+        return self.values('state', 'state__name').annotate(count=models.Count('id'))
 
 
 class RawIncomingItem(sc_models.DatedModel):
@@ -72,6 +77,7 @@ class RawIncomingItem(sc_models.DatedModel):
     )
 
     objects = RawIncomingItemManager()
+    reports = RawIncomingItemReportManager()
 
     class Meta:
         ordering = ("delivery_date", "source", "line_item_position")
