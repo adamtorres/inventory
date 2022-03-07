@@ -1,26 +1,2 @@
 [
-    {"model": "inventory.rawstate", "pk": "c9091114-f024-45a3-afe1-ace385c27ee9", "fields": {
-        "name": "untouched", "description": "imported from file.  Nothing done.", "value": 0}},
-    {"model": "inventory.rawstate", "pk": "f0f9ae62-90c5-4be5-94f1-02c416ae0c31", "fields": {
-        "name": "failed_clean", "description": "something could not be cleaned.", "value": 5}},
-    {"model": "inventory.rawstate", "pk": "87e71faa-6091-4443-98e9-0e0f5f84af93", "fields": {
-        "name": "cleaned", "description": "lower-cased, typos?", "value": 10}},
-    {"model": "inventory.rawstate", "pk": "50f56d1a-670e-451a-aba3-710aa532619f", "fields": {
-        "name": "failed_analyze", "description": "something prevented analysis.", "value": 15}},
-    {"model": "inventory.rawstate", "pk": "4812f116-ab43-46ce-9b00-5d3d3c32cf45", "fields": {
-        "name": "waiting_for_common_names", "description": "needs new common_names", "value": 19}},
-    {"model": "inventory.rawstate", "pk": "a8a3be9e-0bd2-4aa9-b21a-b2ca760a9d03", "fields": {
-        "name": "analyzed", "description": "checked for common names, quantity and money values checked.", "value": 20}},
-    {"model": "inventory.rawstate", "pk": "d2c4e54c-d03c-412f-a3f7-1fa445cb759b", "fields": {
-        "name": "failed_calculation", "description": "something prevented calculation.", "value": 25}},
-    {"model": "inventory.rawstate", "pk": "c441659f-e9b1-4b9d-8f30-f271fb01c98a", "fields": {
-        "name": "calculated", "description": "totals totalled.", "value": 30}},
-    {"model": "inventory.rawstate", "pk": "34a6dcd5-cfa1-44cc-8cff-17f97133994b", "fields": {
-        "name": "failed_creation", "description": "something broke the creation of supporting values.", "value": 35}},
-    {"model": "inventory.rawstate", "pk": "dd020718-4e98-4897-b6a8-ce457ce89a89", "fields": {
-        "name": "new_values_created", "description": "any new items/departments/categories are created.", "value": 40}},
-    {"model": "inventory.rawstate", "pk": "8e77a481-0279-4e3a-8836-c37ee330691b", "fields": {
-        "name": "failed_import", "description": "something failed when doing the final import step.", "value": 45}},
-    {"model": "inventory.rawstate", "pk": "a30ee7c7-f6fb-484a-becc-9018ffc1fd82", "fields": {
-        "name": "done", "description": "nothing left to do.  The record has been completely imported.", "value": 50}}
 ]

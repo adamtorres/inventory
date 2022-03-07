@@ -1,6 +1,9 @@
+import functools
+
 from django.db import models
 
 from scrap import models as sc_models, fields as sc_fields
+from .raw_state import RawState
 
 
 class RawIncomingItemManager(models.Manager):
@@ -10,6 +13,18 @@ class RawIncomingItemManager(models.Manager):
         separate query for every record.
         """
         return super().get_queryset().select_related('state')
+
+    def __getattr__(self, item):
+        ready_prefix = "ready_to_"
+        if isinstance(item, str) and item.startswith(ready_prefix) and item != "ready_to_do_action":
+            the_something = item[len(ready_prefix):]
+            if the_something in ["clean", "analyze", "calculate", "create", "import"]:
+                return functools.partial(self.ready_to_do_action, the_something)
+        raise AttributeError(item)
+
+    def ready_to_do_action(self, action, *args):
+        state_name = RawState.action_to_state_name(action)
+        return self.filter(state__next_state__name=state_name)
 
 
 class RawIncomingItem(sc_models.DatedModel):

@@ -14,3 +14,4 @@ from . import models as inv_models
 # admin.site.register(inv_models.Article, ArticleAdmin)
 admin.site.register(inv_models.Category)
 admin.site.register(inv_models.Department)
+admin.site.register(inv_models.RawState)
