@@ -1,11 +1,13 @@
 from inventory import models as inv_models
 
 
-def _do_create():
+def _do_create(batch_size=1):
     """
     step 4
     """
     qs = inv_models.RawIncomingItem.objects.ready_to_create()
+    if batch_size > 0:
+        qs = qs[:batch_size]
     print(f"do_create found {qs.count()} records to create.")
     items_to_update = []
     fields_to_update = {'state'}

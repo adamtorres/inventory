@@ -20,7 +20,7 @@ def _do_clean(batch_size=0):
     fields_to_update = {'state'}
     cleaner = ItemCleaner()
     for i, item in enumerate(qs):
-        fields_to_update.update(cleaner.clean_item(item))
+        fields_to_update.update(cleaner.clean(item))
         items_to_update.append(item)
         cleaner.reset()
     print(f"do_clean: items_to_update={len(items_to_update)}, fields_to_update={fields_to_update}")
@@ -38,7 +38,7 @@ class ItemCleaner(object):
         self.now = timezone.now()
         self.now_date = self.now.date()
 
-    def clean_item(self, item):
+    def clean(self, item):
         self.item = item
         for field in item._meta.fields:
             # Skipping certain fields
@@ -74,6 +74,10 @@ class ItemCleaner(object):
         if value > (self.now if isinstance(field, models.DateTimeField) else self.now_date):
             self.failures.append({'field': field.name, 'method': 'clean_date_field', 'failure': 'date in future'})
 
+    def clean_name(self):
+        if not self.item.name:
+            self.failures.append({'field': 'name', 'method': 'clean_name', 'failure': 'empty or None'})
+
     def clean_text_field(self, field):
         value = getattr(self.item, field.name)
         if value == "some generic text failure":
@@ -81,10 +85,6 @@ class ItemCleaner(object):
         if value != value.strip():
             setattr(self.item, field.name, value.strip())
             self.updated_fields.add(field.name)
-
-    def clean_name(self):
-        if not self.item.name:
-            self.failures.append({'field': 'name', 'method': 'clean_name', 'failure': 'empty or None'})
 
     def reset(self):
         self.failures.clear()
