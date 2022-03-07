@@ -32,20 +32,19 @@ class RawState(sc_models.UUIDModel):
         ordering = ('value', )
 
     STATES_ORDER = [
-        "untouched", "cleaned", "waiting_for_common_names", "analyzed", "calculated", "new_values_created", "done"]
-    FAILED_STATES = ["failed_clean", "failed_analyze", "failed_calculation", "failed_creation", "failed_import"]
+        "untouched", "cleaned", "calculated", "new_values_created", "done"]
+    FAILED_STATES = ["failed_clean", "failed_calculation", "failed_creation", "failed_import"]
 
-    STATE_ACTIONS = {
+    STATES_TO_ACTIONS = {
         # state to action
         "cleaned": "clean",
-        "analyzed": "analyze",
         "calculated": "calculate",
         "new_values_created": "create",
         "done": "import",
-
+    }
+    ACTIONS_TO_STATES = {
         # action to state
         "clean": "cleaned",
-        "analyze": "analyzed",
         "calculate": "calculated",
         "create": "new_values_created",
         "import": "done",
@@ -60,7 +59,7 @@ class RawState(sc_models.UUIDModel):
             return None
         if self.next_state is None:
             return None
-        next_action = self.STATE_ACTIONS.get(self.next_state.name)
+        next_action = self.STATES_TO_ACTIONS.get(self.next_state.name)
         if next_action is None:
             # TODO: should this raise an error?
             return None
@@ -68,7 +67,7 @@ class RawState(sc_models.UUIDModel):
 
     @classmethod
     def action_to_state_name(cls, action):
-        state_name = cls.STATE_ACTIONS.get(action)
+        state_name = cls.ACTIONS_TO_STATES.get(action)
         if state_name is None:
             raise ValueError(f"Unrecognized action {action!r}")
         return state_name

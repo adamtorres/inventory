@@ -18,7 +18,7 @@ class RawIncomingItemManager(models.Manager):
         ready_prefix = "ready_to_"
         if isinstance(item, str) and item.startswith(ready_prefix) and item != "ready_to_do_action":
             the_something = item[len(ready_prefix):]
-            if the_something in ["clean", "analyze", "calculate", "create", "import"]:
+            if the_something in RawState.ACTIONS_TO_STATES:
                 return functools.partial(self.ready_to_do_action, the_something)
         raise AttributeError(item)
 

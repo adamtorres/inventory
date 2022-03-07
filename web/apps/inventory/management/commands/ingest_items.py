@@ -39,6 +39,7 @@ class Command(commands.Command):
         print(f"max_delivery_date = {data['max_delivery_date']}")
         print(f"Attempting to insert {len(data['objects'])} objects...")
         inv_models.RawIncomingItem.objects.bulk_create(data['objects'])
+        inv_models.RawIncomingItem.reports.console_group_by_current_state()
         print("done.")
 
     def process_row(self, row_number, named_row, data):
