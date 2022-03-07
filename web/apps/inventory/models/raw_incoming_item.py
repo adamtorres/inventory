@@ -82,12 +82,14 @@ class RawIncomingItem(sc_models.DatedModel):
         "inventory.RawState", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
         to_field="value", default=0
     )
+    failure_reasons = models.TextField(null=True, blank=True)
 
     objects = RawIncomingItemManager()
     reports = RawIncomingItemReportManager()
+    non_input_fields = ['state', 'failure_reasons', 'created', 'modified', 'id']
 
     class Meta:
         ordering = ("delivery_date", "source", "line_item_position")
 
     def __str__(self):
-        return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}"
+        return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}|{self.created}"
