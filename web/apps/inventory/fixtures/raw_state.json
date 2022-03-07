@@ -28,39 +28,6 @@
     "name": "cleaned",
     "description": "lower-cased, typos?",
     "value": 10,
-    "next_state": "a8a3be9e-0bd2-4aa9-b21a-b2ca760a9d03",
-    "next_error_state": "50f56d1a-670e-451a-aba3-710aa532619f"
-  }
-},
-{
-  "model": "inventory.rawstate",
-  "pk": "50f56d1a-670e-451a-aba3-710aa532619f",
-  "fields": {
-    "name": "failed_analyze",
-    "description": "something prevented analysis.",
-    "value": 15,
-    "next_state": "a8a3be9e-0bd2-4aa9-b21a-b2ca760a9d03",
-    "next_error_state": "50f56d1a-670e-451a-aba3-710aa532619f"
-  }
-},
-{
-  "model": "inventory.rawstate",
-  "pk": "4812f116-ab43-46ce-9b00-5d3d3c32cf45",
-  "fields": {
-    "name": "waiting_for_common_names",
-    "description": "needs new common_names",
-    "value": 19,
-    "next_state": "a8a3be9e-0bd2-4aa9-b21a-b2ca760a9d03",
-    "next_error_state": "4812f116-ab43-46ce-9b00-5d3d3c32cf45"
-  }
-},
-{
-  "model": "inventory.rawstate",
-  "pk": "a8a3be9e-0bd2-4aa9-b21a-b2ca760a9d03",
-  "fields": {
-    "name": "analyzed",
-    "description": "checked for common names, quantity and money values checked.",
-    "value": 20,
     "next_state": "c441659f-e9b1-4b9d-8f30-f271fb01c98a",
     "next_error_state": "d2c4e54c-d03c-412f-a3f7-1fa445cb759b"
   }
