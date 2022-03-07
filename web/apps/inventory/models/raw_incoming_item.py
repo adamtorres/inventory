@@ -1,6 +1,7 @@
 import functools
 
 from django.db import models
+from django.db.models import functions
 
 from scrap import models as sc_models, fields as sc_fields
 from .raw_state import RawState
@@ -28,6 +29,10 @@ class RawIncomingItemManager(models.Manager):
 
     def reset_all(self):
         self.all().update(state=RawState.objects.get(value=0))
+
+    def make_example_changes(self):
+        self.filter(name__icontains="x").update(
+            name=functions.Concat(models.Value('  '), models.F('name'), models.Value('  ')))
 
 
 class RawIncomingItemReportManager(models.Manager):

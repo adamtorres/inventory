@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db import models
 
 from inventory import models as inv_models
+from scrap import utils
 
 
 def _do_clean(batch_size=0):
@@ -22,7 +23,7 @@ def _do_clean(batch_size=0):
     for i, item in enumerate(qs):
         fields_to_update.update(cleaner.clean(item))
         items_to_update.append(item)
-        cleaner.reset()
+        cleaner.clear()
     print(f"do_clean: items_to_update={len(items_to_update)}, fields_to_update={fields_to_update}")
     return items_to_update, fields_to_update
 
@@ -56,8 +57,13 @@ class ItemCleaner(object):
             if hasattr(self, clean_method_name) and callable(getattr(self, clean_method_name)):
                 getattr(self, clean_method_name)()
 
+        validation_functions = [x for x in dir(self) if x.startswith("validate_") and callable(getattr(self, x))]
+        for validation_func in validation_functions:
+            getattr(self, validation_func)()
+
         if self.failures:
             item.state = item.state.next_error_state
+            print(self.failures)
             item.failure_reasons = json.dumps(self.failures, sort_keys=True)
             self.updated_fields.update(['state', 'failure_reasons'])
         else:
@@ -72,21 +78,53 @@ class ItemCleaner(object):
             # Some dates can be None.
             return
         if value > (self.now if isinstance(field, models.DateTimeField) else self.now_date):
-            self.failures.append({'field': field.name, 'method': 'clean_date_field', 'failure': 'date in future'})
+            self.failures.append({
+                'field': field.name, 'method': utils.get_function_name(), 'failure': 'date in future'})
+
+    def clean_category(self):
+        if not self.item.category:
+            self.failures.append({
+                'field': 'category', 'method': utils.get_function_name(), 'failure': 'empty or None'})
+
+    def clean_department(self):
+        if not self.item.department:
+            self.failures.append({
+                'field': 'department', 'method': utils.get_function_name(), 'failure': 'empty or None'})
 
     def clean_name(self):
         if not self.item.name:
-            self.failures.append({'field': 'name', 'method': 'clean_name', 'failure': 'empty or None'})
+            self.failures.append({'field': 'name', 'method': utils.get_function_name(), 'failure': 'empty or None'})
 
     def clean_text_field(self, field):
         value = getattr(self.item, field.name)
         if value == "some generic text failure":
-            self.failures.append({'field': field.name, 'method': 'clean_text_field', 'failure': '?'})
+            self.failures.append({'field': field.name, 'method': utils.get_function_name(), 'failure': '?'})
         if value != value.strip():
             setattr(self.item, field.name, value.strip())
             self.updated_fields.add(field.name)
 
-    def reset(self):
+    def clear(self):
+        """
+        Reset ItemCleaner to be ready to clean another item.
+        """
         self.failures.clear()
         self.updated_fields.clear()
         self.item = None
+
+    def validate_delivery_and_order_dates(self):
+        """
+        The delivery must not happen before the order.
+        """
+        if self.item.order_date and self.item.delivery_date < self.item.order_date:
+            self.failures.append({
+                'fields': ['order_date', 'delivery_date'], 'method': utils.get_function_name(),
+                'failure': 'delivery_date is earlier than order_date'})
+
+    def validate_quantity_and_prices(self):
+        """
+        If an item is delivered, we should have prices
+        """
+        if self.item.delivered_quantity and not self.item.pack_price:
+            self.failures.append({
+                'fields': ['delivered_quantity', 'pack_price'], 'method': utils.get_function_name(),
+                'failure': 'delivered_quantity > 0 but pack_price is 0'})
