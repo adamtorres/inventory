@@ -10,6 +10,14 @@ def update_item_state(list_of_items):
     return inv_models.RawIncomingItem.objects.bulk_update(list_of_items, ('state', ), batch_size=100)
 
 
+def do_all_actions():
+    do_clean()
+    do_analyze()
+    do_calculate()
+    do_create()
+    do_import()
+
+
 def do_analyze():
     items_to_update = _do_analyze()
     update_item_state(items_to_update)

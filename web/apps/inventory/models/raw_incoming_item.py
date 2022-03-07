@@ -26,10 +26,17 @@ class RawIncomingItemManager(models.Manager):
         state_name = RawState.action_to_state_name(action)
         return self.filter(state__next_state__name=state_name)
 
+    def reset_all(self):
+        self.all().update(state=RawState.objects.get(value=0))
+
 
 class RawIncomingItemReportManager(models.Manager):
     def group_by_current_state(self):
         return self.values('state', 'state__name').annotate(count=models.Count('id'))
+
+    def console_group_by_current_state(self):
+        for s in self.group_by_current_state().order_by('state'):
+            print(f"{s['state']} {s['state__name']} = {s['count']}")
 
 
 class RawIncomingItem(sc_models.DatedModel):

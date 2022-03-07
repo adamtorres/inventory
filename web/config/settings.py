@@ -146,6 +146,7 @@ RUNSERVER_PLUS_PRINT_SQL_TRUNCATE = 0
 SHELL_PLUS_IMPORTS = [
     'from inventory import models as inv_models',
     'import scrap',
+    'from inventory import incoming_actions as ia',
 ]
 
 REST_FRAMEWORK = {
