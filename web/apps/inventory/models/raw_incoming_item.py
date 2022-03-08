@@ -57,27 +57,26 @@ class RawIncomingItemManager(models.Manager):
         """
         step 2 - calculate total for orders.
         """
-        pass
+        return self.filter(state__next_state=RawState.objects.get_by_action('calculate'))
 
     def ready_to_clean(self):
         """
         step 1 - fix various issues like extra whitespace around values
         cleaning does not require all items in an order to be ready.
         """
-        state_name = RawState.action_to_state_name('clean')
-        return self.filter(state__next_state__name=state_name)
+        return self.filter(state__next_state=RawState.objects.get_by_action('clean'))
 
     def ready_to_create(self):
         """
         step 3 - create supporting objects (category/department/source)
         """
-        pass
+        return self.filter(state__next_state=RawState.objects.get_by_action('create'))
 
     def ready_to_import(self):
         """
         step 4 - final step
         """
-        pass
+        return self.filter(state__next_state=RawState.objects.get_by_action('import'))
 
     def ready_to_do_action(self, action, *args):
         state_name = RawState.action_to_state_name(action)

@@ -7,6 +7,9 @@ class RawStateManager(models.Manager):
     def get_by_natural_key(self, value):
         return self.get(value=value)
 
+    def get_by_action(self, action):
+        return self.get(name=self.model.action_to_state_name(action))
+
     def get_by_name(self, name):
         return self.get(name=name)
 
