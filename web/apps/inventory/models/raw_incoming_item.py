@@ -107,11 +107,11 @@ class RawIncomingItemReportManager(models.Manager):
                 default=models.Value(0))
             ),
             ready=models.Sum(models.Case(
-                models.When(state__next_state__value=rs.value, then=models.Value(1)),
+                models.When(state__next_state=rs, then=models.Value(1)),
                 default=models.Value(0))
             ),
             already_there=models.Sum(models.Case(
-                models.When(state__value=rs.value, then=models.Value(1)),
+                models.When(state=rs, then=models.Value(1)),
                 default=models.Value(0))
             ),
             beyond=models.Sum(models.Case(
