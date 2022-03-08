@@ -13,7 +13,6 @@ def _do_clean(batch_size=0):
     Purpose: Standardize dates, casing, numbers, whatever else makes sense.
     Result: either changes an item to 'cleaned' or 'failed_clean' state.
     """
-    # TODO: Should 'clean' check for missing departments/categories/sources/etc?
     qs = inv_models.RawIncomingItem.objects.ready_to_clean()
     if batch_size > 0:
         qs = qs[:batch_size]
@@ -81,20 +80,6 @@ class ItemCleaner(object):
             self.failures.append({
                 'field': field.name, 'method': utils.get_function_name(), 'failure': 'date in future'})
 
-    def clean_category(self):
-        if not self.item.category:
-            self.failures.append({
-                'field': 'category', 'method': utils.get_function_name(), 'failure': 'empty or None'})
-
-    def clean_department(self):
-        if not self.item.department:
-            self.failures.append({
-                'field': 'department', 'method': utils.get_function_name(), 'failure': 'empty or None'})
-
-    def clean_name(self):
-        if not self.item.name:
-            self.failures.append({'field': 'name', 'method': utils.get_function_name(), 'failure': 'empty or None'})
-
     def clean_text_field(self, field):
         value = getattr(self.item, field.name)
         if value == "some generic text failure":
@@ -111,6 +96,11 @@ class ItemCleaner(object):
         self.updated_fields.clear()
         self.item = None
 
+    def validate_category(self):
+        if not self.item.category:
+            self.failures.append({
+                'field': 'category', 'method': utils.get_function_name(), 'failure': 'empty or None'})
+
     def validate_delivery_and_order_dates(self):
         """
         The delivery must not happen before the order.
@@ -120,6 +110,15 @@ class ItemCleaner(object):
                 'fields': ['order_date', 'delivery_date'], 'method': utils.get_function_name(),
                 'failure': 'delivery_date is earlier than order_date'})
 
+    def validate_department(self):
+        if not self.item.department:
+            self.failures.append({
+                'field': 'department', 'method': utils.get_function_name(), 'failure': 'empty or None'})
+
+    def validate_name(self):
+        if not self.item.name:
+            self.failures.append({'field': 'name', 'method': utils.get_function_name(), 'failure': 'empty or None'})
+
     def validate_quantity_and_prices(self):
         """
         If an item is delivered, we should have prices
@@ -128,3 +127,15 @@ class ItemCleaner(object):
             self.failures.append({
                 'fields': ['delivered_quantity', 'pack_price'], 'method': utils.get_function_name(),
                 'failure': 'delivered_quantity > 0 but pack_price is 0'})
+
+        if self.item.total_weight and self.item.extended_price:
+            if self.item.total_weight * self.item.pack_price != self.item.extended_price:
+                self.failures.append({
+                    'fields': ['total_weight', 'pack_price', 'extended_price'], 'method': utils.get_function_name(),
+                    'failure': 'total_weight * pack_price != extended_price'})
+        if not self.item.total_weight and self.item.extended_price:
+            if self.item.delivered_quantity * self.item.pack_price != self.item.extended_price:
+                self.failures.append({
+                    'fields': ['delivered_quantity', 'pack_price', 'extended_price'],
+                    'method': utils.get_function_name(),
+                    'failure': 'delivered_quantity * pack_price != extended_price'})
