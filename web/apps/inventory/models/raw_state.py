@@ -10,6 +10,12 @@ class RawStateManager(models.Manager):
     def get_by_name(self, name):
         return self.get(name=name)
 
+    def failed_states(self):
+        return self.filter(name__in=self.model.FAILED_STATES)
+
+    def done_state(self):
+        return self.get(name=self.model.DONE_STATE)
+
 
 class RawState(sc_models.UUIDModel):
     """
@@ -34,6 +40,7 @@ class RawState(sc_models.UUIDModel):
     STATES_ORDER = [
         "untouched", "cleaned", "calculated", "new_values_created", "done"]
     FAILED_STATES = ["failed_clean", "failed_calculation", "failed_creation", "failed_import"]
+    DONE_STATE = "done"
 
     STATES_TO_ACTIONS = {
         # state to action
@@ -52,6 +59,26 @@ class RawState(sc_models.UUIDModel):
 
     def __str__(self):
         return f"({self.value}) {self.name}"
+
+    def __ge__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError(f"Cannot compare {type(other)} and {type(self)}")
+        return self.value >= other.value
+
+    def __gt__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError(f"Cannot compare {type(other)} and {type(self)}")
+        return self.value > other.value
+
+    def __le__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError(f"Cannot compare {type(other)} and {type(self)}")
+        return self.value <= other.value
+
+    def __lt__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError(f"Cannot compare {type(other)} and {type(self)}")
+        return self.value < other.value
 
     @property
     def next_action(self, retry_failed=False):
