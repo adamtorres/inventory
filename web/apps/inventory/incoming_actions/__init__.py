@@ -8,8 +8,10 @@ from .import_item import _do_import
 
 
 def update_item_state(list_of_items, fields_to_update, batch_size=100):
-    return inv_models.RawIncomingItem.objects.bulk_update(
-        list_of_items, fields_to_update, batch_size=batch_size)
+    if list_of_items:
+        return inv_models.RawIncomingItem.objects.bulk_update(
+            list_of_items, fields_to_update, batch_size=batch_size)
+    return 0
 
 
 def do_all_actions(batch_size=1):

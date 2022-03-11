@@ -1,6 +1,7 @@
 import functools
 import itertools
 
+from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
 from django.db.models import functions
 
@@ -55,9 +56,30 @@ class RawIncomingItemManager(models.Manager):
 
     def ready_to_calculate(self):
         """
-        step 2 - calculate total for orders.
+        step 2ish
+        returns a queryset per iteration which includes the item records for a given order.
         """
-        return self.filter(state__next_state=RawState.objects.get_by_action('calculate'))
+        orders_qs = self.ready_to_calculate_orders()
+        for order in orders_qs:
+            yield self.filter(id__in=order['item_ids'])
+        return
+
+    def ready_to_calculate_orders(self):
+        """
+        step 2 - calculate total for orders.  This needs all items within an order to be ready to calculate.
+        This does not return item records.  Returns one record per order which includes a list of item ids.
+        """
+        ready_qs = self.values('source', 'department', 'order_number').annotate(
+            item_ids=pg_agg.ArrayAgg('id'),
+            line_item_count=models.Count('id'),
+            ready_to_calculate=models.Sum(
+                models.Case(
+                    models.When(state__next_state=RawState.objects.get_by_action('calculate'), then=1),
+                    default=models.Value(0)
+                )
+            )
+        ).filter(line_item_count=models.F('ready_to_calculate'))
+        return ready_qs
 
     def ready_to_clean(self):
         """
