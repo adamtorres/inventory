@@ -1,6 +1,6 @@
 import json
 
-from inventory import models as inv_models
+from .. import models as inv_models
 from .calculate import _do_calculate
 from .clean import _do_clean
 from .create import _do_create

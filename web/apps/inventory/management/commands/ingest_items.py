@@ -1,5 +1,5 @@
 from scrap import commands
-from inventory import models as inv_models
+from ... import models as inv_models
 
 
 class Command(commands.Command):

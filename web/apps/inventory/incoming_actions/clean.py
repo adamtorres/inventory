@@ -3,7 +3,7 @@ import json
 from django.utils import timezone
 from django.db import models
 
-from inventory import models as inv_models
+from .. import models as inv_models
 from scrap import utils
 
 

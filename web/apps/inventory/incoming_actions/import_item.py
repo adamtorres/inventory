@@ -1,4 +1,4 @@
-from inventory import models as inv_models
+from .. import models as inv_models
 
 
 def _do_import(batch_size=1):

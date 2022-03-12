@@ -1,7 +1,7 @@
 import json
 from django.db import models
 
-from inventory import models as inv_models
+from .. import models as inv_models
 
 
 def _do_calculate(batch_size=1):
