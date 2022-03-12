@@ -1,5 +1,6 @@
 import inspect
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import ImproperlyConfigured
 
 
 class DefaultPermissionMixin(PermissionRequiredMixin):
@@ -54,9 +55,13 @@ class DefaultPermissionMixin(PermissionRequiredMixin):
 
     def get_permission_required(self):
         default_permissions = set()
-        if hasattr(self, "model"):
+        if hasattr(self, "model") and getattr(self, "model"):
             default_permissions.update(self.build_permission_for_model(self.model))
-        if hasattr(self, "models"):
+        if hasattr(self, "models") and getattr(self, "models"):
+            if self.is_create() or self.is_update() or self.is_delete():
+                raise ImproperlyConfigured(
+                    f"{self.__class__.__name__} is based on Create, Update, or Delete views which require a single "
+                    f"model.")
             for model in self.models:
                 default_permissions.update(self.build_permission_for_model(model))
         manual_permissions = super().get_permission_required()
