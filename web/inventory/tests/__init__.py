@@ -1,1 +1,1 @@
-from .raw_state import AnimalTestCase
+from .raw_state import RawStateTestCase
