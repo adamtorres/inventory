@@ -7,7 +7,8 @@
     "description": "imported from file.  Nothing done.",
     "value": 0,
     "next_state": "87e71faa-6091-4443-98e9-0e0f5f84af93",
-    "next_error_state": "f0f9ae62-90c5-4be5-94f1-02c416ae0c31"
+    "next_error_state": "f0f9ae62-90c5-4be5-94f1-02c416ae0c31",
+    "failed": false
   }
 },
 {
@@ -18,7 +19,8 @@
     "description": "something could not be cleaned.",
     "value": 5,
     "next_state": "87e71faa-6091-4443-98e9-0e0f5f84af93",
-    "next_error_state": "f0f9ae62-90c5-4be5-94f1-02c416ae0c31"
+    "next_error_state": "f0f9ae62-90c5-4be5-94f1-02c416ae0c31",
+    "failed": true
   }
 },
 {
@@ -29,7 +31,8 @@
     "description": "lower-cased, typos?",
     "value": 10,
     "next_state": "c441659f-e9b1-4b9d-8f30-f271fb01c98a",
-    "next_error_state": "d2c4e54c-d03c-412f-a3f7-1fa445cb759b"
+    "next_error_state": "d2c4e54c-d03c-412f-a3f7-1fa445cb759b",
+    "failed": false
   }
 },
 {
@@ -40,7 +43,8 @@
     "description": "something prevented calculation.",
     "value": 25,
     "next_state": "c441659f-e9b1-4b9d-8f30-f271fb01c98a",
-    "next_error_state": "d2c4e54c-d03c-412f-a3f7-1fa445cb759b"
+    "next_error_state": "d2c4e54c-d03c-412f-a3f7-1fa445cb759b",
+    "failed": true
   }
 },
 {
@@ -51,7 +55,8 @@
     "description": "totals totalled.",
     "value": 30,
     "next_state": "dd020718-4e98-4897-b6a8-ce457ce89a89",
-    "next_error_state": "34a6dcd5-cfa1-44cc-8cff-17f97133994b"
+    "next_error_state": "34a6dcd5-cfa1-44cc-8cff-17f97133994b",
+    "failed": false
   }
 },
 {
@@ -62,7 +67,8 @@
     "description": "something broke the creation of supporting values.",
     "value": 35,
     "next_state": "dd020718-4e98-4897-b6a8-ce457ce89a89",
-    "next_error_state": "34a6dcd5-cfa1-44cc-8cff-17f97133994b"
+    "next_error_state": "34a6dcd5-cfa1-44cc-8cff-17f97133994b",
+    "failed": true
   }
 },
 {
@@ -73,7 +79,8 @@
     "description": "any new items/departments/categories are created.",
     "value": 40,
     "next_state": "a30ee7c7-f6fb-484a-becc-9018ffc1fd82",
-    "next_error_state": "8e77a481-0279-4e3a-8836-c37ee330691b"
+    "next_error_state": "8e77a481-0279-4e3a-8836-c37ee330691b",
+    "failed": false
   }
 },
 {
@@ -84,7 +91,8 @@
     "description": "something failed when doing the final import step.",
     "value": 45,
     "next_state": "a30ee7c7-f6fb-484a-becc-9018ffc1fd82",
-    "next_error_state": "8e77a481-0279-4e3a-8836-c37ee330691b"
+    "next_error_state": "8e77a481-0279-4e3a-8836-c37ee330691b",
+    "failed": true
   }
 },
 {
@@ -95,7 +103,8 @@
     "description": "nothing left to do.  The record has been completely imported.",
     "value": 50,
     "next_state": null,
-    "next_error_state": null
+    "next_error_state": null,
+    "failed": false
   }
 }
 ]

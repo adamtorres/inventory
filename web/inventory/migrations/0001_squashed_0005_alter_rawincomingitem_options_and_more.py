@@ -3,7 +3,6 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import scrap.fields.char_field
-import scrap.fields.decimal_field
 import scrap.fields.money_field
 import uuid
 

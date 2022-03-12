@@ -26,7 +26,7 @@ class RawIncomingItemManager(models.Manager):
     #     raise AttributeError(item)
 
     def failed(self):
-        return self.filter(state__in=RawState.objects.failed_states())
+        return self.filter(state__failed=True)
 
     def make_example_changes(self):
         self.filter(name__icontains="x").update(

@@ -5,16 +5,19 @@ from scrap import fields as sc_fields, models as sc_models
 
 class RawStateManager(models.Manager):
     def get_by_natural_key(self, value):
-        return self.get(value=value)
+        return self.prefetch_related('next_state').get(value=value)
 
     def get_by_action(self, action):
-        return self.get(name=self.model.action_to_state_name(action))
+        return self.prefetch_related('next_state').get(name=self.model.action_to_state_name(action))
 
     def get_by_name(self, name):
-        return self.get(name=name)
+        return self.prefetch_related('next_state').get(name=name)
+
+    def get_initial_state(self):
+        return self.prefetch_related('next_state').get(name=self.model.STATES_ORDER[0])
 
     def failed_states(self):
-        return self.filter(name__in=self.model.FAILED_STATES)
+        return self.prefetch_related('next_state').filter(failed=True)
 
     def done_state(self):
         return self.get(name=self.model.DONE_STATE)
@@ -31,6 +34,7 @@ class RawState(sc_models.UUIDModel):
         "RawState", on_delete=models.SET_NULL, related_name="prev_state", null=True, blank=True)
     next_error_state = models.ForeignKey(
         "RawState", on_delete=models.SET_NULL, related_name="reset_state", null=True, blank=True)
+    failed = models.BooleanField()
 
     objects = RawStateManager()
 
@@ -42,7 +46,7 @@ class RawState(sc_models.UUIDModel):
 
     STATES_ORDER = [
         "untouched", "cleaned", "calculated", "new_values_created", "done"]
-    FAILED_STATES = ["failed_clean", "failed_calculation", "failed_creation", "failed_import"]
+    # FAILED_STATES = ["failed_clean", "failed_calculation", "failed_creation", "failed_import"]
     DONE_STATE = "done"
 
     STATES_TO_ACTIONS = {
@@ -84,9 +88,7 @@ class RawState(sc_models.UUIDModel):
         return self.value < other.value
 
     @property
-    def next_action(self, retry_failed=False):
-        if not retry_failed and self.next_state in self.FAILED_STATES:
-            return None
+    def next_action(self):
         if self.next_state is None:
             return None
         next_action = self.STATES_TO_ACTIONS.get(self.next_state.name)
