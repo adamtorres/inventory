@@ -60,8 +60,6 @@ class DefaultPermissionMixin(PermissionRequiredMixin):
             for model in self.models:
                 default_permissions.update(self.build_permission_for_model(model))
         manual_permissions = super().get_permission_required()
-        combined_permissions = tuple(default_permissions.union(manual_permissions))
-        print(f"{self.__class__.__name__}:get_permission_required:manual_permissions = {manual_permissions!r}")
-        print(f"{self.__class__.__name__}:get_permission_required:default_permissions = {default_permissions!r}")
-        print(f"{self.__class__.__name__}:get_permission_required:combined_permissions = {combined_permissions!r}")
+        # Sorting the tuple so tests can depend on the returned order.
+        combined_permissions = tuple(sorted(default_permissions.union(manual_permissions)))
         return combined_permissions
