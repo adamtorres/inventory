@@ -10,4 +10,4 @@ class CharField(models.CharField):
         kwargs["null"] = kwargs.get("null", False)
         kwargs["blank"] = kwargs.get("blank", True)
         kwargs["default"] = kwargs.get("default", "")
-        super(CharField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

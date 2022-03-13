@@ -8,5 +8,6 @@ urlpatterns = [
     path('grappelli/', urls.include('grappelli.urls')),
     path('grappelli-docs/', urls.include('grappelli.urls_docs')), # grappelli docs URLS
     path('admin/', admin.site.urls),
-    # path('', generic.RedirectView.as_view(pattern_name="dashboard", permanent=False), name="homepage"),
+    path('inventory/', urls.include('inventory.urls', namespace="inventory")),
+    path('', generic.RedirectView.as_view(pattern_name="inventory:home", permanent=False), name="homepage"),
 ]
