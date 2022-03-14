@@ -8,6 +8,7 @@ class RawIncomingItemFilter(filters.FilterSet):
     min_price = filters.NumberFilter(field_name="total_price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="total_price", lookup_expr='lte')
     partial_name = filters.CharFilter(field_name="name", lookup_expr="icontains")
+    # TODO: Look into extending the date range choices
     delivery_date_range = filters.DateRangeFilter(field_name="delivery_date")
 
     class Meta:
@@ -15,9 +16,21 @@ class RawIncomingItemFilter(filters.FilterSet):
         fields = ['order_number', 'category', 'source', 'name', 'delivery_date', 'partial_name']
 
 
-class RawIncomingItemView(generics.ListAPIView):
+class APIRawIncomingItemListView(generics.ListAPIView):
     queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
     serializer_class = inv_serializers.RawIncomingItemSerializer
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingItemFilter
+
+
+class APIRawIncomingItemView(views.APIView):
+    queryset = inv_models.RawIncomingItem.objects.all()
+    model = inv_models.RawIncomingItem
+    serializer_class = inv_serializers.RawIncomingItemSerializer
+
+    def get(self, request, pk=None):
+        print(f"self.kwargs = {self.kwargs}")
+        qs = self.model.objects.get(id=pk)
+        qs_data = self.serializer_class(qs)
+        return response.Response(qs_data.data)
