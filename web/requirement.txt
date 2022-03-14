@@ -30,7 +30,9 @@ python-dateutil
 
 # mainly for the serializer
 djangorestframework
-# django-filter for if/when more user-driven filtering is desired.
+
+# for if/when more user-driven filtering is desired.
+django-filter
 
 # For models which reference themselves. ex RawState.next_state
 djangorestframework-recursive

@@ -1,22 +1,23 @@
-from rest_framework import renderers, response, views
+from django_filters import rest_framework as filters
+from rest_framework import renderers, response, views, generics
 
 from .. import models as inv_models, serializers as inv_serializers
 
 
-class BaseView(views.APIView):
-    model = None
-    serializer = None
+class RawIncomingItemFilter(filters.FilterSet):
+    min_price = filters.NumberFilter(field_name="total_price", lookup_expr='gte')
+    max_price = filters.NumberFilter(field_name="total_price", lookup_expr='lte')
+    partial_name = filters.CharFilter(field_name="name", lookup_expr="icontains")
+    delivery_date_range = filters.DateRangeFilter(field_name="delivery_date")
 
-    def get_queryset(self):
-        return self.model.objects.none()
-
-    def get(self, request, format=None):
-
-        qs = self.get_queryset().model.objects.all()[:5]
-        qs_data = self.serializer(qs, many=True)
-        return response.Response(qs_data.data)
+    class Meta:
+        model = inv_models.RawIncomingItem
+        fields = ['order_number', 'category', 'source', 'name', 'delivery_date', 'partial_name']
 
 
-class RawIncomingItemView(BaseView):
+class RawIncomingItemView(generics.ListAPIView):
+    queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
-    serializer = inv_serializers.RawIncomingItemSerializer
+    serializer_class = inv_serializers.RawIncomingItemSerializer
+    filter_backends = [filters.DjangoFilterBackend]
+    filter_class = RawIncomingItemFilter

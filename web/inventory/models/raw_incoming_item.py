@@ -15,7 +15,10 @@ class RawIncomingItemManager(models.Manager):
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
         separate query for every record.
         """
-        return super().get_queryset().select_related('state', 'state__next_state', 'state__next_error_state')
+        qs = super().get_queryset()
+        qs = qs.select_related('state', 'state__next_state', 'state__next_error_state')
+        # qs = qs.prefetch_related('state', 'state__next_state', 'state__next_error_state')
+        return qs
 
     # def __getattr__(self, item):
     #     ready_prefix = "ready_to_"
