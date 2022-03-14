@@ -4,7 +4,22 @@ from django import urls
 from django.views import generic
 
 from .. import models as inv_models, serializers as inv_serializers
-from .api_raw_incoming_item import APIRawIncomingItemListView
+
+
+class RawIncomingItemCreateView(generic.CreateView):
+    model = inv_models.RawIncomingItem
+    fields = [
+        "source", "department", "customer_number", "order_number", "po_text", "order_comment", "order_date",
+        "delivery_date", "total_price", "total_packs", "line_item_position", "category", "name", "ordered_quantity",
+        "delivered_quantity", "item_code", "extra_code", "unit_size", "total_weight", "pack_quantity", "pack_price",
+        "pack_tax", "extended_price", "item_comment", "scanned_image_filename", ]
+
+
+class RawIncomingItemDeleteView(generic.DeleteView):
+    model = inv_models.RawIncomingItem
+
+    def get_success_url(self):
+        return urls.reverse("inventory:rawincomingitem_list")
 
 
 class RawIncomingItemDetailView(generic.DetailView):
@@ -30,3 +45,12 @@ class RawIncomingItemListView(generic.TemplateView):
         # context['object_list'] = inv_serializers.RawIncomingItemSerializer(api_return_data['results'], many=True).data
         context['object_list'] = api_return_data['results']
         return context
+
+
+class RawIncomingItemUpdateView(generic.UpdateView):
+    model = inv_models.RawIncomingItem
+    fields = [
+        "source", "department", "customer_number", "order_number", "po_text", "order_comment", "order_date",
+        "delivery_date", "total_price", "total_packs", "line_item_position", "category", "name", "ordered_quantity",
+        "delivered_quantity", "item_code", "extra_code", "unit_size", "total_weight", "pack_quantity", "pack_price",
+        "pack_tax", "extended_price", "item_comment", "scanned_image_filename", ]

@@ -31,5 +31,10 @@
 <p>state = {{ object.state.name }}</p>
 <p>failure_reasons = {{ object.failure_reasons }}</p>
 
-<a href="{% url "inventory:rawincomingitem_list" %}">Back to listing</a>
+<ul>
+    <li><a href="{% url "inventory:rawincomingitem_update" pk=object.id %}">Edit</a></li>
+    <li><a href="{% url "inventory:rawincomingitem_delete" pk=object.id %}">Delete</a></li>
+    <li><a href="{% url "inventory:rawincomingitem_list" %}">Back to listing</a></li>
+</ul>
+
 {% endblock %}

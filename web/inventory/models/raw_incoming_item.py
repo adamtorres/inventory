@@ -1,6 +1,7 @@
 import functools
 import itertools
 
+from django import urls
 from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
 from django.db.models import functions
@@ -217,3 +218,6 @@ class RawIncomingItem(sc_models.DatedModel):
         if not include_default and (value == default_value):
             return self.__class__.objects.none()
         return self.__class__.objects.filter(**{f"{by_field}__iexact": value})
+
+    def get_absolute_url(self):
+        return urls.reverse("inventory:rawincomingitem_detail", kwargs={'pk': self.id})

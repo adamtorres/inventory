@@ -20,6 +20,9 @@
 {% endblock %}
 
 {% block content %}
+    <ul>
+        <li><a href="{% url "inventory:rawincomingitem_new" %}">New item</a></li>
+    </ul>
     <table id="item-list">
     <thead>
     <tr>
