@@ -19,7 +19,7 @@ class RawIncomingItemFilter(filters.FilterSet):
 class APIRawIncomingItemListView(generics.ListAPIView):
     queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
-    serializer_class = inv_serializers.RawIncomingItemSerializer
+    serializer_class = inv_serializers.HyperlinkedRawIncomingItemSerializer
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingItemFilter
 
@@ -27,10 +27,7 @@ class APIRawIncomingItemListView(generics.ListAPIView):
 class APIRawIncomingItemView(views.APIView):
     queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
-    serializer_class = inv_serializers.RawIncomingItemSerializer
+    serializer_class = inv_serializers.HyperlinkedRawIncomingItemSerializer
 
     def get(self, request, pk=None):
-        print(f"self.kwargs = {self.kwargs}")
-        qs = self.model.objects.get(id=pk)
-        qs_data = self.serializer_class(qs)
-        return response.Response(qs_data.data)
+        return response.Response(self.serializer_class(self.model.objects.get(id=pk), context={'request': request}).data)

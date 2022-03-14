@@ -5,6 +5,19 @@ from .. import models as inv_models
 from .raw_state import RawStateSerializer
 
 
+class HyperlinkedRawIncomingItemSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='inventory:api_rawincomingitem_detail',
+        lookup_field='pk'
+    )
+    # without this, the state is reduced to the value int.
+    state = RawStateSerializer()
+
+    class Meta:
+        model = inv_models.RawIncomingItem
+        fields = '__all__'
+
+
 class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
     source = sc_serializers.CharField()
     department = sc_serializers.CharField()
