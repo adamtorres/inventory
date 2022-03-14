@@ -11,6 +11,7 @@ class BaseView(views.APIView):
         return self.model.objects.none()
 
     def get(self, request, format=None):
+
         qs = self.get_queryset().model.objects.all()[:5]
         qs_data = self.serializer(qs, many=True)
         return response.Response(qs_data.data)

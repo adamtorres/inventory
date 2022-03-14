@@ -56,6 +56,7 @@ class Command(commands.Command):
 
         data["objects"].append(inv_models.RawIncomingItem(
             source=named_row.source,
+            customer_number=named_row.customer_number,
             department=named_row.department,
             order_number=named_row.order_number,
             po_text=named_row.po_text,
@@ -64,6 +65,9 @@ class Command(commands.Command):
             line_item_position=named_row.line_item_number,
             category=named_row.category,
             name=named_row.item_name,
+            item_code=named_row.item_code,
+            extra_code=named_row.extra_code,
+            unit_size=named_row.unit_size,
             ordered_quantity=named_row.quantity,
             delivered_quantity=named_row.quantity,
             total_weight=named_row.total_weight,

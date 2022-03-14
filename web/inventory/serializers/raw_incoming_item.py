@@ -7,10 +7,12 @@ from .raw_state import RawStateSerializer
 class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
     source = sc_serializers.CharField()
     department = sc_serializers.CharField()
+    customer_number = sc_serializers.CharField()
     order_number = sc_serializers.CharField()
     po_text = sc_serializers.CharField()
     order_comment = sc_serializers.CharField()
     order_date = serializers.DateField(allow_null=True)
+    delivery_date = serializers.DateField(allow_null=True)
     total_price = sc_serializers.MoneyField()
     total_packs = sc_serializers.DecimalField()
 
@@ -21,7 +23,9 @@ class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
 
     ordered_quantity = sc_serializers.DecimalField()
     delivered_quantity = sc_serializers.DecimalField()
-
+    item_code = sc_serializers.CharField()
+    extra_code = sc_serializers.CharField()
+    unit_size = sc_serializers.CharField()
     total_weight = sc_serializers.DecimalField()
     pack_quantity = sc_serializers.DecimalField()
     pack_price = sc_serializers.MoneyField()

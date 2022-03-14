@@ -153,6 +153,7 @@ class RawIncomingItem(sc_models.DatedModel):
     # Order info - duplicated for all line items within an order
     source = sc_fields.CharField(help_text="source name")
     department = sc_fields.CharField(help_text="department name")
+    customer_number = sc_fields.CharField()
     order_number = sc_fields.CharField(
         help_text="possibly unique text - some sources repeat or slightly modify this for back-ordered items")
     po_text = sc_fields.CharField(help_text="optional text on the invoice")
@@ -174,6 +175,9 @@ class RawIncomingItem(sc_models.DatedModel):
     # delivered = accepted.  Does not include damaged/rejected items.
     delivered_quantity = sc_fields.DecimalField()
 
+    item_code = sc_fields.CharField()
+    extra_code = sc_fields.CharField()
+    unit_size = sc_fields.CharField()
     total_weight = sc_fields.DecimalField()
     pack_quantity = sc_fields.DecimalField()
     pack_price = sc_fields.MoneyField()
@@ -199,3 +203,14 @@ class RawIncomingItem(sc_models.DatedModel):
 
     def __str__(self):
         return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}|{self.created}"
+
+    def find_similar(self, by_field='name', include_default=False):
+        value = getattr(self, by_field)
+        default_value = None
+        for f in self._meta.get_fields():
+            if f.name == by_field:
+                default_value = f.default
+                break
+        if not include_default and (value == default_value):
+            return self.__class__.objects.none()
+        return self.__class__.objects.filter(**{f"{by_field}__iexact": value})
