@@ -19,15 +19,25 @@ class RawIncomingItemFilter(filters.FilterSet):
 class APIRawIncomingItemListView(generics.ListAPIView):
     queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
-    serializer_class = inv_serializers.HyperlinkedRawIncomingItemSerializer
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingItemFilter
 
+    def get_serializer_class(self):
+        if self.request.query_params.get('format') == 'json':
+            return inv_serializers.RawIncomingItemSerializer
+        return inv_serializers.HyperlinkedRawIncomingItemSerializer
 
-class APIRawIncomingItemView(views.APIView):
+
+class APIRawIncomingItemDetailView(generics.GenericAPIView):
     queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
-    serializer_class = inv_serializers.HyperlinkedRawIncomingItemSerializer
+
+    def get_serializer_class(self):
+        if self.request.query_params.get('format') == 'json':
+            return inv_serializers.RawIncomingItemSerializer
+        return inv_serializers.HyperlinkedRawIncomingItemSerializer
 
     def get(self, request, pk=None):
-        return response.Response(self.serializer_class(self.model.objects.get(id=pk), context={'request': request}).data)
+        serializer_class = self.get_serializer_class()
+        obj = serializer_class(self.model.objects.get(id=pk), context={'request': request})
+        return response.Response(obj.data)
