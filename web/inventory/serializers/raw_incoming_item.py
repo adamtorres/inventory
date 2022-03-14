@@ -32,7 +32,6 @@ class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
     item_comment = sc_serializers.CharField()
     scanned_image_filename = sc_serializers.CharField()
     state = RawStateSerializer()
-    # state = serializers.SerializerMethodField()
     failure_reason = sc_serializers.CharField(allow_null=True, allow_blank=True)
 
     def update(self, instance, validated_data):
@@ -62,24 +61,10 @@ class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
         instance.extended_price = validated_data.get('extended_price', instance.extended_price)
         instance.item_comment = validated_data.get('item_comment', instance.item_comment)
         instance.scanned_image_filename = validated_data.get('scanned_image_filename', instance.scanned_image_filename)
-        # instance.state = validated_data.get('state', instance.state)
+        instance.state = validated_data.get('state', instance.state)
         instance.failure_reason = validated_data.get('failure_reason', instance.failure_reason)
         instance.save()
         return instance
 
     def create(self, validated_data):
         return inv_models.RawIncomingItem.objects.create(**validated_data)
-
-    def get_state(self, obj):
-        # TODO: This is just to get around the massive number of separate queries made when serializing a list
-        #  For some reason, the serializer doesn't use the select_related or prefetch_related.
-        ret = {
-            "name": obj.state.name,
-            "next_state": None,
-            "next_error_state": None,
-        }
-        if obj.state.next_state:
-            ret['next_state'] = obj.state.next_state.name
-        if obj.state.next_error_state:
-            ret['next_error_state'] = obj.state.next_error_state.name
-        return ret
