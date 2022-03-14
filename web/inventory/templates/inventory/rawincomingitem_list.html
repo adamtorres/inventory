@@ -2,10 +2,57 @@
 
 {% block title %}Item List{% endblock %}
 
+{% block styles %}
+<style>
+#item-list tr {
+}
+#item-list td {
+    margin: 0;
+    border-top: black solid 1px;
+}
+#item-list tr:last-child td {
+    border-bottom: black solid 1px;
+}
+#item-list tr[data-detail-url] {
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-    <ul>
+    <table id="item-list">
+    <thead>
+    <tr>
+        <th>delivery date</th>
+        <th>source</th>
+        <th>order number</th>
+        <th>line item position</th>
+        <th>name</th>
+        <th>delivered quantity</th>
+        <th>extended price</th>
+        <th>state</th>
+    </tr>
+    </thead>
+    <tbody>
     {% for item in object_list %}
-        <li><a href="{% url "inventory:rawincomingitem_detail" pk=item.id %}">{{ item.name }}</a></li>
+        <tr data-detail-url="{% url "inventory:rawincomingitem_detail" pk=item.id %}">
+            {% include "inventory/rawincomingitem_list_item.html" with item=item %}
+        </tr>
     {% endfor %}
-    </ul>
+    </tbody>
+    </table>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+// Get the table that contains all we want to work with.
+var el = document.getElementById('item-list');
+// Link all of the other cells in a row to take the user to the detail page.
+var link_trs = el.querySelectorAll('[data-detail-url]');
+for (var ltd_i=0, ltd_len=link_trs.length; ltd_i<ltd_len; ltd_i++) {
+    link_trs[ltd_i].onclick = function() {
+        window.location = this.attributes["data-detail-url"].value;
+    }
+}
+</script>
 {% endblock %}
