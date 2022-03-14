@@ -58,6 +58,17 @@ class RawIncomingItemManager(models.Manager):
         if items_to_update:
             self.bulk_update(items_to_update, fields=('state',))
 
+    def orders(self):
+        qs = self.values(
+            'source', 'department', 'customer_number', 'order_number', 'po_text', 'order_comment', 'order_date',
+            'delivery_date', 'total_price', 'total_packs')
+        qs = qs.annotate(
+            item_count=models.Count('id'),
+            item_ids=pg_agg.ArrayAgg('id'),
+        )
+        qs = qs.order_by('delivery_date', 'source', 'order_number', )
+        return qs
+
     def ready_to_calculate(self):
         """
         step 2ish
@@ -203,7 +214,7 @@ class RawIncomingItem(sc_models.DatedModel):
     non_input_fields = ['state', 'failure_reasons', 'created', 'modified', 'id']
 
     class Meta:
-        ordering = ("delivery_date", "source", "line_item_position")
+        ordering = ("delivery_date", "source", "order_number", "line_item_position")
 
     def __str__(self):
         return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}|{self.created}"

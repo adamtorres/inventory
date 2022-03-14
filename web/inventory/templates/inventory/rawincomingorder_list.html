@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Order List{% endblock %}
+
+{% block content %}
+    <table id="item-list">
+    <thead>
+    <tr>
+        <th>delivery date</th>
+        <th>source</th>
+        <th>order number</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in object_list %}
+        <tr data-detail-url="">
+            <td>{{ order.delivery_date }}</td>
+            <td>{{ order.source }}</td>
+            <td>{{ order.order_number }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+{% endblock %}
