@@ -11,11 +11,7 @@ class RawIncomingItemDetailView(generic.DetailView):
     model = inv_models.RawIncomingItem
 
 
-class RawIncomingItemListView(generic.ListView):
-    model = inv_models.RawIncomingItem
-
-
-class RawIncomingItemListViewAlt(generic.TemplateView):
+class RawIncomingItemListView(generic.TemplateView):
     template_name = "inventory/rawincomingitem_list.html"
 
     def get_context_data(self, **kwargs):
