@@ -6,17 +6,33 @@
     <table id="item-list">
     <thead>
     <tr>
-        <th>delivery date</th>
         <th>source</th>
+        <th>department</th>
+        <th>customer number</th>
         <th>order number</th>
+        <th>po text</th>
+        <th>order comment</th>
+        <th>order date</th>
+        <th>delivery date</th>
+        <th>total price</th>
+        <th>total packs</th>
+        <th>item count</th>
     </tr>
     </thead>
     <tbody>
     {% for order in object_list %}
         <tr data-detail-url="">
-            <td>{{ order.delivery_date }}</td>
             <td>{{ order.source }}</td>
+            <td>{{ order.department }}</td>
+            <td>{{ order.customer_number }}</td>
             <td>{{ order.order_number }}</td>
+            <td>{{ order.po_text }}</td>
+            <td>{{ order.order_comment }}</td>
+            <td>{{ order.order_date }}</td>
+            <td>{{ order.delivery_date }}</td>
+            <td>{{ order.total_price }}</td>
+            <td>{{ order.total_packs }}</td>
+            <td>{{ order.item_count }}</td>
         </tr>
     {% endfor %}
     </tbody>

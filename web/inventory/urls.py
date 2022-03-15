@@ -9,8 +9,12 @@ app_name = "inventory"
 urlpatterns = [
     urls.path("api_rawincomingorders/", i_views.APIRawIncomingOrderListView.as_view(), name="api_rawincomingorder_list"),
     urls.path("api_rawincomingorder/<uuid:pk>/", i_views.APIRawIncomingOrderDetailView.as_view(), name="api_rawincomingorder_detail"),
+
     urls.path("api_rawincomingitems/", i_views.APIRawIncomingItemListView.as_view(), name="api_rawincomingitem_list"),
     urls.path("api_rawincomingitem/<uuid:pk>/", i_views.APIRawIncomingItemDetailView.as_view(), name="api_rawincomingitem_detail"),
+
+    urls.path("rawincomingorders/", i_views.RawIncomingOrderListView.as_view(), name="rawincomingorder_list"),
+    urls.path("rawincomingorder/<uuid:pk>/", i_views.RawIncomingOrderDetailView.as_view(), name="rawincomingorder_detail"),
 
     urls.path("rawincomingitems/", i_views.RawIncomingItemListView.as_view(), name="rawincomingitem_list"),
     urls.path("rawincomingitem/new/", i_views.RawIncomingItemCreateView.as_view(), name="rawincomingitem_new"),
