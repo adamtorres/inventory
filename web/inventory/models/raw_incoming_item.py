@@ -58,7 +58,7 @@ class RawIncomingItemManager(models.Manager):
         if items_to_update:
             self.bulk_update(items_to_update, fields=('state',))
 
-    def orders(self):
+    def orders(self, item_id=None):
         qs = self.values(
             'source', 'department', 'customer_number', 'order_number', 'po_text', 'order_comment', 'order_date',
             'delivery_date', 'total_price', 'total_packs')
@@ -67,6 +67,12 @@ class RawIncomingItemManager(models.Manager):
             item_ids=pg_agg.ArrayAgg('id'),
         )
         qs = qs.order_by('delivery_date', 'source', 'order_number', )
+
+        if item_id:
+            item = self.get(id=item_id)
+            qs = qs.filter(
+                models.Q(delivery_date=item.delivery_date, source=item.source, order_number=item.order_number))
+
         return qs
 
     def ready_to_calculate(self):

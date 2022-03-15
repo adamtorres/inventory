@@ -81,3 +81,23 @@ class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
 
     def create(self, validated_data):
         return inv_models.RawIncomingItem.objects.create(**validated_data)
+
+
+class RawIncomingItemInOrderSerializer(sc_serializers.DatedModelSerializer):
+    line_item_position = serializers.IntegerField(allow_null=True)
+    category = sc_serializers.CharField(allow_blank=False)
+    name = sc_serializers.CharField(allow_blank=False)
+    ordered_quantity = sc_serializers.DecimalField()
+    delivered_quantity = sc_serializers.DecimalField()
+    item_code = sc_serializers.CharField()
+    extra_code = sc_serializers.CharField()
+    unit_size = sc_serializers.CharField()
+    total_weight = sc_serializers.DecimalField()
+    pack_quantity = sc_serializers.DecimalField()
+    pack_price = sc_serializers.MoneyField()
+    pack_tax = sc_serializers.MoneyField()
+    extended_price = sc_serializers.MoneyField()
+    item_comment = sc_serializers.CharField()
+    scanned_image_filename = sc_serializers.CharField()
+    state = RawStateSerializer()
+    failure_reason = sc_serializers.CharField(allow_null=True, allow_blank=True)

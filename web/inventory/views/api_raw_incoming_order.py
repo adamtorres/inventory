@@ -17,14 +17,12 @@ class RawIncomingOrderFilter(filters.FilterSet):
         fields = ['delivery_date', 'source', 'order_number', 'category', 'name', 'partial_name']
 
     def filter_queryset(self, queryset):
-        print(f"RawIncomingOrderFilter.filter_queryset")
         qs = super().filter_queryset(queryset)
         qs = qs.distinct('delivery_date', 'source', 'order_number')
         order_filter = models.Q()
         for order in qs:
             order_filter = order_filter | models.Q(
                 delivery_date=order.delivery_date, source=order.source, order_number=order.order_number)
-        print(f"order_filter = {order_filter}")
         return self.Meta.model.objects.orders().filter(order_filter)
 
 
@@ -39,3 +37,22 @@ class APIRawIncomingOrderListView(generics.ListAPIView):
             # TODO: a hyperlinked order serializer
             return inv_serializers.RawIncomingOrderSerializer
         return inv_serializers.RawIncomingOrderSerializer
+
+
+class APIRawIncomingOrderDetailView(generics.GenericAPIView):
+    queryset = inv_models.RawIncomingItem.objects.orders()
+    model = inv_models.RawIncomingItem
+
+    def get_serializer_class(self):
+        if self.request.query_params.get('format') == 'json':
+            return inv_serializers.RawIncomingOrderSerializer
+        return inv_serializers.RawIncomingOrderSerializer
+
+    def get_object(self):
+        return self.model.objects.orders(item_id=self.kwargs.get('pk')).first()
+
+    def get(self, request, pk=None):
+        serializer_class = self.get_serializer_class()
+        order = self.get_object()
+        obj = serializer_class(order, context={'request': request}, include_items=True)
+        return response.Response(obj.data)
