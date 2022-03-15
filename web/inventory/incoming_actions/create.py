@@ -12,6 +12,8 @@ def _do_create(batch_size=1):
 
     sources = create_sources(qs)
     print(f"do_create created {len(sources)} sources: {sources}")
+    assigned_source_count = assign_sources(qs)
+    print(f"do_create assigned {assigned_source_count} sources")
     departments = create_departments(qs)
     print(f"do_create created {len(departments)} departments: {departments}")
     categories = create_categories(qs)
@@ -23,6 +25,14 @@ def _do_create(batch_size=1):
         item.state = item.state.next_state
         items_to_update.append(item)
     return items_to_update, fields_to_update
+
+
+def assign_sources(qs):
+    results = []
+    for source in inv_models.Source.objects.active_sources():
+        ret = qs.filter(source=source.name).update(source_obj=source)
+        results.append(ret)
+    return sum(results)
 
 
 def create_things(qs, model, manager_func_name, raw_field):

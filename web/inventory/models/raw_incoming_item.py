@@ -264,6 +264,8 @@ class RawIncomingItem(sc_models.DatedModel):
     reports = RawIncomingItemReportManager()
     non_input_fields = ['state', 'failure_reasons', 'created', 'modified', 'id']
 
+    source_obj = models.ForeignKey(Source, on_delete=models.CASCADE, null=True)
+
     class Meta:
         ordering = ("delivery_date", "source", "order_number", "line_item_position")
 

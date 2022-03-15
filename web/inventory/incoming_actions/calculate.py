@@ -12,7 +12,7 @@ def _do_calculate(batch_size=1):
         return [], set()
     for order_qs in inv_models.RawIncomingItem.objects.ready_to_calculate():
         print("=" * 120)
-        next_state = inv_models.RawState.objects.get_by_action('calculate').next_state
+        next_state = inv_models.RawState.objects.get_by_action('calculate')
         sums = order_qs.aggregate(
             sum_total_packs=models.Sum('delivered_quantity'),
             sum_extended_price=models.Sum('extended_price'),
