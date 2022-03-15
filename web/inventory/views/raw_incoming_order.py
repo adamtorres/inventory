@@ -4,6 +4,7 @@ from django import urls
 from django.views import generic
 
 from .. import models as inv_models, serializers as inv_serializers
+from .api_raw_incoming_order import RawIncomingOrderFilter
 
 
 class RawIncomingOrderDetailView(generic.TemplateView):
@@ -29,9 +30,13 @@ class RawIncomingOrderListView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['object_list'] = []
-
         # copy any GET args for the api except 'format' as that will be forced to json
-        api_get_data = {k: v for k, v in self.request.GET.items() if k != "format"}
+        api_get_data = {k: v for k, v in self.request.GET.items() if k in RawIncomingOrderFilter.Meta.fields}
+        if "reset" in self.request.GET:
+            self.request.session["order_filters"] = {}
+        if not api_get_data:
+            api_get_data = self.request.session.get("order_filters") or {}
+        self.request.session["order_filters"] = api_get_data.copy()
         api_get_data['format'] = 'json'
         api_url = self.request.build_absolute_uri(urls.reverse("inventory:api_rawincomingorder_list"))
         resp = requests.get(api_url, params=api_get_data)

@@ -2,8 +2,28 @@
 
 {% block title %}Order List{% endblock %}
 
+{% block styles %}
+<style>
+#order-list tr {
+}
+#order-list td {
+    margin: 0;
+    border-top: black solid 1px;
+}
+#order-list tr:last-child td {
+    border-bottom: black solid 1px;
+}
+#order-list tr[data-detail-url] {
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-    <table id="item-list">
+    <ul>
+    <li><a href="{% url "inventory:rawincomingorder_list" %}?reset">reset filters</a></li>
+    </ul>
+    <table id="order-list">
     <thead>
     <tr>
         <th>source</th>
@@ -21,7 +41,7 @@
     </thead>
     <tbody>
     {% for order in object_list %}
-        <tr data-detail-url="">
+        <tr data-detail-url="{% url "inventory:rawincomingorder_detail" pk=order.item_ids.0 %}">
             <td>{{ order.source }}</td>
             <td>{{ order.department }}</td>
             <td>{{ order.customer_number }}</td>
@@ -38,4 +58,18 @@
     </tbody>
     </table>
 
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+// Get the table that contains all we want to work with.
+var el = document.getElementById('order-list');
+// Link all of the other cells in a row to take the user to the detail page.
+var link_trs = el.querySelectorAll('[data-detail-url]');
+for (var ltd_i=0, ltd_len=link_trs.length; ltd_i<ltd_len; ltd_i++) {
+    link_trs[ltd_i].onclick = function() {
+        window.location = this.attributes["data-detail-url"].value;
+    }
+}
+</script>
 {% endblock %}
