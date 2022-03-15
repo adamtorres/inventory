@@ -39,3 +39,6 @@ djangorestframework-recursive
 
 # for making calls to the api from within code
 requests
+
+# TODO: django-model-utils looks to have some neat things.  Even has UUIDModel and TimeStampModels which are similar to
+#  what I have in scrap.models.

@@ -4,13 +4,49 @@ import itertools
 from django import urls
 from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
+from django.db.models import base as models_base
 from django.db.models import functions
 
 from scrap import models as sc_models, fields as sc_fields
+from .category import Category
+from .department import Department
 from .raw_state import RawState
+from .source import Source
 
 
 class RawIncomingItemManager(models.Manager):
+    def _limit_state(self, qs, limit_state):
+        """
+        Used by a variety of querysets to limit by RawState in a flexible manner.
+
+        limit_state can be a single RawState, a Queryset returning RawState(s), or a custom Q filter.
+        """
+        if isinstance(limit_state, RawState):
+            qs = qs.filter(state=limit_state)
+        if isinstance(limit_state, models.QuerySet):
+            qs = qs.filter(state__in=limit_state)
+        if isinstance(limit_state, models.Q):
+            qs = qs.filter(limit_state)
+        return qs
+
+    def _distinct_things(self, field, thing, limit_state=None, qs=None, only_new=False):
+        """
+        field = a field name in the set to be filtered - 'source', 'category', etc
+        thing = model of the filtered name - Source, Category, etc
+        """
+        qs = (qs or self).values(field).distinct(field)
+        qs = self._limit_state(qs, limit_state)
+        if only_new and isinstance(thing, models_base.ModelBase):
+            filter_kwarg = {f"{field}__in": thing.objects.all().values_list('name', flat=True)}
+            qs = qs.exclude(**filter_kwarg)
+        return qs.order_by(field)
+
+    def categories(self, limit_state=None, qs=None, only_new=False):
+        return self._distinct_things('category', Category, limit_state=limit_state, qs=qs, only_new=only_new)
+
+    def departments(self, limit_state=None, qs=None, only_new=False):
+        return self._distinct_things('department', Department, limit_state=limit_state, qs=qs, only_new=only_new)
+
     def get_queryset(self):
         """
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
@@ -127,6 +163,15 @@ class RawIncomingItemManager(models.Manager):
 
     def reset_all(self):
         self.all().update(state=RawState.objects.get(value=0), failure_reasons=None)
+
+    def sources(self, limit_state=None, qs=None, only_new=False):
+        """
+        limit_state can be a single RawState, a Queryset returning RawState(s), or a custom Q filter.
+
+        To get sources from records that are ready to create such and not dig through the entire table,
+        RawIncomingItem.objects.sources(qs=RawIncomingItem.objects.ready_to_create())
+        """
+        return self._distinct_things('source', Source, limit_state=limit_state, qs=qs, only_new=only_new)
 
 
 class RawIncomingItemReportManager(models.Manager):
