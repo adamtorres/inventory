@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Raw Incoming Item Lookup{% endblock %}
+
+{% block styles %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+Raw Incoming Item Lookup
+<hr />
+<p>Sources</p>
+<ul>
+    {% for source in sources %}
+        <li>{{ source.name }}</li>
+    {% endfor %}
+</ul>
+<hr />
+<p>Categories</p>
+<ul>
+    {% for category in categories %}
+        <li>{{ category.name }}</li>
+    {% endfor %}
+</ul>
+<hr />
+<p>Departments</p>
+<ul>
+    {% for department in departments %}
+        <li>{{ department.name }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+</script>
+{% endblock %}

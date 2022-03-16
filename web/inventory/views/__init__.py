@@ -4,3 +4,4 @@ from .raw_incoming_item import (
     RawIncomingItemCreateView, RawIncomingItemDeleteView, RawIncomingItemDetailView, RawIncomingItemListView,
     RawIncomingItemUpdateView)
 from .raw_incoming_order import RawIncomingOrderDetailView, RawIncomingOrderListView
+from .raw_incoming_item_lookup import RawIncomingItemLookupView
