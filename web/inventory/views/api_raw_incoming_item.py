@@ -22,6 +22,11 @@ class APIRawIncomingItemListView(generics.ListAPIView):
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingItemFilter
 
+    def paginate_queryset(self, qs):
+        if self.request.query_params.get('paging') == 'off':
+            return None
+        return super().paginate_queryset(qs)
+
     def get_serializer_class(self):
         if self.request.query_params.get('format') == 'json':
             return inv_serializers.RawIncomingItemSerializer

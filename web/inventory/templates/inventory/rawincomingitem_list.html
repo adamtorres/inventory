@@ -4,18 +4,6 @@
 
 {% block styles %}
 <style>
-#item-list tr {
-}
-#item-list td {
-    margin: 0;
-    border-top: black solid 1px;
-}
-#item-list tr:last-child td {
-    border-bottom: black solid 1px;
-}
-#item-list tr[data-detail-url] {
-    cursor: pointer;
-}
 </style>
 {% endblock %}
 
@@ -23,16 +11,16 @@
     <ul>
         <li><a href="{% url "inventory:rawincomingitem_new" %}">New item</a></li>
     </ul>
-    <table id="item-list">
+    <table class="datatable datatable-link" id="item-list">
     <thead>
     <tr>
-        <th>delivery date</th>
+        <th class="right-align">delivery date</th>
         <th>source</th>
-        <th>order number</th>
-        <th>line item position</th>
+        <th class="right-align">order number</th>
+        <th class="right-align">line item position</th>
         <th>name</th>
-        <th>delivered quantity</th>
-        <th>extended price</th>
+        <th class="right-align">delivered quantity</th>
+        <th class="right-align">extended price</th>
         <th>state</th>
     </tr>
     </thead>

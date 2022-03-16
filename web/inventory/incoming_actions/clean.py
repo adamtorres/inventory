@@ -143,20 +143,20 @@ class ItemCleaner(object):
                 'failure': 'delivered_quantity > 0 but pack_price is 0'})
 
         if self.item.total_weight and self.item.extended_price:
-            difference = (self.item.total_weight * self.item.pack_price) - self.item.extended_price
+            difference = (self.item.total_weight * self.item.pack_price + self.item.pack_tax) - self.item.extended_price
             if abs(difference) > 1.0:
                 # Many weight calculations are not very accurate.  Assumption is the amounts on the invoice have been
                 # rounded which make the recalculations off by less than $1.  most are less than $0.17.
                 self.failures.append({
                     'fields': ['total_weight', 'pack_price', 'extended_price'], 'method': utils.get_function_name(),
-                    'failure': 'total_weight * pack_price != extended_price', 'difference': difference,
+                    'failure': 'total_weight * pack_price + pack_tax != extended_price', 'difference': difference,
                 })
         if not self.item.total_weight and self.item.extended_price:
-            if self.item.delivered_quantity * self.item.pack_price != self.item.extended_price:
+            if (self.item.delivered_quantity * self.item.pack_price + self.item.pack_tax) != self.item.extended_price:
                 self.failures.append({
                     'fields': ['ordered_quantity', 'delivered_quantity', 'pack_price', 'extended_price'],
                     'method': utils.get_function_name(),
-                    'failure': 'delivered_quantity * pack_price != extended_price',
+                    'failure': 'delivered_quantity * pack_price + pack_tax != extended_price',
                     'difference': (self.item.delivered_quantity * self.item.pack_price) - self.item.extended_price
                 })
 

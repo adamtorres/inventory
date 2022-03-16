@@ -33,7 +33,6 @@ class APIRawIncomingOrderListView(generics.ListAPIView):
     filter_class = RawIncomingOrderFilter
 
     def paginate_queryset(self, qs):
-        print(f"APIRawIncomingOrderListView.paginate_queryset: query_params = {self.request.query_params}")
         if self.request.query_params.get('paging') == 'off':
             return None
         return super().paginate_queryset(qs)
