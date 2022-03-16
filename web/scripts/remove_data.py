@@ -3,14 +3,7 @@ from inventory import models as inv_models
 
 def show_counts(tag):
     print(f"removing data {tag}:")
-    print(":RawIncomingItem by state")
-    inv_models.RawIncomingItem.reports.console_group_by_current_state()
-    print(f":RawIncomingItem = {inv_models.RawIncomingItem.objects.count()}")
-    print(f":RawItem = {inv_models.RawItem.objects.count()}")
-    print(f":CommonItemName = {inv_models.CommonItemName.objects.count()}")
-    print(f":Categories = {inv_models.Category.objects.count()}")
-    print(f":Source = {inv_models.Source.objects.count()}")
-    print(f":Department = {inv_models.Department.objects.count()}")
+    inv_models.console_show_counts()
     print()
 
 

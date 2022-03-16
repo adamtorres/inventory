@@ -19,8 +19,9 @@ class RawItem(sc_models.DatedModel):
     extra_code = sc_fields.CharField()
     item_comment = sc_fields.CharField(help_text="Anything noteworthy about this item")
 
-    # Primary common item name
-    common_item_name = models.ForeignKey("inventory.CommonItemName", on_delete=models.SET_NULL, null=True, blank=True)
+    # Primary common item name group
+    common_item_name_group = models.ForeignKey(
+        "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         constraints = [
