@@ -98,8 +98,8 @@ def create_departments(qs):
 def create_raw_items(qs):
     manager_func_name = 'items'
     model = inv_models.RawItem
-    raw_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code', 'extra_code']
-    new_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code', 'extra_code']
+    raw_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
+    new_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
 
     manager_func = getattr(inv_models.RawIncomingItem.objects, manager_func_name)
     objs_to_create = []

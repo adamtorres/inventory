@@ -74,7 +74,7 @@ class RawIncomingItemManager(models.Manager):
         return qs
 
     def items(self, limit_state=None, qs=None, only_new=False):
-        fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code', 'extra_code']
+        fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code']
         qs = (qs or self).values(*fields)
         qs = qs.distinct(*fields)
         qs = self._limit_state(qs, limit_state)
@@ -92,7 +92,6 @@ class RawIncomingItemManager(models.Manager):
                 "unit_size": item["unit_size"],
                 "pack_quantity": item["pack_quantity"],
                 "item_code": item["item_code"],
-                "extra_code": item["extra_code"],
             })
         return qs_list
 

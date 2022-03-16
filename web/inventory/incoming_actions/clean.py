@@ -169,7 +169,7 @@ def validate_item_combos(qs):
     """
     print("do_clean:validate_item_combos")
     short_list = ['source', 'name', 'unit_size', 'pack_quantity']
-    long_list = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code', 'extra_code']
+    long_list = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code',]
     # long_count = qs.distinct(*long_list).count()
     # short_count = qs.distinct(*short_list).count()
     # if long_count == short_count:
@@ -209,6 +209,7 @@ def validate_item_combos(qs):
 
 def console_report_on_failed_validate_item_combos():
     qs = inv_models.RawIncomingItem.objects.failed(method='validate_item_combos')
+    qs = qs.order_by('source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code', 'extra_code')
     fields = [
         ('id', 'rjust'), ('source', 'ljust'), ('name', 'ljust'), ('unit_size', 'rjust'), ('pack_quantity', 'rjust'),
         ('category', 'ljust'), ('item_code', 'rjust'), ('extra_code', 'rjust')]

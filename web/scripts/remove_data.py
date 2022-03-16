@@ -5,6 +5,7 @@ def show_counts(tag):
     print(f"removing data {tag}:")
     print(":RawIncomingItem by state")
     inv_models.RawIncomingItem.reports.console_group_by_current_state()
+    print(f":RawIncomingItem = {inv_models.RawIncomingItem.objects.count()}")
     print(f":RawItem = {inv_models.RawItem.objects.count()}")
     print(f":CommonItemName = {inv_models.CommonItemName.objects.count()}")
     print(f":Categories = {inv_models.Category.objects.count()}")
@@ -13,9 +14,11 @@ def show_counts(tag):
     print()
 
 
-def run():
+def run(*args):
     print()
     show_counts("before")
+    if 'truncate' in args:
+        inv_models.RawIncomingItem.objects.all().delete()
     inv_models.RawIncomingItem.objects.reset_all()
     # inv_models.RawIncomingItem.objects.all().update(state=inv_models.RawState.objects.get_by_action('calculate'))
     inv_models.RawItem.objects.all().delete()
