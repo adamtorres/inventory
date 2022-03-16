@@ -12,7 +12,8 @@ class RawItem(sc_models.DatedModel):
     unit_size = sc_fields.CharField()
     pack_quantity = sc_fields.DecimalField()
 
-    category = sc_fields.CharField(blank=False, help_text="meat, dairy, produce, etc.")
+    category = models.ForeignKey(
+        "inventory.Category", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items")
     better_name = sc_fields.CharField(help_text="Less cryptic item name")
     item_code = sc_fields.CharField()
     extra_code = sc_fields.CharField()
@@ -26,3 +27,11 @@ class RawItem(sc_models.DatedModel):
             models.UniqueConstraint(
                 'source', 'name', 'unit_size', 'pack_quantity', name='source-name-unit_size-pack_quantity'),
         ]
+
+    def __str__(self):
+        tmp = f"{self.source}, {self.name}"
+        if self.pack_quantity != 1:
+            tmp += f", {self.pack_quantity}"
+        if self.unit_size:
+            tmp += f", {self.unit_size}"
+        return tmp

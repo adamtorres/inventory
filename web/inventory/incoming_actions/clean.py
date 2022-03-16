@@ -1,3 +1,4 @@
+import collections
 import json
 
 from django.utils import timezone
@@ -23,6 +24,20 @@ def _do_clean(batch_size=0):
         fields_to_update.update(cleaner.clean(item))
         items_to_update.append(item)
         cleaner.clear()
+    problem_items = validate_item_combos(qs)
+
+    # intersection returns items from the right when they match items from the left.
+    # Use that to pick out the problem items and combine with existing failure_reasons.
+    items_to_add_to_failure_reasons = list(set(problem_items).intersection(items_to_update))
+    for item in items_to_add_to_failure_reasons:
+        problem_item = problem_items.pop(problem_items.index(item))
+        failure_reasons = []
+        if item.failure_reasons:
+            failure_reasons.extend(json.loads(item.failure_reasons))
+        failure_reasons.extend(json.loads(problem_item.failure_reasons))
+        item.failure_reasons = json.dumps(failure_reasons, sort_keys=True, default=str)
+        item.state = problem_item.state
+
     print(f"do_clean: items_to_update={len(items_to_update)}, fields_to_update={fields_to_update}")
     return items_to_update, fields_to_update
 
@@ -62,7 +77,6 @@ class ItemCleaner(object):
 
         if self.failures:
             item.state = item.state.next_error_state
-            print(self.failures)
             item.failure_reasons = json.dumps(self.failures, sort_keys=True, default=str)
             self.updated_fields.update(['state', 'failure_reasons'])
         else:
@@ -145,3 +159,49 @@ class ItemCleaner(object):
                     'failure': 'delivered_quantity * pack_price != extended_price',
                     'difference': (self.item.delivered_quantity * self.item.pack_price) - self.item.extended_price
                 })
+
+
+def validate_item_combos(qs):
+    """
+    This needs to see a lot of records as it needs to check if the combination of fields that make up an item differs
+    in fields outside source/name/unit_size/pack_quantity.  This is because the creation method currently uses distinct
+    on all of those fields plus category, item_code, and extra_code.
+    """
+    print("do_clean:validate_item_combos")
+    short_list = ['source', 'name', 'unit_size', 'pack_quantity']
+    long_list = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code', 'extra_code']
+    # long_count = qs.distinct(*long_list).count()
+    # short_count = qs.distinct(*short_list).count()
+    # if long_count == short_count:
+    #     return
+    # qs.values(*short_list).annotate(count=models.Count('id'))
+    long_qs = qs.values(*long_list).annotate(count=models.Count('id')).order_by(*long_list)
+    item_count = collections.defaultdict(int)
+    problems = set()
+    for item in long_qs:
+        item_key = f"{item['source']}|{item['name']}|{item['unit_size']}|{item['pack_quantity']}"
+        item_count[item_key] += 1
+        if item_count[item_key] > 1:
+            problems.add(item_key)
+    # if len(item_count) != short_count:
+    #     print(f"!!! len(item_count)/{len(item_count)} != short_count/{short_count}")
+    problem_items = []
+    if not problems:
+        # print(f"no problems?  then why didn't long_count/{long_count} == short_count/{short_count}?")
+        print("no problems?")
+    else:
+        print(f"len(problems) = {len(problems)}")
+        problem_filter = models.Q()
+        for item_key in problems:
+            key_bits = item_key.split('|')
+            problem_filter = problem_filter | models.Q(
+                source=key_bits[0], name=key_bits[1], unit_size=key_bits[2], pack_quantity=key_bits[3])
+        failed_items = inv_models.RawIncomingItem.objects.filter(problem_filter)
+        for item in failed_items:
+            item.state = item.state.next_error_state
+            item.failure_reasons = json.dumps([{
+                'fields': ['source', 'name', 'unit_size', 'pack_quantity'], 'method': utils.get_function_name(),
+                'failure': 'item combo dupes when including category/item_code/extra_code'}],
+                sort_keys=True, default=str)
+            problem_items.append(item)
+    return problem_items

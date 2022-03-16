@@ -15,10 +15,11 @@ def update_item_state(list_of_items, fields_to_update, batch_size=100):
 
 
 def do_all_actions(batch_size=1):
-    do_clean(batch_size=batch_size)
-    do_calculate(batch_size=batch_size)
-    do_create(batch_size=batch_size)
-    do_import(batch_size=batch_size)
+    # batch_size is being ignored at the moment.  Might remove later.
+    do_clean(batch_size=0)
+    do_calculate(batch_size=2000)
+    do_create(batch_size=0)
+    do_import(batch_size=2000)
 
 
 def do_calculate(batch_size=1):

@@ -10,6 +10,7 @@ from django.db.models import functions
 from scrap import models as sc_models, fields as sc_fields
 from .category import Category
 from .department import Department
+from .raw_item import RawItem
 from .raw_state import RawState
 from .source import Source
 
@@ -34,6 +35,7 @@ class RawIncomingItemManager(models.Manager):
         field = a field name in the set to be filtered - 'source', 'category', etc
         thing = model of the filtered name - Source, Category, etc
         """
+        # TODO: should this be expanded to handle multiple fields?  RawItem uses 4 fields.
         qs = (qs or self).values(field).distinct(field)
         qs = self._limit_state(qs, limit_state)
         if only_new and isinstance(thing, models_base.ModelBase):
@@ -67,6 +69,29 @@ class RawIncomingItemManager(models.Manager):
 
     def failed(self):
         return self.filter(state__failed=True)
+
+    def items(self, limit_state=None, qs=None, only_new=False):
+        fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code', 'extra_code']
+        qs = (qs or self).values(*fields)
+        qs = qs.distinct(*fields)
+        qs = self._limit_state(qs, limit_state)
+        if only_new:
+            qs = qs.exclude(rawitem_obj__isnull=False)
+        qs = qs.order_by(*fields)
+        source_cache = {obj.id: obj for obj in Source.objects.all()}
+        category_cache = {obj.id: obj for obj in Category.objects.all()}
+        qs_list = []
+        for item in qs:
+            qs_list.append({
+                "source": source_cache[item["source_obj"]],
+                "category": category_cache[item["category_obj"]],
+                "name": item["name"],
+                "unit_size": item["unit_size"],
+                "pack_quantity": item["pack_quantity"],
+                "item_code": item["item_code"],
+                "extra_code": item["extra_code"],
+            })
+        return qs_list
 
     def make_example_changes(self):
         self.filter(name__icontains="x").update(
@@ -162,7 +187,9 @@ class RawIncomingItemManager(models.Manager):
         return self.filter(state__next_state__name=state_name)
 
     def reset_all(self):
-        self.all().update(state=RawState.objects.get(value=0), failure_reasons=None)
+        self.all().update(
+            state=RawState.objects.get(value=0), failure_reasons=None,
+            source_obj=None, category_obj=None, department_obj=None)
 
     def sources(self, limit_state=None, qs=None, only_new=False):
         """
@@ -265,6 +292,9 @@ class RawIncomingItem(sc_models.DatedModel):
     non_input_fields = ['state', 'failure_reasons', 'created', 'modified', 'id']
 
     source_obj = models.ForeignKey(Source, on_delete=models.CASCADE, null=True)
+    category_obj = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    department_obj = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
+    rawitem_obj = models.ForeignKey(RawItem, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ("delivery_date", "source", "order_number", "line_item_position")
