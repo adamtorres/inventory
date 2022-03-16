@@ -205,3 +205,25 @@ def validate_item_combos(qs):
                 sort_keys=True, default=str)
             problem_items.append(item)
     return problem_items
+
+
+def console_report_on_failed_validate_item_combos():
+    qs = inv_models.RawIncomingItem.objects.failed(method='validate_item_combos')
+    fields = [
+        ('id', 'rjust'), ('source', 'ljust'), ('name', 'ljust'), ('unit_size', 'rjust'), ('pack_quantity', 'rjust'),
+        ('category', 'ljust'), ('item_code', 'rjust'), ('extra_code', 'rjust')]
+    max_len = {k[0]: 0 for k in fields}
+    for item in qs:
+        for k in fields:
+            if max_len[k[0]] < len(str(getattr(item, k[0]))):
+                max_len[k[0]] = len(str(getattr(item, k[0])))
+
+    for item in qs:
+        line = ""
+        for k in fields:
+            if line:
+                line += " | "
+            value = str(getattr(item, k[0]))
+            just_func = getattr(value, k[1])
+            line += f"{just_func(max_len[k[0]])}"
+        print(line)

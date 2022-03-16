@@ -67,8 +67,11 @@ class RawIncomingItemManager(models.Manager):
     #             return functools.partial(self.ready_to_do_action, the_something)
     #     raise AttributeError(item)
 
-    def failed(self):
-        return self.filter(state__failed=True)
+    def failed(self, method=None):
+        qs = self.filter(state__failed=True)
+        if method:
+            qs = qs.filter(failure_reasons__icontains=f'"method": "{method}"')
+        return qs
 
     def items(self, limit_state=None, qs=None, only_new=False):
         fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code', 'extra_code']
