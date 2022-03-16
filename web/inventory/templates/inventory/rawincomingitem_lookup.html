@@ -4,35 +4,297 @@
 
 {% block styles %}
 <style>
+.choice-filter {
+
+}
+.choice-filter-comment {
+    color: lightgray;
+}
+.choice-inline {
+    display: inline-block;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-Raw Incoming Item Lookup
-<hr />
-<p>Sources</p>
-<ul>
-    {% for source in sources %}
-        <li>{{ source.name }}</li>
-    {% endfor %}
-</ul>
-<hr />
-<p>Categories</p>
-<ul>
-    {% for category in categories %}
-        <li>{{ category.name }}</li>
-    {% endfor %}
-</ul>
-<hr />
-<p>Departments</p>
-<ul>
-    {% for department in departments %}
-        <li>{{ department.name }}</li>
-    {% endfor %}
-</ul>
+<div class="container-fluid" id="lookup-content">
+    Raw Incoming Item Lookup
+    <hr />
+    <div id="filter-controls">
+        <div>
+            <div>
+                <span class="choice-filter">Limit to selected source(s) </span>
+                <span class="choice-filter-comment">or select none for no filter</span>
+            </div>
+            <div class="choice-inline">
+                {% for source in sources %}
+                    <div class="choice-inline" style="margin-right: 2em;">
+                        <div class="choice-inline">
+                            <input type="checkbox" name="filter-source" id="filter-source-{{ source.id }}" value="{{ source.id }}">
+                        </div>
+                        <div class="choice-inline">
+                            <label for="filter-source-{{ source.id }}">{{ source.name|title }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr />
+
+        <div>
+            <div>
+                <span class="choice-filter">Limit to selected category(ies) </span>
+                <span class="choice-filter-comment">or select none for no filter</span>
+            </div>
+            <div class="choice-inline">
+                {% for category in categories %}
+                    <div class="choice-inline" style="margin-right: 2em;">
+                        <div class="choice-inline">
+                            <input type="checkbox" name="filter-category" id="filter-category-{{ category.id }}" value="{{ category.id }}">
+                        </div>
+                        <div class="choice-inline">
+                            <label for="filter-category-{{ category.id }}">{{ category.name|title }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr />
+
+        <div>
+            <div>
+                <span class="choice-filter">Limit to selected department(s) </span>
+                <span class="choice-filter-comment">or select none for no filter</span>
+            </div>
+            <div class="choice-inline">
+                {% for department in departments %}
+                    <div class="choice-inline" style="margin-right: 2em;">
+                        <div class="choice-inline">
+                            <input type="checkbox" name="filter-department" id="filter-department-{{ department.id }}" value="{{ department.id }}">
+                        </div>
+                        <div class="choice-inline">
+                            <label for="filter-department-{{ department.id }}">{{ department.name|title }}</label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <label for="filter-quantity">Quantity:</label>
+                <input type="text" id="filter-quantity" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-unit-size">Unit size:</label>
+                <input type="text" id="filter-unit-size" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-item">Item name:</label>
+                <input type="text" id="filter-item" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-comment">Comment:</label>
+                <input type="text" id="filter-comment" class="filter-input" />
+            </div>
+            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ item_id }}" />
+        </div>
+    </div>
+    <div id="calculation-div">
+        <h5>
+            Selected item
+        </h5>
+        <div class="row selected-item-text-row">
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-item">Item: </label>
+                    <span id="calc-item">[item name]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-common-name">Common Name: </label>
+                    <span id="calc-common-name">[common name]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-comment">Comment: </label>
+                    <span id="calc-comment">[comment on the line item]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-item-comment">Item Comment: </label>
+                    <span id="calc-item-comment">[comment on the item itself]</span>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row row-cols-5 selected-item-row">
+            <div class="col col-sm-1">
+                <label for="calc-quantity">Quantity</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-pack-quantity">Pack Quantity</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-unit-size">Unit Size</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-price">Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-pack-price" id="calc-pack-price-label">Pack Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
+            </div>
+        </div>
+        <div class="row row-cols-5 selected-item-row">
+            <div class="col col-sm-1">
+                <span id="calc-quantity"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-pack-quantity"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-unit-size"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-price" class="faded-dollar"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-pack-price" class="faded-dollar"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-unit-price" class="faded-dollar"></span>
+            </div>
+        </div>
+        <hr />
+        <div id="calc-weight-specific-cells" class="d-none selected-item-row">
+            <div class="row row-cols-3">
+                <div class="col col-sm-1">
+                    <label for="calc-weight">Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-avg-pack-weight">Avg Pack Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-avg-unit-weight">Avg Unit Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-price-per-weight">Price per unit of weight</label>
+                </div>
+            </div>
+            <div class="row row-cols-3 selected-item-row">
+                <div class="col col-sm-1">
+                    <span id="calc-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-avg-pack-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-avg-unit-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-price-per-weight" class="faded-dollar"></span>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col" id="calculated-results">
+                <h5>
+                    Total price for a given number of units
+                </h5>
+                <div class="d-none">
+                    <div class="per_unit_cell" id="per_unit_row_template">
+                        <div class="" data-field="units">__units__</div>
+                        <div class="" data-field="cost_for_the_units">__cost_for_the_units__</div>
+                    </div>
+                </div>
+                <div class="" id="calculated-per-unit-prices">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <pre id="on-page-log">
+Log.
+    </pre>
+
+    <table style="display: none;" class="filtered-item-template-container">
+        <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
+            <td class="border date-cell" data-field="action_date">__action_date__</td>
+            <td class="border" data-field="department">__department__</td>
+            <td class="border" data-field="item">__item__</td>
+            <td class="border d-none" data-field="common_name">__common_name__</td>
+            <td class="border" >
+                <div data-field="comment">__comment__</div>
+                <div data-field="item_comment">__item_comment__</div>
+            </td>
+            <td class="border number-cell" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border number-cell" data-field="total_weight">__total_weight__</td>
+            <td class="border number-cell" data-field="pack_quantity">__pack_quantity__</td>
+            <td class="border number-cell" data-field="unit_size">__unit_size__</td>
+            <td class="border number-cell" data-field="pack_price">__pack_price__</td>
+            <td class="border number-cell" data-field="pack_tax">__pack_tax__</td>
+            <td class="border number-cell" data-field="extended_price">__extended_price__</td>
+        </tr>
+    </table>
+    <table>
+        <thead>
+            <tr>
+                <th class="border date-cell">Date</th>
+                <th class="border">Dept</th>
+                <th class="border">Item</th>
+                <th class="border d-none">Common Name</th>
+                <th class="border">Comments</th>
+                <th class="border number-cell">Delivered Quantity</th>
+                <th class="border number-cell">Total Weight</th>
+                <th class="border number-cell">Pack Quantity</th>
+                <th class="border number-cell">Unit Size</th>
+                <th class="border number-cell">Pack Price</th>
+                <th class="border number-cell">Pack Tax</th>
+                <th class="border number-cell">Extended Price</th>
+            </tr>
+        </thead>
+        <tbody id="result-table-body">
+        </tbody>
+    </table>
+</div>
 {% endblock %}
 
 {% block body_scripts %}
 <script type="text/javascript">
+function resize_lookup_content() {
+    let w = $(window);
+    let window_height = w.height();
+    let content_obj = $("#lookup-content");
+    let content_offset = content_obj.offset().top - w.scrollTop();
+    content_obj.css("max-height", window_height - content_offset);
+}
+function load_from_item_id() {
+    let item_id_tag = $("#filter-item-id");
+    if (item_id_tag.val() !== "") {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
+function setup_event_handlers() {
+    let w = $(window);
+    let d = $(document);
+    d.on("resize", resize_lookup_content);
+    d.trigger("resize");
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+
+    // Hide the calculations by default as there's no selected item on page load.
+    $("#calculation-div").addClass("d-none");
+
+    load_from_item_id();
+});
+
 </script>
 {% endblock %}
