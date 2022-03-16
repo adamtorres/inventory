@@ -74,13 +74,16 @@ Or, including the user/email on the command line
     Superuser created successfully.
 ```
 
-TODO: Importing data.
-Expected flow:
-    Import common names sheet
-    Import invoices - creates new sources, categories, departments, items
-        outputs list of items which have no current common name
-    Import revised common names sheet
-        applies common names to items which are missing them
+Current steps to import and process data from the spreadsheet.
+```
+./manage.py runscript remove_data --script-args truncate
+./manage.py ingest_items -f ../../invoices/incoming-2022-03-16.tsv
+./manage.py shell_plus --quiet -c "ia.do_clean(0)"
+./manage.py shell_plus --quiet -c "ia.do_calculate(2000)"
+./manage.py shell_plus --quiet -c "ia.do_create(0)"
+./manage.py shell_plus --quiet -c "from inventory.incoming_actions import clean; clean.console_report_on_failed_validate_item_combos()"
+./manage.py shell_plus --quiet -c "RawIncomingItem.reports.console_group_by_current_state()"
+```
 
 For the debug service, the simple runserver is used.  That is started from within the `web` folder.  The following
 assumes a terminal is opened to the root of the repository.

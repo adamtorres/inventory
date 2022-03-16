@@ -32,6 +32,12 @@ class APIRawIncomingOrderListView(generics.ListAPIView):
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingOrderFilter
 
+    def paginate_queryset(self, qs):
+        print(f"APIRawIncomingOrderListView.paginate_queryset: query_params = {self.request.query_params}")
+        if self.request.query_params.get('paging') == 'off':
+            return None
+        return super().paginate_queryset(qs)
+
     def get_serializer_class(self):
         if self.request.query_params.get('format') == 'json':
             # TODO: a hyperlinked order serializer

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}Order List{% endblock %}
 
@@ -9,12 +10,19 @@
 #order-list td {
     margin: 0;
     border-top: black solid 1px;
+    border-right: lightgray solid 1px;
 }
 #order-list tr:last-child td {
     border-bottom: black solid 1px;
 }
 #order-list tr[data-detail-url] {
     cursor: pointer;
+}
+.number-cell {
+    text-align: right;
+}
+.dollar-cell {
+    text-align: right;
 }
 </style>
 {% endblock %}
@@ -28,15 +36,15 @@
     <tr>
         <th>source</th>
         <th>department</th>
-        <th>customer number</th>
-        <th>order number</th>
+        <th class="number-cell">customer number</th>
+        <th class="number-cell">order number</th>
         <th>po text</th>
         <th>order comment</th>
-        <th>order date</th>
-        <th>delivery date</th>
-        <th>total price</th>
-        <th>total packs</th>
-        <th>item count</th>
+        <th class="number-cell">order date</th>
+        <th class="number-cell">delivery date</th>
+        <th class="dollar-cell">total price</th>
+        <th class="number-cell">total packs</th>
+        <th class="number-cell">item count</th>
     </tr>
     </thead>
     <tbody>
@@ -44,15 +52,15 @@
         <tr data-detail-url="{% url "inventory:rawincomingorder_detail" pk=order.item_ids.0 %}">
             <td>{{ order.source }}</td>
             <td>{{ order.department }}</td>
-            <td>{{ order.customer_number }}</td>
-            <td>{{ order.order_number }}</td>
+            <td class="number-cell">{{ order.customer_number }}</td>
+            <td class="number-cell">{{ order.order_number }}</td>
             <td>{{ order.po_text }}</td>
             <td>{{ order.order_comment }}</td>
-            <td>{{ order.order_date }}</td>
-            <td>{{ order.delivery_date }}</td>
-            <td>{{ order.total_price }}</td>
-            <td>{{ order.total_packs }}</td>
-            <td>{{ order.item_count }}</td>
+            <td class="number-cell">{{ order.order_date|default_if_none:"" }}</td>
+            <td class="number-cell">{{ order.delivery_date }}</td>
+            <td class="dollar-cell">{{ order.total_price|intcomma|floatformat:2 }}</td>
+            <td class="number-cell">{{ order.total_packs|intcomma|floatformat }}</td>
+            <td class="number-cell">{{ order.item_count }}</td>
         </tr>
     {% endfor %}
     </tbody>
