@@ -35,3 +35,10 @@ class RawItem(sc_models.DatedModel):
         if self.unit_size:
             tmp += f", {self.unit_size}"
         return tmp
+
+    def get_filter(self):
+        """
+        Returns a filter that can be used to find this item in RawIncomingItem before the foreign key is set.
+        """
+        return models.Q(
+            source_obj=self.source, name=self.name, unit_size=self.unit_size, pack_quantity=self.pack_quantity)

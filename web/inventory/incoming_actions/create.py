@@ -26,7 +26,10 @@ def _do_create(batch_size=1):
     print(f"do_create:category assigned {assigned_category_count} categories")
 
     raw_items = create_raw_items(qs)
-    # print(f"do_create created {len(raw_items)} raw_items: {raw_items}")
+    print(f"do_create:raw_item created {len(raw_items)}")
+    assigned_raw_items_count = assign_raw_items(qs, raw_items)
+    print(f"do_create:raw_item assigned {assigned_raw_items_count} raw_items")
+
     items_to_update = []
     fields_to_update = {'state'}
     for i, item in enumerate(qs):
@@ -41,6 +44,13 @@ def assign_categories(qs):
 
 def assign_departments(qs):
     return assign_things(qs, 'department', 'department_obj')
+
+
+def assign_raw_items(qs, raw_items):
+    counts = []
+    for ri in raw_items:
+        counts.append(qs.filter(ri.get_filter()).update(rawitem_obj=ri))
+    return sum(counts)
 
 
 def assign_sources(qs):
@@ -93,15 +103,13 @@ def create_raw_items(qs):
 
     manager_func = getattr(inv_models.RawIncomingItem.objects, manager_func_name)
     objs_to_create = []
-    obj_names = []
     for raw_thing in manager_func(qs=qs, only_new=True):
         kwargs = {nf: raw_thing[rf] for nf, rf in zip(new_fields, raw_fields)}
         new_item = model(**kwargs)
-        obj_names.append(str(new_item))
         objs_to_create.append(new_item)
     if objs_to_create:
-        model.objects.bulk_create(objs_to_create)
-        return obj_names
+        objs = model.objects.bulk_create(objs_to_create)
+        return objs
     return []
 
 
