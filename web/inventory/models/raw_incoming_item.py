@@ -246,15 +246,17 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     within an order should be able to tell you all the order information (duplication, yes).
     """
     wide_filter_fields = {
-        'all': 'searches everything?  Would the db automatically handle type conversions?  Should this be a built-in?',
         'name': [
             'name', 'rawitem_obj__name', 'rawitem_obj__better_name',
             'rawitem_obj__common_item_name_group__uncommon_item_names',
             'rawitem_obj__common_item_name_group__names__name'],
-        'category': 'category_obj__name',
+        'category': ['category', 'category_obj__name'],
         'order_number': 'order_number',
         'po_text': 'po_text',
-        'comment': ['order_comment', 'item_comment', 'rawitem_obj__item_comment']
+        'comment': ['order_comment', 'item_comment', 'rawitem_obj__item_comment'],
+        'unit_size': ['unit_size', 'rawitem_obj__unit_size'],
+        'pack_quantity': ['pack_quantity', 'rawitem_obj__pack_quantity'],
+        'code': ['item_code', 'extra_code', 'rawitem_obj__item_code', 'rawitem_obj__extra_code'],
     }
 
     # Order info - duplicated for all line items within an order
@@ -308,13 +310,13 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     source_obj = models.ForeignKey(Source, on_delete=models.CASCADE, null=True)
     category_obj = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
     department_obj = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
-    rawitem_obj = models.ForeignKey(RawItem, on_delete=models.CASCADE, null=True)
+    rawitem_obj = models.ForeignKey(RawItem, on_delete=models.CASCADE, null=True, related_query_name="raw_incoming_items")
 
     class Meta:
         ordering = ("delivery_date", "source", "order_number", "line_item_position")
 
     def __str__(self):
-        return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}|{self.created}"
+        return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}|{self.created}|{self.name}"
 
     def find_similar(self, by_field='name', include_default=False):
         value = getattr(self, by_field)

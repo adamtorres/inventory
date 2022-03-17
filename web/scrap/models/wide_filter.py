@@ -17,6 +17,17 @@ class WideFilterManagerMixin:
         """
         combined_filter = models.Q()
         for field, terms in search_terms:
+            if field == 'all':
+                # ignore all other fields specified in search_terms.  Using only the terms on 'all', iterate over all
+                # available wide filter fields on the model.
+                # Important difference! This returns an ORed filter meaning the search terms do not have to be in all
+                # the various fields but all the terms still have to be in an individual field.
+                combined_filter = models.Q()
+                for all_field in self.model.get_available_wide_filters():
+                    if all_field == 'all':
+                        continue
+                    combined_filter = combined_filter | self.model.get_wide_filter(terms, wide_filter_name=all_field)
+                break
             combined_filter = combined_filter & self.model.get_wide_filter(terms, wide_filter_name=field)
         qs = self.filter(combined_filter).order_by().distinct('id')
         # Use the above qs as the filter for a clean queryset.  This allows users of the wide_filter to do whatever
@@ -35,6 +46,12 @@ class WideFilterModelMixin:
     #         'common_item_name_group__names__name'],
     #     'category': 'category__name',
     # }
+
+    @classmethod
+    def get_available_wide_filters(cls):
+        if not hasattr(cls, 'wide_filter_fields') or not isinstance(getattr(cls, 'wide_filter_fields'), dict):
+            raise exceptions.ImproperlyConfigured("wide_filter_fields must be declared on the model.")
+        return list(cls.wide_filter_fields.keys())
 
     @classmethod
     def get_wide_filter(cls, search_terms, wide_filter_name='name'):

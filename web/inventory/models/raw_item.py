@@ -18,7 +18,11 @@ class RawItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
         'name': [
             'name', 'better_name', 'common_item_name_group__uncommon_item_names',
             'common_item_name_group__names__name'],
-        'category': 'category__name',
+        'category': ['category__name', 'raw_incoming_items__category'],
+        'unit_size': ['unit_size', 'raw_incoming_items__unit_size'],
+        'pack_quantity': ['pack_quantity', 'raw_incoming_items__pack_quantity'],
+        'code': ['item_code', 'extra_code', 'raw_incoming_items__item_code', 'raw_incoming_items__extra_code'],
+
     }
 
     source = models.ForeignKey(
