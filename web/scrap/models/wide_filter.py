@@ -18,7 +18,14 @@ class WideFilterManagerMixin:
         combined_filter = models.Q()
         for field, terms in search_terms:
             combined_filter = combined_filter & self.model.get_wide_filter(terms, wide_filter_name=field)
-        return self.filter(combined_filter).order_by().distinct('id')
+        qs = self.filter(combined_filter).order_by().distinct('id')
+        # Use the above qs as the filter for a clean queryset.  This allows users of the wide_filter to do whatever
+        # they want and not have to tiptoe around the distinct clause.
+        # Ex:
+        # RawItem.objects.wide_filter([('name', ('burger', 'bun'))]).order_by('name')
+        # instead of:
+        # RawItem.objects.filter(id__in=RawItem.objects.wide_filter([('name', ('burger', 'bun'))])).order_by('name')
+        return self.filter(id__in=qs)
 
 
 class WideFilterModelMixin:
@@ -26,13 +33,15 @@ class WideFilterModelMixin:
     #     'name': [
     #         'name', 'better_name', 'common_item_name_group__uncommon_item_names',
     #         'common_item_name_group__names__name'],
-    #     'category': ['category__name'],
+    #     'category': 'category__name',
     # }
 
     @classmethod
     def get_wide_filter(cls, search_terms, wide_filter_name='name'):
         wide_filter_fields = cls.get_wide_filter_fields(wide_filter_name)
         q = models.Q()
+        if isinstance(wide_filter_fields, str):
+            wide_filter_fields = [wide_filter_fields]
         for field in wide_filter_fields:
             if isinstance(search_terms, str):
                 search_terms = [search_terms]

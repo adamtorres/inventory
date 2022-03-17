@@ -246,11 +246,15 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     within an order should be able to tell you all the order information (duplication, yes).
     """
     wide_filter_fields = {
+        'all': 'searches everything?  Would the db automatically handle type conversions?  Should this be a built-in?',
         'name': [
             'name', 'rawitem_obj__name', 'rawitem_obj__better_name',
             'rawitem_obj__common_item_name_group__uncommon_item_names',
             'rawitem_obj__common_item_name_group__names__name'],
-        'category': ['category_obj__name'],
+        'category': 'category_obj__name',
+        'order_number': 'order_number',
+        'po_text': 'po_text',
+        'comment': ['order_comment', 'item_comment', 'rawitem_obj__item_comment']
     }
 
     # Order info - duplicated for all line items within an order
