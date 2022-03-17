@@ -251,11 +251,12 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
             'rawitem_obj__common_item_name_group__uncommon_item_names',
             'rawitem_obj__common_item_name_group__names__name'],
         'category': ['category', 'category_obj__name'],
+        'department': ['department', 'department_obj__name'],
         'order_number': 'order_number',
         'po_text': 'po_text',
         'comment': ['order_comment', 'item_comment', 'rawitem_obj__item_comment'],
         'unit_size': ['unit_size', 'rawitem_obj__unit_size'],
-        'pack_quantity': ['pack_quantity', 'rawitem_obj__pack_quantity'],
+        'quantity': ['pack_quantity', 'rawitem_obj__pack_quantity', 'ordered_quantity', 'delivered_quantity'],
         'code': ['item_code', 'extra_code', 'rawitem_obj__item_code', 'rawitem_obj__extra_code'],
     }
 

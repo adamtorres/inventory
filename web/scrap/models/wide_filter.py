@@ -64,7 +64,8 @@ class WideFilterModelMixin:
                 search_terms = [search_terms]
             term_q = models.Q()
             for search_term in search_terms:
-                term_q = term_q & models.Q(**{f"{field}__icontains": search_term})
+                filter_func = "__icontains" if isinstance(search_term, str) else ""
+                term_q = term_q & models.Q(**{f"{field}{filter_func}": search_term})
             q = q | term_q
         return q
 
