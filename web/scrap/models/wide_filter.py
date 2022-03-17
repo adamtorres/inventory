@@ -1,0 +1,49 @@
+from django.core import exceptions
+from django.db import models
+
+
+class WideFilterManagerMixin:
+    def wide_filter(self, search_terms):
+        """
+        Casts a wide net to find records and hence a 'wide_filter'.
+        search_terms is a list of tuples where each for each tuple [0] is the field and [1] is a str/iterable of terms.
+        Individual words should be separate terms.
+        search_terms = [
+            ('name', ('ground', 'beef')),
+            ('category', 'meats'),
+        ]
+        Will search all relations listed in model.filter_fields['name'] for 'ground' and 'beef'.
+        A name which has just 'beef' will not match.
+        """
+        combined_filter = models.Q()
+        for field, terms in search_terms:
+            combined_filter = combined_filter & self.model.get_wide_filter(terms, wide_filter_name=field)
+        return self.filter(combined_filter).order_by().distinct('id')
+
+
+class WideFilterModelMixin:
+    # wide_filter_fields = {
+    #     'name': [
+    #         'name', 'better_name', 'common_item_name_group__uncommon_item_names',
+    #         'common_item_name_group__names__name'],
+    #     'category': ['category__name'],
+    # }
+
+    @classmethod
+    def get_wide_filter(cls, search_terms, wide_filter_name='name'):
+        wide_filter_fields = cls.get_wide_filter_fields(wide_filter_name)
+        q = models.Q()
+        for field in wide_filter_fields:
+            if isinstance(search_terms, str):
+                search_terms = [search_terms]
+            term_q = models.Q()
+            for search_term in search_terms:
+                term_q = term_q & models.Q(**{f"{field}__icontains": search_term})
+            q = q | term_q
+        return q
+
+    @classmethod
+    def get_wide_filter_fields(cls, wide_filter_name):
+        if not hasattr(cls, 'wide_filter_fields') or not isinstance(getattr(cls, 'wide_filter_fields'), dict):
+            raise exceptions.ImproperlyConfigured("wide_filter_fields must be declared on the model.")
+        return cls.wide_filter_fields[wide_filter_name]

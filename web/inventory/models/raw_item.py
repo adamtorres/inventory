@@ -3,7 +3,24 @@ from django.db import models
 from scrap import models as sc_models, fields as sc_fields
 
 
-class RawItem(sc_models.DatedModel):
+class RawItemManager(sc_models.WideFilterManagerMixin, models.Manager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.select_related('common_item_name_group', 'source', 'category')
+        return qs
+
+    def missing_common_item_name(self):
+        return self.exclude(common_item_name_group__isnull=False)
+
+
+class RawItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
+    wide_filter_fields = {
+        'name': [
+            'name', 'better_name', 'common_item_name_group__uncommon_item_names',
+            'common_item_name_group__names__name'],
+        'category': ['category__name'],
+    }
+
     source = models.ForeignKey(
         "inventory.Source", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items")
     # TODO: first/last order dates, avg price, last price
@@ -23,6 +40,8 @@ class RawItem(sc_models.DatedModel):
     common_item_name_group = models.ForeignKey(
         "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, null=True, blank=True)
 
+    objects = RawItemManager()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -37,7 +56,7 @@ class RawItem(sc_models.DatedModel):
             tmp += f", {self.unit_size}"
         return tmp
 
-    def get_filter(self):
+    def get_raw_item_filter(self):
         """
         Returns a filter that can be used to find this item in RawIncomingItem before the foreign key is set.
         """

@@ -83,6 +83,7 @@ Current steps to import and process data from the spreadsheet.
 ./manage.py shell_plus --quiet -c "ia.do_create(0)"
 ./manage.py shell_plus --quiet -c "from inventory.incoming_actions import clean; clean.console_report_on_failed_validate_item_combos()"
 ./manage.py shell_plus --quiet -c "RawIncomingItem.reports.console_group_by_current_state()"
+./manage.py ingest_common_item_names -f ../../invoices/common_names-2022-03-16.tsv
 ```
 
 For the debug service, the simple runserver is used.  That is started from within the `web` folder.  The following

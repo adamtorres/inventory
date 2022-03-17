@@ -16,6 +16,7 @@ def run(*args):
     # inv_models.RawIncomingItem.objects.all().update(state=inv_models.RawState.objects.get_by_action('calculate'))
     inv_models.RawItem.objects.all().delete()
     inv_models.CommonItemName.objects.all().delete()
+    inv_models.CommonItemNameGroup.objects.all().delete()
     inv_models.Category.objects.all().delete()
     inv_models.Source.objects.all().delete()
     inv_models.Department.objects.all().delete()

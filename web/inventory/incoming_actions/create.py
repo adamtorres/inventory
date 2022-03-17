@@ -29,6 +29,8 @@ def _do_create(batch_size=1):
     print(f"do_create:raw_item created {len(raw_items)}")
     assigned_raw_items_count = assign_raw_items(qs, raw_items)
     print(f"do_create:raw_item assigned {assigned_raw_items_count} raw_items")
+    assign_common_item_names_count = assign_common_item_names()
+    print(f"do_create:raw_item assigned {assign_common_item_names_count} common names to raw_items")
 
     items_to_update = []
     fields_to_update = {'state'}
@@ -42,6 +44,14 @@ def assign_categories(qs):
     return assign_things(qs, 'category', 'category_obj')
 
 
+def assign_common_item_names():
+    cn_update_count = 0
+    for cn_group in inv_models.CommonItemNameGroup.objects.all():
+        ri_qs = inv_models.RawItem.objects.missing_common_item_name().filter(name__in=cn_group.uncommon_item_names)
+        cn_update_count += ri_qs.update(common_item_name_group=cn_group)
+    return cn_update_count
+
+
 def assign_departments(qs):
     return assign_things(qs, 'department', 'department_obj')
 
@@ -49,7 +59,7 @@ def assign_departments(qs):
 def assign_raw_items(qs, raw_items):
     counts = []
     for ri in raw_items:
-        counts.append(qs.filter(ri.get_filter()).update(rawitem_obj=ri))
+        counts.append(qs.filter(ri.get_raw_item_filter()).update(rawitem_obj=ri))
     return sum(counts)
 
 

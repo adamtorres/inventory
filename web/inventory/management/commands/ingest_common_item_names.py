@@ -2,6 +2,8 @@ import csv
 from collections import namedtuple
 import json
 
+from django.db import models
+
 from inventory import models as inv_models
 from scrap import commands
 
@@ -74,16 +76,54 @@ class Command(commands.Command):
 
     def process_common_item_names(self, data, category_dict):
         for cn_key, cn_dict in data["common_name_dict"].items():
-            category = list(cn_dict["categories"])[0]
-            cn_group = inv_models.CommonItemNameGroup.objects.create(category=category_dict[category])
-            cin_to_create = []
+            print(f"CommonItemNameGroup {cn_dict['primary_common_name']!r}")
+            category_str = list(cn_dict["categories"])[0]
+            new_cn = []
+            new_cn_str = []
+            group_set = set()
+            primary_set = set()
+            primary_cn = None
             for cn_str in cn_dict["common_names"]:
-                cin_to_create.append(inv_models.CommonItemName(name=cn_str, common_item_name_group=cn_group))
-            created_cin = inv_models.CommonItemName.objects.bulk_create(cin_to_create)
-            for cn in created_cin:
-                if cn.name == cn_dict["primary_common_name"]:
-                    cn_group.name = cn
+                is_primary_name_str = cn_str == cn_dict["primary_common_name"]
+                cn, created = inv_models.CommonItemName.objects.get_or_create(name=cn_str)
+                if created:
+                    new_cn.append(cn)
+                    new_cn_str.append(cn_str)
+                else:
+                    if cn.common_item_name_group:
+                        group_set.add(cn.common_item_name_group)
+                    if cn.primary_groups.count() > 0:
+                        primary_set.update(set(cn.primary_groups.all()))
+                        if not is_primary_name_str:
+                            pass
+                if is_primary_name_str:
+                    primary_cn = cn
+            if new_cn:
+                print(f"\tCreated {len(new_cn)} CommonItemNames.  {new_cn_str}")
+            if len(group_set) == len(primary_set) == 1 and group_set == primary_set:
+                # all good.  group and primary sets are 1 and the same group object.
+                cn_group = group_set.pop()
+                for cn in new_cn:
+                    cn.common_item_name_group = cn_group
+                uncommon_item_names_from_file = set(cn_dict["raw_item_names"].keys())
+                uncommon_item_names_from_file.update(cn_group.uncommon_item_names)
+                if uncommon_item_names_from_file != set(cn_group.uncommon_item_names):
+                    cn_group.uncommon_item_names = list(uncommon_item_names_from_file)
                     cn_group.save()
+                inv_models.CommonItemName.objects.bulk_update(new_cn, fields=('common_item_name_group', ))
+            elif len(group_set) == len(primary_set) == 0:
+                # No group.  All are new?
+                cn_group = inv_models.CommonItemNameGroup.objects.create(
+                    category=category_dict[category_str], name=primary_cn,
+                    uncommon_item_names=list(cn_dict["raw_item_names"].keys()))
+                print(f"\tCreated CommonItemNameGroup(name={primary_cn.name!r}, category={category_str!r})")
+                for cn in new_cn:
+                    cn.common_item_name_group = cn_group
+                cn_update = inv_models.CommonItemName.objects.bulk_update(new_cn, fields=('common_item_name_group', ))
+                print(f"\tUpdated {cn_update} CommonItemNames to use the new group.")
+            else:
+                # broken group relations.  Needs manual intervention.
+                print(f"!!! group_set and primary_set are not valid. {group_set}, {primary_set}")
 
     def process_output(self, data):
         print(f"records = {data['records']}")
@@ -111,7 +151,6 @@ class Command(commands.Command):
         self.print_examples(data)
         category_dict = self.process_categories(data)
         self.process_common_item_names(data, category_dict)
-
         print("done.")
 
     def process_row(self, row_number, named_row, data):

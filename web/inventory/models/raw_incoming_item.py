@@ -15,7 +15,7 @@ from .raw_state import RawState
 from .source import Source
 
 
-class RawIncomingItemManager(models.Manager):
+class RawIncomingItemManager(sc_models.WideFilterManagerMixin, models.Manager):
     def _limit_state(self, qs, limit_state):
         """
         Used by a variety of querysets to limit by RawState in a flexible manner.
@@ -240,11 +240,19 @@ class RawIncomingItemReportManager(models.Manager):
         return self.values('state', 'state__name').annotate(count=models.Count('id'))
 
 
-class RawIncomingItem(sc_models.DatedModel):
+class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     """
     This is the line as it would be on a spreadsheet.  All information is included verbatim.  Any individual line item
     within an order should be able to tell you all the order information (duplication, yes).
     """
+    wide_filter_fields = {
+        'name': [
+            'name', 'rawitem_obj__name', 'rawitem_obj__better_name',
+            'rawitem_obj__common_item_name_group__uncommon_item_names',
+            'rawitem_obj__common_item_name_group__names__name'],
+        'category': ['category_obj__name'],
+    }
+
     # Order info - duplicated for all line items within an order
     source = sc_fields.CharField(help_text="source name")
     department = sc_fields.CharField(help_text="department name")
