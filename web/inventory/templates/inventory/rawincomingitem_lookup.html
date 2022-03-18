@@ -22,6 +22,56 @@
 #result-table tr:nth-child(even) {
     background-color: lightgoldenrodyellow;
 }
+
+
+#calculation-div {
+    border: green solid 2px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+#calculation-div .col-sm-1 input {
+    width: 100%;
+}
+label {
+    font-weight: bold;
+}
+.selected-item-text-row .col {
+    border: grey solid 1px;
+    text-align: left;
+}
+.selected-item-row .col {
+    border: grey solid 1px;
+    text-align: right;
+}
+.per_unit_cell {
+    display: inline-block;
+    border: grey solid 1px;
+    justify-content: space-between !important;
+    min-width: 10em;
+}
+.per_unit_cell * {
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.5em;
+}
+.per_unit_cell *[data-field="units"] {
+    width: 4em;
+}
+.per_unit_cell *[data-field="cost_for_the_units"] {
+    width: 6em;
+}
+.per_unit_cell:first-child {
+
+}
+.per_unit_cell:last-child {
+
+}
+#calculated-per-unit-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
 </style>
 {% endblock %}
 
@@ -120,26 +170,26 @@
         <div class="row selected-item-text-row">
             <div class="row">
                 <div class="col text-left">
-                    <label for="calc-item">Item: </label>
-                    <span id="calc-item">[item name]</span>
+                    <label for="calc-item-name">Item: </label>
+                    <span id="calc-item-name">[item name]</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col text-left">
-                    <label for="calc-common-name">Common Name: </label>
-                    <span id="calc-common-name">[common name]</span>
+                    <label for="calc-common-item-name">Common Item Name: </label>
+                    <span id="calc-common-item-name">[common item name]</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col text-left">
-                    <label for="calc-comment">Comment: </label>
-                    <span id="calc-comment">[comment on the line item]</span>
+                    <label for="calc-item-comment">Line Item Comment: </label>
+                    <span id="calc-item-comment">[comment on the line item]</span>
                 </div>
             </div>
             <div class="row">
                 <div class="col text-left">
-                    <label for="calc-item-comment">Item Comment: </label>
-                    <span id="calc-item-comment">[comment on the item itself]</span>
+                    <label for="calc-rawitem-comment">Item Comment: </label>
+                    <span id="calc-rawitem-comment">[comment on the item itself]</span>
                 </div>
             </div>
         </div>
@@ -334,11 +384,11 @@ filter_input_fields = [
     {element: "[name='filter-source']", ajax_var: "source"},
 ];
 filter_input_empty_if_only = ['category', 'department', 'source'];
-not_yet_filter_result_fields = [
-    {element: "data-field='item'", destination_field_id: "calc-item"},
-    {element: "data-field='common_name'", destination_field_id: "calc-common-name"},
+filter_result_fields = [
+    {element: "data-field='name'", destination_field_id: "calc-item-name"},
+    {element: "data-field='common_item_name'", destination_field_id: "calc-common-item-name"},
     {element: "data-field='item_comment'", destination_field_id: "calc-item-comment"},
-    {element: "data-field='comment'", destination_field_id: "calc-comment"},
+    {element: "data-field='rawitem_comment'", destination_field_id: "calc-rawitem-comment"},
     {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
     {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"},
     {element: "data-field='unit_size'", destination_field_id: "calc-unit-size"},
@@ -346,7 +396,9 @@ not_yet_filter_result_fields = [
     {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
 ];
-
+function round(v) {
+    return Math.round(v * 100) / 100;
+}
 function resize_lookup_content() {
     // TODO: resize doesn't seem to be working properly.
     let w = $(window);
@@ -360,6 +412,51 @@ function load_from_item_id() {
     if (item_id_tag.val() !== "") {
         $(window).trigger(force_filter_refresh_event_name);
     }
+}
+function update_calculations() {
+    var weight = parseFloat($("#calc-weight").text());
+    var pack_quantity = parseFloat($("#calc-pack-quantity").text());
+    var quantity = parseFloat($("#calc-quantity").text());
+    var pack_price = parseFloat($("#calc-pack-price").text());
+    var total_price = parseFloat($("#calc-price").text());
+    var pack_price_per_weight = 0;
+    var price_per_unit = total_price / quantity / pack_quantity;
+    $("#calc-unit-price").text(round(price_per_unit));
+
+    if (weight > 0) {
+        pack_price_per_weight = pack_price;
+        $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
+        let avg_pack_weight = weight / quantity;
+        let avg_unit_weight = weight / quantity / pack_quantity;
+        $("#calc-avg-pack-weight").text(round(avg_pack_weight));
+        $("#calc-avg-unit-weight").text(round(avg_unit_weight));
+        pack_price = round(price_per_unit * pack_quantity);
+        $("#calc-pack-price").text(round(pack_price).toFixed(2));
+        $("#calc-weight-specific-cells").removeClass("d-none");
+    } else {
+        $("#calc-weight-specific-cells").addClass("d-none");
+    }
+    let total_units = pack_quantity * quantity;
+    let row_template = $(`#per_unit_row_template`);
+    let per_unit_table = $(`#calculated-per-unit-prices`);
+    per_unit_table.empty();
+    for(let i = 0; i < total_units; i++) {
+        let item_clone = row_template.clone();
+        item_clone.attr('id', null);
+        item_clone.find('[data-field]').each(function() {
+            let e = $(this);
+            let key = e.data('field');
+            if (key === "units") {
+                e.text(round(i+1));
+            }
+            if (key === "cost_for_the_units") {
+                e.html("<span class='faded-dollar'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
+            }
+        });
+        // item_clone.removeClass("hidden");
+        per_unit_table.append(item_clone);
+    }
+    $("#calculation-div").removeClass("d-none");
 }
 function setup_event_handlers() {
     let w = $(window);
@@ -383,8 +480,7 @@ function setup_event_handlers() {
     });
     w.on(item_selected_event_name, function() {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
-        // update_calculations();
-        logit("item_selected_event_name");
+        update_calculations();
     });
 }
 $( document ).ready(function() {
