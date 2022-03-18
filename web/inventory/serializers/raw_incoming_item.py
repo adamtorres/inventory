@@ -118,3 +118,35 @@ class RawIncomingItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = inv_models.RawIncomingItem
         fields = '__all__'
+
+
+class RawIncomingItemFlatSerializer(serializers.ModelSerializer):
+    source_obj = serializers.SlugRelatedField('name', read_only=True)
+    category_obj = serializers.SlugRelatedField('name', read_only=True)
+    department_obj = serializers.SlugRelatedField('name', read_only=True)
+    rawitem_obj = RawItemSerializer()
+    state = serializers.StringRelatedField()
+    better_name = serializers.SerializerMethodField()
+    common_item_name = serializers.SerializerMethodField()
+    rawitem_comment = serializers.SerializerMethodField()
+
+    class Meta:
+        model = inv_models.RawIncomingItem
+        fields = '__all__'
+
+    def get_better_name(self, obj):
+        if obj.rawitem_obj:
+            return obj.rawitem_obj.better_name
+        return ""
+
+    def get_common_item_name(self, obj):
+        if obj.rawitem_obj:
+            if obj.rawitem_obj.common_item_name_group:
+                if obj.rawitem_obj.common_item_name_group.name:
+                    return obj.rawitem_obj.common_item_name_group.name.name
+        return ""
+
+    def get_rawitem_comment(self, obj):
+        if obj.rawitem_obj:
+            return obj.rawitem_obj.item_comment
+        return ""

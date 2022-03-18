@@ -14,3 +14,5 @@ class RawItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = inv_models.RawItem
         fields = '__all__'
+
+# TODO: add a Flat serializer to be used by wide_filter.

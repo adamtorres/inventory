@@ -79,13 +79,13 @@ function new_item(data) {
 function get_values_to_send() {
     let values_to_send = {
         empty: true,
-        "filter_fields": []
+        "wide_filter_fields": []
     };
     filter_input_fields.forEach(tag => {
         let tag_obj = $(tag['element']);
         if (tag_obj.length === 1) {
             values_to_send[tag['ajax_var']] = tag_obj.val().trim();
-            values_to_send["filter_fields"].push(tag['ajax_var']);
+            values_to_send["wide_filter_fields"].push(tag['ajax_var']);
             if (values_to_send[tag['ajax_var']] !== "") {
                 values_to_send['empty'] = false;
             }
@@ -103,8 +103,8 @@ function get_values_to_send() {
                     values_to_send[tag['ajax_var']] = obj.val().trim();
                 }
 
-                if (!values_to_send["filter_fields"].includes(tag['ajax_var'])) {
-                    values_to_send["filter_fields"].push(tag['ajax_var']);
+                if (!values_to_send["wide_filter_fields"].includes(tag['ajax_var'])) {
+                    values_to_send["wide_filter_fields"].push(tag['ajax_var']);
                 }
                 if (!filter_input_empty_if_only.includes(tag['ajax_var'])){
                     if ((typeof(values_to_send[tag['ajax_var']]) === typeof("string")) && (values_to_send[tag['ajax_var']] !== "")) {

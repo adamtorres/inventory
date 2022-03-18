@@ -46,6 +46,7 @@ class WideFilterModelMixin:
     #         'common_item_name_group__names__name'],
     #     'category': 'category__name',
     # }
+    # wide_filter_fields_any = ["list of above keys which should be" "or'ed", "instead of", "and'ed"]
 
     @classmethod
     def get_available_wide_filters(cls):
@@ -65,7 +66,13 @@ class WideFilterModelMixin:
             term_q = models.Q()
             for search_term in search_terms:
                 filter_func = "__icontains" if isinstance(search_term, str) else ""
-                term_q = term_q & models.Q(**{f"{field}{filter_func}": search_term})
+                if field == 'id' or field.endswith('_id'):
+                    # UUID doesn't like icontains
+                    filter_func = ""
+                if wide_filter_name in cls.wide_filter_fields_any:
+                    term_q = term_q | models.Q(**{f"{field}{filter_func}": search_term})
+                else:
+                    term_q = term_q & models.Q(**{f"{field}{filter_func}": search_term})
             q = q | term_q
         return q
 

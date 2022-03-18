@@ -12,7 +12,7 @@ class WideFilterView(views.APIView):
     def get(self, request, format=None):
         # wide_filter_fields = list of GET keys to look for.  So other args can be used and not get in the way.
         # /inventory/api_rawitem/wide_filter/?wide_filter_fields=name&name=beef+ground&empty=false
-        filter_fields = request.GET.getlist('wide_filter_fields')
+        filter_fields = request.GET.getlist('wide_filter_fields[]')
         filter_fields_and_values = []
         for filter_field in filter_fields:
             filter_tuple = ()

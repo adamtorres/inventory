@@ -5,7 +5,7 @@ from scrap import views as sc_views
 
 class RawIncomingItemWideFilterView(sc_views.WideFilterView):
     model = inv_models.RawIncomingItem
-    serializer = inv_serializers.RawIncomingItemSerializer
+    serializer = inv_serializers.RawIncomingItemFlatSerializer
     prefetch_fields = [
         'source_obj', 'category_obj', 'department_obj', 'rawitem_obj',
         'rawitem_obj__category', 'rawitem_obj__source', 'rawitem_obj__common_item_name_group',

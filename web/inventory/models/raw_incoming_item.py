@@ -247,12 +247,14 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     within an order should be able to tell you all the order information (duplication, yes).
     """
     wide_filter_fields = {
+        'item_id': 'id',
         'name': [
             'name', 'rawitem_obj__name', 'rawitem_obj__better_name',
             'rawitem_obj__common_item_name_group__uncommon_item_names',
             'rawitem_obj__common_item_name_group__names__name'],
-        'category': ['category', 'category_obj__name'],
-        'department': ['department', 'department_obj__name'],
+        'source': ['source', 'source_obj__name', 'source_obj_id'],
+        'category': ['category', 'category_obj__name', 'category_obj_id'],
+        'department': ['department', 'department_obj__name', 'department_obj_id'],
         'order_number': 'order_number',
         'po_text': 'po_text',
         'comment': ['order_comment', 'item_comment', 'rawitem_obj__item_comment'],
@@ -260,6 +262,7 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
         'quantity': ['pack_quantity', 'rawitem_obj__pack_quantity', 'ordered_quantity', 'delivered_quantity'],
         'code': ['item_code', 'extra_code', 'rawitem_obj__item_code', 'rawitem_obj__extra_code'],
     }
+    wide_filter_fields_any = ['source', 'category', 'department']
 
     # Order info - duplicated for all line items within an order
     source = sc_fields.CharField(help_text="source name")

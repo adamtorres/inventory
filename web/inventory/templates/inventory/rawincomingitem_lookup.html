@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Raw Incoming Item Lookup{% endblock %}
 
@@ -90,8 +91,8 @@
                 <input type="text" id="filter-unit-size" class="filter-input" />
             </div>
             <div class="col">
-                <label for="filter-item">Item name:</label>
-                <input type="text" id="filter-item" class="filter-input" />
+                <label for="filter-item-name">Item name:</label>
+                <input type="text" id="filter-item-name" class="filter-input" />
             </div>
             <div class="col">
                 <label for="filter-comment">Comment:</label>
@@ -224,40 +225,68 @@
 Log.
     </pre>
 
+
     <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
-            <td class="border date-cell" data-field="action_date">__action_date__</td>
-            <td class="border" data-field="department">__department__</td>
-            <td class="border" data-field="item">__item__</td>
-            <td class="border d-none" data-field="common_name">__common_name__</td>
-            <td class="border" >
-                <div data-field="comment">__comment__</div>
-                <div data-field="item_comment">__item_comment__</div>
-            </td>
-            <td class="border number-cell" data-field="delivered_quantity">__delivered_quantity__</td>
-            <td class="border number-cell" data-field="total_weight">__total_weight__</td>
+            <td class="border" data-field="source_obj">__source_obj__</td>
+            <td class="border" data-field="category_obj">__category_obj__</td>
+            <td class="border" data-field="department_obj">__department_obj__</td>
+            <td class="border" data-field="state">__state__</td>
+            <td class="border" data-field="customer_number">__customer_number__</td>
+            <td class="border" data-field="order_number">__order_number__</td>
+            <td class="border" data-field="po_text">__po_text__</td>
+            <td class="border" data-field="order_comment">__order_comment__</td>
+            <td class="border date-cell" data-field="delivery_date">__delivery_date__</td>
+            <td class="border number-cell" data-field="total_price">__total_price__</td>
+            <td class="border number-cell" data-field="total_packs">__total_packs__</td>
+            <td class="border number-cell" data-field="line_item_position">__line_item_position__</td>
+            <td class="border" data-field="item_comment">__item_comment__</td>
+            <td class="border" data-field="item_code">__item_code__</td>
+            <td class="border" data-field="extra_code">__extra_code__</td>
             <td class="border number-cell" data-field="pack_quantity">__pack_quantity__</td>
             <td class="border number-cell" data-field="unit_size">__unit_size__</td>
+            <td class="border number-cell" data-field="ordered_quantity">__ordered_quantity__</td>
+            <td class="border number-cell" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border number-cell" data-field="total_weight">__total_weight__</td>
             <td class="border number-cell" data-field="pack_price">__pack_price__</td>
             <td class="border number-cell" data-field="pack_tax">__pack_tax__</td>
-            <td class="border number-cell" data-field="extended_price">__extended_price__</td>
+            <td class="border" data-field="extended_price">__extended_price__</td>
+            <td class="border" data-field="name">__name__</td>
+            <td class="border" data-field="better_name">__better_name__</td>
+            <td class="border" data-field="common_item_name">__common_item_name__</td>
+            <td class="border" data-field="rawitem_comment">__rawitem_comment__</td>
         </tr>
     </table>
     <table>
         <thead>
             <tr>
-                <th class="border date-cell">Date</th>
-                <th class="border">Dept</th>
-                <th class="border">Item</th>
-                <th class="border d-none">Common Name</th>
-                <th class="border">Comments</th>
-                <th class="border number-cell">Delivered Quantity</th>
-                <th class="border number-cell">Total Weight</th>
-                <th class="border number-cell">Pack Quantity</th>
-                <th class="border number-cell">Unit Size</th>
-                <th class="border number-cell">Pack Price</th>
-                <th class="border number-cell">Pack Tax</th>
-                <th class="border number-cell">Extended Price</th>
+                <th class="border">source</th>
+                <th class="border">category</th>
+                <th class="border">department</th>
+                <th class="border">state</th>
+                <th class="border">customer_number</th>
+                <th class="border">order_number</th>
+                <th class="border">po_text</th>
+                <th class="border">order_comment</th>
+                <th class="border date-cell">delivery_date</th>
+                <th class="border number-cell">total_price</th>
+                <th class="border number-cell">total_packs</th>
+                <th class="border number-cell">line_item_position</th>
+                <th class="border">item_comment</th>
+                <th class="border">item_code</th>
+                <th class="border">extra_code</th>
+                <th class="border number-cell">pack_quantity</th>
+                <th class="border number-cell">unit_size</th>
+                <th class="border number-cell">ordered_quantity</th>
+                <th class="border number-cell">delivered_quantity</th>
+                <th class="border number-cell">total_weight</th>
+                <th class="border number-cell">pack_price</th>
+                <th class="border number-cell">pack_tax</th>
+                <th class="border">extended_price</th>
+                <th class="border">name</th>
+                <th class="border">better_name</th>
+                <th class="border">common_item_name</th>
+                <th class="border">rawitem_comment</th>
             </tr>
         </thead>
         <tbody id="result-table-body">
@@ -267,7 +296,41 @@ Log.
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
+filter_url = "{% url "inventory:api_rawincomingitem_widefilter" %}";
+filter_fields = [
+    "state", "customer_number", "order_number", "po_text", "order_comment", "delivery_date", "total_price",
+    "total_packs", "line_item_position", "item_comment", "item_code", "extra_code", "pack_quantity", "unit_size",
+    "ordered_quantity", "delivered_quantity", "total_weight", "pack_price", "pack_tax", "extended_price", "name",
+    "source_obj", "category_obj", "department_obj", "better_name", "common_item_name", "rawitem_comment"];
+filter_results_div_id = "result-table-body";
+filter_input_fields = [
+    {element: "#filter-quantity", ajax_var: "quantity"},
+    {element: "#filter-unit-size", ajax_var: "unit_size"},
+    {element: "#filter-item-name", ajax_var: "name"},
+    {element: "#filter-item-id", ajax_var: "item_id"},
+    {element: "#filter-comment", ajax_var: "comment"},
+    {element: "[name='filter-category']", ajax_var: "category"},
+    {element: "[name='filter-department']", ajax_var: "department"},
+    {element: "[name='filter-source']", ajax_var: "source"},
+];
+filter_input_empty_if_only = ['category', 'department', 'source'];
+not_yet_filter_result_fields = [
+    {element: "data-field='item'", destination_field_id: "calc-item"},
+    {element: "data-field='common_name'", destination_field_id: "calc-common-name"},
+    {element: "data-field='item_comment'", destination_field_id: "calc-item-comment"},
+    {element: "data-field='comment'", destination_field_id: "calc-comment"},
+    {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
+    {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"},
+    {element: "data-field='unit_size'", destination_field_id: "calc-unit-size"},
+    {element: "data-field='extended_price'", destination_field_id: "calc-price"},
+    {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
+    {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
+];
+
 function resize_lookup_content() {
     let w = $(window);
     let window_height = w.height();
@@ -286,6 +349,28 @@ function setup_event_handlers() {
     let d = $(document);
     d.on("resize", resize_lookup_content);
     d.trigger("resize");
+
+    w.on(filter_requested_event_name, function() {
+        // filter sent to server, hide calculations as there's no longer a selected item.
+        logit("filter_requested_event_name");
+        $("#calculation-div").addClass("d-none");
+    });
+    w.on(filter_results_populated_event_name, function() {
+        // filter results arrived.  Still no selected item.
+        logit("filter_results_populated_event_name");
+        $("#calculation-div").addClass("d-none");
+        let item_id_tag = $("#filter-item-id");
+        if (item_id_tag.val() !== "") {
+            let item_row = $(`#${filter_results_div_id} tr:first`);
+            item_row.trigger("click");
+            item_id_tag.val("");
+        }
+    });
+    w.on(item_selected_event_name, function() {
+        // Now that there's a selected item, update the calculations.  This also unhides the section.
+        // update_calculations();
+        logit("item_selected_event_name");
+    });
 }
 $( document ).ready(function() {
     setup_event_handlers();
