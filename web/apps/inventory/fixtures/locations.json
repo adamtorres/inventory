@@ -1,8 +1,0 @@
-[
-{"model": "inventory.location", "pk": "39a2a3ac-3144-42a5-9113-8aa4fccebd90", "fields": {"name": "Shelf"}},
-{"model": "inventory.location", "pk": "07610c38-2c4c-4d10-98ae-c8bd543e4bae", "fields": {"name": "Freezer"}},
-{"model": "inventory.location", "pk": "9627a209-3eba-4dca-9edd-c057cf0d8822", "fields": {"name": "Refrigerator"}},
-{"model": "inventory.location", "pk": "4f09bc62-c925-4ede-a80e-f92992c619a3", "fields": {"name": "Over there"}}
-]
-
-

@@ -1,7 +1,0 @@
-{% load humanize %}
-<div name="{{ widget.name }}" class="dollar_container" {% include "django/forms/widgets/attrs.html" %}>
-    <div class="dollar_line">
-        <span>$</span>
-        <span class="dollar_content">{% if widget.value %}{{ widget.value|floatformat:2|intcomma }}{% else %}-{% endif %}</span>
-    </div>
-</div>
