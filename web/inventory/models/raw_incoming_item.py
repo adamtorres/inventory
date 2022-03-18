@@ -54,12 +54,10 @@ class RawIncomingItemManager(sc_models.WideFilterManagerMixin, models.Manager):
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
         separate query for every record.
         """
-        print("get_queryset")
         qs = super().get_queryset()
         qs = qs.select_related(
             'state', 'state__next_state', 'state__next_error_state', 'source_obj', 'category_obj', 'department_obj',
             'rawitem_obj')
-        # qs = qs.prefetch_related('state', 'state__next_state', 'state__next_error_state')
         return qs
 
     # def __getattr__(self, item):

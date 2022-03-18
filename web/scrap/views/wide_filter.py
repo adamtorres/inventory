@@ -12,7 +12,6 @@ class WideFilterView(views.APIView):
     def get(self, request, format=None):
         # wide_filter_fields = list of GET keys to look for.  So other args can be used and not get in the way.
         # /inventory/api_rawitem/wide_filter/?wide_filter_fields=name&name=beef+ground&empty=false
-        print(f"WideFilterView: {request.GET}")
         filter_fields = request.GET.getlist('wide_filter_fields')
         filter_fields_and_values = []
         for filter_field in filter_fields:
@@ -32,7 +31,6 @@ class WideFilterView(views.APIView):
         #     ('name', ('ground', 'beef')),
         #     ('category', 'meats'),
         # ]
-        print(f"WideFilterView: filter_fields_and_values = {filter_fields_and_values}")
         data = self.serializer(self.filter_qs(filter_fields_and_values), many=True).data
         return response.Response(data)
 
@@ -43,6 +41,5 @@ class WideFilterView(views.APIView):
 
     def prefetch_qs(self, qs):
         if self.prefetch_fields:
-            print(f"prefetch_qs({self.prefetch_fields})")
             return qs.prefetch_related(*self.prefetch_fields)
         return qs

@@ -9,6 +9,7 @@ class RawIncomingItemWideFilterView(sc_views.WideFilterView):
     prefetch_fields = [
         'source_obj', 'category_obj', 'department_obj', 'rawitem_obj',
         'rawitem_obj__category', 'rawitem_obj__source', 'rawitem_obj__common_item_name_group',
+        'rawitem_obj__common_item_name_group__category', 'rawitem_obj__common_item_name_group__name'
     ]
 
 
