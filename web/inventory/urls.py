@@ -13,6 +13,9 @@ urlpatterns = [
     urls.path("api_rawincomingitems/", i_views.APIRawIncomingItemListView.as_view(), name="api_rawincomingitem_list"),
     urls.path("api_rawincomingitem/<uuid:pk>/", i_views.APIRawIncomingItemDetailView.as_view(), name="api_rawincomingitem_detail"),
 
+    urls.path("api_rawitem/wide_filter/", i_views.RawItemWideFilterView.as_view(), name="api_rawitem_widefilter"),
+    urls.path("api_rawincomingitem/wide_filter/", i_views.RawIncomingItemWideFilterView.as_view(), name="api_rawincomingitem_widefilter"),
+
     urls.path("rawincomingorders/", i_views.RawIncomingOrderListView.as_view(), name="rawincomingorder_list"),
     urls.path("rawincomingorder/<uuid:pk>/", i_views.RawIncomingOrderDetailView.as_view(), name="rawincomingorder_detail"),
 

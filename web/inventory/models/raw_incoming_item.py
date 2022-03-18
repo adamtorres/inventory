@@ -54,8 +54,11 @@ class RawIncomingItemManager(sc_models.WideFilterManagerMixin, models.Manager):
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
         separate query for every record.
         """
+        print("get_queryset")
         qs = super().get_queryset()
-        qs = qs.select_related('state', 'state__next_state', 'state__next_error_state')
+        qs = qs.select_related(
+            'state', 'state__next_state', 'state__next_error_state', 'source_obj', 'category_obj', 'department_obj',
+            'rawitem_obj')
         # qs = qs.prefetch_related('state', 'state__next_state', 'state__next_error_state')
         return qs
 
@@ -304,14 +307,14 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     )
     failure_reasons = models.TextField(null=True, blank=True)
 
-    objects = RawIncomingItemManager()
-    reports = RawIncomingItemReportManager()
-    non_input_fields = ['state', 'failure_reasons', 'created', 'modified', 'id']
-
     source_obj = models.ForeignKey(Source, on_delete=models.CASCADE, null=True)
     category_obj = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
     department_obj = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
     rawitem_obj = models.ForeignKey(RawItem, on_delete=models.CASCADE, null=True, related_query_name="raw_incoming_items")
+
+    objects = RawIncomingItemManager()
+    reports = RawIncomingItemReportManager()
+    non_input_fields = ['state', 'failure_reasons', 'created', 'modified', 'id']
 
     class Meta:
         ordering = ("delivery_date", "source", "order_number", "line_item_position")

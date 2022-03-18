@@ -2,7 +2,12 @@ from rest_framework import serializers
 
 from scrap import serializers as sc_serializers
 from .. import models as inv_models
+from .category import CategorySerializer
+from .common_item_name_group import CommonItemNameGroupSerializer
+from .department import DepartmentSerializer
+from .raw_item import RawItemSerializer
 from .raw_state import RawStateSerializer
+from .source import SourceSerializer
 
 
 class HyperlinkedRawIncomingItemSerializer(serializers.HyperlinkedModelSerializer):
@@ -18,7 +23,7 @@ class HyperlinkedRawIncomingItemSerializer(serializers.HyperlinkedModelSerialize
         fields = '__all__'
 
 
-class RawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
+class XRawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
     source = sc_serializers.CharField()
     department = sc_serializers.CharField()
     customer_number = sc_serializers.CharField()
@@ -101,3 +106,15 @@ class RawIncomingItemInOrderSerializer(sc_serializers.DatedModelSerializer):
     scanned_image_filename = sc_serializers.CharField()
     state = RawStateSerializer()
     failure_reason = sc_serializers.CharField(allow_null=True, allow_blank=True)
+
+
+class RawIncomingItemSerializer(serializers.ModelSerializer):
+    source_obj = SourceSerializer()
+    category_obj = CategorySerializer()
+    department_obj = DepartmentSerializer()
+    rawitem_obj = RawItemSerializer()
+    state = serializers.StringRelatedField()
+
+    class Meta:
+        model = inv_models.RawIncomingItem
+        fields = '__all__'

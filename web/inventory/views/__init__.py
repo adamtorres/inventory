@@ -1,5 +1,6 @@
 from .api_raw_incoming_item import APIRawIncomingItemDetailView, APIRawIncomingItemListView
 from .api_raw_incoming_order import APIRawIncomingOrderDetailView, APIRawIncomingOrderListView
+from .api_wide_filter import RawIncomingItemWideFilterView, RawItemWideFilterView
 from .raw_incoming_item import (
     RawIncomingItemCreateView, RawIncomingItemDeleteView, RawIncomingItemDetailView, RawIncomingItemListView,
     RawIncomingItemUpdateView)
