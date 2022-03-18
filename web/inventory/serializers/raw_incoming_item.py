@@ -121,14 +121,15 @@ class RawIncomingItemSerializer(serializers.ModelSerializer):
 
 
 class RawIncomingItemFlatSerializer(serializers.ModelSerializer):
-    source_obj = serializers.SlugRelatedField('name', read_only=True)
-    category_obj = serializers.SlugRelatedField('name', read_only=True)
-    department_obj = serializers.SlugRelatedField('name', read_only=True)
-    rawitem_obj = RawItemSerializer()
-    state = serializers.StringRelatedField()
     better_name = serializers.SerializerMethodField()
+    category_obj = serializers.SlugRelatedField('name', read_only=True)
     common_item_name = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
+    department_obj = serializers.SlugRelatedField('name', read_only=True)
     rawitem_comment = serializers.SerializerMethodField()
+    rawitem_obj = RawItemSerializer()
+    source_obj = serializers.SlugRelatedField('name', read_only=True)
+    state = serializers.StringRelatedField()
 
     class Meta:
         model = inv_models.RawIncomingItem
@@ -145,6 +146,11 @@ class RawIncomingItemFlatSerializer(serializers.ModelSerializer):
                 if obj.rawitem_obj.common_item_name_group.name:
                     return obj.rawitem_obj.common_item_name_group.name.name
         return ""
+
+    def get_department(self, obj):
+        if obj.department_obj:
+            return obj.department_obj.abbreviation or obj.department_obj.name or obj.department
+        return obj.department
 
     def get_rawitem_comment(self, obj):
         if obj.rawitem_obj:

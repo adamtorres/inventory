@@ -14,6 +14,14 @@
 .choice-inline {
     display: inline-block;
 }
+#result-table tr th {
+    background-color: lightgrey;
+    position: sticky;
+}
+
+#result-table tr:nth-child(even) {
+    background-color: lightgoldenrodyellow;
+}
 </style>
 {% endblock %}
 
@@ -97,6 +105,10 @@
             <div class="col">
                 <label for="filter-comment">Comment:</label>
                 <input type="text" id="filter-comment" class="filter-input" />
+            </div>
+            <div class="col">
+                <label for="filter-order-number">Order Number:</label>
+                <input type="text" id="filter-order-number" class="filter-input" />
             </div>
             <input type="hidden" id="filter-item-id" class="filter-input" value="{{ item_id }}" />
         </div>
@@ -228,65 +240,66 @@ Log.
 
     <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
-            <td class="border" data-field="source_obj">__source_obj__</td>
-            <td class="border" data-field="category_obj">__category_obj__</td>
-            <td class="border" data-field="department_obj">__department_obj__</td>
-            <td class="border" data-field="state">__state__</td>
-            <td class="border" data-field="customer_number">__customer_number__</td>
-            <td class="border" data-field="order_number">__order_number__</td>
-            <td class="border" data-field="po_text">__po_text__</td>
-            <td class="border" data-field="order_comment">__order_comment__</td>
+            <td class="border d-none" data-field="source_obj">__source_obj__</td>
+            <td class="border d-none" data-field="category_obj">__category_obj__</td>
+            <td class="border" data-field="department">__department__</td>
+            <td class="border d-none" data-field="state">__state__</td>
+            <td class="border d-none" data-field="customer_number">__customer_number__</td>
+            <td class="border d-none" data-field="order_number">__order_number__</td>
+            <td class="border d-none" data-field="po_text">__po_text__</td>
+            <td class="border d-none" data-field="order_comment">__order_comment__</td>
             <td class="border date-cell" data-field="delivery_date">__delivery_date__</td>
-            <td class="border number-cell" data-field="total_price">__total_price__</td>
-            <td class="border number-cell" data-field="total_packs">__total_packs__</td>
-            <td class="border number-cell" data-field="line_item_position">__line_item_position__</td>
-            <td class="border" data-field="item_comment">__item_comment__</td>
-            <td class="border" data-field="item_code">__item_code__</td>
-            <td class="border" data-field="extra_code">__extra_code__</td>
-            <td class="border number-cell" data-field="pack_quantity">__pack_quantity__</td>
-            <td class="border number-cell" data-field="unit_size">__unit_size__</td>
-            <td class="border number-cell" data-field="ordered_quantity">__ordered_quantity__</td>
-            <td class="border number-cell" data-field="delivered_quantity">__delivered_quantity__</td>
-            <td class="border number-cell" data-field="total_weight">__total_weight__</td>
-            <td class="border number-cell" data-field="pack_price">__pack_price__</td>
-            <td class="border number-cell" data-field="pack_tax">__pack_tax__</td>
-            <td class="border" data-field="extended_price">__extended_price__</td>
-            <td class="border" data-field="name">__name__</td>
-            <td class="border" data-field="better_name">__better_name__</td>
-            <td class="border" data-field="common_item_name">__common_item_name__</td>
-            <td class="border" data-field="rawitem_comment">__rawitem_comment__</td>
+            <td class="border right-align dollar-cell d-none" data-field="total_price">__total_price__</td>
+            <td class="border right-align d-none" data-field="total_packs">__total_packs__</td>
+            <td class="border right-align d-none" data-field="line_item_position">__line_item_position__</td>
+            <td class="border d-none" data-field="item_code">__item_code__</td>
+            <td class="border d-none" data-field="extra_code">__extra_code__</td>
+            <td class="border right-align" data-field="pack_quantity">__pack_quantity__</td>
+            <td class="border right-align" data-field="unit_size">__unit_size__</td>
+            <td class="border right-align d-none" data-field="ordered_quantity">__ordered_quantity__</td>
+            <td class="border right-align" data-field="delivered_quantity">__delivered_quantity__</td>
+            <td class="border right-align" data-field="total_weight">__total_weight__</td>
+            <td class="border right-align dollar-cell" data-field="pack_price">__pack_price__</td>
+            <td class="border right-align dollar-cell" data-field="pack_tax">__pack_tax__</td>
+            <td class="border right-align dollar-cell" data-field="extended_price">__extended_price__</td>
+            <td class="border">
+                <div data-field="name"></div>
+                <div data-field="better_name"></div>
+                <div data-field="common_item_name"></div>
+            </td>
+            <td class="border">
+                <div data-field="rawitem_comment">__rawitem_comment__</div>
+                <div data-field="item_comment">__item_comment__</div>
+            </td>
         </tr>
     </table>
-    <table>
+    <table id="result-table">
         <thead>
             <tr>
-                <th class="border">source</th>
-                <th class="border">category</th>
+                <th class="border d-none">source</th>
+                <th class="border d-none">category</th>
                 <th class="border">department</th>
-                <th class="border">state</th>
-                <th class="border">customer_number</th>
-                <th class="border">order_number</th>
-                <th class="border">po_text</th>
-                <th class="border">order_comment</th>
-                <th class="border date-cell">delivery_date</th>
-                <th class="border number-cell">total_price</th>
-                <th class="border number-cell">total_packs</th>
-                <th class="border number-cell">line_item_position</th>
-                <th class="border">item_comment</th>
-                <th class="border">item_code</th>
-                <th class="border">extra_code</th>
-                <th class="border number-cell">pack_quantity</th>
-                <th class="border number-cell">unit_size</th>
-                <th class="border number-cell">ordered_quantity</th>
-                <th class="border number-cell">delivered_quantity</th>
-                <th class="border number-cell">total_weight</th>
-                <th class="border number-cell">pack_price</th>
-                <th class="border number-cell">pack_tax</th>
-                <th class="border">extended_price</th>
+                <th class="border d-none">state</th>
+                <th class="border d-none">customer number</th>
+                <th class="border d-none">order number</th>
+                <th class="border d-none">po text</th>
+                <th class="border d-none">order comment</th>
+                <th class="border date-cell">delivery date</th>
+                <th class="border right-align d-none">total price</th>
+                <th class="border right-align d-none">total packs</th>
+                <th class="border right-align d-none">line item position</th>
+                <th class="border d-none">item code</th>
+                <th class="border d-none">extra code</th>
+                <th class="border right-align">pack quantity</th>
+                <th class="border right-align">unit size</th>
+                <th class="border right-align d-none">ordered quantity</th>
+                <th class="border right-align">delivered quantity</th>
+                <th class="border right-align">total weight</th>
+                <th class="border right-align">pack price</th>
+                <th class="border right-align">pack tax</th>
+                <th class="border right-align">extended price</th>
                 <th class="border">name</th>
-                <th class="border">better_name</th>
-                <th class="border">common_item_name</th>
-                <th class="border">rawitem_comment</th>
+                <th class="border">comments</th>
             </tr>
         </thead>
         <tbody id="result-table-body">
@@ -305,7 +318,9 @@ filter_fields = [
     "state", "customer_number", "order_number", "po_text", "order_comment", "delivery_date", "total_price",
     "total_packs", "line_item_position", "item_comment", "item_code", "extra_code", "pack_quantity", "unit_size",
     "ordered_quantity", "delivered_quantity", "total_weight", "pack_price", "pack_tax", "extended_price", "name",
-    "source_obj", "category_obj", "department_obj", "better_name", "common_item_name", "rawitem_comment"];
+    "source_obj", "category_obj", "department", "better_name", "common_item_name", "rawitem_comment"];
+remove_decimals = ["delivered_quantity", "total_weight", "pack_quantity"];
+money_fields = ["pack_price", "pack_tax", "extended_price"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
     {element: "#filter-quantity", ajax_var: "quantity"},
@@ -313,6 +328,7 @@ filter_input_fields = [
     {element: "#filter-item-name", ajax_var: "name"},
     {element: "#filter-item-id", ajax_var: "item_id"},
     {element: "#filter-comment", ajax_var: "comment"},
+    {element: "#filter-order-number", ajax_var: "order_number"},
     {element: "[name='filter-category']", ajax_var: "category"},
     {element: "[name='filter-department']", ajax_var: "department"},
     {element: "[name='filter-source']", ajax_var: "source"},
@@ -332,6 +348,7 @@ not_yet_filter_result_fields = [
 ];
 
 function resize_lookup_content() {
+    // TODO: resize doesn't seem to be working properly.
     let w = $(window);
     let window_height = w.height();
     let content_obj = $("#lookup-content");
@@ -352,12 +369,10 @@ function setup_event_handlers() {
 
     w.on(filter_requested_event_name, function() {
         // filter sent to server, hide calculations as there's no longer a selected item.
-        logit("filter_requested_event_name");
         $("#calculation-div").addClass("d-none");
     });
     w.on(filter_results_populated_event_name, function() {
         // filter results arrived.  Still no selected item.
-        logit("filter_results_populated_event_name");
         $("#calculation-div").addClass("d-none");
         let item_id_tag = $("#filter-item-id");
         if (item_id_tag.val() !== "") {

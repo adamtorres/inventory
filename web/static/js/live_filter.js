@@ -3,6 +3,7 @@
 var filter_url = "set from page as it likely uses django template tags.";
 var filter_fields = ["list", "of", "fields", "to", "include", "in", "filtered", "results"];
 var remove_decimals = ["fields", "from", "which", "to", "remove", "decimals"];
+var money_fields = ["fields", "to", "fix", "to", "two", "decimal", "places"];
 var filter_input_fields = [
     {element: "#id-of-the-input-control", ajax_var: "name_of_the_var_when_ajax"},
     {element: "#second-id-of-the-input-control", ajax_var: "second_name_of_the_var_when_ajax"},
@@ -58,6 +59,9 @@ function new_item(data) {
                 // decimal places when needed.
                 // It does cut the decimals to 2, though.
                 record_value = Math.round(record_value * 100) / 100;
+            }
+            if (money_fields.includes(key)) {
+                record_value = Number.parseFloat(record_value).toFixed(2);
             }
             if (is_date_value(record_value) && is_date_field(key)){
                 e.text(format_date_str(record_value));
