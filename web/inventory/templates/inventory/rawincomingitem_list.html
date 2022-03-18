@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Item List{% endblock %}
+
+{% block styles %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+    <ul>
+        <li><a href="{% url "inventory:rawincomingitem_new" %}">New item</a></li>
+    </ul>
+    <table class="datatable datatable-link" id="item-list">
+    <thead>
+    <tr>
+        <th class="right-align">delivery date</th>
+        <th>source</th>
+        <th class="right-align">order number</th>
+        <th class="right-align">line item position</th>
+        <th>name</th>
+        <th class="right-align">delivered quantity</th>
+        <th class="right-align">extended price</th>
+        <th>state</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in object_list %}
+        <tr data-detail-url="{% url "inventory:rawincomingitem_detail" pk=item.id %}">
+            {% include "inventory/rawincomingitem_list_item.html" with item=item %}
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+// Get the table that contains all we want to work with.
+var el = document.getElementById('item-list');
+// Link all of the other cells in a row to take the user to the detail page.
+var link_trs = el.querySelectorAll('[data-detail-url]');
+for (var ltd_i=0, ltd_len=link_trs.length; ltd_i<ltd_len; ltd_i++) {
+    link_trs[ltd_i].onclick = function() {
+        window.location = this.attributes["data-detail-url"].value;
+    }
+}
+</script>
+{% endblock %}

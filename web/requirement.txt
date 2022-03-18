@@ -1,0 +1,44 @@
+# The webserver
+Django
+
+# Provides runserver_plus and shell_plus
+django-extensions
+
+# Connects to Postgresql
+psycopg2-binary
+
+# Reads .env files
+django-dotenv
+
+# used to localize times
+pytz
+
+# Used by runserver_plus
+Werkzeug
+
+# Converts between units like cups/quarts/milliliters.  This is my fork which adds volume.
+git+https://github.com/adamtorres/unit-convert@master#egg=unit-convert
+
+# provides a fancier django admin interface.  Using it because it promised to handle GenericForeignKey nicely.
+django-grappelli
+
+# Trying to add colors to print-sql output
+pygments
+
+# to parse dates from invoice files
+python-dateutil
+
+# mainly for the serializer
+djangorestframework
+
+# for if/when more user-driven filtering is desired.
+django-filter
+
+# For models which reference themselves. ex RawState.next_state
+djangorestframework-recursive
+
+# for making calls to the api from within code
+requests
+
+# TODO: django-model-utils looks to have some neat things.  Even has UUIDModel and TimeStampModels which are similar to
+#  what I have in scrap.models.
