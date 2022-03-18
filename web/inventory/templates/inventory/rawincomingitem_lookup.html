@@ -77,8 +77,6 @@ label {
 
 {% block content %}
 <div class="container-fluid" id="lookup-content">
-    Raw Incoming Item Lookup
-    <hr />
     <div id="filter-controls">
         <div class="accordion" id="filter-limits-parent">
             <div class="accordion-item">
@@ -149,7 +147,6 @@ label {
                 </div>
             </div>
         </div>
-        <hr />
         <div class="row">
             <div class="col">
                 <label for="filter-quantity">Quantity:</label>
@@ -236,13 +233,13 @@ label {
                 <span id="calc-unit-size"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-price" class="faded-dollar"></span>
+                <span id="calc-price" class="dollar-cell"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-pack-price" class="faded-dollar"></span>
+                <span id="calc-pack-price" class="dollar-cell"></span>
             </div>
             <div class="col col-sm-2">
-                <span id="calc-unit-price" class="faded-dollar"></span>
+                <span id="calc-unit-price" class="dollar-cell"></span>
             </div>
         </div>
         <hr />
@@ -272,11 +269,11 @@ label {
                     <span id="calc-avg-unit-weight"></span>
                 </div>
                 <div class="col col-sm-1">
-                    <span id="calc-price-per-weight" class="faded-dollar"></span>
+                    <span id="calc-price-per-weight" class="dollar-cell"></span>
                 </div>
             </div>
-        </div>
         <hr />
+        </div>
         <div class="row">
             <div class="col" id="calculated-results">
                 <h5>
@@ -297,8 +294,6 @@ label {
     <pre id="on-page-log">
 Log.
     </pre>
-
-
     <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
             <td class="border d-none" data-field="source_obj">__source_obj__</td>
@@ -461,7 +456,7 @@ function update_calculations() {
                 e.text(round(i+1));
             }
             if (key === "cost_for_the_units") {
-                e.html("<span class='faded-dollar'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
+                e.html("<span class='dollar-cell'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
             }
         });
         // item_clone.removeClass("hidden");
