@@ -2,10 +2,12 @@ from django import urls
 from django.views import generic
 
 from inventory import models as inv_models
+from scrap import views as sc_views
 
 
-class RawIncomingItemLookupView(generic.TemplateView):
+class RawIncomingItemLookupView(sc_views.OnPageTitleMixin, generic.TemplateView):
     template_name = "inventory/rawincomingitem_lookup.html"
+    on_page_title = "Raw Incoming Item Lookup"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

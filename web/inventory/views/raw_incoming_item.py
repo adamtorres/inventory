@@ -3,31 +3,36 @@ import requests
 from django import urls
 from django.views import generic
 
+from scrap import views as sc_views
 from .. import models as inv_models, serializers as inv_serializers
 
 
-class RawIncomingItemCreateView(generic.CreateView):
+class RawIncomingItemCreateView(sc_views.OnPageTitleMixin, generic.CreateView):
     model = inv_models.RawIncomingItem
     fields = [
         "source", "department", "customer_number", "order_number", "po_text", "order_comment", "order_date",
         "delivery_date", "total_price", "total_packs", "line_item_position", "category", "name", "ordered_quantity",
         "delivered_quantity", "item_code", "extra_code", "unit_size", "total_weight", "pack_quantity", "pack_price",
         "pack_tax", "extended_price", "item_comment", "scanned_image_filename", ]
+    on_page_title = "Raw Incoming Item Create"
 
 
-class RawIncomingItemDeleteView(generic.DeleteView):
+class RawIncomingItemDeleteView(sc_views.OnPageTitleMixin, generic.DeleteView):
     model = inv_models.RawIncomingItem
+    on_page_title = "Raw Incoming Item Delete"
 
     def get_success_url(self):
         return urls.reverse("inventory:rawincomingitem_list")
 
 
-class RawIncomingItemDetailView(generic.DetailView):
+class RawIncomingItemDetailView(sc_views.OnPageTitleMixin, generic.DetailView):
     model = inv_models.RawIncomingItem
+    on_page_title = "Raw Incoming Item Detail"
 
 
-class RawIncomingItemListView(generic.TemplateView):
+class RawIncomingItemListView(sc_views.OnPageTitleMixin, generic.TemplateView):
     template_name = "inventory/rawincomingitem_list.html"
+    on_page_title = "Raw Incoming Item List"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,10 +57,11 @@ class RawIncomingItemListView(generic.TemplateView):
         return context
 
 
-class RawIncomingItemUpdateView(generic.UpdateView):
+class RawIncomingItemUpdateView(sc_views.OnPageTitleMixin, generic.UpdateView):
     model = inv_models.RawIncomingItem
     fields = [
         "source", "department", "customer_number", "order_number", "po_text", "order_comment", "order_date",
         "delivery_date", "total_price", "total_packs", "line_item_position", "category", "name", "ordered_quantity",
         "delivered_quantity", "item_code", "extra_code", "unit_size", "total_weight", "pack_quantity", "pack_price",
         "pack_tax", "extended_price", "item_comment", "scanned_image_filename", ]
+    on_page_title = "Raw Incoming Item Update"

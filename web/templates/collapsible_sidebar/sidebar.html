@@ -1,4 +1,4 @@
-<nav id="sidebar" class="">
+<nav id="sidebar" class="active">
     <div class="sidebar-header">
         <h3>Bear Lake Senior Citizen Center Inventory</h3>
     </div>
@@ -6,8 +6,8 @@
     <ul class="list-unstyled components">
         <p><a href="{% url "homepage" %}" class="link-light rounded">Home</a></p>
         <li class="active">
-            <a href="#inventorySubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Inventory</a>
-            <ul class="collapse list-unstyled" id="inventorySubmenu">
+            <a href="#RawSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Raw Items and Orders</a>
+            <ul class="collapse list-unstyled" id="RawSubmenu">
                 <li><a href="{% url "inventory:rawincomingorder_list" %}" class="link-light rounded">Raw Orders (Invoices, etc)</a></li>
                 <li><a href="{% url "inventory:rawincomingitem_list" %}" class="link-light rounded">Raw Items</a></li>
                 <li><a href="{% url "inventory:rawincomingitem_lookup" %}" class="link-light rounded">Raw Item Lookup</a></li>

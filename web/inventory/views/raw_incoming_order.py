@@ -3,12 +3,14 @@ import requests
 from django import urls
 from django.views import generic
 
+from scrap import views as sc_views
 from .. import models as inv_models, serializers as inv_serializers
 from .api_raw_incoming_order import RawIncomingOrderFilter
 
 
-class RawIncomingOrderDetailView(generic.TemplateView):
+class RawIncomingOrderDetailView(sc_views.OnPageTitleMixin, generic.TemplateView):
     template_name = "inventory/rawincomingorder_detail.html"
+    on_page_title = "Raw Incoming Order Detail"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,8 +26,9 @@ class RawIncomingOrderDetailView(generic.TemplateView):
         return context
 
 
-class RawIncomingOrderListView(generic.TemplateView):
+class RawIncomingOrderListView(sc_views.OnPageTitleMixin, generic.TemplateView):
     template_name = "inventory/rawincomingorder_list.html"
+    on_page_title = "Raw Incoming Order List"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
