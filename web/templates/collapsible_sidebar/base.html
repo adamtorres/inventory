@@ -1,0 +1,18 @@
+{% extends "base_without_nav.html" %}
+{% load static %}
+
+{% block navpanel_css %}
+    <link href="{% static "css/font-awesome.css" %}" rel="stylesheet">
+    <link href="{% static "collapsible_sidebar/css/sidebar.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block navpanel_body %}
+{% include "collapsible_sidebar/sidebar.html" %}
+{% endblock %}
+{% block navpanel_header %}
+{% include "collapsible_sidebar/header.html" %}
+{% endblock %}
+
+{% block navpanel_js %}
+<script src="{% static 'collapsible_sidebar/js/sidebar.js' %}"></script>
+{% endblock %}

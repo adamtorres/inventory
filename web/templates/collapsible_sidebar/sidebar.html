@@ -1,0 +1,36 @@
+<nav id="sidebar" class="">
+    <div class="sidebar-header">
+        <h3>Bear Lake Senior Citizen Center Inventory</h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <p><a href="{% url "homepage" %}" class="link-light rounded">Home</a></p>
+        <li class="active">
+            <a href="#inventorySubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Inventory</a>
+            <ul class="collapse list-unstyled" id="inventorySubmenu">
+                <li><a href="{% url "inventory:rawincomingorder_list" %}" class="link-light rounded">Raw Orders (Invoices, etc)</a></li>
+                <li><a href="{% url "inventory:rawincomingitem_list" %}" class="link-light rounded">Raw Items</a></li>
+                <li><a href="{% url "inventory:rawincomingitem_lookup" %}" class="link-light rounded">Raw Item Lookup</a></li>
+                <li><a href="{% url "inventory:rawincomingitem_new" %}" class="link-light rounded">Create Raw Item</a></li>
+            </ul>
+        </li>
+{#        <li>#}
+{#            <a href="#inventorySubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Inventory</a>#}
+{#            <ul class="collapse list-unstyled" id="inventorySubmenu">#}
+{#                <li><a href="{% url "inventory_list" %}" class="link-light rounded">Current Inventory</a></li>#}
+{#                <li><a href="{% url "locations" %}" class="link-light rounded">Locations</a></li>#}
+{#                <li><a href="{% url "usage_reports" %}" class="link-light rounded">Usage Reports</a></li>#}
+{#                <li><a href="{% url "usage_report_add" %}" class="link-light rounded">New Usage Report</a></li>#}
+{#            </ul>#}
+{#        </li>#}
+    </ul>
+
+    <ul class="list-unstyled CTAs">
+        <li>
+            <a href="#" class="download">Some other link</a>
+        </li>
+        <li>
+            <a href="#" class="article">Some link</a>
+        </li>
+    </ul>
+</nav>
