@@ -17,10 +17,17 @@ class RawIncomingItemFilter(filters.FilterSet):
 
 
 class APIRawIncomingItemListView(generics.ListAPIView):
-    queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingItemFilter
+    prefetch_fields = [
+        'source_obj', 'category_obj', 'department_obj', 'rawitem_obj',
+        'rawitem_obj__category', 'rawitem_obj__source', 'rawitem_obj__common_item_name_group',
+        'rawitem_obj__common_item_name_group__category', 'rawitem_obj__common_item_name_group__name'
+    ]
+
+    def get_queryset(self):
+        return self.prefetch_qs(self.model.objects.all())
 
     def paginate_queryset(self, qs):
         if self.request.query_params.get('paging') == 'off':
@@ -32,10 +39,22 @@ class APIRawIncomingItemListView(generics.ListAPIView):
             return inv_serializers.RawIncomingItemSerializer
         return inv_serializers.HyperlinkedRawIncomingItemSerializer
 
+    def prefetch_qs(self, qs):
+        if self.prefetch_fields:
+            return qs.prefetch_related(*self.prefetch_fields)
+        return qs
+
 
 class APIRawIncomingItemDetailView(generics.GenericAPIView):
-    queryset = inv_models.RawIncomingItem.objects.all()
     model = inv_models.RawIncomingItem
+    prefetch_fields = [
+        'source_obj', 'category_obj', 'department_obj', 'rawitem_obj',
+        'rawitem_obj__category', 'rawitem_obj__source', 'rawitem_obj__common_item_name_group',
+        'rawitem_obj__common_item_name_group__category', 'rawitem_obj__common_item_name_group__name'
+    ]
+
+    def get_queryset(self):
+        return self.prefetch_qs(inv_models.RawIncomingItem.objects.all())
 
     def get_serializer_class(self):
         if self.request.query_params.get('format') == 'json':
@@ -44,5 +63,10 @@ class APIRawIncomingItemDetailView(generics.GenericAPIView):
 
     def get(self, request, pk=None):
         serializer_class = self.get_serializer_class()
-        obj = serializer_class(self.model.objects.get(id=pk), context={'request': request})
+        obj = serializer_class(self.get_queryset().get(id=pk), context={'request': request})
         return response.Response(obj.data)
+
+    def prefetch_qs(self, qs):
+        if self.prefetch_fields:
+            return qs.prefetch_related(*self.prefetch_fields)
+        return qs
