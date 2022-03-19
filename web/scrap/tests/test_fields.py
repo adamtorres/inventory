@@ -1,7 +1,7 @@
 from django.db import models
 from django.test import TestCase
 
-from .. import fields as sc_fields
+from ..models import fields as sc_fields
 
 
 class ScrapFieldsTestCase(TestCase):

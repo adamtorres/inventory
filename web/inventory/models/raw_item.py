@@ -1,6 +1,7 @@
 from django.db import models
 
-from scrap import models as sc_models, fields as sc_fields
+from scrap import models as sc_models
+from scrap.models import fields as sc_fields
 
 
 class RawItemManager(sc_models.WideFilterManagerMixin, models.Manager):
@@ -35,6 +36,7 @@ class RawItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     name = sc_fields.CharField(blank=False)
     unit_size = sc_fields.CharField()
     pack_quantity = sc_fields.DecimalField()
+    unit_quantity = models.IntegerField(default=1, help_text="For unit_size=ct/dz, this converts that to a number")
 
     category = models.ForeignKey(
         "inventory.Category", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items")

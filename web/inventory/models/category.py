@@ -1,6 +1,5 @@
-from django.db import models
-
-from scrap import models as sc_models, fields as sc_fields
+from scrap import models as sc_models
+from scrap.models import fields as sc_fields
 
 
 class Category(sc_models.UUIDModel):

@@ -23,7 +23,6 @@
     background-color: lightgoldenrodyellow;
 }
 
-
 #calculation-div {
     border: green solid 2px;
     margin-top: 1em;
@@ -441,6 +440,7 @@ function update_calculations() {
         $("#calc-weight-specific-cells").removeClass("d-none");
     } else {
         $("#calc-weight-specific-cells").addClass("d-none");
+
     }
     let total_units = pack_quantity * quantity;
     let row_template = $(`#per_unit_row_template`);

@@ -16,6 +16,10 @@ def _do_calculate(batch_size=1):
         sums = order_qs.aggregate(
             sum_total_packs=models.Sum('delivered_quantity'),
             sum_extended_price=models.Sum('extended_price'),
+            # unit_quantity_calced=models.Case(
+            #     models.When(models.F('unit_size'), then=models.F('')),
+            #     default=models.Value(1)
+            # )
         )
         order_qs.update(total_packs=sums['sum_total_packs'], total_price=sums['sum_extended_price'], state=next_state)
         # for item in order_qs:

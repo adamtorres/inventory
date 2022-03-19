@@ -1,4 +1,3 @@
-import functools
 import itertools
 
 from django import urls
@@ -7,7 +6,8 @@ from django.db import models
 from django.db.models import base as models_base
 from django.db.models import functions
 
-from scrap import models as sc_models, fields as sc_fields
+from scrap import models as sc_models
+from scrap.models import fields as sc_fields
 from .category import Category
 from .department import Department
 from .raw_item import RawItem
@@ -292,6 +292,7 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     item_code = sc_fields.CharField()
     extra_code = sc_fields.CharField()
     unit_size = sc_fields.CharField()
+    unit_quantity = models.IntegerField(default=1, help_text="For unit_size=ct/dz, this converts that to a number")
     total_weight = sc_fields.DecimalField()
     pack_quantity = sc_fields.DecimalField()
     pack_price = sc_fields.MoneyField()

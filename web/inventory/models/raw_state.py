@@ -1,6 +1,7 @@
 from django.db import models
 
-from scrap import fields as sc_fields, models as sc_models
+from scrap import models as sc_models
+from scrap.models import fields as sc_fields
 
 
 class RawStateManager(models.Manager):

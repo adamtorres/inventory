@@ -2,8 +2,8 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import scrap.fields.char_field
-import scrap.fields.decimal_field
+import scrap.models.fields.char_field
+import scrap.models.fields.decimal_field
 import uuid
 
 
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name='CommonItemName',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', scrap.fields.char_field.CharField(blank=True, default='', max_length=1024)),
+                ('name', scrap.models.fields.char_field.CharField(blank=True, default='', max_length=1024)),
             ],
             options={
                 'abstract': False,
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
-                ('name', scrap.fields.char_field.CharField(blank=True, default='', help_text='vendor/donator name', max_length=1024)),
+                ('name', scrap.models.fields.char_field.CharField(blank=True, default='', help_text='vendor/donator name', max_length=1024)),
                 ('active', models.BooleanField(default=True, help_text='is a usable source')),
             ],
             options={
@@ -43,14 +43,14 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
-                ('category', scrap.fields.char_field.CharField(blank=True, default='', help_text='meat, dairy, produce, etc.', max_length=1024)),
-                ('name', scrap.fields.char_field.CharField(blank=True, default='', max_length=1024)),
-                ('better_name', scrap.fields.char_field.CharField(blank=True, default='', help_text='Less cryptic item name', max_length=1024)),
-                ('item_code', scrap.fields.char_field.CharField(blank=True, default='', max_length=1024)),
-                ('extra_code', scrap.fields.char_field.CharField(blank=True, default='', max_length=1024)),
-                ('unit_size', scrap.fields.char_field.CharField(blank=True, default='', max_length=1024)),
-                ('pack_quantity', scrap.fields.decimal_field.DecimalField(decimal_places=4, default=0, max_digits=10)),
-                ('item_comment', scrap.fields.char_field.CharField(blank=True, default='', help_text='Anything noteworthy about this item', max_length=1024)),
+                ('category', scrap.models.fields.char_field.CharField(blank=True, default='', help_text='meat, dairy, produce, etc.', max_length=1024)),
+                ('name', scrap.models.fields.char_field.CharField(blank=True, default='', max_length=1024)),
+                ('better_name', scrap.models.fields.char_field.CharField(blank=True, default='', help_text='Less cryptic item name', max_length=1024)),
+                ('item_code', scrap.models.fields.char_field.CharField(blank=True, default='', max_length=1024)),
+                ('extra_code', scrap.models.fields.char_field.CharField(blank=True, default='', max_length=1024)),
+                ('unit_size', scrap.models.fields.char_field.CharField(blank=True, default='', max_length=1024)),
+                ('pack_quantity', scrap.models.fields.decimal_field.DecimalField(decimal_places=4, default=0, max_digits=10)),
+                ('item_comment', scrap.models.fields.char_field.CharField(blank=True, default='', help_text='Anything noteworthy about this item', max_length=1024)),
                 ('common_item_name', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.commonitemname')),
                 ('source', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='raw_items', related_query_name='raw_items', to='inventory.source')),
             ],
