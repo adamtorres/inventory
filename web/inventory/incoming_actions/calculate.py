@@ -10,18 +10,10 @@ def _do_calculate(batch_size=1):
     """
     if batch_size <= 0:
         return [], set()
+    # next_state = inv_models.RawState.objects.get_by_action('calculate')
     for order_qs in inv_models.RawIncomingItem.objects.ready_to_calculate():
         # print("=" * 120)
-        next_state = inv_models.RawState.objects.get_by_action('calculate')
-        sums = order_qs.aggregate(
-            sum_total_packs=models.Sum('delivered_quantity'),
-            sum_extended_price=models.Sum('extended_price'),
-            # unit_quantity_calced=models.Case(
-            #     models.When(models.F('unit_size'), then=models.F('')),
-            #     default=models.Value(1)
-            # )
-        )
-        order_qs.update(total_packs=sums['sum_total_packs'], total_price=sums['sum_extended_price'], state=next_state)
+        inv_models.RawIncomingItem.objects.calculate_order_values(order_qs)
         # for item in order_qs:
         #     print(f"item = {item.delivered_quantity} / {item.total_packs} / {item.extended_price} / {item.total_price}")
         # print(

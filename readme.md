@@ -76,6 +76,7 @@ Or, including the user/email on the command line
 
 Current steps to import and process data from the spreadsheet.
 ```
+./manage.py loaddata raw_state
 ./manage.py runscript remove_data --script-args truncate
 ./manage.py ingest_items -f ../../invoices/incoming-2022-03-16.tsv
 ./manage.py shell_plus --quiet -c "ia.do_clean(0)"

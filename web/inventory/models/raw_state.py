@@ -5,9 +5,6 @@ from scrap.models import fields as sc_fields
 
 
 class RawStateManager(models.Manager):
-    def get_by_natural_key(self, value):
-        return self.prefetch_related('next_state').get(value=value)
-
     def get_by_action(self, action):
         return self.prefetch_related('next_state').get(name=self.model.action_to_state_name(action))
 
@@ -22,6 +19,9 @@ class RawStateManager(models.Manager):
 
     def done_state(self):
         return self.get(name=self.model.DONE_STATE)
+
+    def initial_state(self):
+        return self.get(name=self.model.STATES_ORDER[0])
 
 
 class RawState(sc_models.UUIDModel):

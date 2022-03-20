@@ -43,6 +43,34 @@ class RawIncomingItemManager(sc_models.WideFilterManagerMixin, models.Manager):
             qs = qs.exclude(**filter_kwarg)
         return qs.order_by(field)
 
+    def calculate_order_values(self, order_qs):
+        # Tack on next state so we don't have to make a separate query for it.  The orm doesn't like relations being
+        # used in update statements.
+        order_qs_annotated = order_qs.annotate(
+            next_state_id=models.Case(
+                models.When(
+                    models.Q(state__next_state__name=models.Value('calculated')),
+                    then=models.F('state__next_state_id')
+                ),
+                default=models.F('state_id'),
+            ))
+        # Group by that state since it should be the same for every record.
+        sum_qs = order_qs_annotated.values('next_state_id').annotate(
+            sum_total_packs=models.Sum('delivered_quantity'),
+            sum_extended_price=models.Sum('extended_price')
+        )
+        # Should only return one record and will have the two totals and state id.  Tried .first() but the "LIMIT 1"
+        # added to the query seemed to apply before the "GROUP BY" so the totals were broken.
+        # Looking at the --print-sql output, the .first() caused .id to be added to GROUP and ORDER BY clauses meaning
+        # the GROUP was pointless as each record became its own group.
+        sums = sum_qs[0]
+        # unit_quantity_calced=models.Case(
+        #     models.When(models.F('unit_size'), then=models.F('')),
+        #     default=models.Value(1)
+        # )
+        return order_qs.update(
+            total_packs=sums['sum_total_packs'], total_price=sums['sum_extended_price'], state_id=sums['next_state_id'])
+
     def categories(self, limit_state=None, qs=None, only_new=False):
         return self._distinct_things('category', Category, limit_state=limit_state, qs=qs, only_new=only_new)
 
@@ -214,7 +242,7 @@ class RawIncomingItemReportManager(models.Manager):
 
     def console_group_by_current_state(self):
         for s in self.group_by_current_state().order_by('state'):
-            print(f"{s['state']} {s['state__name']} = {s['count']}")
+            print(f"{s['state__value']} {s['state__name']} = {s['count']}")
 
     def count_by_action(self, action="clean"):
         rs = RawState.objects.get(name=RawState.action_to_state_name(action))
@@ -238,7 +266,7 @@ class RawIncomingItemReportManager(models.Manager):
         )
 
     def group_by_current_state(self):
-        return self.values('state', 'state__name').annotate(count=models.Count('id'))
+        return self.values('state__value', 'state__name').annotate(count=models.Count('id'))
 
 
 class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
@@ -305,7 +333,7 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
 
     state = models.ForeignKey(
         "inventory.RawState", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
-        to_field="value", default=0
+        default=RawState.objects.initial_state
     )
     failure_reasons = models.TextField(null=True, blank=True)
 
