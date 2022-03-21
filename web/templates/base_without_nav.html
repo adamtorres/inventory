@@ -25,13 +25,24 @@
 
         .datatable tr {
         }
+        .datatable th {
+            margin: 0;
+            border-right: lightgray solid 1px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
         .datatable td {
             margin: 0;
             border-top: black solid 1px;
             border-right: lightgray solid 1px;
+            padding-left: 4px;
+            padding-right: 4px;
         }
         .datatable tr:last-child td {
             border-bottom: black solid 1px;
+        }
+        .datatable tr td:first-child,th:first-child {
+            border-left: lightgray solid 1px;
         }
         .datatable-link tr[data-detail-url] {
             cursor: pointer;

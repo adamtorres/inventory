@@ -77,6 +77,7 @@ def assign_things(qs, field_name, fk_field_name):
 
     for fk_obj in fk_model.objects.all():
         ret = qs.filter(**{field_name: fk_obj.name}).update(**{fk_field_name: fk_obj})
+        print(f"Updated {ret} RawIncomingItem records where {field_name!r} == {fk_obj.name!r}.")
         results.append(ret)
     return sum(results)
 

@@ -1,5 +1,6 @@
 import collections
 import json
+import re
 
 from django.utils import timezone
 from django.db import models
@@ -8,7 +9,24 @@ from .. import models as inv_models
 from scrap import utils
 
 
-def _do_clean(batch_size=0):
+UNIT_SIZE_COUNT_RE = re.compile(r"^(?P<value>\d+)(?P<unit>dz|ct)$", re.IGNORECASE)
+UNIT_SIZE_POUND_RE = re.compile(r"^(?P<value>\d+)(?P<unit>lb|lbs)$", re.IGNORECASE)
+
+
+def generate_existing_unit_pattern() -> str:
+    r"^(?P<value>\d+)(?P<unit>dz|ct)$"
+    existing_units = [u for u in inv_models.RawItem.objects.get_possible_unit_counts().keys() if u]
+    if not existing_units:
+        # Some defaults for when the database is new.
+        existing_units = ["ct", "dz", "g", "gal", "in", "lb", "oz", "pt", "qt"]
+    valid_unit_pattern = r"^(?P<value>\d+(\.\d+)?)(?P<unit>" + "|".join(existing_units) + ")$"
+    return valid_unit_pattern
+
+
+EXISTING_UNIT_SIZE_RE = re.compile(generate_existing_unit_pattern(), re.IGNORECASE)
+
+
+def _do_clean(batch_size=0, allow_new_units=False):
     """
     step 1
     Purpose: Standardize dates, casing, numbers, whatever else makes sense.
@@ -19,7 +37,7 @@ def _do_clean(batch_size=0):
         qs = qs[:batch_size]
     items_to_update = []
     fields_to_update = {'state'}
-    cleaner = ItemCleaner()
+    cleaner = ItemCleaner(allow_new_units=allow_new_units)
     for i, item in enumerate(qs):
         fields_to_update.update(cleaner.clean(item))
         items_to_update.append(item)
@@ -43,15 +61,17 @@ def _do_clean(batch_size=0):
 
 
 class ItemCleaner(object):
+    allow_new_units = False
     failures = []
     updated_fields = set()
     now = None
     now_date = None
     item = None
 
-    def __init__(self):
+    def __init__(self, allow_new_units=False):
         self.now = timezone.now()
         self.now_date = self.now.date()
+        self.allow_new_units = allow_new_units
 
     def clean(self, item):
         self.item = item
@@ -159,6 +179,30 @@ class ItemCleaner(object):
                     'failure': 'delivered_quantity * pack_price + pack_tax != extended_price',
                     'difference': (self.item.delivered_quantity * self.item.pack_price) - self.item.extended_price
                 })
+
+    def validate_unit_size(self):
+        """
+        for any which end in "dz"(dozen) or "ct"(count), verify only numbers precede it.
+        """
+        if not self.item.unit_size:
+            # Blank is fine but leaves nothing to check so no need to do anything else here.
+            return
+        check_existing = EXISTING_UNIT_SIZE_RE.match(self.item.unit_size)
+        if not check_existing and not self.allow_new_units:
+            self.failures.append({
+                'fields': ['unit_size'],
+                'method': utils.get_function_name(),
+                'failure': 'unit_size does not appear to have a known unit size.',
+            })
+            return
+        check_count = UNIT_SIZE_COUNT_RE.match(self.item.unit_size)
+        if check_count:
+            # looks like a simple count-based unit_size, adjust (field).
+            unit_quantity = int(check_count.group('value'))
+            if check_count.group('unit') == 'dz':
+                unit_quantity *= 12
+            self.item.unit_quantity = unit_quantity
+            self.updated_fields.add('unit_quantity')
 
 
 def validate_item_combos(qs):

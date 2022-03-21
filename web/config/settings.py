@@ -147,6 +147,8 @@ SHELL_PLUS_IMPORTS = [
     'from inventory import models as inv_models',
     'import scrap',
     'from inventory import incoming_actions as ia',
+    'from inventory.incoming_actions import clean',
+    'from django.db import models',  # This makes copy/paste easier as this is how other modules here import it.
 ]
 
 REST_FRAMEWORK = {

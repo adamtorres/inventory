@@ -74,12 +74,22 @@ Or, including the user/email on the command line
     Superuser created successfully.
 ```
 
-Current steps to import and process data from the spreadsheet.
+Load the states for incoming records.
 ```
 ./manage.py loaddata raw_state
+```
+
+Current steps to import and process data from the spreadsheet.
+```
 ./manage.py runscript remove_data --script-args truncate
 ./manage.py ingest_items -f ../../invoices/incoming-2022-03-16.tsv
 ./manage.py shell_plus --quiet -c "ia.do_clean(0)"
+    # Check for new unit failures.
+    ./manage.py shell_plus --quiet -c "print(set([i.unit_size for i in RawIncomingItem.objects.failed('validate_unit_size')]))"
+    # If all is good, rerun do_clean with additional kwarg
+    ./manage.py shell_plus --quiet -c "ia.do_clean(0, allow_new_units=True)"
+    # Recheck for new unit failures.  There should be none.
+    ./manage.py shell_plus --quiet -c "print(set([i.unit_size for i in RawIncomingItem.objects.failed('validate_unit_size')]))"
 ./manage.py shell_plus --quiet -c "ia.do_calculate(2000)"
 ./manage.py shell_plus --quiet -c "ia.do_create(0)"
 ./manage.py shell_plus --quiet -c "from inventory.incoming_actions import clean; clean.console_report_on_failed_validate_item_combos()"

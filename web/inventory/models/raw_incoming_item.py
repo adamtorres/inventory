@@ -13,9 +13,10 @@ from .department import Department
 from .raw_item import RawItem
 from .raw_state import RawState
 from .source import Source
+from . import mixins as inv_mixins
 
 
-class RawIncomingItemManager(sc_models.WideFilterManagerMixin, models.Manager):
+class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
     def _limit_state(self, qs, limit_state):
         """
         Used by a variety of querysets to limit by RawState in a flexible manner.
@@ -269,7 +270,7 @@ class RawIncomingItemReportManager(models.Manager):
         return self.values('state__value', 'state__name').annotate(count=models.Count('id'))
 
 
-class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
+class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
     """
     This is the line as it would be on a spreadsheet.  All information is included verbatim.  Any individual line item
     within an order should be able to tell you all the order information (duplication, yes).
@@ -322,7 +323,7 @@ class RawIncomingItem(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     unit_size = sc_fields.CharField()
     unit_quantity = models.IntegerField(default=1, help_text="For unit_size=ct/dz, this converts that to a number")
     total_weight = sc_fields.DecimalField()
-    pack_quantity = sc_fields.DecimalField()
+    pack_quantity = sc_fields.DecimalField(default=1)
     pack_price = sc_fields.MoneyField()
     pack_tax = sc_fields.MoneyField()
     extended_price = sc_fields.MoneyField()

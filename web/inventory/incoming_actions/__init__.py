@@ -27,8 +27,8 @@ def do_calculate(batch_size=1):
     update_item_state(items_to_update, fields_to_update, batch_size=batch_size)
 
 
-def do_clean(batch_size=1):
-    items_to_update, fields_to_update = _do_clean(batch_size=batch_size)
+def do_clean(batch_size=1, allow_new_units=False):
+    items_to_update, fields_to_update = _do_clean(batch_size=batch_size, allow_new_units=allow_new_units)
     update_item_state(items_to_update, fields_to_update, batch_size=batch_size)
 
 

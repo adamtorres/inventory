@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Random Stats{% endblock %}
+
+{% block styles %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+{% for model_name, model_unit_counts in units.items %}
+    <div class="d-inline-block w-25">
+    <h3>{{ model_name }}</h3>
+    <table class="datatable w-75">
+    <thead>
+    <tr>
+        <th class="right-align">Unit</th>
+        <th class="right-align">Records</th>
+    </tr>
+    </thead>
+    {% for unit, unit_count in model_unit_counts %}
+        <tr>
+            <td class="right-align"><span class="{% if not unit %}text-muted{% endif %}">{{ unit|default:"[empty]" }}</span></td>
+            <td class="right-align">{{ unit_count|intcomma }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% endfor %}
+<div class="d-inline-block w-25">
+    <h3>Record Counts</h3>
+    <table class="datatable w-75">
+    <thead>
+    <tr>
+        <th class="right-align">Unit</th>
+        <th class="right-align">Records</th>
+    </tr>
+    </thead>
+    {% for model_name, record_count in models_counts %}
+        <tr>
+            <td class="right-align"><span class="">{{ model_name }}</span></td>
+            <td class="right-align">{{ record_count|intcomma }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+<div class="d-inline-block w-25">
+    <h3>RawIncomingItems by state</h3>
+    <table class="datatable w-75">
+    <thead>
+    <tr>
+        <th colspan="2" class="right-align">State</th>
+        <th class="right-align">Records</th>
+    </tr>
+    </thead>
+    {% for state_value, state_name, record_count in items_by_state %}
+        <tr>
+            <td class="right-align"><span class="">{{ state_value }}</span></td>
+            <td class="right-align"><span class="">{{ state_name }}</span></td>
+            <td class="right-align">{{ record_count|intcomma }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

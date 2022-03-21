@@ -16,6 +16,8 @@ urlpatterns = [
     urls.path("api_rawitem/wide_filter/", i_views.RawItemWideFilterView.as_view(), name="api_rawitem_widefilter"),
     urls.path("api_rawincomingitem/wide_filter/", i_views.RawIncomingItemWideFilterView.as_view(), name="api_rawincomingitem_widefilter"),
 
+    urls.path("random_stats/", i_views.RandomStatsView.as_view(), name="random_stats"),
+
     urls.path("rawincomingorders/", i_views.RawIncomingOrderListView.as_view(), name="rawincomingorder_list"),
     urls.path("rawincomingorder/<uuid:pk>/", i_views.RawIncomingOrderDetailView.as_view(), name="rawincomingorder_detail"),
 
