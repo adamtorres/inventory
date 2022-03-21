@@ -10,7 +10,7 @@ from scrap import utils
 
 
 UNIT_SIZE_COUNT_RE = re.compile(r"^(?P<value>\d+)(?P<unit>dz|ct)$", re.IGNORECASE)
-UNIT_SIZE_POUND_RE = re.compile(r"^(?P<value>\d+)(?P<unit>lb|lbs)$", re.IGNORECASE)
+UNIT_SIZE_POUND_RE = re.compile(r"^(?P<value>\d+)(?P<unit>lb)$", re.IGNORECASE)
 
 
 def generate_existing_unit_pattern() -> str:
@@ -201,6 +201,12 @@ class ItemCleaner(object):
             unit_quantity = int(check_count.group('value'))
             if check_count.group('unit') == 'dz':
                 unit_quantity *= 12
+            self.item.unit_quantity = unit_quantity
+            self.updated_fields.add('unit_quantity')
+        check_pound = UNIT_SIZE_POUND_RE.match(self.item.unit_size)
+        if not self.item.total_weight and check_pound:
+            # Item's unit_size is in lb but there isn't a total_weight.
+            unit_quantity = int(check_pound.group('value'))
             self.item.unit_quantity = unit_quantity
             self.updated_fields.add('unit_quantity')
 

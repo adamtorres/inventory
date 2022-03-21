@@ -221,7 +221,7 @@ label {
                 <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
             </div>
             <div class="col col-sm-2">
-                <label for="calc-count-price" id="calc-unit-price-label">Count Price</label>
+                <label for="calc-count-price" id="calc-unit-price-label"><span style="text-transform: capitalize;" data-term="calc-unit-size-term">Count</span> Price</label>
             </div>
         </div>
         <div class="row row-cols-5 selected-item-row">
@@ -296,7 +296,7 @@ label {
                 </div>
 
                 <div class="d-none" id="calculated-per-count-prices-container">
-                    <h5>Total price for a given count (ex: eggs come in dozens, this would show a per egg price)</h5>
+                    <h5>Total price for a given <span data-term="calc-unit-size-term">count</span> (ex: eggs come in dozens, this would show a per egg price)</h5>
                     <div class="" id="calculated-per-count-prices">
 
                     </div>
@@ -491,7 +491,15 @@ function update_calculations() {
         if (unit_size.endsWith("dz")) {
             unit_grouping = 12;
         }
-        let back_color = "";
+
+        $('span[data-term="calc-unit-size-term"]').each(function(index) {
+            if (unit_size.endsWith("lb")) {
+                $(this).text("pound");
+            } else {
+                $(this).text("count");
+            }
+        })
+
         for(let i = 0; i < unit_quantity; i++) {
             if (unit_grouping > 0) {
                 if (i % unit_grouping === 0) {
