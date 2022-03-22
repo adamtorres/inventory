@@ -53,7 +53,7 @@ class XRawIncomingItemSerializer(sc_serializers.DatedModelSerializer):
     failure_reason = sc_serializers.CharField(allow_null=True, allow_blank=True)
 
     def update(self, instance, validated_data):
-        # TODO: If this actually gets used, might try to find a "better" way than just repetition.
+        # XTODO: If this actually gets used, try to find a "better" way than just repetition.  Better = ModelSerializer
         instance.source = validated_data.get('source', instance.source)
         instance.department = validated_data.get('department', instance.department)
         instance.customer_number = validated_data.get('customer_number', instance.customer_number)

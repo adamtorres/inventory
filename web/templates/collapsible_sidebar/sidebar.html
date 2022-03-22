@@ -6,11 +6,12 @@
     <ul class="list-unstyled components">
         <p><a href="{% url "homepage" %}" class="link-light rounded">Home</a></p>
         <li class="active">
+            {# TODO: Would be nice to have a way for only these links to cause the sidebar to start open on the next page. #}
             <a href="#RawSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Raw Items and Orders</a>
             <ul class="collapse list-unstyled" id="RawSubmenu">
                 <li><a href="{% url "inventory:rawincomingorder_list" %}" class="link-light rounded">Raw Orders (Invoices, etc)</a></li>
                 <li><a href="{% url "inventory:rawincomingitem_list" %}" class="link-light rounded">Raw Items</a></li>
-                <li><a href="{% url "inventory:rawincomingitem_lookup" %}" class="link-light rounded">Raw Item Lookup</a></li>
+                <li><a href="{% url "inventory:rawincomingitem_lookup" %}" class="link-light rounded">Raw Incoming Item Lookup</a></li>
                 <li><a href="{% url "inventory:rawincomingitem_new" %}" class="link-light rounded">Create Raw Item</a></li>
                 <li><a href="{% url "inventory:random_stats" %}" class="link-light rounded">Random Stats</a></li>
             </ul>
