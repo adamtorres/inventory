@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Item List{% endblock %}
+
+{% block styles %}
+<style>
+.datatable>tbody>tr:nth-child(even){
+    background-color: lightgoldenrodyellow;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <table class="datatable datatable-link w-75" id="item-list">
+    <thead>
+    <tr>
+        <th>Source</th>
+        <th>Item Name</th>
+        <th>Quantities per unit size</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in object_list %}
+        <tr data-detail-url="pk={{ item.id }}">
+            <td>{{ item.source }}</td>
+            <td class="w-50">{{ item.name }}</td>
+            <td class="w-25">
+                <table class="w-100">
+                {% for unit_size_quantity in item.quantities %}
+                    <tr>
+                        <td class="w-50 right-align {% if not unit_size_quantity.unit_size %}text-muted{% endif %}">{{ unit_size_quantity.unit_size|default:"[no unit size]" }}</td>
+                        <td class="w-50 right-align">{{ unit_size_quantity.pack_quantity|floatformat|intcomma }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+</script>
+{% endblock %}
