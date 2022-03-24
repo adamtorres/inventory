@@ -32,6 +32,12 @@ def _do_create(batch_size=1):
     assign_common_item_names_count = assign_common_item_names()
     print(f"do_create:raw_item assigned {assign_common_item_names_count} common names to raw_items")
 
+    raw_item_qs = inv_models.RawItem.objects.filter(id__in=map(lambda x: x.id, raw_items))
+    items = create_items(raw_item_qs)
+    print(f"do_create:item created {len(items)}")
+    assigned_items_count = assign_items(raw_item_qs, items)
+    print(f"do_create:item assigned {assigned_items_count} items")
+
     items_to_update = []
     fields_to_update = {'state'}
     for i, item in enumerate(qs):
@@ -54,6 +60,13 @@ def assign_common_item_names():
 
 def assign_departments(qs):
     return assign_things(qs, 'department', 'department_obj')
+
+
+def assign_items(qs, items):
+    counts = []
+    for i in items:
+        counts.append(qs.filter(i.get_item_filter()).update(item=i))
+    return sum(counts)
 
 
 def assign_raw_items(qs, raw_items):
@@ -106,13 +119,32 @@ def create_departments(qs):
     return create_things(qs, inv_models.Department, 'departments', 'department')
 
 
+def create_items(qs):
+    manager_func_name = 'items'
+    source_model = inv_models.RawItem
+    model = inv_models.Item
+    raw_fields = ['source', 'name']
+    new_fields = ['source', 'name']
+    manager_func = getattr(source_model.objects, manager_func_name)
+    objs_to_create = []
+    for raw_thing in manager_func(qs=qs, only_new=True):
+        kwargs = {nf: raw_thing[rf] for nf, rf in zip(new_fields, raw_fields)}
+        new_item = model(**kwargs)
+        objs_to_create.append(new_item)
+    if objs_to_create:
+        objs = model.objects.bulk_create(objs_to_create)
+        return objs
+    return []
+
+
 def create_raw_items(qs):
     manager_func_name = 'items'
+    source_model = inv_models.RawIncomingItem
     model = inv_models.RawItem
     raw_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
     new_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
 
-    manager_func = getattr(inv_models.RawIncomingItem.objects, manager_func_name)
+    manager_func = getattr(source_model.objects, manager_func_name)
     objs_to_create = []
     for raw_thing in manager_func(qs=qs, only_new=True):
         kwargs = {nf: raw_thing[rf] for nf, rf in zip(new_fields, raw_fields)}

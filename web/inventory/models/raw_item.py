@@ -3,6 +3,7 @@ from django.db import models
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
 from . import mixins as inv_mixins
+from .source import Source
 
 
 class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
@@ -10,6 +11,22 @@ class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMix
         qs = super().get_queryset()
         qs = qs.select_related('common_item_name_group', 'source', 'category')
         return qs
+
+    def items(self, qs=None, only_new=False):
+        fields = ['source', 'name']
+        qs = (qs or self).values(*fields)
+        qs = qs.distinct(*fields)
+        if only_new:
+            qs = qs.exclude(item__isnull=False)
+        qs = qs.order_by(*fields)
+        source_cache = {obj.id: obj for obj in Source.objects.all()}
+        qs_list = []
+        for item in qs:
+            qs_list.append({
+                "source": source_cache[item["source"]],
+                "name": item["name"],
+            })
+        return qs_list
 
     def missing_common_item_name(self):
         return self.exclude(common_item_name_group__isnull=False)
@@ -49,6 +66,10 @@ class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_mode
     # Primary common item name group
     common_item_name_group = models.ForeignKey(
         "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, null=True, blank=True)
+    item = models.ForeignKey(
+        "inventory.Item", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
+        null=True, blank=True
+    )
 
     objects = RawItemManager()
 

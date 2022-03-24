@@ -341,7 +341,9 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
     source_obj = models.ForeignKey(Source, on_delete=models.CASCADE, null=True)
     category_obj = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
     department_obj = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
-    rawitem_obj = models.ForeignKey(RawItem, on_delete=models.CASCADE, null=True, related_query_name="raw_incoming_items")
+    rawitem_obj = models.ForeignKey(
+        RawItem, on_delete=models.CASCADE, null=True, related_name="raw_incoming_items",
+        related_query_name="raw_incoming_items")
 
     objects = RawIncomingItemManager()
     reports = RawIncomingItemReportManager()
