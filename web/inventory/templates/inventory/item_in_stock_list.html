@@ -15,7 +15,6 @@
     <table class="datatable datatable-link w-75" id="item-list">
     <thead>
     <tr>
-        <th>Source</th>
         <th>Item Name</th>
         <th>Quantities per unit size</th>
     </tr>
@@ -23,14 +22,15 @@
     <tbody>
     {% for item in object_list %}
         <tr data-detail-url="pk={{ item.id }}">
-            <td>{{ item.source }}</td>
-            <td class="w-50">{{ item.name }}</td>
-            <td class="w-25">
+            <td class="w-25">{{ item.name_str }}</td>
+            <td class="w-75">
                 <table class="w-100">
                 {% for unit_size_quantity in item.quantities %}
                     <tr>
-                        <td class="w-50 right-align {% if not unit_size_quantity.unit_size %}text-muted{% endif %}">{{ unit_size_quantity.unit_size|default:"[no unit size]" }}</td>
-                        <td class="w-50 right-align">{{ unit_size_quantity.pack_quantity|floatformat|intcomma }}</td>
+                        <td class="w-25 right-align">{{ unit_size_quantity.order_count|intcomma }}</td>
+                        <td class="w-25 right-align {% if not unit_size_quantity.unit_size %}text-muted{% endif %}">{{ unit_size_quantity.unit_size|default:"[no unit size]" }}</td>
+                        <td class="w-25 right-align">{{ unit_size_quantity.pack_quantity|floatformat|intcomma }}</td>
+                        <td class="w-25 right-align">{{ unit_size_quantity.sources|join:", " }}</td>
                     </tr>
                 {% endfor %}
                 </table>

@@ -13,7 +13,7 @@ class ItemInStockListView(sc_views.OnPageTitleMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['object_list'] = []
-        api_url = self.request.build_absolute_uri(urls.reverse("inventory:api_itemwithinstockquantities_list"))
+        api_url = self.request.build_absolute_uri(urls.reverse("inventory:api_commonitemwithinstockquantities_list"))
         resp = requests.get(api_url)
         if resp.status_code != 200:
             return context

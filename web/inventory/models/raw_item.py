@@ -65,7 +65,8 @@ class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_mode
 
     # Primary common item name group
     common_item_name_group = models.ForeignKey(
-        "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, null=True, blank=True)
+        "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, related_name="raw_items",
+        related_query_name="raw_items", null=True, blank=True)
     item = models.ForeignKey(
         "inventory.Item", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
         null=True, blank=True
