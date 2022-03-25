@@ -22,8 +22,9 @@
     <tbody>
     {% for item in object_list %}
         <tr data-detail-url="pk={{ item.id }}">
+            <td class="w-25">{{ item.category_str }}</td>
             <td class="w-25">{{ item.name_str }}</td>
-            <td class="w-75">
+            <td class="w-50">
                 <table class="w-100">
                 {% for unit_size_quantity in item.quantities %}
                     <tr>
