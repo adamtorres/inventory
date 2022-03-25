@@ -25,6 +25,7 @@ class CommonItemNameGroupManager(models.Manager):
         """
         # TODO: I don't like name_str.  The orm didn't let me shadow the name field.  Probably a way around it.
         qs = (qs or self).values(
+            'id',
             name_str=models.F('name__name'),
             category_str=models.F('category__name'),
             unit_size=models.F('raw_items__unit_size'))
@@ -44,7 +45,7 @@ class CommonItemNameGroupManager(models.Manager):
         if by_unit_size:
             return qs
         return sc_utils.list_group(
-            qs, ["category_str", "name_str"], group_name="quantities", sub_group_fields="unit_size", sum_fields=["order_count", "pack_quantity"],
+            qs, ["id", "category_str", "name_str"], group_name="quantities", sub_group_fields="unit_size", sum_fields=["order_count", "pack_quantity"],
             set_fields='sources')
 
     def search_multiple_names(self, terms):

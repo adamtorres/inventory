@@ -20,6 +20,7 @@ urlpatterns = [
     urls.path("api_rawincomingitem/wide_filter/", i_views.RawIncomingItemWideFilterView.as_view(), name="api_rawincomingitem_widefilter"),
 
     urls.path("item_in_stock/", i_views.ItemInStockListView.as_view(), name="item_in_stock_list"),
+    urls.path("item_in_stock/<uuid:pk>/", i_views.ItemInStockListView.as_view(), name="item_in_stock_detail"),
 
     urls.path("random_stats/", i_views.RandomStatsView.as_view(), name="random_stats"),
 

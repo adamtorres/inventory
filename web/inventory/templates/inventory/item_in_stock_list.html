@@ -29,6 +29,8 @@
 
 {% block content %}
 <div class="container-fluid" id="inventory-list">
+    <div>
+    </div>
     <table class="datatable datatable-link w-75">
     <thead>
     <tr class="item-list-header">
@@ -49,9 +51,9 @@
         </th>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="inventory-list-body">
     {% for item in object_list %}
-        <tr data-detail-url="pk={{ item.id }}">
+        <tr class="filtered-item-link" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.id %}">
             <td class="w-25">{{ item.category_str }}</td>
             <td class="w-25">{{ item.name_str }}</td>
             <td class="w-50">
@@ -76,12 +78,20 @@
 {% block body_scripts %}
 <script src="{% static "js/layout.js" %}"></script>
 <script type="text/javascript">
+function inventory_item_click() {
+    let p = $(this);
+    let detail_url = p.data('detail-url');
+    console.log(`inventory_item_click detail_url = '${detail_url}'`);
+}
+
 $( document ).ready(function() {
     let w = $(window);
     let d = $(document);
     w.on("resize", {"content_id": "inventory-list"}, resize_content);
     d.on("resize", {"content_id": "inventory-list"}, resize_content);
     w.trigger("resize");
+
+    $("#inventory-list-body").on('click', '.filtered-item-link', inventory_item_click)
 });
 </script>
 {% endblock %}

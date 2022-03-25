@@ -22,6 +22,7 @@ class SourceItemWithInStockQuantitiesSerializer(serializers.Serializer):
 
 
 class ItemWithInStockQuantitiesSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
     category_str = sc_serializers.CharField()
     name_str = sc_serializers.CharField()
     quantities = UnitSizeWithQuantitySerializer(many=True)
