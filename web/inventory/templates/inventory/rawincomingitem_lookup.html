@@ -380,6 +380,7 @@ Log.
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
 <script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/live_filter.js' %}"></script>
@@ -420,14 +421,6 @@ filter_result_fields = [
 ];
 function round(v) {
     return Math.round(v * 100) / 100;
-}
-function resize_lookup_content() {
-    // TODO: resize doesn't seem to be working properly.
-    let w = $(window);
-    let window_height = w.height();
-    let content_obj = $("#lookup-content");
-    let content_offset = content_obj.offset().top - w.scrollTop();
-    content_obj.css("max-height", window_height - content_offset);
 }
 function load_from_item_id() {
     let item_id_tag = $("#filter-item-id");
@@ -529,8 +522,9 @@ function update_calculations() {
 function setup_event_handlers() {
     let w = $(window);
     let d = $(document);
-    d.on("resize", resize_lookup_content);
-    d.trigger("resize");
+    w.on("resize", {"content_id": "lookup-content"}, resize_content);
+    d.on("resize", {"content_id": "lookup-content"}, resize_content);
+    w.trigger("resize");
 
     w.on(filter_requested_event_name, function() {
         // filter sent to server, hide calculations as there's no longer a selected item.

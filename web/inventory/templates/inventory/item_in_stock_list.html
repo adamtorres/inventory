@@ -1,22 +1,52 @@
 {% extends "base.html" %}
+{% load static %}
 {% load humanize %}
 
 {% block title %}Item List{% endblock %}
 
 {% block styles %}
 <style>
+.datatable>thead>tr {
+    position: sticky;
+    background-color: lightgrey;
+    top: 0px;
+}
+.datatable>thead>tr>th{
+    vertical-align: bottom;
+}
 .datatable>tbody>tr:nth-child(even){
     background-color: lightgoldenrodyellow;
+}
+.datatable>tbody>tr>td {
+    vertical-align: top;
+}
+#inventory-list {
+    overflow: scroll;
+    max-height: inherit;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-    <table class="datatable datatable-link w-75" id="item-list">
+<div class="container-fluid" id="inventory-list">
+    <table class="datatable datatable-link w-75">
     <thead>
-    <tr>
-        <th>Item Name</th>
-        <th>Quantities per unit size</th>
+    <tr class="item-list-header">
+        <th class="w-25">Category</th>
+        <th class="w-25">Item Name</th>
+        <th class="w-50" >
+            <table class="w-100">
+                <tr>
+                    <th colspan="4" style="text-align: center;">Quantities per unit size</th>
+                </tr>
+                <tr>
+                    <th class="w-25 right-align">Order Count</th>
+                    <th class="w-25 right-align">Unit Size</th>
+                    <th class="w-25 right-align">Pack Quantity</th>
+                    <th class="w-25 right-align">Sources</th>
+                </tr>
+            </table>
+        </th>
     </tr>
     </thead>
     <tbody>
@@ -40,9 +70,18 @@
     {% endfor %}
     </tbody>
     </table>
+</div>
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
 <script type="text/javascript">
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "inventory-list"}, resize_content);
+    d.on("resize", {"content_id": "inventory-list"}, resize_content);
+    w.trigger("resize");
+});
 </script>
 {% endblock %}
