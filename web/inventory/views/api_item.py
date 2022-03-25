@@ -28,6 +28,9 @@ class APICommonItemWithInStockQuantities(views.APIView):
     model = inv_models.CommonItemNameGroup
     serializer_class = inv_serializers.ItemWithInStockQuantitiesSerializer
 
-    def get(self, request):
-        object_list = self.model.objects.with_in_stock_quantities()
+    def get(self, request, pk=None):
+        qs = None
+        if pk:
+            qs = self.model.objects.filter(id=pk)
+        object_list = self.model.objects.with_in_stock_quantities(qs=qs)
         return response.Response(self.serializer_class(object_list, many=True).data)

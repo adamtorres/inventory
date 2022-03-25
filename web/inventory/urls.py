@@ -8,6 +8,7 @@ app_name = "inventory"
 
 urlpatterns = [
     urls.path("api_item_with_in_stock_quantities/", i_views.APIItemWithInStockQuantities.as_view(), name="api_itemwithinstockquantities_list"),
+    urls.path("api_common_item_with_in_stock_quantities/<uuid:pk>/", i_views.APICommonItemWithInStockQuantities.as_view(), name="api_commonitemwithinstockquantities_detail"),
     urls.path("api_common_item_with_in_stock_quantities/", i_views.APICommonItemWithInStockQuantities.as_view(), name="api_commonitemwithinstockquantities_list"),
 
     urls.path("api_rawincomingorders/", i_views.APIRawIncomingOrderListView.as_view(), name="api_rawincomingorder_list"),
@@ -20,7 +21,7 @@ urlpatterns = [
     urls.path("api_rawincomingitem/wide_filter/", i_views.RawIncomingItemWideFilterView.as_view(), name="api_rawincomingitem_widefilter"),
 
     urls.path("item_in_stock/", i_views.ItemInStockListView.as_view(), name="item_in_stock_list"),
-    urls.path("item_in_stock/<uuid:pk>/", i_views.ItemInStockListView.as_view(), name="item_in_stock_detail"),
+    urls.path("item_in_stock/<uuid:pk>/", i_views.ItemInStockDetailView.as_view(), name="item_in_stock_detail"),
 
     urls.path("random_stats/", i_views.RandomStatsView.as_view(), name="random_stats"),
 

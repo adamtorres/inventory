@@ -82,6 +82,7 @@ function inventory_item_click() {
     let p = $(this);
     let detail_url = p.data('detail-url');
     console.log(`inventory_item_click detail_url = '${detail_url}'`);
+    window.location = detail_url;
 }
 
 $( document ).ready(function() {

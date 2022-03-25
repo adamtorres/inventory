@@ -15,6 +15,7 @@ class CommonItemNameGroupManager(models.Manager):
         """
         Returns a QuerySet of dict showing counts and totals by name/unit_size.
         {
+            'id': UUID,
             'category_str': 'meats',
             'name_str': 'beef top round',
             'unit_size': '7-11#',

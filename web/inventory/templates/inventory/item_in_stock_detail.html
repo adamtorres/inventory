@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Item in stock{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="inventory-detail">
+    <div>
+        <a href="{% url "inventory:item_in_stock_list" %}">Back to inventory list</a>
+    </div>
+    <div>
+        <div>{{ object.name_str }}</div>
+        <div>{{ object.category_str }}</div>
+        <ul>
+            {% for qty in object.quantities %}
+                <li><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span>, {{ qty.pack_quantity|intcomma|floatformat }}, {{ qty.order_count }}, {{ qty.sources|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "inventory-detail"}, resize_content);
+    d.on("resize", {"content_id": "inventory-detail"}, resize_content);
+    w.trigger("resize");
+});
+</script>
+{% endblock %}
