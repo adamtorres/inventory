@@ -53,6 +53,9 @@
                     of
                     <span data-field="original_unit_quantity">__original unit quantity__</span>
                 </td>
+                <td>
+                    <input type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
+                </td>
             </tr>
         </table>
         <table class="datatable">
@@ -65,6 +68,7 @@
                 <th>delivered quantity</th>
                 <th>pack quantity</th>
                 <th>remaining unit quantity</th>
+                <th>Use quantity</th>
             </tr>
             </thead>
             <tbody id="item-in-stock-table">
@@ -100,6 +104,12 @@ function new_item(data) {
         }
         e.text(record_value);
         {#e.text("");#}
+    });
+    cloned_row.find('[data-control]').each(function() {
+        let e = $(this);
+        e.attr('id', `${e.data('control')}_${data['id']}`);
+        e.attr('max', Math.round(data[e.data('max')]));
+        e.data('id', data['id']);
     });
     return cloned_row;
 }
@@ -160,6 +170,41 @@ function inventory_item_click() {
     });
 
 }
+function use_quantity_changed() {
+    let e = $(this);
+    let current_val = parseInt(e.val());
+    let min_val = parseInt(e.attr('min'));
+    let max_val = parseInt(e.attr('max'));
+    if (current_val > max_val) {
+        e.val(max_val);
+        current_val = parseInt(e.val());
+    }
+    if (current_val < min_val) {
+        e.val(min_val);
+    }
+    start_timer();
+}
+
+var keypress_timer;
+function start_timer() {
+    window.clearTimeout(keypress_timer);
+    keypress_timer = setTimeout(timer_elapsed_func, 750);
+}
+function timer_elapsed_func() {
+    logit("timer elapsed");
+    let iist = $("#item-in-stock-table");
+    let values_to_send = {};
+
+    iist.find("input[name='use_quantity']").each(function (){
+        let tag = $(this);
+        let val = parseInt(tag.val());
+        if (isNaN(val)){
+            val = 0;
+        }
+        values_to_send[tag.data('id')] = val;
+    })
+    console.log(values_to_send);
+}
 $( document ).ready(function() {
     let w = $(window);
     let d = $(document);
@@ -167,7 +212,11 @@ $( document ).ready(function() {
     d.on("resize", {"content_id": "inventory-detail"}, resize_content);
     w.trigger("resize");
 
-    $("#item-unit-quantities-body").on('click', '.filtered-item-link', inventory_item_click)
+    $("#item-unit-quantities-body").on('click', '.filtered-item-link', inventory_item_click);
+
+    let iist = $("#item-in-stock-table")
+    // iist.on('focusout', "input[name='use_quantity']", use_quantity_changed);
+    iist.on('change', "input[name='use_quantity']", use_quantity_changed);
 });
 </script>
 {% endblock %}
