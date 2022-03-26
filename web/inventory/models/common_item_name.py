@@ -31,6 +31,9 @@ class CommonItemNameGroupManager(models.Manager):
             category_str=models.F('category__name'),
             unit_size=models.F('raw_items__unit_size'))
         qs = qs.annotate(
+            item_in_stock_ids=pg_agg.ArrayAgg(
+                models.F('raw_items__raw_incoming_items__in_stock__id'), distinct=True,
+            ),
             sources=pg_agg.ArrayAgg(
                 models.F('raw_items__source__name'), distinct=True, ordering=['raw_items__source__name']),
             order_count=models.Count(
@@ -46,8 +49,8 @@ class CommonItemNameGroupManager(models.Manager):
         if by_unit_size:
             return qs
         return sc_utils.list_group(
-            qs, ["id", "category_str", "name_str"], group_name="quantities", sub_group_fields="unit_size", sum_fields=["order_count", "pack_quantity"],
-            set_fields='sources')
+            qs, ["id", "category_str", "name_str"], group_name="quantities", sub_group_fields="unit_size",
+            sum_fields=["order_count", "pack_quantity"], set_fields=['sources', 'item_in_stock_ids'])
 
     def search_multiple_names(self, terms):
         """

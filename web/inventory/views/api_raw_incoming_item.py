@@ -59,7 +59,7 @@ class APIRawIncomingItemDetailView(generics.GenericAPIView):
     def get_serializer_class(self):
         if self.request.query_params.get('format') == 'json':
             return inv_serializers.RawIncomingItemSerializer
-        return inv_serializers.HyperlinkedRawIncomingItemSerializer
+        return inv_serializers.RawIncomingItemSerializer
 
     def get(self, request, pk=None):
         serializer_class = self.get_serializer_class()

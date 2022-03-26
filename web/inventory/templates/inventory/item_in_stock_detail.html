@@ -4,32 +4,155 @@
 
 {% block title %}Item in stock{% endblock %}
 
+{% block styles %}
+<style>
+.selected-row {
+    background-color: yellow;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid" id="inventory-detail">
     <div>
         <a href="{% url "inventory:item_in_stock_list" %}">Back to inventory list</a>
     </div>
     <div>
-        <div>{{ object.name_str }}</div>
-        <div>{{ object.category_str }}</div>
-        <ul>
+        <div>Item Name: {{ object.name_str }}</div>
+        <div>Category: {{ object.category_str }}</div>
+        <table class="datatable w-50" id="item-unit-quantities">
+        <thead>
+            <tr>
+                <th class="right-align">Unit Size</th>
+                <th class="right-align">Pack Quantity</th>
+                <th class="right-align">Order Count</th>
+                <th>Sources</th>
+            </tr>
+        </thead>
+        <tbody id="item-unit-quantities-body">
             {% for qty in object.quantities %}
-                <li><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span>, {{ qty.pack_quantity|intcomma|floatformat }}, {{ qty.order_count }}, {{ qty.sources|join:", " }}</li>
+            <tr class="filtered-item-link" data-item-in-stock-ids='{{ qty.item_in_stock_ids|safe }}'>
+                <td class="right-align"><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span></td>
+                <td class="right-align">{{ qty.pack_quantity|intcomma|floatformat }}</td>
+                <td class="right-align">{{ qty.order_count }}</td>
+                <td>{{ qty.sources|join:", " }}</td>
+            </tr>
             {% endfor %}
-        </ul>
+        </tbody>
+        </table>
+        <table style="display: none;">
+            <tr id="item-in-stock-row-template" data-id="nope">
+                <td data-field="source">__source__</td>
+                <td class="right-align" data-field="delivery_date">__delivery date__</td>
+                <td data-field="name">__name__</td>
+                <td class="right-align" data-field="unit_size">__unit size__</td>
+                <td class="right-align" data-field="pack_quantity">__pack quantity__</td>
+                <td class="right-align" data-field="remaining_pack_quantity">__remaining pack quantity__</td>
+            </tr>
+        </table>
+        <table class="datatable">
+            <thead>
+            <tr>
+                <th>source</th>
+                <th>delivery date</th>
+                <th>name</th>
+                <th>unit size</th>
+                <th>pack quantity</th>
+                <th>remaining pack quantity</th>
+            </tr>
+            </thead>
+            <tbody id="item-in-stock-table">
+            </tbody>
+        </table>
     </div>
+<pre id="on-page-log">
+Log
+</pre>
 </div>
 {% endblock %}
 
 {% block body_scripts %}
 <script src="{% static "js/layout.js" %}"></script>
+<script src="{% static "js/on_page_log.js" %}"></script>
 <script type="text/javascript">
+var remove_decimals = ["remaining_pack_quantity", "pack_quantity"]
+var money_fields = []
+function new_item(data) {
+    cloned_row = $("#item-in-stock-row-template").clone();
+    cloned_row.attr('id', null);
+    cloned_row.attr('data-id', data['id']);
+    cloned_row.find('[data-field]').each(function() {
+        let e = $(this);
+        let key = e.data('field');
+        let record_value = data[key];
+        if (remove_decimals.includes(key)) {
+            record_value = Math.round(record_value * 100) / 100;
+        }
+        if (money_fields.includes(key)) {
+            // similar to above but forces there to be 2 decimals even if they are 0.
+            record_value = Number.parseFloat(record_value).toFixed(2);
+        }
+        e.text(record_value);
+        {#e.text("");#}
+    });
+    return cloned_row;
+}
+function item_in_stock_results_received(data) {
+    let count = 0;
+    let in_stock_table = $("#item-in-stock-table");
+    in_stock_table.empty();
+    $.each(data, function(index){
+        in_stock_table.append(new_item(this));
+        count++;
+    });
+    if (count === 0) {
+        // What to do when nothing returned.  Should not get here during normal operation.
+    }
+}
+function clear_highlight() {
+    let table_body = $("#item-unit-quantities-body");
+    table_body.find(".filtered-item-link").each(function() {
+        let row = $(this);
+        row.find("td").each(function() {
+            let cell = $(this);
+            cell.removeClass('selected-row');
+        });
+    });
+}
+function highlight_row(row) {
+    row.find("td").each(function() {
+        let cell = $(this);
+        cell.addClass('selected-row');
+    });
+}
+function inventory_item_click() {
+    clear_highlight();
+    let p = $(this);
+    highlight_row(p);
+    let item_in_stock_ids = p.data('item-in-stock-ids');
+    values_to_send = {'id': item_in_stock_ids};
+    var jqxhr = $.ajax({
+        url: "{% url "inventory:api_iteminstock_list" %}",
+        type: "get",
+        data: values_to_send,
+        // traditional: true
+    })
+    .done(item_in_stock_results_received)
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+    });
+
+}
 $( document ).ready(function() {
     let w = $(window);
     let d = $(document);
     w.on("resize", {"content_id": "inventory-detail"}, resize_content);
     d.on("resize", {"content_id": "inventory-detail"}, resize_content);
     w.trigger("resize");
+
+    $("#item-unit-quantities-body").on('click', '.filtered-item-link', inventory_item_click)
 });
 </script>
 {% endblock %}
