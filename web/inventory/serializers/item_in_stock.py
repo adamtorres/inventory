@@ -9,6 +9,7 @@ class ItemInStockSerializer(serializers.ModelSerializer):
     delivery_date = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     unit_size = serializers.SerializerMethodField()
+    delivered_quantity = serializers.SerializerMethodField()
     pack_quantity = serializers.SerializerMethodField()
 
     class Meta:
@@ -26,6 +27,9 @@ class ItemInStockSerializer(serializers.ModelSerializer):
 
     def get_unit_size(self, obj):
         return obj.raw_incoming_item.unit_size
+
+    def get_delivered_quantity(self, obj):
+        return obj.raw_incoming_item.delivered_quantity
 
     def get_pack_quantity(self, obj):
         return obj.raw_incoming_item.pack_quantity

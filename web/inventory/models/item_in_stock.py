@@ -13,14 +13,14 @@ class ItemInStockManager(models.Manager):
         return qs
 
     def in_stock(self):
-        return self.exclude(remaining_pack_quantity__lte=0)
+        return self.exclude(remaining_unit_quantity__lte=0)
 
 
 class ItemInStock(sc_models.DatedModel):
     raw_incoming_item = models.OneToOneField(
         "inventory.RawIncomingItem", on_delete=models.CASCADE, related_name="in_stock", related_query_name="in_stock")
-    original_pack_quantity = sc_fields.DecimalField(help_text="delivered_quantity * pack_quantity")
-    remaining_pack_quantity = sc_fields.DecimalField()
+    original_unit_quantity = sc_fields.DecimalField(help_text="delivered_quantity * pack_quantity")
+    remaining_unit_quantity = sc_fields.DecimalField()
     # remaining_unit_quantity = models.IntegerField(
     # default=1, help_text="For unit_size=ct/dz, this converts that to a number")
 

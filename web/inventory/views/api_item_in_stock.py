@@ -19,5 +19,5 @@ class APIItemInStockView(views.APIView):
         id_list = request.GET.getlist('id')
         if not id_list:
             id_list = request.GET.getlist('id[]')
-        object_list = self.model.objects.filter(id__in=id_list)
+        object_list = self.model.objects.filter(id__in=id_list).exclude(remaining_unit_quantity__lte=0).order_by('-raw_incoming_item__delivery_date')
         return response.Response(self.serializer_class(object_list, many=True).data)

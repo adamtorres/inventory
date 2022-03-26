@@ -12,7 +12,7 @@ class ItemManager(models.Manager):
 
     def with_in_stock_quantities(self, qs=None):
         qs = (qs or self).values('source__name', 'name', 'raw_items__unit_size').annotate(
-            total_pack_quantity=models.Sum('raw_items__raw_incoming_items__in_stock__remaining_pack_quantity')
+            total_pack_quantity=models.Sum('raw_items__raw_incoming_items__in_stock__remaining_unit_quantity')
         ).order_by('source__name', 'name', 'raw_items__unit_size')
         current_source = None
         current_name = None

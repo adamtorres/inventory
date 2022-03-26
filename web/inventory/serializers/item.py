@@ -7,7 +7,7 @@ from scrap import serializers as sc_serializers
 
 class UnitSizeWithQuantitySerializer(serializers.Serializer):
     unit_size = sc_serializers.CharField()
-    pack_quantity = sc_serializers.DecimalField()
+    remaining_unit_quantity = sc_serializers.DecimalField()
     order_count = serializers.IntegerField()
     sources = serializers.ListField()
     item_in_stock_ids = serializers.SerializerMethodField()

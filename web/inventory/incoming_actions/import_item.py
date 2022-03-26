@@ -15,7 +15,7 @@ def _do_import(batch_size=1):
     for i, item in enumerate(qs):
         qty = item.delivered_quantity * item.pack_quantity
         in_stock_items_to_create.append(
-            inv_models.ItemInStock(raw_incoming_item=item, original_pack_quantity=qty, remaining_pack_quantity=qty))
+            inv_models.ItemInStock(raw_incoming_item=item, original_unit_quantity=qty, remaining_unit_quantity=qty))
         item.state = item.state.next_state
         items_to_update.append(item)
         # TODO: create the Item objects.

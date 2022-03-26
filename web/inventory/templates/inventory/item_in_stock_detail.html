@@ -24,7 +24,7 @@
         <thead>
             <tr>
                 <th class="right-align">Unit Size</th>
-                <th class="right-align">Pack Quantity</th>
+                <th class="right-align">Remaining Unit Quantity</th>
                 <th class="right-align">Order Count</th>
                 <th>Sources</th>
             </tr>
@@ -33,7 +33,7 @@
             {% for qty in object.quantities %}
             <tr class="filtered-item-link" data-item-in-stock-ids='{{ qty.item_in_stock_ids|safe }}'>
                 <td class="right-align"><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span></td>
-                <td class="right-align">{{ qty.pack_quantity|intcomma|floatformat }}</td>
+                <td class="right-align">{{ qty.remaining_unit_quantity|intcomma|floatformat }}</td>
                 <td class="right-align">{{ qty.order_count }}</td>
                 <td>{{ qty.sources|join:", " }}</td>
             </tr>
@@ -43,11 +43,16 @@
         <table style="display: none;">
             <tr id="item-in-stock-row-template" data-id="nope">
                 <td data-field="source">__source__</td>
-                <td class="right-align" data-field="delivery_date">__delivery date__</td>
+                <td class="right-align" data-field="delivery_date">__delivery_date__</td>
                 <td data-field="name">__name__</td>
-                <td class="right-align" data-field="unit_size">__unit size__</td>
-                <td class="right-align" data-field="pack_quantity">__pack quantity__</td>
-                <td class="right-align" data-field="remaining_pack_quantity">__remaining pack quantity__</td>
+                <td class="right-align" data-field="unit_size">__unit_size__</td>
+                <td class="right-align" data-field="delivered_quantity">__delivered_quantity__</td>
+                <td class="right-align" data-field="pack_quantity">__pack_quantity__</td>
+                <td class="right-align">
+                    <span data-field="remaining_unit_quantity">__remaining unit quantity__</span>
+                    of
+                    <span data-field="original_unit_quantity">__original unit quantity__</span>
+                </td>
             </tr>
         </table>
         <table class="datatable">
@@ -57,8 +62,9 @@
                 <th>delivery date</th>
                 <th>name</th>
                 <th>unit size</th>
+                <th>delivered quantity</th>
                 <th>pack quantity</th>
-                <th>remaining pack quantity</th>
+                <th>remaining unit quantity</th>
             </tr>
             </thead>
             <tbody id="item-in-stock-table">
@@ -75,7 +81,7 @@ Log
 <script src="{% static "js/layout.js" %}"></script>
 <script src="{% static "js/on_page_log.js" %}"></script>
 <script type="text/javascript">
-var remove_decimals = ["remaining_pack_quantity", "pack_quantity"]
+var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity"]
 var money_fields = []
 function new_item(data) {
     cloned_row = $("#item-in-stock-row-template").clone();
@@ -117,6 +123,7 @@ function clear_highlight() {
             let cell = $(this);
             cell.removeClass('selected-row');
         });
+        row.removeClass('selected-row');
     });
 }
 function highlight_row(row) {
@@ -124,10 +131,18 @@ function highlight_row(row) {
         let cell = $(this);
         cell.addClass('selected-row');
     });
+    row.addClass('selected-row');
+}
+function is_highlighted(row) {
+    return row.hasClass('selected-row');
 }
 function inventory_item_click() {
-    clear_highlight();
     let p = $(this);
+    if (is_highlighted(p)) {
+        // row already selected.  Don't redo ajax.
+        return;
+    }
+    clear_highlight();
     highlight_row(p);
     let item_in_stock_ids = p.data('item-in-stock-ids');
     values_to_send = {'id': item_in_stock_ids};

@@ -39,18 +39,18 @@ class CommonItemNameGroupManager(models.Manager):
             order_count=models.Count(
                 models.Case(
                     models.When(
-                        models.Q(raw_items__raw_incoming_items__in_stock__remaining_pack_quantity__gt=0),
+                        models.Q(raw_items__raw_incoming_items__in_stock__remaining_unit_quantity__gt=0),
                         then=models.F('raw_items__raw_incoming_items__in_stock__id')),
                     default=None
                 ),
                 distinct=True),
-            pack_quantity=models.Sum('raw_items__raw_incoming_items__in_stock__remaining_pack_quantity')
+            remaining_unit_quantity=models.Sum('raw_items__raw_incoming_items__in_stock__remaining_unit_quantity')
         ).order_by('category_str', 'name_str', 'unit_size')
         if by_unit_size:
             return qs
         return sc_utils.list_group(
             qs, ["id", "category_str", "name_str"], group_name="quantities", sub_group_fields="unit_size",
-            sum_fields=["order_count", "pack_quantity"], set_fields=['sources', 'item_in_stock_ids'])
+            sum_fields=["order_count", "remaining_unit_quantity"], set_fields=['sources', 'item_in_stock_ids'])
 
     def search_multiple_names(self, terms):
         """
