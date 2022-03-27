@@ -9,9 +9,7 @@ class APIUsageChangeView(views.APIView):
     queryset = inv_models.ItemInStock.objects.all()
 
     def get(self, request):
-        for k in request.META.keys():
-            print(f"request.META[{k}] = {request.META[k]}")
-        context = {'hello': 'there', 'used_items': {}}
+        context = {'used_items': {}}
         item_ids = []
         total_count = 0
         if 'used_items' in request.session:

@@ -26,9 +26,9 @@
         <th class="right-align">use_count</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="usage-cart-table-body">
     {% for item in used_items %}
-        <tr data-id="{{ item.id }}">
+        <tr class="filtered-item-link" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.common_item_name_group_id %}" data-id="{{ item.id }}">
             <td>{{ item.category }}</td>
             <td>{{ item.source }}</td>
             <td class="right-align">{{ item.delivery_date }}</td>
@@ -66,5 +66,13 @@
 <script src="{% static "js/on_page_log.js" %}"></script>
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
+function used_item_click() {
+    let p = $(this);
+    let detail_url = p.data('detail-url');
+    window.location = detail_url;
+}
+$( document ).ready(function() {
+    $("#usage-cart-table-body").on('click', '.filtered-item-link', used_item_click)
+});
 </script>
 {% endblock %}
