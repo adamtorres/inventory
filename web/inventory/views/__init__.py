@@ -2,7 +2,7 @@ from .api_item import APIItemWithInStockQuantities, APICommonItemWithInStockQuan
 from .api_item_in_stock import APIItemInStockView
 from .api_raw_incoming_item import APIRawIncomingItemDetailView, APIRawIncomingItemListView
 from .api_raw_incoming_order import APIRawIncomingOrderDetailView, APIRawIncomingOrderListView
-from .api_usage import APIUsageChangeView
+from .api_usage import APIUsageChangeView, APIUsageCreateView
 from .api_wide_filter import RawIncomingItemWideFilterView, RawItemWideFilterView
 from .item_in_stock import ItemInStockDetailView, ItemInStockListView
 from .random_stats import RandomStatsView

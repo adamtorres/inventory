@@ -14,6 +14,18 @@
     <div>
         <a href="{% url "inventory:item_in_stock_list" %}">Back to inventory list</a>
     </div>
+<form method="post">
+{% csrf_token %}
+<div>
+    <label for="description">Description (who)</label>
+    <input type="text" maxlength="1024" name="description">
+</div>
+<div>
+    <label for="when">When the usage happened</label>
+    <input type="date" name="when">
+</div>
+    <input type="submit">
+</form>
 <table class="datatable">
     <thead>
     <tr>

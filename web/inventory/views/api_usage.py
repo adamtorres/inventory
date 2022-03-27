@@ -62,3 +62,9 @@ class APIUsageChangeView(views.APIView):
                     request.session.modified = True
 
         return response.Response({'hello': 'there'})
+
+
+class APIUsageCreateView(generics.CreateAPIView):
+    queryset = inv_models.UsageGroup
+    serializer_class = inv_serializers.UsageGroupSerializer
+
