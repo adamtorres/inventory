@@ -5,6 +5,7 @@
 {% block title %}Item in stock{% endblock %}
 
 {% block styles %}
+<link rel="stylesheet" href="{% static "css/usage_cart.css" %}">
 <style>
 .selected-row {
     background-color: yellow;
@@ -107,11 +108,19 @@ function new_item(data) {
         e.text(record_value);
         {#e.text("");#}
     });
+    used_items = get_cached_used_items();
+    let used_item_cart_value = 0;
+    used_items.forEach(ui => {
+        if (data['id'] === ui['id']) {
+            used_item_cart_value = ui['use_count'];
+        }
+    });
     cloned_row.find('[data-control]').each(function() {
         let e = $(this);
         e.attr('id', `${e.data('control')}_${data['id']}`);
         e.attr('max', Math.round(data[e.data('max')]));
         e.data('id', data['id']);
+        e.val(used_item_cart_value);
     });
     return cloned_row;
 }
@@ -172,8 +181,13 @@ function inventory_item_click() {
     });
 
 }
-function use_quantity_changed() {
-    let e = $(this);
+function use_quantity_changed(data) {
+    let e;
+    if (data !== undefined) {
+        e = $(`#${data['id']}`);
+    } else {
+        e = $(this);
+    }
     let current_val = parseInt(e.val());
     let min_val = parseInt(e.attr('min'));
     let max_val = parseInt(e.attr('max'));
@@ -209,11 +223,17 @@ function post_usage_change(data) {
     });
 
 }
-
-var keypress_timer;
+var update_cart_by_keypress_timer;
+var update_cart_timer;
 function start_timer() {
-    window.clearTimeout(keypress_timer);
-    keypress_timer = setTimeout(timer_elapsed_func, 750);
+    window.clearTimeout(update_cart_timer);
+    update_cart_timer = setTimeout(timer_elapsed_func, 750);
+}
+function start_keypress_timer() {
+    let e = $(this);
+    let args = {id: e.attr('id')};
+    window.clearTimeout(update_cart_by_keypress_timer);
+    update_cart_by_keypress_timer = setTimeout(use_quantity_changed, 1000, args);
 }
 function timer_elapsed_func() {
     //logit("timer elapsed");
@@ -242,6 +262,7 @@ $( document ).ready(function() {
     let iist = $("#item-in-stock-table")
     // iist.on('focusout', "input[name='use_quantity']", use_quantity_changed);
     iist.on('change', "input[name='use_quantity']", use_quantity_changed);
+    iist.on('keyup', "input[name='use_quantity']", start_keypress_timer);
 
 });
 </script>

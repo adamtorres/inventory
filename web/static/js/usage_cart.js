@@ -18,6 +18,7 @@ function update_cart_header(data) {
             e.text(data[key].length);
         }
     });
+    cart_div.data('used_items', data['used_items']);
 }
 
 function update_cart() {
@@ -26,6 +27,7 @@ function update_cart() {
     })
     .done(function(e) {
         update_cart_header(e);
+        pulse_used_cart_header_start();
     })
     .fail(function() {
         logit("update_cart fail");
@@ -35,6 +37,19 @@ function update_cart() {
 
 }
 
+function get_cached_used_items() {
+    let cart_div = $("#usage-cart-header");
+    return cart_div.data('used_items');
+}
+
+
+function pulse_used_cart_header_start() {
+    $("#usage-cart-header").addClass("pulse-used-cart-header");
+    setTimeout(pulse_used_cart_header_stop, 2000);
+}
+function pulse_used_cart_header_stop() {
+    $(".pulse-used-cart-header").removeClass("pulse-used-cart-header");
+}
 $( document ).ready(function() {
     update_cart();
 });

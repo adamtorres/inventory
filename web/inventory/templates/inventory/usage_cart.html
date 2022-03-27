@@ -55,6 +55,11 @@
 {#  "use_count": 2#}
     </tbody>
 </table>
+{% if used_items|length > 0 %}
+    <div>
+    <a id="empty-cart">Empty Cart</a>
+    </div>
+{% endif %}
 
     <pre id="on-page-log">
     Log
@@ -66,13 +71,35 @@
 <script src="{% static "js/on_page_log.js" %}"></script>
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
+function empty_cart() {
+    {#let headers = {};#}
+    {#headers['X-CSRFToken'] = csrftoken;#}
+    {#data['csrfmiddlewaretoken'] = csrftoken;#}
+    var jqxhr = $.post({
+        url: "{% url "inventory:api_usage_change" %}",
+        dataType: "json",
+        data: {empty_cart: true},
+        {#headers: headers#}
+        // traditional: true
+    })
+    .done(function(e) {
+        //logit("ajax success");
+        location.reload();
+    })
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+    });
+}
 function used_item_click() {
     let p = $(this);
     let detail_url = p.data('detail-url');
     window.location = detail_url;
 }
 $( document ).ready(function() {
-    $("#usage-cart-table-body").on('click', '.filtered-item-link', used_item_click)
+    $("#usage-cart-table-body").on('click', '.filtered-item-link', used_item_click);
+    $("#empty-cart").on("click", empty_cart);
 });
 </script>
 {% endblock %}

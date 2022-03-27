@@ -38,6 +38,12 @@ class APIUsageChangeView(views.APIView):
         return response.Response(context)
 
     def post(self, request, *args, **kwargs):
+        if 'empty_cart' in request.data:
+            if 'used_items' in request.session and request.session['used_items']:
+                request.session['used_items'] = {}
+                request.session.modified = True
+            return response.Response({'hello': 'there'})
+
         for k in request.data.keys():
             if k.startswith("used_items["):
                 item_id = k.split('[')[1].strip(']')

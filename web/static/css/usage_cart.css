@@ -1,0 +1,17 @@
+.pulse-used-cart-header {
+    background-color: inherit;
+    animation-name: color;
+    animation-duration: 1s;
+    animation-iteration-count: 2;
+}
+@keyframes color {
+  0% {
+    background-color: inherit;
+  }
+  50% {
+    background-color: green;
+  }
+  100 {
+    background-color: inherit;
+  }
+}
