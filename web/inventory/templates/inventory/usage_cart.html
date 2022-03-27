@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Item in stock{% endblock %}
+
+{% block styles %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="inventory-detail">
+    <div>
+        <a href="{% url "inventory:item_in_stock_list" %}">Back to inventory list</a>
+    </div>
+<table class="datatable">
+    <thead>
+    <tr>
+        <th>category</th>
+        <th>source</th>
+        <th class="right-align">delivery_date</th>
+        <th>common_item_name</th>
+        <th>name</th>
+        <th class="right-align">unit_size</th>
+        <th class="right-align">use_count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in used_items %}
+        <tr data-id="{{ item.id }}">
+            <td>{{ item.category }}</td>
+            <td>{{ item.source }}</td>
+            <td class="right-align">{{ item.delivery_date }}</td>
+            <td>{{ item.common_item_name }}</td>
+            <td>{{ item.name }}</td>
+            <td class="right-align">{{ item.unit_size }}</td>
+            <td class="right-align">{{ item.use_count }}</td>
+        </tr>
+    {% endfor %}
+{#  "id": "1ccca472-33b4-436a-bf48-cdd06b02ae6a",#}
+{#  "category": "canned & dry",#}
+{#  "common_item_name": "angel food cake mix",#}
+{#  "delivered_quantity": 1.0,#}
+{#  "delivery_date": "2021-01-14",#}
+{#  "name": "bkrscls mix cake angel food complt",#}
+{#  "pack_quantity": 12.0,#}
+{#  "source": "sysco",#}
+{#  "unit_size": "15oz",#}
+{#  "created": "2022-03-24T11:58:45.025497-06:00",#}
+{#  "modified": "2022-03-24T11:58:45.025502-06:00",#}
+{#  "original_unit_quantity": "12.0000",#}
+{#  "remaining_unit_quantity": "12.0000",#}
+{#  "raw_incoming_item": "8edfc9aa-217f-4f87-ac38-d7fea55cee0b",#}
+{#  "use_count": 2#}
+    </tbody>
+</table>
+
+    <pre id="on-page-log">
+    Log
+    </pre>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/on_page_log.js" %}"></script>
+<script src="{% static "js/usage_cart.js" %}"></script>
+<script type="text/javascript">
+</script>
+{% endblock %}

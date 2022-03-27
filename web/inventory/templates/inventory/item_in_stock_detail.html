@@ -54,7 +54,7 @@
                     <span data-field="original_unit_quantity">__original unit quantity__</span>
                 </td>
                 <td>
-                    <input type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
+                    <input style="width: 100%;" type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
                 </td>
             </tr>
         </table>
@@ -84,6 +84,8 @@ Log
 {% block body_scripts %}
 <script src="{% static "js/layout.js" %}"></script>
 <script src="{% static "js/on_page_log.js" %}"></script>
+<script src="{% static "js/csrf_cookie.js" %}"></script>
+<script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
 var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity"]
 var money_fields = []
@@ -184,6 +186,29 @@ function use_quantity_changed() {
     }
     start_timer();
 }
+function post_usage_change(data) {
+    let headers = {};
+    headers['X-CSRFToken'] = csrftoken;
+    console.log(data);
+    data['csrfmiddlewaretoken'] = csrftoken;
+    var jqxhr = $.post({
+        url: "{% url "inventory:api_usage_change" %}",
+        dataType: "json",
+        data: data,
+        headers: headers
+        // traditional: true
+    })
+    .done(function(e) {
+        //logit("ajax success");
+        update_cart();
+    })
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+    });
+
+}
 
 var keypress_timer;
 function start_timer() {
@@ -191,9 +216,9 @@ function start_timer() {
     keypress_timer = setTimeout(timer_elapsed_func, 750);
 }
 function timer_elapsed_func() {
-    logit("timer elapsed");
+    //logit("timer elapsed");
     let iist = $("#item-in-stock-table");
-    let values_to_send = {};
+    let values_to_send = {"used_items": {}};
 
     iist.find("input[name='use_quantity']").each(function (){
         let tag = $(this);
@@ -201,9 +226,9 @@ function timer_elapsed_func() {
         if (isNaN(val)){
             val = 0;
         }
-        values_to_send[tag.data('id')] = val;
+        values_to_send["used_items"][tag.data('id')] = val;
     })
-    console.log(values_to_send);
+    post_usage_change(values_to_send);
 }
 $( document ).ready(function() {
     let w = $(window);
@@ -217,6 +242,7 @@ $( document ).ready(function() {
     let iist = $("#item-in-stock-table")
     // iist.on('focusout', "input[name='use_quantity']", use_quantity_changed);
     iist.on('change', "input[name='use_quantity']", use_quantity_changed);
+
 });
 </script>
 {% endblock %}

@@ -9,7 +9,9 @@ class ItemInStockManager(models.Manager):
         qs = super().get_queryset()
         qs = qs.select_related(
             'raw_incoming_item', 'raw_incoming_item__rawitem_obj', 'raw_incoming_item__rawitem_obj__source',
-            'raw_incoming_item__rawitem_obj__category')
+            'raw_incoming_item__rawitem_obj__category',
+            'raw_incoming_item__rawitem_obj__common_item_name_group__name'
+        )
         return qs
 
     def in_stock(self):
