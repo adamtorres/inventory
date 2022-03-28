@@ -15,8 +15,9 @@
     <thead>
         <tr>
             <th class="right-align">When</th>
-            <th class="w-25">Who</th>
+            <th class="w-25">Description</th>
             <th class="right-align">Items</th>
+            <th class="right-align">Total Price</th>
             <th class="w-50">Comment</th>
         </tr>
     </thead>
@@ -25,8 +26,9 @@
     {% for usage in object_list %}
         <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-id="{{ usage.id }}" data-detail-url="{% url "inventory:usagegroup_detail" pk=usage.id %}">
             <td class="right-align">{{ usage.when }}</td>
-            <td>{{ usage.who }}</td>
+            <td>{{ usage.description }}</td>
             <td class="right-align">{{ usage.usages|length }}</td>
+            <td class="right-align dollar-cell">{{ usage.total_price|intcomma|floatformat:2 }}</td>
             <td>{{ usage.comment }}</td>
         </tr>
     {% endfor %}

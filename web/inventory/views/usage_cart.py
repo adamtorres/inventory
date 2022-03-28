@@ -22,11 +22,24 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
         if ug_s.is_valid():
             usage_group_obj = ug_s.save()
             used_items = []
+            item_in_stock_details = {}
             for item_id, use_count in request.session['used_items'].items():
-                used_items.append({
+                item_in_stock_details[item_id] = {
                     'item_in_stock': item_id, 'used_quantity': use_count, 'usage_group': usage_group_obj.id,
                     'comment': ui_data.get(item_id) or ''
-                })
+                }
+                used_items.append(item_in_stock_details[item_id])
+            total_price = 0
+            for iis in inv_models.ItemInStock.objects.filter(id__in=list(item_in_stock_details.keys())):
+                item_in_stock_details[str(iis.id)]['remaining_unit_quantity_snapshot'] = (
+                    iis.remaining_unit_quantity - item_in_stock_details[str(iis.id)]['used_quantity'])
+                prices = iis.raw_incoming_item.get_prices()
+                item_in_stock_details[str(iis.id)]['used_price'] = round(
+                        prices['price_per_unit'] * item_in_stock_details[str(iis.id)]['used_quantity'], 4)
+                total_price += item_in_stock_details[str(iis.id)]['used_price']
+                print(f"Usage({item_in_stock_details[str(iis.id)]}")
+            usage_group_obj.total_price = total_price
+            usage_group_obj.save()
             # TODO: make this create via api?  If not, why have I been making API calls all this time?
             ui_s = inv_serializers.CreateUsageSerializer(data=used_items, many=True)
             if ui_s.is_valid():

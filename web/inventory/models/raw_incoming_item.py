@@ -368,3 +368,26 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
 
     def get_absolute_url(self):
         return urls.reverse("inventory:rawincomingitem_detail", kwargs={'pk': self.id})
+
+    def get_prices(self):
+        # delivered_quantity = number of packs delivered
+        # pack_quantity = number of units in a single pack
+        # unit_quantity = for ct/dz, converts to the number of items in a unit (# of eggs - sysco comes in 30dz)
+        # unit_size = pound, count, nothing, ounce.  How many/big is a single unit
+        # pack_price = price of a single pack
+        # pack_tax = total tax for the quantity delivered
+        # extended_price = total price (with tax) for the quantity delivered
+        # let price_per_unit = total_price / quantity / pack_quantity;
+        price_per_unit = self.extended_price / self.delivered_quantity / self.pack_quantity
+        price_per_count = price_per_unit / self.unit_quantity
+        # avg_pack_weight = None
+        # avg_unit_weight = None
+        pack_price = price_per_unit * self.pack_quantity  # NOTE: tax got included by using extended_price
+        # if self.total_weight:
+        #     avg_pack_weight = self.total_weight / self.delivered_quantity
+        #     avg_unit_weight = avg_pack_weight / self.pack_quantity
+        return {
+            "price_per_pack": pack_price,
+            "price_per_unit": price_per_unit,
+            "price_per_count": price_per_count,
+        }

@@ -441,6 +441,9 @@ function update_calculations() {
     let price_per_count = price_per_unit / unit_quantity;
     $("#calc-count-price").text(round(price_per_count));
 
+    pack_price = round(price_per_unit * pack_quantity);  // NOTE: tax got included by using extended_price
+    $("#calc-pack-price").text(round(pack_price).toFixed(2));
+
     if (weight > 0) {
         pack_price_per_weight = pack_price;
         $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
@@ -448,8 +451,6 @@ function update_calculations() {
         let avg_unit_weight = weight / quantity / pack_quantity;
         $("#calc-avg-pack-weight").text(round(avg_pack_weight));
         $("#calc-avg-unit-weight").text(round(avg_unit_weight));
-        pack_price = round(price_per_unit * pack_quantity);
-        $("#calc-pack-price").text(round(pack_price).toFixed(2));
         $("#calc-weight-specific-cells").removeClass("d-none");
     } else {
         $("#calc-weight-specific-cells").addClass("d-none");
