@@ -26,6 +26,7 @@
             <tr>
                 <th class="right-align">Unit Size</th>
                 <th class="right-align">Remaining Unit Quantity</th>
+                <th class="right-align">Remaining Unit Price</th>
                 <th class="right-align">Order Count</th>
                 <th>Sources</th>
             </tr>
@@ -35,6 +36,7 @@
             <tr class="filtered-item-link" data-item-in-stock-ids='{{ qty.item_in_stock_ids|safe }}'>
                 <td class="right-align"><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span></td>
                 <td class="right-align">{{ qty.remaining_unit_quantity|intcomma|floatformat }}</td>
+                <td class="right-align dollar-cell">{{ qty.remaining_unit_price|intcomma|floatformat:2 }}</td>
                 <td class="right-align">{{ qty.order_count }}</td>
                 <td>{{ qty.sources|join:", " }}</td>
             </tr>
@@ -54,6 +56,7 @@
                     of
                     <span data-field="original_unit_quantity">__original unit quantity__</span>
                 </td>
+                <td class="right-align dollar-cell" data-field="unit_price">__unit price__</td>
                 <td>
                     <input style="width: 100%;" type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
                 </td>
@@ -69,6 +72,7 @@
                 <th>delivered quantity</th>
                 <th>pack quantity</th>
                 <th>remaining unit quantity</th>
+                <th>unit price</th>
                 <th>Use quantity</th>
             </tr>
             </thead>
@@ -89,7 +93,7 @@ Log
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
 var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity"]
-var money_fields = []
+var money_fields = ["unit_price"]
 function new_item(data) {
     cloned_row = $("#item-in-stock-row-template").clone();
     cloned_row.attr('id', null);

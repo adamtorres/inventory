@@ -25,6 +25,8 @@ class ItemInStock(sc_models.DatedModel):
     remaining_unit_quantity = sc_fields.DecimalField()
     # remaining_unit_quantity = models.IntegerField(
     # default=1, help_text="For unit_size=ct/dz, this converts that to a number")
+    unit_price = sc_fields.MoneyField()
+    # count_price = sc_fields.MoneyField()
 
     objects = ItemInStockManager()
 

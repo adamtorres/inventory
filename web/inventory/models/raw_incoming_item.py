@@ -387,7 +387,18 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
         #     avg_pack_weight = self.total_weight / self.delivered_quantity
         #     avg_unit_weight = avg_pack_weight / self.pack_quantity
         return {
-            "price_per_pack": pack_price,
-            "price_per_unit": price_per_unit,
-            "price_per_count": price_per_count,
+            "price_per_pack": round(pack_price, 4),
+            "price_per_unit": round(price_per_unit, 4),
+            "price_per_count": round(price_per_count, 4),
         }
+
+    @property
+    def has_in_stock(self):
+        # Importing here to avoid circular references.  Hadn't tried with import at top.
+        from .item_in_stock import ItemInStock
+        _has_in_stock = False
+        try:
+            _has_in_stock = self.in_stock is not None
+        except ItemInStock.DoesNotExist:
+            pass
+        return _has_in_stock

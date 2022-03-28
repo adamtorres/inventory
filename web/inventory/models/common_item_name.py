@@ -44,13 +44,19 @@ class CommonItemNameGroupManager(models.Manager):
                     default=None
                 ),
                 distinct=True),
-            remaining_unit_quantity=models.Sum('raw_items__raw_incoming_items__in_stock__remaining_unit_quantity')
+            remaining_unit_quantity=models.Sum('raw_items__raw_incoming_items__in_stock__remaining_unit_quantity'),
+            remaining_unit_price=models.Sum(
+                models.F('raw_items__raw_incoming_items__in_stock__remaining_unit_quantity') *
+                models.F('raw_items__raw_incoming_items__in_stock__unit_price'),
+                output_field=models.DecimalField()
+            )
         ).order_by('category_str', 'name_str', 'unit_size')
         if by_unit_size:
             return qs
         return sc_utils.list_group(
             qs, ["id", "category_str", "name_str"], group_name="quantities", sub_group_fields="unit_size",
-            sum_fields=["order_count", "remaining_unit_quantity"], set_fields=['sources', 'item_in_stock_ids'])
+            sum_fields=["order_count", "remaining_unit_quantity", "remaining_unit_price"],
+            set_fields=['sources', 'item_in_stock_ids'])
 
     def search_multiple_names(self, terms):
         """

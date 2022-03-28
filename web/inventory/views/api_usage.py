@@ -34,6 +34,7 @@ class APIUsageChangeView(views.APIView):
             item_id = item['id']
             count = request.session['used_items'][item_id]
             item['use_count'] = count
+            item['use_price'] = round(int(count) * float(item['unit_price']), 4)
         context['total_used_units'] = total_count
         return response.Response(context)
 
