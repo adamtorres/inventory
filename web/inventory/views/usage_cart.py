@@ -16,9 +16,6 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
         if not request.session.get('used_items'):
             # No items.  Just redirect.
             return shortcuts.redirect(urls.reverse("inventory:usage_cart"))
-        # print(f"UsageCartView.post: args: {args}")
-        # print(f"UsageCartView.post: kwargs: {kwargs}")
-        # print(f"UsageCartView.post: POST: {request.POST}")
         ug_data = {k: v for k, v in request.POST.items() if k in ['description', 'when', 'comment']}
         ui_data = {k[-36:]: v for k, v in request.POST.items() if k.startswith('item-comment-')}
         ug_s = inv_serializers.UsageGroupSerializer(data=ug_data)
@@ -31,7 +28,7 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
                     'comment': ui_data.get(item_id) or ''
                 })
             # TODO: make this create via api?  If not, why have I been making API calls all this time?
-            ui_s = inv_serializers.UsageSerializer(data=used_items, many=True)
+            ui_s = inv_serializers.CreateUsageSerializer(data=used_items, many=True)
             if ui_s.is_valid():
                 used_item_objs = ui_s.save()
                 item_in_stock_to_update = []

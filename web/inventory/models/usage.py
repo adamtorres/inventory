@@ -18,6 +18,9 @@ class UsageGroup(sc_models.DatedModel):
 
     objects = UsageGroupManager()
 
+    class Meta:
+        ordering = ('-when', 'description', )
+
 
 class UsageManager(models.Manager):
     def get_queryset(self):
@@ -38,3 +41,8 @@ class Usage(sc_models.DatedModel):
     comment = sc_fields.CharField(help_text="Anything special about this specific item")
 
     objects = UsageManager()
+
+    class Meta:
+        ordering = (
+            'item_in_stock__raw_incoming_item__rawitem_obj__category__name',
+            'item_in_stock__raw_incoming_item__rawitem_obj__common_item_name_group__name__name')

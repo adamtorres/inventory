@@ -13,6 +13,12 @@ class UsageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CreateUsageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = inv_models.Usage
+        fields = '__all__'
+
+
 class UsageGroupSerializer(serializers.ModelSerializer):
     usages = serializers.SerializerMethodField()
 
