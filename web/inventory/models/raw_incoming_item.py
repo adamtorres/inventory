@@ -78,6 +78,12 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
     def departments(self, limit_state=None, qs=None, only_new=False):
         return self._distinct_things('department', Department, limit_state=limit_state, qs=qs, only_new=only_new)
 
+    def failed(self, method=None):
+        qs = self.filter(state__failed=True)
+        if method:
+            qs = qs.filter(failure_reasons__icontains=f'"method": "{method}"')
+        return qs
+
     def get_queryset(self):
         """
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
@@ -97,11 +103,14 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
     #             return functools.partial(self.ready_to_do_action, the_something)
     #     raise AttributeError(item)
 
-    def failed(self, method=None):
-        qs = self.filter(state__failed=True)
-        if method:
-            qs = qs.filter(failure_reasons__icontains=f'"method": "{method}"')
-        return qs
+    def get_raw_item_filter(self, qs=None):
+        qs = (qs or self)
+        ri_filter = models.Q()
+        distinct_qs = qs.order_by('source', 'name', 'unit_size', 'pack_quantity')
+        distinct_qs = distinct_qs.distinct('source', 'name', 'unit_size', 'pack_quantity')
+        for rii in distinct_qs:
+            ri_filter |= rii.get_raw_item_filter()
+        return ri_filter
 
     def items(self, limit_state=None, qs=None, only_new=False):
         fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code']
@@ -378,6 +387,12 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
         # pack_tax = total tax for the quantity delivered
         # extended_price = total price (with tax) for the quantity delivered
         # let price_per_unit = total_price / quantity / pack_quantity;
+        if not self.delivered_quantity or not self.pack_quantity:
+            return {
+                "price_per_pack": 0.0,
+                "price_per_unit": 0.0,
+                "price_per_count": 0.0,
+            }
         price_per_unit = self.extended_price / self.delivered_quantity / self.pack_quantity
         price_per_count = price_per_unit / self.unit_quantity
         # avg_pack_weight = None
@@ -391,6 +406,13 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
             "price_per_unit": round(price_per_unit, 4),
             "price_per_count": round(price_per_count, 4),
         }
+
+    def get_raw_item_filter(self):
+        """
+        Returns a filter that can be used to find this item in RawItem before the foreign key is set.
+        """
+        return models.Q(
+            source__name=self.source, name=self.name, unit_size=self.unit_size, pack_quantity=self.pack_quantity)
 
     @property
     def has_in_stock(self):

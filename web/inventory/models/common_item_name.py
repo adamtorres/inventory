@@ -3,6 +3,7 @@ from django.db import models
 
 from scrap import models as sc_models, utils as sc_utils
 from scrap.models import fields as sc_fields
+from .raw_state import RawState
 
 
 class CommonItemNameGroupManager(models.Manager):
@@ -25,7 +26,7 @@ class CommonItemNameGroupManager(models.Manager):
         }
         """
         # TODO: I don't like name_str.  The orm didn't let me shadow the name field.  Probably a way around it.
-        qs = (qs or self).values(
+        qs = (qs or self).filter(raw_items__raw_incoming_items__state=RawState.objects.done_state()).values(
             'id',
             name_str=models.F('name__name'),
             category_str=models.F('category__name'),

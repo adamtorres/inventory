@@ -7,6 +7,15 @@ from .source import Source
 
 
 class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
+    def get_item_filter(self, qs=None):
+        qs = (qs or self)
+        i_filter = models.Q()
+        distinct_qs = qs.order_by('source', 'name')
+        distinct_qs = distinct_qs.distinct('source', 'name')
+        for ri in distinct_qs:
+            i_filter |= ri.get_item_filter()
+        return i_filter
+
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.select_related('common_item_name_group', 'source', 'category')
@@ -87,6 +96,12 @@ class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_mode
         if self.unit_size:
             tmp += f", {self.unit_size}"
         return tmp
+
+    def get_item_filter(self):
+        """
+        Returns a filter that can be used to find this item in Item before the foreign key is set.
+        """
+        return models.Q(source=self.source, name=self.name)
 
     def get_raw_item_filter(self):
         """
