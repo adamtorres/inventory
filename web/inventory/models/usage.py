@@ -1,3 +1,4 @@
+from django import urls
 from django.db import models
 
 from scrap import models as sc_models
@@ -20,7 +21,10 @@ class UsageGroup(sc_models.DatedModel):
     objects = UsageGroupManager()
 
     class Meta:
-        ordering = ('-when', 'description', )
+        ordering = ('-when', '-created', )
+
+    def get_absolute_url(self):
+        return urls.reverse("inventory:usagegroup_detail", kwargs={'pk': self.id})
 
 
 class UsageManager(models.Manager):
@@ -48,4 +52,6 @@ class Usage(sc_models.DatedModel):
     class Meta:
         ordering = (
             'item_in_stock__raw_incoming_item__rawitem_obj__category__name',
-            'item_in_stock__raw_incoming_item__rawitem_obj__common_item_name_group__name__name')
+            'item_in_stock__raw_incoming_item__rawitem_obj__common_item_name_group__name__name',
+            '-created',
+        )

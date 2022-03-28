@@ -54,7 +54,7 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
                     item_in_stock_to_update, fields=('remaining_unit_quantity', ))
                 request.session['used_items'] = {}
                 request.session.modified = True
-
+                return shortcuts.redirect(usage_group_obj.get_absolute_url())
             else:
                 print(f"serializer errors: {ui_s.errors}")
         return shortcuts.redirect(urls.reverse("inventory:usage_cart"))

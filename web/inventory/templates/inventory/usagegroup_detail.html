@@ -24,7 +24,7 @@
     <thead>
         <tr>
             <th class="right-align">When</th>
-            <th class="w-25">Who</th>
+            <th class="w-25">Description</th>
             <th class="right-align">Items</th>
             <th class="right-align">Total Price</th>
             <th class="w-50">Comment</th>
@@ -34,7 +34,7 @@
     <tbody id="usage-group-list-body">
         <tr data-id="{{ usagegroup.id }}">
             <td class="right-align">{{ usagegroup.when }}</td>
-            <td>{{ usagegroup.who }}</td>
+            <td>{{ usagegroup.description }}</td>
             <td class="right-align">{{ usagegroup.usages|length }}</td>
             <td class="right-align dollar-cell">{{ usagegroup.total_price|intcomma|floatformat:2 }}</td>
             <td>{{ usagegroup.comment }}</td>
