@@ -14,9 +14,6 @@
 .datatable>thead>tr>th{
     vertical-align: bottom;
 }
-.datatable>tbody>tr:nth-child(even){
-    background-color: lightgoldenrodyellow;
-}
 .datatable>tbody>tr>td {
     vertical-align: top;
 }
@@ -53,7 +50,7 @@
     </thead>
     <tbody id="inventory-list-body">
     {% for item in object_list %}
-        <tr class="filtered-item-link" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.id %}">
+        <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.id %}">
             <td class="w-25">{{ item.category_str }}</td>
             <td class="w-25">{{ item.name_str }}</td>
             <td class="w-50">

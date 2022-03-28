@@ -23,7 +23,7 @@
 
     <tbody id="usage-group-list-body">
     {% for usage in object_list %}
-        <tr class="filtered-item-link" data-id="{{ usage.id }}" data-detail-url="{% url "inventory:usagegroup_detail" pk=usage.id %}">
+        <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-id="{{ usage.id }}" data-detail-url="{% url "inventory:usagegroup_detail" pk=usage.id %}">
             <td class="right-align">{{ usage.when }}</td>
             <td>{{ usage.who }}</td>
             <td class="right-align">{{ usage.usages|length }}</td>

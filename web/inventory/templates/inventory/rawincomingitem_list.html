@@ -26,7 +26,7 @@
     </thead>
     <tbody>
     {% for item in object_list %}
-        <tr data-detail-url="{% url "inventory:rawincomingitem_detail" pk=item.id %}">
+        <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-detail-url="{% url "inventory:rawincomingitem_detail" pk=item.id %}">
             {% include "inventory/rawincomingitem_list_item.html" with item=item %}
         </tr>
     {% endfor %}
