@@ -41,7 +41,7 @@
                 <tr>
                     <th class="w-25 right-align">Order Count</th>
                     <th class="w-25 right-align">Unit Size</th>
-                    <th class="w-25 right-align">Pack Quantity</th>
+                    <th class="w-25 right-align">Unit Quantity</th>
                     <th class="w-25 right-align">Sources</th>
                 </tr>
             </table>
@@ -59,7 +59,7 @@
                     <tr>
                         <td class="w-25 right-align">{{ unit_size_quantity.order_count|intcomma }}</td>
                         <td class="w-25 right-align {% if not unit_size_quantity.unit_size %}text-muted{% endif %}">{{ unit_size_quantity.unit_size|default:"[no unit size]" }}</td>
-                        <td class="w-25 right-align">{{ unit_size_quantity.pack_quantity|floatformat|intcomma }}</td>
+                        <td class="w-25 right-align">{{ unit_size_quantity.remaining_unit_quantity|floatformat|intcomma }}</td>
                         <td class="w-25 right-align">{{ unit_size_quantity.sources|join:", " }}</td>
                     </tr>
                 {% endfor %}
