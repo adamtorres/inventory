@@ -15,6 +15,7 @@ class UsageGroupManager(models.Manager):
 class UsageGroup(sc_models.DatedModel):
     description = sc_fields.CharField(blank=False)
     when = models.DateField(help_text="when the described activity took place")
+    # TODO: need start/end dates where end defaults to start if not supplied.
     comment = sc_fields.CharField(help_text="Anything special about this usage as a whole")
     total_price = sc_fields.MoneyField()
 
@@ -43,6 +44,8 @@ class Usage(sc_models.DatedModel):
         UsageGroup, on_delete=models.CASCADE, related_name='usages', related_query_name='usages')
     item_in_stock = models.ForeignKey("inventory.ItemInStock", on_delete=models.CASCADE)
     used_quantity = sc_fields.DecimalField()
+    # TODO: used_quantity is of the unit size.  Second input to handle count?  On first use, would need to subtract a
+    #  unit, then keep track of used count until it equals a unit.
     remaining_unit_quantity_snapshot = sc_fields.DecimalField()
     used_price = sc_fields.MoneyField()
     comment = sc_fields.CharField(help_text="Anything special about this specific item")
@@ -55,3 +58,7 @@ class Usage(sc_models.DatedModel):
             'item_in_stock__raw_incoming_item__rawitem_obj__common_item_name_group__name__name',
             '-created',
         )
+
+    @property
+    def previous_unit_quantity(self):
+        return self.remaining_unit_quantity_snapshot + self.used_quantity
