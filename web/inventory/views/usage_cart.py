@@ -19,13 +19,18 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
         # print(f"UsageCartView.post: args: {args}")
         # print(f"UsageCartView.post: kwargs: {kwargs}")
         # print(f"UsageCartView.post: POST: {request.POST}")
-        ug_s = inv_serializers.UsageGroupSerializer(data=request.POST)
+        ug_data = {k: v for k, v in request.POST.items() if k in ['description', 'when', 'comment']}
+        ui_data = {k[-36:]: v for k, v in request.POST.items() if k.startswith('item-comment-')}
+        ug_s = inv_serializers.UsageGroupSerializer(data=ug_data)
         if ug_s.is_valid():
             usage_group_obj = ug_s.save()
             used_items = []
             for item_id, use_count in request.session['used_items'].items():
                 used_items.append({
-                    'item_in_stock': item_id, 'used_quantity': use_count, 'usage_group': usage_group_obj.id})
+                    'item_in_stock': item_id, 'used_quantity': use_count, 'usage_group': usage_group_obj.id,
+                    'comment': ui_data.get(item_id) or ''
+                })
+            # TODO: make this create via api?  If not, why have I been making API calls all this time?
             ui_s = inv_serializers.UsageSerializer(data=used_items, many=True)
             if ui_s.is_valid():
                 used_item_objs = ui_s.save()

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Usage{% endblock %}
+
+{% block styles %}
+<style>
+.not-last-row th {
+    border-bottom: darkgrey solid 1px;
+}
+.not-last-row td {
+    border-bottom: lightgrey solid 1px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="usage-list">
+<div>
+    <a href="{% url "inventory:usagegroup_list" %}">Back to Usage list</a>
+</div>
+<table class="datatable w-75">
+    <thead>
+        <tr>
+            <th class="right-align">When</th>
+            <th class="w-25">Who</th>
+            <th class="right-align">Items</th>
+            <th class="w-50">Comment</th>
+        </tr>
+    </thead>
+
+    <tbody id="usage-group-list-body">
+        <tr data-id="{{ usagegroup.id }}">
+            <td class="right-align">{{ usagegroup.when }}</td>
+            <td>{{ usagegroup.who }}</td>
+            <td class="right-align">{{ usagegroup.usages|length }}</td>
+            <td>{{ usagegroup.comment }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<table class="datatable w-100">
+    <thead>
+        <tr class="not-last-row">
+            <th>delivery date</th>
+            <th>source</th>
+            <th>category</th>
+            <th>common item name</th>
+            <th>name</th>
+            <th>comment</th>
+        </tr>
+        <tr>
+            <th>pack quantity</th>
+            <th>unit size</th>
+            <th>delivered quantity</th>
+            <th>original unit quantity</th>
+            <th>remaining unit quantity</th>
+            <th>used quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for usage in usagegroup.usages %}
+        <tr class="not-last-row" data-id="{{ usage.id }}">
+            <td>{{ usage.item_in_stock.delivery_date }}</td>
+            <td>{{ usage.item_in_stock.source }}</td>
+            <td>{{ usage.item_in_stock.category }}</td>
+            <td>{{ usage.item_in_stock.common_item_name }}</td>
+            <td>{{ usage.item_in_stock.name }}</td>
+            <td>{{ usage.comment }}</td>
+        </tr><tr>
+            <td>{{ usage.item_in_stock.pack_quantity }}</td>
+            <td>{{ usage.item_in_stock.unit_size }}</td>
+            <td>{{ usage.item_in_stock.delivered_quantity }}</td>
+            <td>{{ usage.item_in_stock.original_unit_quantity }}</td>
+            <td>{{ usage.item_in_stock.remaining_unit_quantity }}</td>
+            <td>{{ usage.used_quantity }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "usage-list"}, resize_content);
+    d.on("resize", {"content_id": "usage-list"}, resize_content);
+    w.trigger("resize");
+});
+</script>
+{% endblock %}

@@ -24,6 +24,8 @@ urlpatterns = [
 
     urls.path("api_usage_change/", i_views.APIUsageChangeView.as_view(), name="api_usage_change"),
     urls.path("api_usage_create/", i_views.APIUsageCreateView.as_view(), name="api_usage_create"),
+    urls.path("api_usage_groups/", i_views.APIUsageGroupListView.as_view(), name="api_usage_group_list"),
+    urls.path("api_usage_group/<uuid:pk>/", i_views.APIUsageGroupDetailView.as_view(), name="api_usage_group_detail"),
 
     urls.path("item_in_stock/", i_views.ItemInStockListView.as_view(), name="item_in_stock_list"),
     urls.path("item_in_stock/<uuid:pk>/", i_views.ItemInStockDetailView.as_view(), name="item_in_stock_detail"),
@@ -40,5 +42,7 @@ urlpatterns = [
     urls.path("rawincomingitem/<uuid:pk>/delete", i_views.RawIncomingItemDeleteView.as_view(), name="rawincomingitem_delete"),
     urls.path("rawincomingitem/<uuid:pk>/", i_views.RawIncomingItemDetailView.as_view(), name="rawincomingitem_detail"),
     urls.path("usage_cart/", i_views.UsageCartView.as_view(), name="usage_cart"),
+    urls.path("usagegroup/<uuid:pk>/", i_views.UsageGroupDetailView.as_view(), name="usagegroup_detail"),
+    urls.path("usagegroups/", i_views.UsageGroupListView.as_view(), name="usagegroup_list"),
     urls.path("", generic.RedirectView.as_view(pattern_name="inventory:rawincomingitem_lookup", permanent=False), name="home"),
 ]

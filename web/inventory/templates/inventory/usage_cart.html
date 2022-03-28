@@ -24,30 +24,34 @@
     <label for="when">When the usage happened</label>
     <input type="date" name="when">
 </div>
-    <input type="submit">
-</form>
+<div>
+    <label for="comment">Anything special about this usage as a whole?</label>
+    <input type="text" maxlength="1024" name="comment">
+</div>
 <table class="datatable">
     <thead>
     <tr>
-        <th>category</th>
-        <th>source</th>
-        <th class="right-align">delivery_date</th>
-        <th>common_item_name</th>
-        <th>name</th>
-        <th class="right-align">unit_size</th>
-        <th class="right-align">use_count</th>
+        <th>Category</th>
+        <th>Source</th>
+        <th class="right-align">Delivery Date</th>
+        <th>Common Item Name</th>
+        <th>Name</th>
+        <th class="right-align">Unit Size</th>
+        <th class="right-align">Use Count</th>
+        <th>Comment</th>
     </tr>
     </thead>
     <tbody id="usage-cart-table-body">
     {% for item in used_items %}
-        <tr class="filtered-item-link" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.common_item_name_group_id %}" data-id="{{ item.id }}">
-            <td>{{ item.category }}</td>
-            <td>{{ item.source }}</td>
-            <td class="right-align">{{ item.delivery_date }}</td>
-            <td>{{ item.common_item_name }}</td>
-            <td>{{ item.name }}</td>
-            <td class="right-align">{{ item.unit_size }}</td>
-            <td class="right-align">{{ item.use_count }}</td>
+        <tr data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.common_item_name_group_id %}" data-id="{{ item.id }}">
+            <td class="filtered-item-link">{{ item.category }}</td>
+            <td class="filtered-item-link">{{ item.source }}</td>
+            <td class="filtered-item-link right-align">{{ item.delivery_date }}</td>
+            <td class="filtered-item-link">{{ item.common_item_name }}</td>
+            <td class="filtered-item-link">{{ item.name }}</td>
+            <td class="filtered-item-link right-align">{{ item.unit_size }}</td>
+            <td class="filtered-item-link right-align">{{ item.use_count }}</td>
+            <td><input type="text" maxlength="1024" name="item-comment-{{ item.id }}"></td>
         </tr>
     {% endfor %}
 {#  "id": "1ccca472-33b4-436a-bf48-cdd06b02ae6a",#}
@@ -67,6 +71,9 @@
 {#  "use_count": 2#}
     </tbody>
 </table>
+    <input type="submit">
+</form>
+
 {% if used_items|length > 0 %}
     <div>
     <a id="empty-cart">Empty Cart</a>
@@ -105,9 +112,9 @@ function empty_cart() {
     });
 }
 function used_item_click() {
-    let p = $(this);
-    let detail_url = p.data('detail-url');
-    window.location = detail_url;
+    let i = $(this);
+    let p = i.parent();
+    window.location = p.data('detail-url');
 }
 $( document ).ready(function() {
     $("#usage-cart-table-body").on('click', '.filtered-item-link', used_item_click);
