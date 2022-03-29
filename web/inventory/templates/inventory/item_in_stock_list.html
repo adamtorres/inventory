@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Item List{% endblock %}
+
+{% block styles %}
+<style>
+.datatable>thead>tr {
+    position: sticky;
+    background-color: lightgrey;
+    top: 0px;
+}
+.datatable>thead>tr>th{
+    vertical-align: bottom;
+}
+.datatable>tbody>tr>td {
+    vertical-align: top;
+}
+#inventory-list {
+    overflow: scroll;
+    max-height: inherit;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="inventory-list">
+    <div>
+    </div>
+    <table class="datatable datatable-link w-75">
+    <thead>
+    <tr class="item-list-header">
+        <th class="w-25">Category</th>
+        <th class="w-25">Item Name</th>
+        <th class="w-50" >
+            <table class="w-100">
+                <tr>
+                    <th colspan="4" style="text-align: center;">Quantities per unit size</th>
+                </tr>
+                <tr>
+                    <th style="width: 10%;" class="w-25 right-align">Order Count</th>
+                    <th style="width: 25%;" class="w-25 right-align">Unit Size</th>
+                    <th style="width: 15%;" class="w-25 right-align">Unit Quantity</th>
+                    <th style="width: 15%;" class="w-25 right-align">Total Price</th>
+                    <th style="width: 25%;" class="w-25 right-align">Sources</th>
+                </tr>
+            </table>
+        </th>
+    </tr>
+    </thead>
+    <tbody id="inventory-list-body">
+    {% for item in object_list %}
+        <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.id %}">
+            <td class="w-25">{{ item.category_str }}</td>
+            <td class="w-25">{{ item.name_str }}</td>
+            <td class="w-50">
+                <table class="w-100">
+                {% for unit_size_quantity in item.quantities %}
+                    <tr>
+                        <td style="width: 10%;" class="right-align">{{ unit_size_quantity.order_count|intcomma }}</td>
+                        <td style="width: 25%;" class="right-align {% if not unit_size_quantity.unit_size %}text-muted{% endif %}">{{ unit_size_quantity.unit_size|default:"[no unit size]" }}</td>
+                        <td style="width: 15%;" class="right-align">{{ unit_size_quantity.remaining_unit_quantity|floatformat|intcomma }}</td>
+                        <td style="width: 15%;" class="right-align dollar-cell">{{ unit_size_quantity.remaining_unit_price|floatformat:2|intcomma }}</td>
+                        <td style="width: 25%;" class="right-align">{{ unit_size_quantity.sources|join:", " }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script src="{% static "js/usage_cart.js" %}"></script>
+<script type="text/javascript">
+function inventory_item_click() {
+    let p = $(this);
+    let detail_url = p.data('detail-url');
+    console.log(`inventory_item_click detail_url = '${detail_url}'`);
+    window.location = detail_url;
+}
+
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "inventory-list"}, resize_content);
+    d.on("resize", {"content_id": "inventory-list"}, resize_content);
+    w.trigger("resize");
+
+    $("#inventory-list-body").on('click', '.filtered-item-link', inventory_item_click)
+});
+</script>
+{% endblock %}

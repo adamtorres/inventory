@@ -25,12 +25,26 @@ def _do_create(batch_size=1):
     assigned_category_count = assign_categories(qs)
     print(f"do_create:category assigned {assigned_category_count} categories")
 
+    assigned_raw_items_count = assign_raw_items(qs)
+    print(f"do_create:raw_item assigned {assigned_raw_items_count} existing raw_items")
     raw_items = create_raw_items(qs)
     print(f"do_create:raw_item created {len(raw_items)}")
-    assigned_raw_items_count = assign_raw_items(qs, raw_items)
+    assigned_raw_items_count = assign_raw_items(qs)
     print(f"do_create:raw_item assigned {assigned_raw_items_count} raw_items")
     assign_common_item_names_count = assign_common_item_names()
     print(f"do_create:raw_item assigned {assign_common_item_names_count} common names to raw_items")
+
+    # Get all RawItems associated with this batch.  Was using the raw_items list but that only works when the task
+    # doesn't fail and get restarted.
+    raw_item_filter_qs = qs.exclude(rawitem_obj__isnull=True).order_by('rawitem_obj').distinct('rawitem_obj')
+    raw_item_qs = inv_models.RawItem.objects.filter(raw_incoming_items__in=raw_item_filter_qs)
+
+    assigned_items_count = assign_items(raw_item_qs)
+    print(f"do_create:item assigned {assigned_items_count} existing items")
+    items = create_items(raw_item_qs)
+    print(f"do_create:item created {len(items)}")
+    assigned_items_count = assign_items(raw_item_qs)
+    print(f"do_create:item assigned {assigned_items_count} items")
 
     items_to_update = []
     fields_to_update = {'state'}
@@ -56,10 +70,21 @@ def assign_departments(qs):
     return assign_things(qs, 'department', 'department_obj')
 
 
-def assign_raw_items(qs, raw_items):
+def assign_items(qs):
+    needs_item_qs = qs.filter(item__isnull=True)
     counts = []
-    for ri in raw_items:
-        counts.append(qs.filter(ri.get_raw_item_filter()).update(rawitem_obj=ri))
+    i_filter = inv_models.RawItem.objects.get_item_filter(qs=needs_item_qs)
+    for i in inv_models.Item.objects.filter(i_filter):
+        counts.append(needs_item_qs.filter(i.get_item_filter()).update(item=i))
+    return sum(counts)
+
+
+def assign_raw_items(qs):
+    needs_raw_item_qs = qs.filter(rawitem_obj__isnull=True)
+    counts = []
+    ri_filter = inv_models.RawIncomingItem.objects.get_raw_item_filter(qs=needs_raw_item_qs)
+    for ri in inv_models.RawItem.objects.filter(ri_filter):
+        counts.append(needs_raw_item_qs.filter(ri.get_raw_item_filter()).update(rawitem_obj=ri))
     return sum(counts)
 
 
@@ -106,13 +131,32 @@ def create_departments(qs):
     return create_things(qs, inv_models.Department, 'departments', 'department')
 
 
+def create_items(qs):
+    manager_func_name = 'items'
+    source_model = inv_models.RawItem
+    model = inv_models.Item
+    raw_fields = ['source', 'name']
+    new_fields = ['source', 'name']
+    manager_func = getattr(source_model.objects, manager_func_name)
+    objs_to_create = []
+    for raw_thing in manager_func(qs=qs, only_new=True):
+        kwargs = {nf: raw_thing[rf] for nf, rf in zip(new_fields, raw_fields)}
+        new_item = model(**kwargs)
+        objs_to_create.append(new_item)
+    if objs_to_create:
+        objs = model.objects.bulk_create(objs_to_create)
+        return objs
+    return []
+
+
 def create_raw_items(qs):
     manager_func_name = 'items'
+    source_model = inv_models.RawIncomingItem
     model = inv_models.RawItem
     raw_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
     new_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
 
-    manager_func = getattr(inv_models.RawIncomingItem.objects, manager_func_name)
+    manager_func = getattr(source_model.objects, manager_func_name)
     objs_to_create = []
     for raw_thing in manager_func(qs=qs, only_new=True):
         kwargs = {nf: raw_thing[rf] for nf, rf in zip(new_fields, raw_fields)}

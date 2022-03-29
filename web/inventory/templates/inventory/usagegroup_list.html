@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Usages{% endblock %}
+
+{% block styles %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="usage-list">
+<table class="datatable w-75">
+    <thead>
+        <tr>
+            <th class="right-align">When</th>
+            <th class="w-25">Description</th>
+            <th class="right-align">Items</th>
+            <th class="right-align">Total Price</th>
+            <th class="w-50">Comment</th>
+        </tr>
+    </thead>
+
+    <tbody id="usage-group-list-body">
+    {% for usage in object_list %}
+        <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-id="{{ usage.id }}" data-detail-url="{% url "inventory:usagegroup_detail" pk=usage.id %}">
+            <td class="right-align">{{ usage.when }}</td>
+            <td>{{ usage.description }}</td>
+            <td class="right-align">{{ usage.usages|length }}</td>
+            <td class="right-align dollar-cell">{{ usage.total_price|intcomma|floatformat:2 }}</td>
+            <td>{{ usage.comment }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script type="text/javascript">
+function usage_group_click() {
+    window.location = $(this).data('detail-url');
+}
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "usage-list"}, resize_content);
+    d.on("resize", {"content_id": "usage-list"}, resize_content);
+    w.trigger("resize");
+
+    $("#usage-group-list-body").on('click', '.filtered-item-link', usage_group_click)
+});
+</script>
+{% endblock %}

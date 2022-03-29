@@ -31,7 +31,7 @@
     </thead>
     <tbody>
     {% for order in object_list %}
-        <tr data-detail-url="{% url "inventory:rawincomingorder_detail" pk=order.item_ids.0 %}">
+        <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-detail-url="{% url "inventory:rawincomingorder_detail" pk=order.item_ids.0 %}">
             <td>{{ order.source }}</td>
             <td>{{ order.department }}</td>
             <td class="right-align">{{ order.customer_number }}</td>
@@ -40,8 +40,8 @@
             <td>{{ order.order_comment }}</td>
             <td class="right-align">{{ order.order_date|default_if_none:"" }}</td>
             <td class="right-align">{{ order.delivery_date }}</td>
-            <td class="right-align dollar-cell">{{ order.total_price|intcomma|floatformat:2 }}</td>
-            <td class="right-align">{{ order.total_packs|intcomma|floatformat }}</td>
+            <td class="right-align dollar-cell">{{ order.total_price|floatformat:2|intcomma }}</td>
+            <td class="right-align">{{ order.total_packs|floatformat|intcomma }}</td>
             <td class="right-align">{{ order.item_count }}</td>
         </tr>
     {% endfor %}

@@ -4,6 +4,6 @@
 <td class="right-align">{{ item.order_number }}</td>
 <td class="right-align">{{ item.line_item_position }}</td>
 <td>{{ item.name }}</td>
-<td class="right-align">{{ item.delivered_quantity|intcomma|floatformat }}</td>
-<td class="right-align dollar-cell">{{ item.extended_price|intcomma|floatformat:2 }}</td>
+<td class="right-align">{{ item.delivered_quantity|floatformat|intcomma }}</td>
+<td class="right-align dollar-cell">{{ item.extended_price|floatformat:2|intcomma }}</td>
 <td>{{ item.state.name }}</td>

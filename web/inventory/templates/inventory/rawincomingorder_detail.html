@@ -14,7 +14,7 @@
 <p>total_price = {{ object.total_price }}</p>
 <p>total_packs = {{ object.total_packs }}</p>
 
-<table>
+<table class="datatable">
     <thead>
         <tr>
             <th>line_item_position</th>
@@ -37,7 +37,7 @@
     </thead>
     <tbody>
     {% for item in object.items %}
-        <tr>
+        <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}">
             <td>{{ item.line_item_position }}</td>
             <td>{{ item.category }}</td>
             <td>{{ item.name }}</td>

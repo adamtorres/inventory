@@ -11,6 +11,7 @@ from .source import SourceSerializer
 
 
 class HyperlinkedRawIncomingItemSerializer(serializers.HyperlinkedModelSerializer):
+    # TODO: this is broken when called from APIRawIncomingItemDetailView
     url = serializers.HyperlinkedIdentityField(
         view_name='inventory:api_rawincomingitem_detail',
         lookup_field='pk'

@@ -30,22 +30,29 @@
             border-right: lightgray solid 1px;
             padding-left: 4px;
             padding-right: 4px;
+            background-color: lightgrey;
         }
-        .datatable td {
+        .datatable>tbody>tr>td {
             margin: 0;
             border-top: black solid 1px;
             border-right: lightgray solid 1px;
             padding-left: 4px;
             padding-right: 4px;
         }
-        .datatable tr:last-child td {
+        .datatable>tbody>tr:last-child>td {
             border-bottom: black solid 1px;
         }
-        .datatable tr td:first-child,th:first-child {
+        .datatable tr>td:first-child,th:first-child {
             border-left: lightgray solid 1px;
         }
         .datatable-link tr[data-detail-url] {
             cursor: pointer;
+        }
+        .datatable-odd-row {
+            background-color: lightgoldenrodyellow;
+        }
+        .datatable-even-row {
+            background-color: inherit;
         }
     </style>
 

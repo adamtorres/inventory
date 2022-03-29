@@ -1,18 +1,64 @@
+from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
+from django.db.models import functions
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
 from . import mixins as inv_mixins
+from .source import Source
 
 
 class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
+    def get_item_filter(self, qs=None):
+        qs = (qs or self)
+        i_filter = models.Q()
+        distinct_qs = qs.order_by('source', 'name')
+        distinct_qs = distinct_qs.distinct('source', 'name')
+        for ri in distinct_qs:
+            i_filter |= ri.get_item_filter()
+        return i_filter
+
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.select_related('common_item_name_group', 'source', 'category')
         return qs
 
+    def items(self, qs=None, only_new=False):
+        fields = ['source', 'name']
+        qs = (qs or self).values(*fields)
+        qs = qs.distinct(*fields)
+        if only_new:
+            qs = qs.exclude(item__isnull=False)
+        qs = qs.order_by(*fields)
+        source_cache = {obj.id: obj for obj in Source.objects.all()}
+        qs_list = []
+        for item in qs:
+            qs_list.append({
+                "source": source_cache[item["source"]],
+                "name": item["name"],
+            })
+        return qs_list
+
     def missing_common_item_name(self):
         return self.exclude(common_item_name_group__isnull=False)
+
+
+class RawItemReportManager(models.Manager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.select_related('common_item_name_group', 'source', 'category')
+        return qs
+
+    def console_missing_common_item_name(self):
+        qs = self.model.objects.missing_common_item_name().values('name', 'category__name').annotate(
+            unit_sizes=pg_agg.ArrayAgg(
+                functions.Concat(
+                    functions.Cast('pack_quantity', models.IntegerField()), models.Value('x '), 'unit_size',
+                    output_field=models.CharField()), distinct=True),
+            count=models.Count('raw_incoming_items__id'),
+        )
+        for name in qs:
+            print(f"{name['count']}\t{name['category__name']}\t{', '.join(name['unit_sizes'])}\t{name['name']}")
 
 
 class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
@@ -48,9 +94,15 @@ class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_mode
 
     # Primary common item name group
     common_item_name_group = models.ForeignKey(
-        "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, null=True, blank=True)
+        "inventory.CommonItemNameGroup", on_delete=models.SET_NULL, related_name="raw_items",
+        related_query_name="raw_items", null=True, blank=True)
+    item = models.ForeignKey(
+        "inventory.Item", on_delete=models.CASCADE, related_name="raw_items", related_query_name="raw_items",
+        null=True, blank=True
+    )
 
     objects = RawItemManager()
+    reports = RawItemReportManager()
 
     class Meta:
         constraints = [
@@ -65,6 +117,12 @@ class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_mode
         if self.unit_size:
             tmp += f", {self.unit_size}"
         return tmp
+
+    def get_item_filter(self):
+        """
+        Returns a filter that can be used to find this item in Item before the foreign key is set.
+        """
+        return models.Q(source=self.source, name=self.name)
 
     def get_raw_item_filter(self):
         """

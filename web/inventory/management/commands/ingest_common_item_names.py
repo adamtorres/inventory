@@ -5,6 +5,7 @@ import json
 from django.db import models
 
 from inventory import models as inv_models
+from inventory.incoming_actions import create
 from scrap import commands
 
 
@@ -151,12 +152,15 @@ class Command(commands.Command):
         self.print_examples(data)
         category_dict = self.process_categories(data)
         self.process_common_item_names(data, category_dict)
+        create.assign_common_item_names()
         print("done.")
 
     def process_row(self, row_number, named_row, data):
         data["records"] += 1
         common_name_fields = ["common_name", "first_other_name", "second_other_name", "third_other_name"]
         common_names = set(getattr(named_row, cnf) for cnf in common_name_fields if getattr(named_row, cnf))
+        if not named_row.common_name:
+            return
         if named_row.common_name not in data["common_name_dict"]:
             data["common_name_dict"][named_row.common_name] = {
                 "primary_common_name": named_row.common_name,

@@ -78,6 +78,12 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
     def departments(self, limit_state=None, qs=None, only_new=False):
         return self._distinct_things('department', Department, limit_state=limit_state, qs=qs, only_new=only_new)
 
+    def failed(self, method=None):
+        qs = self.filter(state__failed=True)
+        if method:
+            qs = qs.filter(failure_reasons__icontains=f'"method": "{method}"')
+        return qs
+
     def get_queryset(self):
         """
         Automatically includes the RawState model in orm queries.  Without it, referencing the state would cause a
@@ -97,11 +103,14 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
     #             return functools.partial(self.ready_to_do_action, the_something)
     #     raise AttributeError(item)
 
-    def failed(self, method=None):
-        qs = self.filter(state__failed=True)
-        if method:
-            qs = qs.filter(failure_reasons__icontains=f'"method": "{method}"')
-        return qs
+    def get_raw_item_filter(self, qs=None):
+        qs = (qs or self)
+        ri_filter = models.Q()
+        distinct_qs = qs.order_by('source', 'name', 'unit_size', 'pack_quantity')
+        distinct_qs = distinct_qs.distinct('source', 'name', 'unit_size', 'pack_quantity')
+        for rii in distinct_qs:
+            ri_filter |= rii.get_raw_item_filter()
+        return ri_filter
 
     def items(self, limit_state=None, qs=None, only_new=False):
         fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code']
@@ -183,7 +192,7 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
         step 2 - calculate total for orders.  This needs all items within an order to be ready to calculate.
         This does not return item records.  Returns one record per order which includes a list of item ids.
         """
-        ready_qs = self.values('source', 'department', 'order_number').annotate(
+        ready_qs = self.values('source', 'delivery_date', 'department', 'order_number').annotate(
             item_ids=pg_agg.ArrayAgg('id'),
             line_item_count=models.Count('id'),
             ready_to_calculate=models.Sum(
@@ -191,8 +200,10 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
                     models.When(state__next_state=RawState.objects.get_by_action('calculate'), then=1),
                     default=models.Value(0)
                 )
-            )
+            ),
+            next_states=pg_agg.ArrayAgg(models.F('state__next_state__name'), distinct=True, ordering=['state__next_state__name']),
         ).filter(line_item_count=models.F('ready_to_calculate'))
+        # ).filter(next_states__contains=['calculated'])
         return ready_qs
 
     def ready_to_clean(self):
@@ -341,7 +352,9 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
     source_obj = models.ForeignKey(Source, on_delete=models.CASCADE, null=True)
     category_obj = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
     department_obj = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
-    rawitem_obj = models.ForeignKey(RawItem, on_delete=models.CASCADE, null=True, related_query_name="raw_incoming_items")
+    rawitem_obj = models.ForeignKey(
+        RawItem, on_delete=models.CASCADE, null=True, related_name="raw_incoming_items",
+        related_query_name="raw_incoming_items")
 
     objects = RawIncomingItemManager()
     reports = RawIncomingItemReportManager()
@@ -366,3 +379,50 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
 
     def get_absolute_url(self):
         return urls.reverse("inventory:rawincomingitem_detail", kwargs={'pk': self.id})
+
+    def get_prices(self):
+        # delivered_quantity = number of packs delivered
+        # pack_quantity = number of units in a single pack
+        # unit_quantity = for ct/dz, converts to the number of items in a unit (# of eggs - sysco comes in 30dz)
+        # unit_size = pound, count, nothing, ounce.  How many/big is a single unit
+        # pack_price = price of a single pack
+        # pack_tax = total tax for the quantity delivered
+        # extended_price = total price (with tax) for the quantity delivered
+        # let price_per_unit = total_price / quantity / pack_quantity;
+        if not self.delivered_quantity or not self.pack_quantity:
+            return {
+                "price_per_pack": 0.0,
+                "price_per_unit": 0.0,
+                "price_per_count": 0.0,
+            }
+        price_per_unit = self.extended_price / self.delivered_quantity / self.pack_quantity
+        price_per_count = price_per_unit / self.unit_quantity
+        # avg_pack_weight = None
+        # avg_unit_weight = None
+        pack_price = price_per_unit * self.pack_quantity  # NOTE: tax got included by using extended_price
+        # if self.total_weight:
+        #     avg_pack_weight = self.total_weight / self.delivered_quantity
+        #     avg_unit_weight = avg_pack_weight / self.pack_quantity
+        return {
+            "price_per_pack": round(pack_price, 4),
+            "price_per_unit": round(price_per_unit, 4),
+            "price_per_count": round(price_per_count, 4),
+        }
+
+    def get_raw_item_filter(self):
+        """
+        Returns a filter that can be used to find this item in RawItem before the foreign key is set.
+        """
+        return models.Q(
+            source__name=self.source, name=self.name, unit_size=self.unit_size, pack_quantity=self.pack_quantity)
+
+    @property
+    def has_in_stock(self):
+        # Importing here to avoid circular references.  Hadn't tried with import at top.
+        from .item_in_stock import ItemInStock
+        _has_in_stock = False
+        try:
+            _has_in_stock = self.in_stock is not None
+        except ItemInStock.DoesNotExist:
+            pass
+        return _has_in_stock

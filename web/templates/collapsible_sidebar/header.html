@@ -13,5 +13,11 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <span>{{ on_page_title }}</span>
         </div>
+        <div id="usage-cart-header">
+            <a href="{% url "inventory:usage_cart" %}">
+            <span>Items: </span><span data-field="used_items">0</span>
+            <span>Units: </span><span data-field="total_used_units">0</span>
+            </a>
+        </div>
     </div>
 </nav>

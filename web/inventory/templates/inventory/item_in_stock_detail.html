@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Item in stock{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static "css/usage_cart.css" %}">
+<style>
+.selected-row {
+    background-color: yellow;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="inventory-detail">
+    <div>
+        <a href="{% url "inventory:item_in_stock_list" %}">Back to inventory list</a>
+    </div>
+    <div>
+        <div>Item Name: {{ object.name_str }}</div>
+        <div>Category: {{ object.category_str }}</div>
+        <table class="datatable w-50" id="item-unit-quantities">
+        <thead>
+            <tr>
+                <th class="right-align">Unit Size</th>
+                <th class="right-align">Remaining Unit Quantity</th>
+                <th class="right-align">Remaining Unit Price</th>
+                <th class="right-align">Order Count</th>
+                <th>Sources</th>
+            </tr>
+        </thead>
+        <tbody id="item-unit-quantities-body">
+            {% for qty in object.quantities %}
+            <tr class="filtered-item-link" data-item-in-stock-ids='{{ qty.item_in_stock_ids|safe }}'>
+                <td class="right-align"><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span></td>
+                <td class="right-align">{{ qty.remaining_unit_quantity|floatformat|intcomma }}</td>
+                <td class="right-align dollar-cell">{{ qty.remaining_unit_price|floatformat:2|intcomma }}</td>
+                <td class="right-align">{{ qty.order_count }}</td>
+                <td>{{ qty.sources|join:", " }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+        <table style="display: none;">
+            <tr id="item-in-stock-row-template" data-id="nope">
+                <td data-field="source">__source__</td>
+                <td class="right-align" data-field="delivery_date">__delivery_date__</td>
+                <td data-field="name">__name__</td>
+                <td class="right-align" data-field="unit_size">__unit_size__</td>
+                <td class="right-align" data-field="delivered_quantity">__delivered_quantity__</td>
+                <td class="right-align" data-field="pack_quantity">__pack_quantity__</td>
+                <td class="right-align">
+                    <span data-field="remaining_unit_quantity">__remaining unit quantity__</span>
+                    of
+                    <span data-field="original_unit_quantity">__original unit quantity__</span>
+                </td>
+                <td class="right-align dollar-cell" data-field="unit_price">__unit price__</td>
+                <td>
+                    <input style="width: 100%;" type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
+                </td>
+            </tr>
+        </table>
+        <table class="datatable">
+            <thead>
+            <tr>
+                <th>source</th>
+                <th>delivery date</th>
+                <th>name</th>
+                <th>unit size</th>
+                <th>delivered quantity</th>
+                <th>pack quantity</th>
+                <th>remaining unit quantity</th>
+                <th>unit price</th>
+                <th>Use quantity</th>
+            </tr>
+            </thead>
+            <tbody id="item-in-stock-table">
+            </tbody>
+        </table>
+    </div>
+<pre id="on-page-log">
+Log
+</pre>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script src="{% static "js/on_page_log.js" %}"></script>
+<script src="{% static "js/csrf_cookie.js" %}"></script>
+<script src="{% static "js/usage_cart.js" %}"></script>
+<script type="text/javascript">
+var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity"]
+var money_fields = ["unit_price"]
+function new_item(data) {
+    cloned_row = $("#item-in-stock-row-template").clone();
+    cloned_row.attr('id', null);
+    cloned_row.attr('data-id', data['id']);
+    cloned_row.find('[data-field]').each(function() {
+        let e = $(this);
+        let key = e.data('field');
+        let record_value = data[key];
+        if (remove_decimals.includes(key)) {
+            record_value = Math.round(record_value * 100) / 100;
+        }
+        if (money_fields.includes(key)) {
+            // similar to above but forces there to be 2 decimals even if they are 0.
+            record_value = Number.parseFloat(record_value).toFixed(2);
+        }
+        e.text(record_value);
+        {#e.text("");#}
+    });
+    used_items = get_cached_used_items();
+    let used_item_cart_value = 0;
+    used_items.forEach(ui => {
+        if (data['id'] === ui['id']) {
+            used_item_cart_value = ui['use_count'];
+        }
+    });
+    cloned_row.find('[data-control]').each(function() {
+        let e = $(this);
+        e.attr('id', `${e.data('control')}_${data['id']}`);
+        e.attr('max', Math.round(data[e.data('max')]));
+        e.data('id', data['id']);
+        e.val(used_item_cart_value);
+    });
+    return cloned_row;
+}
+function item_in_stock_results_received(data) {
+    let count = 0;
+    let in_stock_table = $("#item-in-stock-table");
+    in_stock_table.empty();
+    $.each(data, function(index){
+        in_stock_table.append(new_item(this));
+        count++;
+    });
+    if (count === 0) {
+        // What to do when nothing returned.  Should not get here during normal operation.
+    }
+}
+function clear_highlight() {
+    let table_body = $("#item-unit-quantities-body");
+    table_body.find(".filtered-item-link").each(function() {
+        let row = $(this);
+        row.find("td").each(function() {
+            let cell = $(this);
+            cell.removeClass('selected-row');
+        });
+        row.removeClass('selected-row');
+    });
+}
+function highlight_row(row) {
+    row.find("td").each(function() {
+        let cell = $(this);
+        cell.addClass('selected-row');
+    });
+    row.addClass('selected-row');
+}
+function is_highlighted(row) {
+    return row.hasClass('selected-row');
+}
+function inventory_item_click() {
+    let p = $(this);
+    if (is_highlighted(p)) {
+        // row already selected.  Don't redo ajax.
+        return;
+    }
+    clear_highlight();
+    highlight_row(p);
+    let item_in_stock_ids = p.data('item-in-stock-ids');
+    values_to_send = {'id': item_in_stock_ids};
+    var jqxhr = $.ajax({
+        url: "{% url "inventory:api_iteminstock_list" %}",
+        type: "get",
+        data: values_to_send,
+        // traditional: true
+    })
+    .done(item_in_stock_results_received)
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+    });
+
+}
+function use_quantity_changed(data) {
+    let e;
+    if (data !== undefined) {
+        e = $(`#${data['id']}`);
+    } else {
+        e = $(this);
+    }
+    let current_val = parseInt(e.val());
+    let min_val = parseInt(e.attr('min'));
+    let max_val = parseInt(e.attr('max'));
+    if (current_val > max_val) {
+        e.val(max_val);
+        current_val = parseInt(e.val());
+    }
+    if (current_val < min_val) {
+        e.val(min_val);
+    }
+    start_timer();
+}
+function post_usage_change(data) {
+    let headers = {};
+    headers['X-CSRFToken'] = csrftoken;
+    console.log(data);
+    data['csrfmiddlewaretoken'] = csrftoken;
+    var jqxhr = $.post({
+        url: "{% url "inventory:api_usage_change" %}",
+        dataType: "json",
+        data: data,
+        headers: headers
+        // traditional: true
+    })
+    .done(function(e) {
+        //logit("ajax success");
+        update_cart();
+    })
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+    });
+
+}
+var update_cart_by_keypress_timer;
+var update_cart_timer;
+function start_timer() {
+    window.clearTimeout(update_cart_timer);
+    update_cart_timer = setTimeout(timer_elapsed_func, 750);
+}
+function start_keypress_timer() {
+    let e = $(this);
+    let args = {id: e.attr('id')};
+    window.clearTimeout(update_cart_by_keypress_timer);
+    update_cart_by_keypress_timer = setTimeout(use_quantity_changed, 1000, args);
+}
+function timer_elapsed_func() {
+    //logit("timer elapsed");
+    let iist = $("#item-in-stock-table");
+    let values_to_send = {"used_items": {}};
+
+    iist.find("input[name='use_quantity']").each(function (){
+        let tag = $(this);
+        let val = parseInt(tag.val());
+        if (isNaN(val)){
+            val = 0;
+        }
+        values_to_send["used_items"][tag.data('id')] = val;
+    })
+    post_usage_change(values_to_send);
+}
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "inventory-detail"}, resize_content);
+    d.on("resize", {"content_id": "inventory-detail"}, resize_content);
+    w.trigger("resize");
+
+    $("#item-unit-quantities-body").on('click', '.filtered-item-link', inventory_item_click);
+
+    let iist = $("#item-in-stock-table")
+    // iist.on('focusout', "input[name='use_quantity']", use_quantity_changed);
+    iist.on('change', "input[name='use_quantity']", use_quantity_changed);
+    iist.on('keyup', "input[name='use_quantity']", start_keypress_timer);
+
+});
+</script>
+{% endblock %}

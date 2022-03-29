@@ -380,6 +380,7 @@ Log.
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
 <script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/live_filter.js' %}"></script>
@@ -421,14 +422,6 @@ filter_result_fields = [
 function round(v) {
     return Math.round(v * 100) / 100;
 }
-function resize_lookup_content() {
-    // TODO: resize doesn't seem to be working properly.
-    let w = $(window);
-    let window_height = w.height();
-    let content_obj = $("#lookup-content");
-    let content_offset = content_obj.offset().top - w.scrollTop();
-    content_obj.css("max-height", window_height - content_offset);
-}
 function load_from_item_id() {
     let item_id_tag = $("#filter-item-id");
     if (item_id_tag.val() !== "") {
@@ -448,6 +441,9 @@ function update_calculations() {
     let price_per_count = price_per_unit / unit_quantity;
     $("#calc-count-price").text(round(price_per_count));
 
+    pack_price = round(price_per_unit * pack_quantity);  // NOTE: tax got included by using extended_price
+    $("#calc-pack-price").text(round(pack_price).toFixed(2));
+
     if (weight > 0) {
         pack_price_per_weight = pack_price;
         $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
@@ -455,8 +451,6 @@ function update_calculations() {
         let avg_unit_weight = weight / quantity / pack_quantity;
         $("#calc-avg-pack-weight").text(round(avg_pack_weight));
         $("#calc-avg-unit-weight").text(round(avg_unit_weight));
-        pack_price = round(price_per_unit * pack_quantity);
-        $("#calc-pack-price").text(round(pack_price).toFixed(2));
         $("#calc-weight-specific-cells").removeClass("d-none");
     } else {
         $("#calc-weight-specific-cells").addClass("d-none");
@@ -529,8 +523,9 @@ function update_calculations() {
 function setup_event_handlers() {
     let w = $(window);
     let d = $(document);
-    d.on("resize", resize_lookup_content);
-    d.trigger("resize");
+    w.on("resize", {"content_id": "lookup-content"}, resize_content);
+    d.on("resize", {"content_id": "lookup-content"}, resize_content);
+    w.trigger("resize");
 
     w.on(filter_requested_event_name, function() {
         // filter sent to server, hide calculations as there's no longer a selected item.
