@@ -40,8 +40,8 @@
             <td>{{ order.order_comment }}</td>
             <td class="right-align">{{ order.order_date|default_if_none:"" }}</td>
             <td class="right-align">{{ order.delivery_date }}</td>
-            <td class="right-align dollar-cell">{{ order.total_price|intcomma|floatformat:2 }}</td>
-            <td class="right-align">{{ order.total_packs|intcomma|floatformat }}</td>
+            <td class="right-align dollar-cell">{{ order.total_price|floatformat:2|intcomma }}</td>
+            <td class="right-align">{{ order.total_packs|floatformat|intcomma }}</td>
             <td class="right-align">{{ order.item_count }}</td>
         </tr>
     {% endfor %}

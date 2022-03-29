@@ -52,7 +52,7 @@
             <td class="filtered-item-link">{{ item.name }}</td>
             <td class="filtered-item-link right-align">{{ item.unit_size }}</td>
             <td class="filtered-item-link right-align">{{ item.use_count }}</td>
-            <td class="filtered-item-link right-align dollar-cell">{{ item.use_price|intcomma|floatformat:2 }}</td>
+            <td class="filtered-item-link right-align dollar-cell">{{ item.use_price|floatformat:2|intcomma }}</td>
             <td><input type="text" maxlength="1024" name="item-comment-{{ item.id }}"></td>
         </tr>
     {% endfor %}

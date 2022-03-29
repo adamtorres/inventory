@@ -35,8 +35,8 @@
             {% for qty in object.quantities %}
             <tr class="filtered-item-link" data-item-in-stock-ids='{{ qty.item_in_stock_ids|safe }}'>
                 <td class="right-align"><span class="{% if not qty.unit_size %}text-muted{% endif %}">{{ qty.unit_size|default:"[no unit size]" }}</span></td>
-                <td class="right-align">{{ qty.remaining_unit_quantity|intcomma|floatformat }}</td>
-                <td class="right-align dollar-cell">{{ qty.remaining_unit_price|intcomma|floatformat:2 }}</td>
+                <td class="right-align">{{ qty.remaining_unit_quantity|floatformat|intcomma }}</td>
+                <td class="right-align dollar-cell">{{ qty.remaining_unit_price|floatformat:2|intcomma }}</td>
                 <td class="right-align">{{ qty.order_count }}</td>
                 <td>{{ qty.sources|join:", " }}</td>
             </tr>
