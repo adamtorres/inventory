@@ -192,7 +192,7 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
         step 2 - calculate total for orders.  This needs all items within an order to be ready to calculate.
         This does not return item records.  Returns one record per order which includes a list of item ids.
         """
-        ready_qs = self.values('source', 'department', 'order_number').annotate(
+        ready_qs = self.values('source', 'delivery_date', 'department', 'order_number').annotate(
             item_ids=pg_agg.ArrayAgg('id'),
             line_item_count=models.Count('id'),
             ready_to_calculate=models.Sum(
@@ -200,8 +200,10 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
                     models.When(state__next_state=RawState.objects.get_by_action('calculate'), then=1),
                     default=models.Value(0)
                 )
-            )
+            ),
+            next_states=pg_agg.ArrayAgg(models.F('state__next_state__name'), distinct=True, ordering=['state__next_state__name']),
         ).filter(line_item_count=models.F('ready_to_calculate'))
+        # ).filter(next_states__contains=['calculated'])
         return ready_qs
 
     def ready_to_clean(self):

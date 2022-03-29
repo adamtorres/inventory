@@ -157,7 +157,11 @@ class ItemCleaner(object):
         """
         If an item is delivered, we should have prices
         """
+        if self.item.po_text == "donation":
+            # Donations don't have prices so none of these checks would pass.
+            return
         if self.item.delivered_quantity and not self.item.pack_price:
+            # Donations would fail here as no cost is applied.
             self.failures.append({
                 'fields': ['delivered_quantity', 'pack_price'], 'method': utils.get_function_name(),
                 'failure': 'delivered_quantity > 0 but pack_price is 0'})

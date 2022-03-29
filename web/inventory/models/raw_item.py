@@ -1,4 +1,6 @@
+from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
+from django.db.models import functions
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
@@ -39,6 +41,24 @@ class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMix
 
     def missing_common_item_name(self):
         return self.exclude(common_item_name_group__isnull=False)
+
+
+class RawItemReportManager(models.Manager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.select_related('common_item_name_group', 'source', 'category')
+        return qs
+
+    def console_missing_common_item_name(self):
+        qs = self.model.objects.missing_common_item_name().values('name', 'category__name').annotate(
+            unit_sizes=pg_agg.ArrayAgg(
+                functions.Concat(
+                    functions.Cast('pack_quantity', models.IntegerField()), models.Value('x '), 'unit_size',
+                    output_field=models.CharField()), distinct=True),
+            count=models.Count('raw_incoming_items__id'),
+        )
+        for name in qs:
+            print(f"{name['count']}\t{name['category__name']}\t{', '.join(name['unit_sizes'])}\t{name['name']}")
 
 
 class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
@@ -82,6 +102,7 @@ class RawItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_mode
     )
 
     objects = RawItemManager()
+    reports = RawItemReportManager()
 
     class Meta:
         constraints = [
