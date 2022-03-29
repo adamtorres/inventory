@@ -256,6 +256,12 @@ class RawIncomingItemReportManager(models.Manager):
         for s in self.group_by_current_state().order_by('state'):
             print(f"{s['state__value']} {s['state__name']} = {s['count']}")
 
+    def console_invalid_item_combos(self):
+        short_list = ['source', 'name', 'unit_size', 'pack_quantity', ]
+        for item in self.invalid_item_combos():
+            item_key = "|".join([str(item[field]) for field in short_list])
+            print(f"{item_key}\t{item['categories']}\t{item['item_codes']}")
+
     def count_by_action(self, action="clean"):
         rs = RawState.objects.get(name=RawState.action_to_state_name(action))
         return RawIncomingItem.objects.values('state').annotate(
@@ -279,6 +285,20 @@ class RawIncomingItemReportManager(models.Manager):
 
     def group_by_current_state(self):
         return self.values('state__value', 'state__name').annotate(count=models.Count('id'))
+
+    def invalid_item_combos(self):
+        # from do_clean, this looks for items which would cause dupes when including category/item_code.
+        short_list = ['source', 'name', 'unit_size', 'pack_quantity', ]
+        short_qs = self.values(*short_list).annotate(
+            record_count=models.Count('id'),
+            category_count=models.Count('category', distinct=True),
+            item_code_count=models.Count('item_code', distinct=True),
+            categories=pg_agg.ArrayAgg('category', distinct=True, ordering=['category']),
+            item_codes=pg_agg.ArrayAgg('item_code', distinct=True, ordering=['item_code']),
+        ).order_by(*short_list).filter(
+            models.Q(category_count__gt=1) | models.Q(item_code_count__gt=1)
+        )
+        return short_qs
 
 
 class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
