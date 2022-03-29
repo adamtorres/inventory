@@ -386,16 +386,20 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
     def __str__(self):
         return f"{self.delivery_date}|{self.source}|{self.order_number}|{self.line_item_position}|{self.created}|{self.name}"
 
-    def find_similar(self, by_field='name', include_default=False):
+    def find_similar(self, by_field='name', include_default=False, exact_match=False):
+        """
+        Searches for other records with the same/similar specified field.  Does not exclude the current item.
+        """
         value = getattr(self, by_field)
         default_value = None
         for f in self._meta.get_fields():
             if f.name == by_field:
                 default_value = f.default
                 break
+        compare_func = 'iexact' if exact_match else 'icontains'
         if not include_default and (value == default_value):
             return self.__class__.objects.none()
-        return self.__class__.objects.filter(**{f"{by_field}__iexact": value})
+        return self.__class__.objects.filter(**{f"{by_field}__{compare_func}": value})
 
     def get_absolute_url(self):
         return urls.reverse("inventory:rawincomingitem_detail", kwargs={'pk': self.id})
