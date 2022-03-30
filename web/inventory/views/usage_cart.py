@@ -23,19 +23,41 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
             usage_group_obj = ug_s.save()
             used_items = []
             item_in_stock_details = {}
-            for item_id, use_count in request.session['used_items'].items():
+            for item_id, use_count_details in request.session['used_items'].items():
+                use_count = use_count_details['value']
+                use_count_type = use_count_details['value_type']
                 item_in_stock_details[item_id] = {
                     'item_in_stock': item_id, 'used_quantity': use_count, 'usage_group': usage_group_obj.id,
-                    'comment': ui_data.get(item_id) or ''
+                    'comment': ui_data.get(item_id) or '', 'used_quantity_type': use_count_type
                 }
                 used_items.append(item_in_stock_details[item_id])
             total_price = 0
             for iis in inv_models.ItemInStock.objects.filter(id__in=list(item_in_stock_details.keys())):
-                item_in_stock_details[str(iis.id)]['remaining_unit_quantity_snapshot'] = (
-                    iis.remaining_unit_quantity - item_in_stock_details[str(iis.id)]['used_quantity'])
+                # TODO: Working out this logic is the next step.
                 prices = iis.raw_incoming_item.get_prices()
-                item_in_stock_details[str(iis.id)]['used_price'] = round(
-                        prices['price_per_unit'] * item_in_stock_details[str(iis.id)]['used_quantity'], 4)
+                if item_in_stock_details[str(iis.id)]['used_quantity_type'] == 'unit':
+                    item_in_stock_details[str(iis.id)]['remaining_unit_quantity_snapshot'] = (
+                        iis.remaining_unit_quantity - item_in_stock_details[str(iis.id)]['used_quantity'])
+                    item_in_stock_details[str(iis.id)]['used_price'] = round(
+                            prices['price_per_unit'] * item_in_stock_details[str(iis.id)]['used_quantity'], 4)
+                    item_in_stock_details[str(iis.id)]['remaining_count_quantity_snapshot'] = (
+                        iis.remaining_count_quantity)
+                elif item_in_stock_details[str(iis.id)]['used_quantity_type'] == 'count':
+                    # This converts units into counts if needed.  If not needed, units==0 so nothing changes.
+                    used_quantity = item_in_stock_details[str(iis.id)]['used_quantity']
+                    if iis.remaining_count_quantity < used_quantity:
+                        units = 1 + int(
+                            used_quantity / iis.raw_incoming_item.unit_quantity)
+                        iis.remaining_count_quantity += iis.raw_incoming_item.unit_quantity * units
+                        iis.remaining_unit_quantity -= units
+
+                    item_in_stock_details[str(iis.id)]['remaining_count_quantity_snapshot'] = (
+                        iis.remaining_count_quantity - used_quantity)
+                    item_in_stock_details[str(iis.id)]['used_price'] = round(
+                            prices['price_per_count'] * used_quantity, 4)
+                    item_in_stock_details[str(iis.id)]['remaining_unit_quantity_snapshot'] = (
+                        iis.remaining_unit_quantity)
+
                 total_price += item_in_stock_details[str(iis.id)]['used_price']
                 print(f"Usage({item_in_stock_details[str(iis.id)]}")
             usage_group_obj.total_price = total_price
@@ -48,10 +70,13 @@ class UsageCartView(inv_mixins.UsageCartData, sc_views.OnPageTitleMixin, generic
                 for item in used_item_objs:
                     # TODO: If this were a multi-user application, we'd want to verify the needed quantity was still
                     #  available.
-                    item.item_in_stock.remaining_unit_quantity -= item.used_quantity
+                    item.item_in_stock.remaining_unit_quantity = (
+                        item_in_stock_details[str(item.item_in_stock.id)]['remaining_unit_quantity_snapshot'])
+                    item.item_in_stock.remaining_count_quantity = (
+                        item_in_stock_details[str(item.item_in_stock.id)]['remaining_count_quantity_snapshot'])
                     item_in_stock_to_update.append(item.item_in_stock)
                 inv_models.ItemInStock.objects.bulk_update(
-                    item_in_stock_to_update, fields=('remaining_unit_quantity', ))
+                    item_in_stock_to_update, fields=('remaining_unit_quantity', 'remaining_count_quantity'))
                 request.session['used_items'] = {}
                 request.session.modified = True
                 return shortcuts.redirect(usage_group_obj.get_absolute_url())

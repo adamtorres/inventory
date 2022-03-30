@@ -65,7 +65,11 @@
                 <div>{{ usage.item_in_stock.common_item_name }} / {{ usage.item_in_stock.name }}</div>
                 <div>{{ usage.comment }}</div>
             </td>
-            <td>Used {{ usage.used_quantity|intcomma|floatformat }} of {{ usage.previous_unit_quantity|intcomma|floatformat }} leaving {{ usage.remaining_unit_quantity_snapshot|intcomma|floatformat }}</td>
+            <td>
+                Used {{ usage.used_quantity|intcomma|floatformat }} {{ usage.used_quantity_type }}{{ usage.used_quantity|pluralize }}
+                of {{ usage.previous_unit_quantity|intcomma|floatformat }} unit{{ usage.previous_unit_quantity|pluralize }} {% if usage.item_in_stock.unit_quantity > 1 %}& {{ usage.previous_count_quantity|intcomma|floatformat }} {{ usage.item_in_stock.unit_size_suffix }}{% endif %}
+                leaving {{ usage.remaining_unit_quantity_snapshot|intcomma|floatformat }} unit{{ usage.remaining_unit_quantity_snapshot|pluralize }} {% if usage.item_in_stock.unit_quantity > 1 %}& {{ usage.remaining_count_quantity_snapshot|intcomma|floatformat }} {{ usage.item_in_stock.unit_size_suffix }}{% endif %}
+            </td>
             <td class="right-align dollar-cell">{{ usage.used_price|intcomma|floatformat:2 }}</td>
         </tr>
     {% endfor %}

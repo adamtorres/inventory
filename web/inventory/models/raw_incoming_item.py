@@ -419,7 +419,6 @@ class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin,
                 "price_per_unit": 0.0,
                 "price_per_count": 0.0,
             }
-        print(f"get_prices using extprc({self.extended_price}) delvqty({self.delivered_quantity}) pkqty({self.pack_quantity}) utqty ({self.unit_quantity})")
         price_per_unit = self.extended_price / self.delivered_quantity / self.pack_quantity
         price_per_count = price_per_unit / self.unit_quantity
         # avg_pack_weight = None

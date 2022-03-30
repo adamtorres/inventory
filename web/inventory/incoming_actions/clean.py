@@ -9,7 +9,7 @@ from .. import models as inv_models
 from scrap import utils
 
 
-UNIT_SIZE_COUNT_RE = re.compile(r"^(?P<value>\d+)(?P<unit>dz|ct)$", re.IGNORECASE)
+UNIT_SIZE_COUNT_RE = re.compile(r"^(?P<value>\d+)(?P<unit>dz|ct|pk)$", re.IGNORECASE)
 UNIT_SIZE_POUND_RE = re.compile(r"^(?P<value>\d+)(?P<unit>lb)$", re.IGNORECASE)
 
 
@@ -205,6 +205,10 @@ class ItemCleaner(object):
             unit_quantity = int(check_count.group('value'))
             if check_count.group('unit') == 'dz':
                 unit_quantity *= 12
+            if check_count.group('unit') == 'pk':
+                # convert 'pk' to 'ct'
+                self.item.unit_size = f"{check_count.group('value')}ct"
+                self.updated_fields.add('unit_size')
             self.item.unit_quantity = unit_quantity
             self.updated_fields.add('unit_quantity')
         check_pound = UNIT_SIZE_POUND_RE.match(self.item.unit_size)

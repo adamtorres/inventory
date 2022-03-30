@@ -44,9 +44,11 @@ class Usage(sc_models.DatedModel):
         UsageGroup, on_delete=models.CASCADE, related_name='usages', related_query_name='usages')
     item_in_stock = models.ForeignKey("inventory.ItemInStock", on_delete=models.CASCADE)
     used_quantity = sc_fields.DecimalField()
+    used_quantity_type = sc_fields.CharField()
     # TODO: used_quantity is of the unit size.  Second input to handle count?  On first use, would need to subtract a
     #  unit, then keep track of used count until it equals a unit.
     remaining_unit_quantity_snapshot = sc_fields.DecimalField()
+    remaining_count_quantity_snapshot = sc_fields.DecimalField()
     used_price = sc_fields.MoneyField()
     comment = sc_fields.CharField(help_text="Anything special about this specific item")
 
@@ -60,5 +62,17 @@ class Usage(sc_models.DatedModel):
         )
 
     @property
+    def previous_count_quantity(self):
+        if self.used_quantity_type == 'count':
+            _previous_count_quantity = self.remaining_count_quantity_snapshot + self.used_quantity
+            return _previous_count_quantity % self.item_in_stock.raw_incoming_item.unit_quantity
+        return self.remaining_count_quantity_snapshot
+
+    @property
     def previous_unit_quantity(self):
+        if self.used_quantity_type == 'count':
+            _previous_count_quantity = self.remaining_count_quantity_snapshot + self.used_quantity
+            _previous_unit_quantity = self.remaining_unit_quantity_snapshot + int(
+                _previous_count_quantity / self.item_in_stock.raw_incoming_item.unit_quantity)
+            return _previous_unit_quantity
         return self.remaining_unit_quantity_snapshot + self.used_quantity

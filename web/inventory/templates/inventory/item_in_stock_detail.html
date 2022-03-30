@@ -55,6 +55,8 @@
                     <span data-field="remaining_unit_quantity">__remaining unit quantity__</span>
                     of
                     <span data-field="original_unit_quantity">__original unit quantity__</span>
+                    units and
+                    <span data-field="remaining_count_quantity">__remaining_count_quantity__</span> ct
                 </td>
                 <td class="right-align dollar-cell" data-field="unit_price">__unit price__</td>
                 <td class="right-align dollar-cell" data-field="count_price">__count price__</td>
@@ -77,7 +79,7 @@
                 <th>unit size</th>
                 <th>delivered quantity</th>
                 <th>pack quantity</th>
-                <th>remaining unit quantity</th>
+                <th>remaining quantity</th>
                 <th>unit price</th>
                 <th>count price</th>
                 <th>Use quantity</th>
@@ -99,7 +101,7 @@ Log
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
-var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity"]
+var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity", "remaining_count_quantity"]
 var money_fields = ["unit_price", "count_price"]
 function new_item(data) {
     cloned_row = $("#item-in-stock-row-template").clone();
@@ -133,6 +135,7 @@ function new_item(data) {
         let e = $(this);
         e.attr('id', `${e.data('control')}_${data['id']}`);
         if (e.attr('type') === 'number') {
+            // TODO: The max seems broken on page reload when there's an existing 'count' value.
             e.attr('max', Math.round(data[e.data('max')]));
             e.val(used_item_cart_value);
         }

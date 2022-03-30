@@ -14,6 +14,7 @@ class ItemInStockSerializer(serializers.ModelSerializer):
     pack_quantity = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
     unit_size = serializers.SerializerMethodField()
+    unit_size_suffix = serializers.SerializerMethodField()
     unit_quantity = serializers.SerializerMethodField()
 
     class Meta:
@@ -49,3 +50,6 @@ class ItemInStockSerializer(serializers.ModelSerializer):
 
     def get_unit_size(self, obj):
         return obj.raw_incoming_item.unit_size
+
+    def get_unit_size_suffix(self, obj):
+        return obj.raw_incoming_item.get_possible_unit()
