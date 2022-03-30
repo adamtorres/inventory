@@ -61,7 +61,7 @@
                 <td>
                     <input type="hidden" data-field="unit_quantity" data-control="unit_quantity">
                     <input style="width: 47%;" type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
-                    <select style="width: 47%;"  name="use_quantity_type" data-control="use_quantity_type">
+                    <select style="width: 47%;" name="use_quantity_type" data-control="use_quantity_type">
                         <option value="unit">unit</option>
                         <option value="count">count</option>
                     </select>
@@ -138,6 +138,9 @@ function new_item(data) {
         }
         if (e.attr('name') === 'use_quantity_type') {
             e.val(used_item_cart_value_type);
+            if (data['unit_quantity'] === 1) {
+                e.addClass("d-none");
+            }
         }
         e.data('id', data['id']);
     });
