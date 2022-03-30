@@ -5,6 +5,7 @@ function update_cart_header(data) {
     if (!('total_used_units' in data)) {
         // Set empty defaults
         data["total_used_units"] = 0;
+        data["total_used_count"] = 0;
         data["used_items"] = [];
     }
     let cart_div = $("#usage-cart-header");
@@ -12,6 +13,9 @@ function update_cart_header(data) {
         let e = $(this);
         let key = e.data('field');
         if (key === "total_used_units") {
+            e.text(data[key]);
+        }
+        if (key === "total_used_count") {
             e.text(data[key]);
         }
         if (key === "used_items") {

@@ -57,8 +57,14 @@
                     <span data-field="original_unit_quantity">__original unit quantity__</span>
                 </td>
                 <td class="right-align dollar-cell" data-field="unit_price">__unit price__</td>
+                <td class="right-align dollar-cell" data-field="count_price">__count price__</td>
                 <td>
-                    <input style="width: 100%;" type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
+                    <input type="hidden" data-field="unit_quantity" data-control="unit_quantity">
+                    <input style="width: 47%;" type="number" min="0" name="use_quantity" data-control="use_quantity" data-max="remaining_unit_quantity">
+                    <select style="width: 47%;"  name="use_quantity_type" data-control="use_quantity_type">
+                        <option value="unit">unit</option>
+                        <option value="count">count</option>
+                    </select>
                 </td>
             </tr>
         </table>
@@ -73,6 +79,7 @@
                 <th>pack quantity</th>
                 <th>remaining unit quantity</th>
                 <th>unit price</th>
+                <th>count price</th>
                 <th>Use quantity</th>
             </tr>
             </thead>
@@ -93,7 +100,7 @@ Log
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
 var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity"]
-var money_fields = ["unit_price"]
+var money_fields = ["unit_price", "count_price"]
 function new_item(data) {
     cloned_row = $("#item-in-stock-row-template").clone();
     cloned_row.attr('id', null);
@@ -101,30 +108,38 @@ function new_item(data) {
     cloned_row.find('[data-field]').each(function() {
         let e = $(this);
         let key = e.data('field');
+        e.attr('id', `${key}_${data['id']}`);
         let record_value = data[key];
         if (remove_decimals.includes(key)) {
             record_value = Math.round(record_value * 100) / 100;
         }
         if (money_fields.includes(key)) {
             // similar to above but forces there to be 2 decimals even if they are 0.
-            record_value = Number.parseFloat(record_value).toFixed(2);
+            record_value = Number.parseFloat(record_value).toFixed(4);
         }
         e.text(record_value);
         {#e.text("");#}
     });
     used_items = get_cached_used_items();
     let used_item_cart_value = 0;
+    let used_item_cart_value_type = 'unit';
     used_items.forEach(ui => {
         if (data['id'] === ui['id']) {
             used_item_cart_value = ui['use_count'];
+            used_item_cart_value_type = ui['use_count_type'];
         }
     });
     cloned_row.find('[data-control]').each(function() {
         let e = $(this);
         e.attr('id', `${e.data('control')}_${data['id']}`);
-        e.attr('max', Math.round(data[e.data('max')]));
+        if (e.attr('type') === 'number') {
+            e.attr('max', Math.round(data[e.data('max')]));
+            e.val(used_item_cart_value);
+        }
+        if (e.attr('name') === 'use_quantity_type') {
+            e.val(used_item_cart_value_type);
+        }
         e.data('id', data['id']);
-        e.val(used_item_cart_value);
     });
     return cloned_row;
 }
@@ -185,6 +200,32 @@ function inventory_item_click() {
     });
 
 }
+function update_max_values(data) {
+    let e;
+    if (data !== undefined) {
+        e = $(`#${data['id']}`);
+    } else {
+        e = $(this);
+    }
+    let id = e.data('id');
+    let use_quantity = $(`#use_quantity_${id}`);
+    let unit_quantity = parseInt($(`#unit_quantity_${id}`).text());
+    let remaining_unit_quantity = parseInt($(`#remaining_unit_quantity_${id}`).text());
+    if (e.val() === 'unit') {
+        use_quantity.attr('max', remaining_unit_quantity);
+        use_quantity.val(Math.round(use_quantity.val() / unit_quantity));
+    } else {
+        //count
+        use_quantity.attr('max', remaining_unit_quantity * unit_quantity);
+        use_quantity.val(use_quantity.val() * unit_quantity);
+    }
+}
+function use_quantity_type_changed() {
+    let e = $(this);
+    let args = {id: e.attr('id')};
+    update_max_values(args);
+    start_timer();
+}
 function use_quantity_changed(data) {
     let e;
     if (data !== undefined) {
@@ -207,13 +248,15 @@ function use_quantity_changed(data) {
 function post_usage_change(data) {
     let headers = {};
     headers['X-CSRFToken'] = csrftoken;
-    console.log(data);
     data['csrfmiddlewaretoken'] = csrftoken;
+    let data_str = JSON.stringify(data);
     var jqxhr = $.post({
         url: "{% url "inventory:api_usage_change" %}",
         dataType: "json",
-        data: data,
-        headers: headers
+        contentType: "application/json; charset=utf-8",
+        // data: {'data': data_str},
+        data: data_str,
+        headers: headers,
         // traditional: true
     })
     .done(function(e) {
@@ -247,10 +290,19 @@ function timer_elapsed_func() {
     iist.find("input[name='use_quantity']").each(function (){
         let tag = $(this);
         let val = parseInt(tag.val());
+        let value_type = "unit";
         if (isNaN(val)){
             val = 0;
+        } else {
+            let use_quantity_type = $(`#use_quantity_type_${tag.data('id')}`);
+            if (use_quantity_type !== undefined) {
+                value_type = use_quantity_type.val();
+            }
         }
-        values_to_send["used_items"][tag.data('id')] = val;
+        values_to_send["used_items"][tag.data('id')] = {
+            "value": val,
+            "value_type": value_type
+        }
     })
     post_usage_change(values_to_send);
 }
@@ -267,7 +319,7 @@ $( document ).ready(function() {
     // iist.on('focusout', "input[name='use_quantity']", use_quantity_changed);
     iist.on('change', "input[name='use_quantity']", use_quantity_changed);
     iist.on('keyup', "input[name='use_quantity']", start_keypress_timer);
-
+    iist.on('change', "select[name='use_quantity_type']", use_quantity_type_changed);
 });
 </script>
 {% endblock %}

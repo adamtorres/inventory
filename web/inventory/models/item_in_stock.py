@@ -23,10 +23,9 @@ class ItemInStock(sc_models.DatedModel):
         "inventory.RawIncomingItem", on_delete=models.CASCADE, related_name="in_stock", related_query_name="in_stock")
     original_unit_quantity = sc_fields.DecimalField(help_text="delivered_quantity * pack_quantity")
     remaining_unit_quantity = sc_fields.DecimalField()
-    # remaining_unit_quantity = models.IntegerField(
-    # default=1, help_text="For unit_size=ct/dz, this converts that to a number")
+    remaining_count_quantity = sc_fields.DecimalField()
     unit_price = sc_fields.MoneyField()
-    # count_price = sc_fields.MoneyField()
+    count_price = sc_fields.MoneyField()
 
     objects = ItemInStockManager()
 

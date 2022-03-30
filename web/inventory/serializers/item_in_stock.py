@@ -14,6 +14,7 @@ class ItemInStockSerializer(serializers.ModelSerializer):
     pack_quantity = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
     unit_size = serializers.SerializerMethodField()
+    unit_quantity = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_models.ItemInStock
@@ -42,6 +43,9 @@ class ItemInStockSerializer(serializers.ModelSerializer):
 
     def get_source(self, obj):
         return obj.raw_incoming_item.rawitem_obj.source.name
+
+    def get_unit_quantity(self, obj):
+        return obj.raw_incoming_item.unit_quantity
 
     def get_unit_size(self, obj):
         return obj.raw_incoming_item.unit_size

@@ -17,7 +17,7 @@ def _do_import(batch_size=1):
         in_stock_items_to_create.append(
             inv_models.ItemInStock(
                 raw_incoming_item=item, original_unit_quantity=qty, remaining_unit_quantity=qty,
-                unit_price=item.get_prices()['price_per_unit']))
+                unit_price=item.get_prices()['price_per_unit'], count_price=item.get_prices()['price_per_count']))
         item.state = item.state.next_state
         items_to_update.append(item)
         # TODO: create the Item objects.  I really need to add more detail to these.
