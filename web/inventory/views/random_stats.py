@@ -17,6 +17,9 @@ class RandomStatsView(sc_views.OnPageTitleMixin, generic.TemplateView):
         context['units'] = self.get_units()
         context['models_counts'] = self.get_model_counts()
         context['items_by_state'] = self.get_item_counts_by_current_state()
+        context['totals_by_year_month'] = inv_models.ItemInStock.reports.totals_by_year_month()
+        context['min_max_overall'] = inv_models.ItemInStock.reports.min_max_overall()
+        context['totals_by_year_month_source'] = inv_models.ItemInStock.reports.totals_by_year_month_source(pivot=True)
         return context
 
     def get_item_counts_by_current_state(self):

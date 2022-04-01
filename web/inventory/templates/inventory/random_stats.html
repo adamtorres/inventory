@@ -65,6 +65,99 @@
     {% endfor %}
     </table>
 </div>
+<div class="d-inline-block">
+    <h3>Totals by year/month</h3>
+    <table class="datatable w-100">
+    <thead>
+    <tr>
+        <th class="right-align">When</th>
+        <th class="right-align">orders</th>
+        <th class="right-align">donations</th>
+        <th class="right-align">Min price</th>
+        <th class="right-align">Max price</th>
+        <th class="">Sources</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for year_month in totals_by_year_month %}
+        <tr>
+        <td class="right-align">{{ year_month.year }} - {{ year_month.month }}</td>
+        <td class="right-align">{{ year_month.order_count|floatformat|intcomma }}</td>
+        <td class="right-align">{{ year_month.donation_count|floatformat|intcomma }}</td>
+        <td class="right-align dollar-cell">{{ year_month.min_order_price|floatformat:2|intcomma }}</td>
+        <td class="right-align dollar-cell">{{ year_month.max_order_price|floatformat:2|intcomma }}</td>
+        <td class="">{{ year_month.sources|join:", " }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+<div class="d-inline-block">
+    <h3>Overall Totals/Min/Max/Count</h3>
+    <table class="datatable w-100">
+
+    <tbody>
+        <tr>
+            <td>Order Count</td>
+            <td colspan="2" class="right-align">{{ min_max_overall.order_count }}</td>
+        </tr>
+        <tr>
+            <td>Donation Count</td>
+            <td colspan="2" class="right-align">{{ min_max_overall.donation_count }}</td>
+        </tr>
+        <tr>
+            <td>Total Price</td>
+            <td colspan="2" class="right-align dollar-cell">{{ min_max_overall.sum_extended_price|floatformat:2|intcomma }}</td>
+        </tr>
+        <tr>
+            <td>Delivery Date</td>
+            <td class="right-align">{{ min_max_overall.min_delivery_date }}</td>
+            <td class="right-align">{{ min_max_overall.max_delivery_date }}</td>
+        </tr>
+        <tr>
+            <td>Extended Price</td>
+            <td class="right-align dollar-cell">{{ min_max_overall.min_extended_price|floatformat:2|intcomma }}</td>
+            <td class="right-align dollar-cell">{{ min_max_overall.max_extended_price|floatformat:2|intcomma }}</td>
+        </tr>
+        <tr>
+            <td>Order Price</td>
+            <td class="right-align dollar-cell">{{ min_max_overall.min_order_price|floatformat:2|intcomma }}</td>
+            <td class="right-align dollar-cell">{{ min_max_overall.max_order_price|floatformat:2|intcomma }}</td>
+        </tr>
+        <tr>
+            <td>Sources</td>
+            <td colspan="2">{{ min_max_overall.sources|join:", " }}</td>
+        </tr>
+    </tbody>
+    </table>
+</div>
+<div class="d-inline-block">
+    <h3>Totals by year/month/source</h3>
+    <table class="datatable w-100">
+    <thead>
+    <tr>
+        <th class="right-align">When</th>
+        {% for source in totals_by_year_month_source.all_sources_in_order %}
+        <th class="right-align">{{ source|title }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for year_month in totals_by_year_month_source.data %}
+        <tr>
+        <td class="">{{ year_month.year }} - {{ year_month.month_name_short }}</td>
+        {% for source, source_data in year_month.sources.items %}
+        <td class="d-none right-align">{{ source_data.order_count|intcomma }}{% if source_data.order_count or source_data.donation_count %} / {% endif %}{{ source_data.donation_count|intcomma }}</td>
+        <td class="d-none right-align">{{ source_data.min_delivery_date|date:"j"|ordinal }}{% if source_data.min_delivery_date|date:"j" != source_data.max_delivery_date|date:"j" %} - {{ source_data.max_delivery_date|date:"j"|ordinal }}{% endif %}</td>
+        <td class="d-none right-align dollar-cell">{{ source_data.min_order_price|floatformat:2|intcomma }}{% if source_data.min_order_price != source_data.max_order_price %} - {{ source_data.max_order_price|floatformat:2|intcomma }}{% endif %}</td>
+        <td class="right-align dollar-cell">{{ source_data.sum_extended_price|floatformat:2|intcomma }}</td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+
 </div>
 {% endblock %}
 

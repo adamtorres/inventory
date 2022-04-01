@@ -26,6 +26,14 @@ class CreateUsageSerializer(serializers.ModelSerializer):
         model = inv_models.Usage
         fields = '__all__'
 
+    def is_valid(self, raise_exception=False):
+        # Why isn't this run? UsageCartView.post does the following couple of lines:
+        # ui_s = inv_serializers.CreateUsageSerializer(data=used_items, many=True)
+        # if ui_s.is_valid()
+        print(f"CreateUsageSerializer.is_valid(raise_exception={raise_exception})")
+        print(f"self.initial_data = {self.initial_data}")
+        return super().is_valid(raise_exception=raise_exception)
+
 
 class UsageGroupSerializer(serializers.ModelSerializer):
     usages = serializers.SerializerMethodField()
