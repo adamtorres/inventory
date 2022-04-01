@@ -6,7 +6,7 @@ from scrap.models import fields as sc_fields
 from .raw_state import RawState
 
 
-class CommonItemNameGroupManager(models.Manager):
+class CommonItemNameGroupManager(sc_models.WideFilterManagerMixin, models.Manager):
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.select_related('name')
@@ -94,7 +94,7 @@ class CommonItemNameGroupManager(models.Manager):
         return q
 
 
-class CommonItemNameGroup(sc_models.UUIDModel):
+class CommonItemNameGroup(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     # 'name' is the primary name of the group (nonstick spray).
     # Use 'names' to get all common names (cooking spray, pan spray, nonstick spray, pam).
     name = models.ForeignKey(
@@ -105,6 +105,36 @@ class CommonItemNameGroup(sc_models.UUIDModel):
         models.CharField(max_length=1024, null=False, blank=False), null=False, blank=True, default=list)
 
     objects = CommonItemNameGroupManager()
+
+    wide_filter_fields = {
+        'name': [
+            'names__name', 'uncommon_item_names',
+            'raw_items__name', 'raw_items__better_name',
+            'raw_items__raw_incoming_items__name',
+        ],
+        'source': [
+            'raw_items__raw_incoming_items__source', 'raw_items__raw_incoming_items__source_obj__name',
+            'raw_items__raw_incoming_items__source_obj_id'],
+        'category': [
+            'raw_items__raw_incoming_items__category', 'raw_items__raw_incoming_items__category_obj__name',
+            'raw_items__raw_incoming_items__category_obj_id'],
+        'department': [
+            'raw_items__raw_incoming_items__department', 'raw_items__raw_incoming_items__department_obj__name',
+            'raw_items__raw_incoming_items__department_obj_id'],
+        'order_number': 'raw_items__raw_incoming_items__order_number',
+        'po_text': 'raw_items__raw_incoming_items__po_text',
+        'comment': [
+            'raw_items__raw_incoming_items__order_comment', 'raw_items__raw_incoming_items__item_comment',
+            'raw_items__item_comment'],
+        'unit_size': ['raw_items__raw_incoming_items__unit_size', 'raw_items__unit_size'],
+        'quantity': [
+            'raw_items__raw_incoming_items__pack_quantity', 'raw_items__pack_quantity',
+            'raw_items__raw_incoming_items__ordered_quantity', 'raw_items__raw_incoming_items__delivered_quantity'],
+        'code': [
+            'raw_items__item_code', 'raw_items__extra_code', 'raw_items__raw_incoming_items__item_code',
+            'raw_items__raw_incoming_items__extra_code'],
+    }
+    wide_filter_fields_any = ['source', 'category', 'department']
 
     def __str__(self):
         if self.name:

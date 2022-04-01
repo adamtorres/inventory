@@ -31,11 +31,7 @@ class ItemInStockListView(sc_views.OnPageTitleMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['object_list'] = []
-        api_url = self.request.build_absolute_uri(urls.reverse("inventory:api_commonitemwithinstockquantities_list"))
-        resp = requests.get(api_url)
-        if resp.status_code != 200:
-            return context
-        api_return_data = resp.json()
-        context['object_list'] = api_return_data
+        context['sources'] = inv_models.Source.objects.all().order_by('name')
+        context['categories'] = inv_models.Category.objects.all().order_by('name')
+        context['departments'] = inv_models.Department.objects.all().order_by('name')
         return context

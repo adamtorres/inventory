@@ -1,6 +1,8 @@
 import inspect
 import sys
 
+from .uuid import is_valid_uuid
+
 
 def get_function_name(frames=1):
     # if frames == 1:

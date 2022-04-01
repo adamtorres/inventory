@@ -3,6 +3,19 @@ from inventory import models as inv_models, serializers as inv_serializers
 from scrap import views as sc_views
 
 
+class CommonItemNameGroupWideFilterView(sc_views.WideFilterView):
+    # model = inv_models.CommonItemNameGroup
+    # serializer = inv_serializers.ItemWithInStockQuantitiesSerializer
+    model = inv_models.CommonItemNameGroup
+    serializer = inv_serializers.RawIncomingItemFlatSerializer
+    order_fields = ['-delivery_date', 'source', 'order_number', 'line_item_position']
+    prefetch_fields = [
+        'source_obj', 'category_obj', 'department_obj', 'rawitem_obj',
+        'rawitem_obj__category', 'rawitem_obj__source', 'rawitem_obj__common_item_name_group',
+        'rawitem_obj__common_item_name_group__category', 'rawitem_obj__common_item_name_group__name'
+    ]
+
+
 class RawIncomingItemWideFilterView(sc_views.WideFilterView):
     model = inv_models.RawIncomingItem
     serializer = inv_serializers.RawIncomingItemFlatSerializer

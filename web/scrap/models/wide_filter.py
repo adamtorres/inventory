@@ -1,6 +1,8 @@
 from django.core import exceptions
 from django.db import models
 
+from scrap import utils as sc_utils
+
 
 class WideFilterManagerMixin:
     def wide_filter(self, search_terms):
@@ -62,6 +64,7 @@ class WideFilterModelMixin:
             wide_filter_fields = [wide_filter_fields]
         for field in wide_filter_fields:
             if isinstance(search_terms, str):
+                # TODO: should this split the str?
                 search_terms = [search_terms]
             term_q = models.Q()
             for search_term in search_terms:
@@ -69,6 +72,9 @@ class WideFilterModelMixin:
                 if field == 'id' or field.endswith('_id'):
                     # UUID doesn't like icontains
                     filter_func = ""
+                    if not sc_utils.is_valid_uuid(search_term):
+                        # Not a valid uuid so shouldn't be used to filter on uuid fields.
+                        continue
                 if wide_filter_name in cls.wide_filter_fields_any:
                     term_q = term_q | models.Q(**{f"{field}{filter_func}": search_term})
                 else:
