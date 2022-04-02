@@ -4,7 +4,7 @@ from .api_raw_incoming_item import APIRawIncomingItemDetailView, APIRawIncomingI
 from .api_raw_incoming_order import APIRawIncomingOrderDetailView, APIRawIncomingOrderListView
 from .api_usage import APIUsageChangeView, APIUsageCreateView
 from .api_usage_group import APIUsageGroupListView, APIUsageGroupDetailView
-from .api_wide_filter import RawIncomingItemWideFilterView, RawItemWideFilterView
+from .api_wide_filter import CommonItemNameGroupWideFilterView, RawIncomingItemWideFilterView, RawItemWideFilterView
 from .item_in_stock import ItemInStockDetailView, ItemInStockListView
 from .random_stats import RandomStatsView
 from .raw_incoming_item import (

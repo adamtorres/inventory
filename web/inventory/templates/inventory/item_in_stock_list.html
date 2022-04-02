@@ -129,59 +129,34 @@
             </div>
         </div>
     </div>
+<pre id="on-page-log">
+Log.
+</pre>
+
     <table style="display: none;" class="filtered-item-template-container">
         <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
-            <td class="w-25">__category_str__</td>
-            <td class="w-25">__name_str__</td>
-            <td class="w-50">
-                <table class="w-100">
-                    {# TODO: need to add count quantity #}
-                    __order_count__ __unit_size__ __unit_quantity__ __total_price__ __sources__
-                </table>
-            </td>
+            <td data-field="common_name">__common_name__</td>
+            <td data-field="common_names">__common_names__</td>
+            <td data-field="categories">__categories__</td>
+            <td data-field="sources">__sources__</td>
+            <td data-field="unit_sizes">__unit_sizes__</td>
+            <td data-field="order_count">__order_count__</td>
+            <td data-field="remaining_price">__remaining_price__</td>
         </tr>
     </table>
     <table class="datatable datatable-link w-75" id="result-table">
     <thead>
     <tr class="item-list-header">
-        <th class="w-25">Category</th>
-        <th class="w-25">Item Name</th>
-        <th class="w-50" >
-            <table class="w-100">
-                <tr>
-                    <th colspan="4" style="text-align: center;">Quantities per unit size</th>
-                </tr>
-                <tr>
-                    <th style="width: 10%;" class="w-25 right-align">Order Count</th>
-                    <th style="width: 25%;" class="w-25 right-align">Unit Size</th>
-                    <th style="width: 15%;" class="w-25 right-align">Unit Quantity</th>
-                    <th style="width: 15%;" class="w-25 right-align">Total Price</th>
-                    <th style="width: 25%;" class="w-25 right-align">Sources</th>
-                </tr>
-            </table>
-        </th>
+        <th class="">common_name</th>
+        <th class="">common_names</th>
+        <th class="">categories</th>
+        <th class="">sources</th>
+        <th class="">unit_sizes</th>
+        <th class="">order_count</th>
+        <th class="">remaining_price</th>
     </tr>
     </thead>
     <tbody id="inventory-list-body">
-    {% for item in object_list %}
-        <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-detail-url="{% url "inventory:item_in_stock_detail" pk=item.id %}">
-            <td class="w-25">{{ item.category_str }}</td>
-            <td class="w-25">{{ item.name_str }}</td>
-            <td class="w-50">
-                <table class="w-100">
-                {% for unit_size_quantity in item.quantities %}
-                    <tr>
-                        <td style="width: 10%;" class="right-align">{{ unit_size_quantity.order_count|intcomma }}</td>
-                        <td style="width: 25%;" class="right-align {% if not unit_size_quantity.unit_size %}text-muted{% endif %}">{{ unit_size_quantity.unit_size|default:"[no unit size]" }}</td>
-                        <td style="width: 15%;" class="right-align">{{ unit_size_quantity.remaining_unit_quantity|floatformat|intcomma }}</td>
-                        <td style="width: 15%;" class="right-align dollar-cell">{{ unit_size_quantity.remaining_unit_price|floatformat:2|intcomma }}</td>
-                        <td style="width: 25%;" class="right-align">{{ unit_size_quantity.sources|join:", " }}</td>
-                    </tr>
-                {% endfor %}
-                </table>
-            </td>
-        </tr>
-    {% endfor %}
     </tbody>
     </table>
 </div>
@@ -189,16 +164,38 @@
 
 {% block body_scripts %}
 <script src="{% static "js/layout.js" %}"></script>
+<script src="{% static "js/on_page_log.js" %}"></script>
+<script src="{% static "js/date_str.js" %}"></script>
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script src="{% static 'js/live_filter.js' %}"></script>
 <script type="text/javascript">
-// filter_url = "{% url "inventory:api_commonitemwithinstockquantities_widefilter" %}";
+filter_url = "{% url "inventory:api_commonitemnamegroup_widefilter" %}";
+filter_fields = ["common_name", "common_names", "categories", "sources", "unit_sizes", "order_count", "remaining_price"];
+remove_decimals = [];
+money_fields = ["remaining_price"];
+filter_results_div_id = "inventory-list-body";
+filter_input_fields = [
+    {element: "#filter-quantity", ajax_var: "quantity"},
+    {element: "#filter-unit-size", ajax_var: "unit_size"},
+    {element: "#filter-item-name", ajax_var: "name"},
+    {element: "#filter-item-id", ajax_var: "item_id"},
+    {element: "#filter-comment", ajax_var: "comment"},
+    {element: "#filter-order-number", ajax_var: "order_number"},
+    {element: "[name='filter-category']", ajax_var: "category"},
+    {element: "[name='filter-department']", ajax_var: "department"},
+    {element: "[name='filter-source']", ajax_var: "source"},
+];
+filter_input_empty_if_only = ['category', 'department', 'source'];
 
-
+function generete_detail_url(id){
+    // Needed to supply the argument with javascript but wanted to use the url reverse lookup.
+    // Found this as a suggestion online - using a dummy argument and replacing with javascript.
+    return "{% url "inventory:item_in_stock_detail" pk="00000000-0000-0000-0000-000000000000" %}".replace("00000000-0000-0000-0000-000000000000", id);
+}
 
 function inventory_item_click() {
     let p = $(this);
-    let detail_url = p.data('detail-url');
+    let detail_url = generete_detail_url(p.data('id'));
     console.log(`inventory_item_click detail_url = '${detail_url}'`);
     window.location = detail_url;
 }
@@ -211,6 +208,14 @@ $( document ).ready(function() {
     w.trigger("resize");
 
     $("#inventory-list-body").on('click', '.filtered-item-link', inventory_item_click)
+
+    w.on(filter_requested_event_name, function() {
+        // filter sent to server, hide calculations as there's no longer a selected item.
+        logit("requested");
+    });
+    w.on(filter_results_populated_event_name, function() {
+        logit("populated");
+    });
 });
 </script>
 {% endblock %}

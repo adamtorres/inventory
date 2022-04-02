@@ -8,7 +8,7 @@ class WideFilterView(views.APIView):
     order_fields = None
 
     def get_queryset(self):
-        return self.model.objects.none()
+        return self.model.objects.all()
 
     def get(self, request, format=None):
         # wide_filter_fields = list of GET keys to look for.  So other args can be used and not get in the way.
@@ -26,7 +26,7 @@ class WideFilterView(views.APIView):
                 filter_fields_and_values.append(filter_tuple)
         if (request.GET.get('empty') or 'true') == 'true':
             # Shortcut an empty filter request.  We could send back a sample set, all, or none.
-            return response.Response(self.serializer(self.get_queryset(), many=True).data)
+            return response.Response(self.serializer(self.get_queryset().none(), many=True).data)
         # wide_filter expects
         # search_terms = [
         #     ('name', ('ground', 'beef')),
@@ -36,7 +36,8 @@ class WideFilterView(views.APIView):
         return response.Response(data)
 
     def filter_qs(self, search_terms):
-        qs = self.model.objects.wide_filter(search_terms)
+        filter_qs = self.model.objects.wide_filter(search_terms)
+        qs = self.get_queryset().filter(id__in=filter_qs)
         qs = self.order_qs(self.prefetch_qs(qs))
         return qs
 

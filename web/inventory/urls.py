@@ -12,6 +12,7 @@ urlpatterns = [
     urls.path("api_item_with_in_stock_quantities/", i_views.APIItemWithInStockQuantities.as_view(), name="api_itemwithinstockquantities_list"),
     urls.path("api_common_item_with_in_stock_quantities/<uuid:pk>/", i_views.APICommonItemWithInStockQuantities.as_view(), name="api_commonitemwithinstockquantities_detail"),
     urls.path("api_common_item_with_in_stock_quantities/", i_views.APICommonItemWithInStockQuantities.as_view(), name="api_commonitemwithinstockquantities_list"),
+    urls.path("api_common_item_name_group/wide_filter/", i_views.CommonItemNameGroupWideFilterView.as_view(), name="api_commonitemnamegroup_widefilter"),
 
     urls.path("api_rawincomingorders/", i_views.APIRawIncomingOrderListView.as_view(), name="api_rawincomingorder_list"),
     urls.path("api_rawincomingorder/<uuid:pk>/", i_views.APIRawIncomingOrderDetailView.as_view(), name="api_rawincomingorder_detail"),
