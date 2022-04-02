@@ -20,7 +20,7 @@ class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMix
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = qs.select_related('common_item_name_group', 'source', 'category')
+        qs = qs.select_related('common_item_name_group', 'source', 'category').prefetch_related('raw_incoming_items')
         return qs
 
     def items(self, qs=None, only_new=False):

@@ -16,14 +16,14 @@ class CommonItemNameGroupSerializer(serializers.ModelSerializer):
 
 class CommonItemNameGroupWideFilterSerializer(serializers.Serializer):
     id = serializers.SerializerMethodField()
-    common_name = serializers.SerializerMethodField()  # CING.name.name
-    uncommon_item_names = serializers.SerializerMethodField()  # CING.uncommon_item_names.  raw_items__better_name?
-    common_names = serializers.SerializerMethodField()  # list of CING.names.name
-    categories = serializers.SerializerMethodField()  # list of raw_items__category__name
-    sources = serializers.SerializerMethodField()  # list of raw_items__raw_incoming_items__source_obj__name
-    unit_sizes = serializers.SerializerMethodField()  # list of raw_items__unit_size
-    order_count = serializers.SerializerMethodField()  # Count raw_items__raw_incoming_items__in_stock__id where qty>0
-    remaining_price = serializers.SerializerMethodField()  # Sum raw_items__raw_incoming_items__in_stock__remaining*price
+    common_name = serializers.SerializerMethodField()
+    uncommon_item_names = serializers.SerializerMethodField()
+    common_names = serializers.SerializerMethodField()
+    categories = serializers.SerializerMethodField()
+    sources = serializers.SerializerMethodField()
+    unit_sizes = serializers.SerializerMethodField()
+    order_count = serializers.SerializerMethodField()
+    remaining_price = serializers.SerializerMethodField()
 
     def get_common_name(self, obj):
         return obj.name.name
@@ -47,7 +47,6 @@ class CommonItemNameGroupWideFilterSerializer(serializers.Serializer):
         return sorted({ri.unit_size for ri in obj.raw_items.all()})
 
     def get_order_count(self, obj):
-        # Count raw_items__raw_incoming_items__in_stock__id where qty>0
         return obj.order_count
 
     def get_remaining_price(self, obj):
