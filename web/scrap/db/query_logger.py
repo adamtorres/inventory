@@ -38,7 +38,7 @@ class QueryLogger:
             if query['sql'] not in query_counts:
                 sql = query['sql'] if len(query['sql']) < 50 else f"{query['sql'][:47]}..."
                 query_counts[query['sql']] = {
-                    'count': 0, 'min_time': None, 'max_time': None, 'times': [], 'sql_abbr': sql}
+                    'count': 0, 'min_time': None, 'max_time': None, 'times': [], 'sql_abbr': sql, 'total_time': 0}
             query_counts[query['sql']]['count'] += 1
             query_counts[query['sql']]['times'].append(query['duration'])
             if query_counts[query['sql']]['min_time'] is None:
@@ -49,6 +49,8 @@ class QueryLogger:
                 query_counts[query['sql']]['max_time'] = query['duration']
             elif query_counts[query['sql']]['max_time'] < query['duration']:
                 query_counts[query['sql']]['max_time'] = query['duration']
+        for query_data in query_counts.values():
+            query_data['total_time'] = sum(query_data['times'])
         if reset:
             self.reset()
         return query_counts
@@ -62,6 +64,7 @@ class QueryCountDebugMiddleware(MiddlewareMixin):
     # Then gutted as the original code didn't do what I wanted, but I used the concept.
     ql = None
     request_counter = 0
+    request_timer_start = 0
 
     def __init__(self, get_response):
         self.ql = QueryLogger()
@@ -69,20 +72,26 @@ class QueryCountDebugMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         self.request_counter += 1
+        self.request_timer_start = time.monotonic()
         with connection.execute_wrapper(self.ql):
             return self.get_response(request)
 
     def process_response(self, request, response):
         if self.ql:
+            request_duration = time.monotonic() - self.request_timer_start
+            request_data = {
+                'method': request.method,
+                # 'content_type': request.content_type,  # was empty so disabling and leaving this note.
+                'REMOTE_ADDR': request.META['REMOTE_ADDR'],
+                'path_info': request.path_info,
+                # GET and POST variables?
+                'count': self.request_counter,
+                'request_duration': request_duration,
+            }
             queries = self.ql.summarize_queries(reset=True)
+            query_total_time = 0
             for query_data in queries.values():
-                request_data = {
-                    'method': request.method,
-                    'content_type': request.content_type,
-                    'REMOTE_ADDR': request.META['REMOTE_ADDR'],
-                    'path_info': request.path_info,
-                    # GET and POST variables?
-                    'count': self.request_counter,
-                }
+                query_total_time += query_data['total_time']
                 logger.debug(f"request={request_data}|QueryLogger: {query_data}")
+            logger.debug(f"request={request_data}|QueryLogger: query_total_time={query_total_time}|request_total_time={request_duration}")
         return response
