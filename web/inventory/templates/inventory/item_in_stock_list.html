@@ -27,6 +27,9 @@
 .datatable>tbody>tr>td {
     vertical-align: top;
 }
+label {
+    font-weight: bold;
+}
 #inventory-list {
     overflow: scroll;
     max-height: inherit;
@@ -108,16 +111,16 @@
         </div>
         <div class="row">
             <div class="col">
-                <label class="d-block" for="filter-item-name">Item name:</label>
-                <input type="text" id="filter-item-name" class="filter-input" />
-            </div>
-            <div class="col">
                 <label class="d-block" for="filter-unit-size">Unit size:</label>
                 <input type="text" id="filter-unit-size" class="filter-input" />
             </div>
             <div class="col">
                 <label class="d-block" for="filter-quantity">Quantity:</label>
                 <input type="text" id="filter-quantity" class="filter-input" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-item-name">Item name:</label>
+                <input type="text" id="filter-item-name" class="filter-input" />
             </div>
             <div class="col">
                 <label class="d-block" for="filter-comment">Comment:</label>

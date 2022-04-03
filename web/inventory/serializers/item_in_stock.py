@@ -16,6 +16,11 @@ class ItemInStockSerializer(serializers.ModelSerializer):
     unit_size = serializers.SerializerMethodField()
     unit_size_suffix = serializers.SerializerMethodField()
     unit_quantity = serializers.SerializerMethodField()
+    item_comment = serializers.SerializerMethodField()
+    rawitem_comment = serializers.SerializerMethodField()
+    extended_price = serializers.SerializerMethodField()
+    pack_price = serializers.SerializerMethodField()
+    total_weight = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_models.ItemInStock
@@ -53,3 +58,18 @@ class ItemInStockSerializer(serializers.ModelSerializer):
 
     def get_unit_size_suffix(self, obj):
         return obj.raw_incoming_item.get_possible_unit()
+
+    def get_item_comment(self, obj):
+        return obj.raw_incoming_item.item_comment
+
+    def get_rawitem_comment(self, obj):
+        return obj.raw_incoming_item.rawitem_obj.item_comment
+
+    def get_extended_price(self, obj):
+        return obj.raw_incoming_item.extended_price
+
+    def get_pack_price(self, obj):
+        return obj.raw_incoming_item.pack_price
+
+    def get_total_weight(self, obj):
+        return obj.raw_incoming_item.total_weight

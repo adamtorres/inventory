@@ -10,6 +10,55 @@
 .selected-row {
     background-color: yellow;
 }
+#calculation-div {
+    border: green solid 2px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+#calculation-div .col-sm-1 input {
+    width: 100%;
+}
+.selected-item-text-row .col {
+    border: grey solid 1px;
+    text-align: left;
+}
+.selected-item-row .col {
+    border: grey solid 1px;
+    text-align: right;
+}
+label {
+    font-weight: bold;
+}
+.per_unit_cell {
+    display: inline-block;
+    border: grey solid 1px;
+    justify-content: space-between !important;
+    min-width: 10em;
+}
+.per_unit_cell * {
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.5em;
+}
+.per_unit_cell *[data-field="units"] {
+    width: 4em;
+}
+.per_unit_cell *[data-field="cost_for_the_units"] {
+    width: 6em;
+}
+.per_unit_cell:first-child {
+
+}
+.per_unit_cell:last-child {
+
+}
+#calculated-per-unit-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
+
 </style>
 {% endblock %}
 
@@ -44,10 +93,16 @@
         </tbody>
         </table>
         <table style="display: none;">
-            <tr id="item-in-stock-row-template" data-id="nope">
+            <tr id="item-in-stock-row-template" class="filtered-item-link" data-id="nope">
                 <td data-field="source">__source__</td>
                 <td class="right-align" data-field="delivery_date">__delivery_date__</td>
                 <td data-field="name">__name__</td>
+                <td class="d-none" data-field="common_item_name">__common_item_name__</td>
+                <td class="d-none" data-field="item_comment">__item_comment__</td>
+                <td class="d-none" data-field="rawitem_comment">__rawitem_comment__</td>
+                <td class="d-none" data-field="extended_price">__extended_price__</td>
+                <td class="d-none" data-field="total_weight">__total_weight__</td>
+                <td class="d-none" data-field="pack_price">__pack_price__</td>
                 <td class="right-align" data-field="unit_size">__unit_size__</td>
                 <td class="right-align" data-field="delivered_quantity">__delivered_quantity__</td>
                 <td class="right-align" data-field="pack_quantity">__pack_quantity__</td>
@@ -89,6 +144,141 @@
             </tbody>
         </table>
     </div>
+    <div id="calculation-div">
+        <h5>
+            Selected item
+        </h5>
+        <div class="row selected-item-text-row">
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-item-name">Item: </label>
+                    <span id="calc-item-name">[item name]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-common-item-name">Common Item Name: </label>
+                    <span id="calc-common-item-name">[common item name]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-item-comment">Line Item Comment: </label>
+                    <span id="calc-item-comment">[comment on the line item]</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-left">
+                    <label for="calc-rawitem-comment">Item Comment: </label>
+                    <span id="calc-rawitem-comment">[comment on the item itself]</span>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row row-cols-5 selected-item-row">
+            <div class="col col-sm-1">
+                <label for="calc-quantity">Quantity</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-pack-quantity">Pack Quantity</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-unit-size">Unit Size</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-price">Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-pack-price" id="calc-pack-price-label">Pack Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
+            </div>
+            <div class="col col-sm-2">
+                <label for="calc-count-price" id="calc-unit-price-label"><span style="text-transform: capitalize;" data-term="calc-unit-size-term">Count</span> Price</label>
+            </div>
+        </div>
+        <div class="row row-cols-5 selected-item-row">
+            <div class="col col-sm-1">
+                <span id="calc-quantity"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-pack-quantity"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-unit-size"></span>
+                <span id="calc-unit-quantity" class="d-none"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-price" class="dollar-cell"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-pack-price" class="dollar-cell"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-unit-price" class="dollar-cell"></span>
+            </div>
+            <div class="col col-sm-2">
+                <span id="calc-count-price" class="dollar-cell"></span>
+            </div>
+        </div>
+        <hr />
+        <div id="calc-weight-specific-cells" class="d-none selected-item-row">
+            <div class="row row-cols-3">
+                <div class="col col-sm-1">
+                    <label for="calc-weight">Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-avg-pack-weight">Avg Pack Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-avg-unit-weight">Avg Unit Weight</label>
+                </div>
+                <div class="col col-sm-1">
+                    <label for="calc-price-per-weight">Price per unit of weight</label>
+                </div>
+            </div>
+            <div class="row row-cols-3 selected-item-row">
+                <div class="col col-sm-1">
+                    <span id="calc-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-avg-pack-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-avg-unit-weight"></span>
+                </div>
+                <div class="col col-sm-1">
+                    <span id="calc-price-per-weight" class="dollar-cell"></span>
+                </div>
+            </div>
+        <hr />
+        </div>
+        <div class="row">
+            <div class="col" id="calculated-results">
+                <h5>
+                    Total price for a given number of units
+                </h5>
+                <div class="d-none">
+                    <div class="per_unit_cell" id="per_unit_row_template">
+                        <div class="" data-field="units">__units__</div>
+                        <div class="" data-field="cost_for_the_units">__cost_for_the_units__</div>
+                    </div>
+                </div>
+                <div class="" id="calculated-per-unit-prices">
+
+                </div>
+
+                <div class="d-none" id="calculated-per-count-prices-container">
+                    <h5>Total price for a given <span data-term="calc-unit-size-term">count</span> (ex: eggs come in dozens, this would show a per egg price)</h5>
+                    <div class="" id="calculated-per-count-prices">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <pre id="on-page-log">
 Log
 </pre>
@@ -101,8 +291,146 @@ Log
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static "js/usage_cart.js" %}"></script>
 <script type="text/javascript">
+
 var remove_decimals = ["remaining_unit_quantity", "original_unit_quantity", "pack_quantity", "remaining_count_quantity"]
 var money_fields = ["unit_price", "count_price"]
+in_stock_item_fields = [
+    {element: "data-field='name'", destination_field_id: "calc-item-name"}, //
+    {element: "data-field='common_item_name'", destination_field_id: "calc-common-item-name"},
+    {element: "data-field='item_comment'", destination_field_id: "calc-item-comment"},
+    {element: "data-field='rawitem_comment'", destination_field_id: "calc-rawitem-comment"},
+    {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"}, //
+    {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"}, //
+    {element: "data-field='unit_size'", destination_field_id: "calc-unit-size"}, //
+    {element: "data-field='unit_quantity'", destination_field_id: "calc-unit-quantity"},
+    {element: "data-field='extended_price'", destination_field_id: "calc-price"},
+    {element: "data-field='pack_price'", destination_field_id: "calc-pack-price"},
+    {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
+];
+const item_selected_event_name = 'item_selected';
+function round(v) {
+    return Math.round(v * 100) / 100;
+}
+function get_item_in_stock_field(p, field) {
+    // Copied from live_filter.js
+    return p.find(`[${field}]`);
+}
+function item_in_stock_click() {
+    // Copied from live_filter.js
+    let p = $(this);
+    if (is_highlighted(p)) {
+        // row already selected.  Don't redo ajax.
+        return;
+    }
+    clear_highlight("item-in-stock-table");
+    highlight_row(p);
+
+    in_stock_item_fields.forEach(tag => {
+        let item_data_attr = tag['element'];
+        let dest_tag_id = tag['destination_field_id'];
+        let item_tag = get_item_in_stock_field(p, item_data_attr);
+        let item_val = item_tag.text().trim();
+        let dest_tag = $(`#${dest_tag_id}`);
+        if (dest_tag.is("input")) {
+            dest_tag.val(item_val);
+        } else {
+            dest_tag.text(item_val);
+        }
+    });
+    $(window).trigger(item_selected_event_name);
+}
+function update_calculations() {
+    let weight = parseFloat($("#calc-weight").text());
+    let pack_quantity = parseFloat($("#calc-pack-quantity").text());
+    let quantity = parseFloat($("#calc-quantity").text());
+    let unit_quantity = parseInt($("#calc-unit-quantity").text());
+    let pack_price = parseFloat($("#calc-pack-price").text());
+    let total_price = parseFloat($("#calc-price").text());
+    let pack_price_per_weight = 0;
+    let price_per_unit = total_price / quantity / pack_quantity;
+    $("#calc-unit-price").text(round(price_per_unit));
+    let price_per_count = price_per_unit / unit_quantity;
+    $("#calc-count-price").text(round(price_per_count));
+
+    pack_price = round(price_per_unit * pack_quantity);  // NOTE: tax got included by using extended_price
+    $("#calc-pack-price").text(round(pack_price).toFixed(2));
+
+    if (weight > 0) {
+        pack_price_per_weight = pack_price;
+        $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
+        let avg_pack_weight = weight / quantity;
+        let avg_unit_weight = weight / quantity / pack_quantity;
+        $("#calc-avg-pack-weight").text(round(avg_pack_weight));
+        $("#calc-avg-unit-weight").text(round(avg_unit_weight));
+        $("#calc-weight-specific-cells").removeClass("d-none");
+    } else {
+        $("#calc-weight-specific-cells").addClass("d-none");
+
+    }
+    let total_units = pack_quantity * quantity;
+    let row_template = $(`#per_unit_row_template`);
+    let per_unit_table = $(`#calculated-per-unit-prices`);
+    per_unit_table.empty();
+    for(let i = 0; i < total_units; i++) {
+        let item_clone = row_template.clone();
+        item_clone.attr('id', null);
+        item_clone.find('[data-field]').each(function() {
+            let e = $(this);
+            let key = e.data('field');
+            if (key === "units") {
+                e.text(round(i+1));
+            }
+            if (key === "cost_for_the_units") {
+                e.html("<span class='dollar-cell'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
+            }
+        });
+        // item_clone.removeClass("hidden");
+        per_unit_table.append(item_clone);
+    }
+    let per_count_table = $(`#calculated-per-count-prices`);
+    per_count_table.empty();
+    if (unit_quantity > 1) {
+        $("#calculated-per-count-prices-container").removeClass("d-none");
+        let unit_size = $("#calc-unit-size").text();
+        let unit_grouping = 0;
+        if (unit_size.endsWith("dz")) {
+            unit_grouping = 12;
+        }
+
+        $('span[data-term="calc-unit-size-term"]').each(function(index) {
+            if (unit_size.endsWith("lb")) {
+                $(this).text("pound");
+            } else {
+                $(this).text("count");
+            }
+        })
+
+        for(let i = 0; i < unit_quantity; i++) {
+            if (unit_grouping > 0) {
+                if (i % unit_grouping === 0) {
+                    per_count_table.append(`<div>${(i / unit_grouping) + 1} group of ${unit_grouping}</div>`);
+                }
+            }
+            let item_clone = row_template.clone();
+            item_clone.attr('id', null);
+            item_clone.find('[data-field]').each(function() {
+                let e = $(this);
+                let key = e.data('field');
+                if (key === "units") {
+                    e.text(round(i+1));
+                }
+                if (key === "cost_for_the_units") {
+                    e.html("<span class='dollar-cell'>" + round(price_per_count * (i+1)).toFixed(2) + "</span>");
+                }
+            });
+            // item_clone.removeClass("hidden");
+            per_count_table.append(item_clone);
+        }
+    } else {
+        $("#calculated-per-count-prices-container").addClass("d-none");
+    }
+    $("#calculation-div").removeClass("d-none");
+}
 function new_item(data) {
     cloned_row = $("#item-in-stock-row-template").clone();
     cloned_row.attr('id', null);
@@ -161,8 +489,8 @@ function item_in_stock_results_received(data) {
         // What to do when nothing returned.  Should not get here during normal operation.
     }
 }
-function clear_highlight() {
-    let table_body = $("#item-unit-quantities-body");
+function clear_highlight(table_id) {
+    let table_body = $(`#${table_id}`);
     table_body.find(".filtered-item-link").each(function() {
         let row = $(this);
         row.find("td").each(function() {
@@ -183,13 +511,18 @@ function is_highlighted(row) {
     return row.hasClass('selected-row');
 }
 function inventory_item_click() {
+    // When the top table of items is clicked, this sends that item's info to the api to get all of the in-stock
+    // records.
+    // Also updates the highlighted row in the top table.
     let p = $(this);
     if (is_highlighted(p)) {
         // row already selected.  Don't redo ajax.
         return;
     }
-    clear_highlight();
+    clear_highlight("item-unit-quantities-body");
     highlight_row(p);
+    // filter sent to server, hide calculations as there's no longer a selected item.
+    $("#calculation-div").addClass("d-none");
     let item_in_stock_ids = p.data('item-in-stock-ids');
     values_to_send = {'id': item_in_stock_ids};
     var jqxhr = $.ajax({
@@ -326,6 +659,14 @@ $( document ).ready(function() {
     iist.on('change', "input[name='use_quantity']", use_quantity_changed);
     iist.on('keyup', "input[name='use_quantity']", start_keypress_timer);
     iist.on('change', "select[name='use_quantity_type']", use_quantity_type_changed);
+    iist.on('click', '.filtered-item-link', item_in_stock_click);
+    w.on(item_selected_event_name, function() {
+        // Now that there's a selected item, update the calculations.  This also unhides the section.
+        update_calculations();
+    });
+
+    // Hide the calculations by default as there's no selected item on page load.
+    $("#calculation-div").addClass("d-none");
 });
 </script>
 {% endblock %}
