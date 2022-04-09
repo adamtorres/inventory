@@ -191,3 +191,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
 }
+
+INITIAL_ADMIN_USER = os.environ.get("INITIAL_ADMIN_USER")
+INITIAL_ADMIN_EMAIL = os.environ.get("INITIAL_ADMIN_EMAIL")
+INITIAL_ADMIN_PASSWORD = os.environ.get("INITIAL_ADMIN_PASSWORD")
