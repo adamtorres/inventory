@@ -17,8 +17,10 @@ def run(*args):
         print("./manage.py runscript create_super_user --script-args <admin user> <admin email> <admin password>")
         exit(1)
     MyUser = get_user_model()
-    MyUser.objects.filter(username__exact=django_admin_user).count() == 0 or exit(1)
+    # If user already exists, assume all ok.
+    MyUser.objects.filter(username__exact=django_admin_user).count() == 0 or exit(0)
     new_super_user = MyUser(username=django_admin_user, email=django_admin_email, is_superuser=True, is_staff=True)
     new_super_user.password = make_password(django_admin_password)
     new_super_user.save()
+    # If user doesn't exist after saving, something broke.
     MyUser.objects.filter(username__exact=django_admin_user).count() == 1 or exit(1)

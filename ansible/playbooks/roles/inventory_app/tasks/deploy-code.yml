@@ -28,21 +28,23 @@
 
 - name: convert to sparse repo
   shell: |
-    git sparse-checkout init
+    git sparse-checkout init --cone
+    git sparse-checkout set {{ sparse_folders | join(" ") }}
   args:
     chdir: "{{ repo_folder }}"
     creates: "{{ repo_folder }}/.git/info/sparse-checkout"
 
-- name: Add folders to sparse checkout
-  copy:
-    dest: "{{ repo_folder }}/.git/info/sparse-checkout"
-    content: '{{ sparse_folders | join("\n") }}'
+# - name: Add folders to sparse checkout
+#   copy:
+#     dest: "{{ repo_folder }}/.git/info/sparse-checkout"
+#     content: '{{ sparse_folders | join("\n") }}'
 
+# TODO: Should this always pull?
 - name: clone code
   shell: "git pull --depth=1 origin {{ repo_branch }}"
   args:
     chdir: "{{ repo_folder }}"
-    creates: "{{ app_folder }}"
+    # creates: "{{ app_folder }}"
 
 - name: generate .env
   template:
