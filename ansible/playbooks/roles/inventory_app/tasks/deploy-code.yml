@@ -1,0 +1,51 @@
+---
+- name: ensure the repo_folder's parent folder exists
+  file:
+    path: "{{ repo_folder | dirname }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+  become: yes
+  when: ansible_facts.distribution != 'MacOSX'
+
+- name: ensure the repo_folder folder exists
+  file:
+    path: "{{ repo_folder }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+  register: created_repo_folder
+
+- name: prepare git repository
+  shell: |
+    git init
+    git remote add origin {{ repo_url }}
+  args:
+    chdir: "{{ repo_folder }}"
+    creates: "{{ repo_folder }}/.git"
+
+- name: convert to sparse repo
+  shell: |
+    git sparse-checkout init
+  args:
+    chdir: "{{ repo_folder }}"
+    creates: "{{ repo_folder }}/.git/info/sparse-checkout"
+
+- name: Add folders to sparse checkout
+  copy:
+    dest: "{{ repo_folder }}/.git/info/sparse-checkout"
+    content: '{{ sparse_folders | join("\n") }}'
+
+- name: clone code
+  shell: "git pull --depth=1 origin {{ repo_branch }}"
+  args:
+    chdir: "{{ repo_folder }}"
+    creates: "{{ app_folder }}"
+
+- name: generate .env
+  template:
+    src: templates/env.j2
+    dest: "{{ repo_folder }}/.env"
+    mode: 0640

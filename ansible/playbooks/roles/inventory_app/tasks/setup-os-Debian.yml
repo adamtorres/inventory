@@ -1,0 +1,6 @@
+---
+- name: Install required system packages for connecting to Postgresql
+  apt:
+    name: libpq5
+    state: present
+  become: yes

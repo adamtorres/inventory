@@ -1,0 +1,145 @@
+# Raspberry Pi Hosted Inventory Site
+
+## Installing Ansible Requirements
+
+Create a python virtual environment from which to run ansible.
+
+```
+# venv
+python -m venv something something.
+
+# pyenv
+pyenv virtualenv --copies 3.10.1 scp-inventory-ansible
+pyenv local scp-inventory-ansible
+```
+
+Install the python requirements via `pip`.  Might take a while for the first run.  This ansible environment should be usable for other projects as there's (currently) nothing specific to the inventory project loaded into the environment.
+
+```
+pip install pip --upgrade
+pip install -r requirements.txt
+```
+
+Roles and collections need to be installed separately via `ansible-galaxy`.  To install the roles, use the following.
+
+```
+ansible-galaxy role install -r requirements.yml
+```
+
+
+The first install of the roles might take some time depending on what gets added to the requirements and show output similar to the following.  At the moment, and on a laptop, the process took just a few seconds.
+
+```
+Starting galaxy role install process
+- downloading role 'postgresql', owned by geerlingguy
+- downloading role from https://github.com/geerlingguy/ansible-role-postgresql/archive/3.2.1.tar.gz
+- extracting geerlingguy.postgresql to /Users/adam/SeniorCenterProjects/inventory/v3/ansible/playbooks/roles/geerlingguy.postgresql
+- geerlingguy.postgresql (3.2.1) was installed successfully
+```
+
+If, when running the above, you get a warning like the following, add '--force' to the command.
+
+```
+[WARNING]: - geerlingguy.postgresql (2.2.1) is already installed - use --force to change version to 3.2.1
+```
+
+After installing them, running this again will show the roles are already installed.
+
+```
+Starting galaxy role install process
+- geerlingguy.postgresql (2.2.1) is already installed, skipping.
+```
+
+Installing the collections just needs a word change.  The initial install takes a bit.  Took about a minute for this example.
+
+```
+ansible-galaxy collection install -r requirements.yml
+```
+
+The first install will show output similar to the following.
+
+```
+Process install dependency map
+Starting collection install process
+Installing 'community.general:1.2.0' to '/Users/adam/.ansible/collections/ansible_collections/community/general'
+Installing 'google.cloud:1.0.1' to '/Users/adam/.ansible/collections/ansible_collections/google/cloud'
+Skipping 'ansible.posix' as it is already installed
+Installing 'ansible.netcommon:1.4.1' to '/Users/adam/.ansible/collections/ansible_collections/ansible/netcommon'
+Installing 'community.kubernetes:1.1.1' to '/Users/adam/.ansible/collections/ansible_collections/community/kubernetes'
+```
+
+Subsequent runs will finish quickly.
+
+```
+Process install dependency map
+Starting collection install process
+Skipping 'community.general' as it is already installed
+```
+
+## Testing ansible
+
+There is a 'hello world' playbook that does nothing much other than make sure ansible is functional.
+
+```
+ansible-playbook playbooks/hello_world.yml
+```
+
+Should produce the following output.
+
+```
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+PLAY [localhost] *********************************************************************************************************************************************************
+
+TASK [Gathering Facts] ***************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [shell] *************************************************************************************************************************************************************
+changed: [localhost]
+
+PLAY RECAP ***************************************************************************************************************************************************************
+localhost                  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+## Secrets
+
+### Ansible Vault
+
+This accepts input from stdin and creates a vaulted value to include in variable files.  The name of the variable seems to be included in the encryption.  The following assumes there is a line in `vault.txt` with `base_server *********` where the asterisks are some really strong password and definitely not `12345`.
+
+```
+adam@Adams-MacBook-Air: ansible-vault encrypt_string --vault-id base_server@vault.txt --stdin-name 'pi_priv_key'
+Reading plaintext input from stdin. (ctrl-d to end input, twice if your content does not already have a newline)
+hello world
+pi_priv_key: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;base_server
+          66396165643462353930626532373032323537373361346332623031323930356634343466303138
+          3066623839376634663538366563656166353565386231360a363963393239316630336130383064
+          65383535343265643734613437656136636433633234313035326231313732376436656135353535
+          3035373432326434650a356261656364373562373964626534383636366665316337633232376365
+          6262
+```
+
+
+## Deploy everything
+
+This should be repeatable without damaging anything.  That's the whole point behind Ansible, really.  Not specifying any tags will ignore the tags except for those with 'never'.  Add `--list-tasks` so see which tasks are run and in which order.
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory site.yml
+```
+
+
+## Updating the a service with new code
+
+Making code changes and deploying those changes follows these steps.
+
+1. Make the changes on development system.
+2. Commit changes to repo.
+3. Push changes to git host.
+4. Run ansible command to deploy.
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory --tags bbq_app_recorder site.yml
+```

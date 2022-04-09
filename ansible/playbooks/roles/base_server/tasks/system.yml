@@ -1,0 +1,24 @@
+---
+
+# prompt_id is a host var that visually identifies what the host is supposed to be doing.
+- name: Ensure bash aliases and prompt exist
+  blockinfile:
+    block: |
+      alias ll="ls -alph"
+      # wh = what happened = shows modified files in the last 10 days.
+      alias wh="sudo find / -type d \( -path /proc -o -path /sys -o -path /run \) -prune -false -o -type f -mtime -10 | grep -ve '\.pyc$' -e '^/var/lib/dpkg/' -e '/postgresql/[0-9]+/main/(base|global)/'"
+      export PS1="\n{{ prompt_id }} \t \w\n\u@\h: "
+    create: yes
+    insertafter: EOF
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+    path: "{{ ansible_user_dir }}/.profile"
+
+- name: Install required general system packages
+  apt:
+    name:
+      - tree
+      - vim
+  tags: base_server
+  become: yes

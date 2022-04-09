@@ -1,0 +1,128 @@
+# postgresql_version: 14
+
+postgres_users_no_log: false
+
+# ansible-vault encrypt_string --vault-id postgres_server@vault.txt --stdin-name 'inventory_user_password'
+inventory_user_password: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;postgres_server
+          31376662363139383364346537343364666235383537353231306566383735316634383830386362
+          6333636231313732323836646338303261373836613239390a623832396562343065333566613037
+          61366430396161313266626165656239636535366632613364303738316662636136303531353031
+          6431333239376134300a386166626532616436373365656161613633336131386233613735646133
+          35356633393933656365636431623135616666336235366633393431656566303231
+
+postgresql_users:
+  - name: main_user
+    password: "{{ main_user_password }}"
+    role_attr_flags: LOGIN,CREATEDB,SUPERUSER
+    # login_host: ""
+  - name: inventory_user
+    password: "{{ inventory_user_password }}"
+    role_attr_flags: LOGIN,CREATEDB
+
+postgresql_databases:
+  - name: "inventory_db"
+    owner: "inventory_user"
+
+# https://pgtune.leopard.in.ua/#/
+# # DB Version: 13
+# # OS Type: linux
+# # DB Type: mixed
+# # Total Memory (RAM): 8 GB
+# # CPUs num: 2
+# # Data Storage: ssd
+#
+# max_connections = 100
+# shared_buffers = 2GB
+# effective_cache_size = 6GB
+# work_mem = 10485kB
+# maintenance_work_mem = 512MB
+# checkpoint_completion_target = 0.9
+# wal_buffers = 16MB
+# default_statistics_target = 100
+# random_page_cost = 1.1
+# effective_io_concurrency = 200
+# min_wal_size = 1GB
+# max_wal_size = 4GB
+# max_worker_processes = 2
+# max_parallel_workers_per_gather = 1
+# max_parallel_workers = 2
+# max_parallel_maintenance_workers = 1
+
+postgresql_global_config_options:
+  - option: work_mem
+    value: 10485kB
+  - option: listen_addresses
+    value: '*'
+  - option: shared_buffers
+    value: 2GB
+  - option: effective_cache_size
+    value: 6GB
+  - option: maintenance_work_mem
+    value: 512MB
+  - option: lc_messages
+    value: 'en_US.UTF-8'
+  - option: lc_monetary
+    value: 'en_US.UTF-8'
+  - option: lc_numeric
+    value: 'en_US.UTF-8'
+  - option: lc_time
+    value: 'en_US.UTF-8'
+  - option: max_wal_size
+    value: 4GB
+  - option: min_wal_size
+    value: 1GB
+  - option: password_encryption
+    value: scram-sha-256
+    
+
+# password_encryption: "scram-sha-256"     # md5 or scram-sha-256
+postgresql_auth_method: "scram-sha-256"
+
+postgresql_hba_entries:
+  - { type: local, database: all, user: postgres, auth_method: peer }
+  # - { type: local, database: all, user: all, auth_method: peer }
+  - { type: local, database: all, user: all, auth_method: scram-sha-256 }
+  - { type: host, database: all, user: all, address: '0.0.0.0/0', auth_method: scram-sha-256 }
+  - { type: host, database: all, user: all, address: '::0/0', auth_method: scram-sha-256 }
+  # - { type: host, database: all, user: all, address: '::1/128', auth_method: md5 }
+  # TODO: If using pgbounce, should this need to restrict access to localhost only?
+
+# pgbouncer_users:
+#   - {"name": "{{ bbq_app_db_user }}", "password": "{{ bbq_app_db_password }}"}
+#   - {"name": "{{ canasta_db_user }}", "password": "{{ canasta_db_password }}"}
+#   - {"name": "{{ ff_app_db_user }}", "password": "{{ ff_app_db_password }}"}
+#   - {"name": "bogususer", "password": "md542085b28f4102bfb5e6dd671e7bf6247"}
+
+# Able to log in from other docker container as: docker exec -ti container_name psql -U bogususer -d example_db -h pi-BB1247.local
+
+# pi@pi-BB1247:~ $ grep -Eve "^\s*$" -e "^\s*#" /etc/postgresql/11/main/postgresql.conf | sort
+# cluster_name = '11/main'      # added to process titles if nonempty
+# data_directory = '/var/lib/postgresql/11/main'    # use data in another directory
+# datestyle = 'iso, mdy'
+# default_text_search_config = 'pg_catalog.english'
+# dynamic_shared_memory_type = posix  # the default is the first option
+# effective_cache_size = '2GB'
+# external_pid_file = '/var/run/postgresql/11-main.pid'      # write an extra PID file
+# hba_file = '/etc/postgresql/11/main/pg_hba.conf'  # host-based authentication file
+# ident_file = '/etc/postgresql/11/main/pg_ident.conf'  # ident configuration file
+# include_dir = 'conf.d'      # include files ending in '.conf' from
+# lc_messages = 'en_US.UTF-8'      # locale for system error message
+# lc_monetary = 'en_US.UTF-8'      # locale for monetary formatting
+# lc_numeric = 'en_US.UTF-8'      # locale for number formatting
+# lc_time = 'en_US.UTF-8'        # locale for time formatting
+# listen_addresses = '*'
+# log_line_prefix = '%m [%p] %q%u@%d '    # special values:
+# log_timezone = 'US/Mountain'
+# max_connections = 100      # (change requires restart)
+# max_wal_size = 1GB
+# min_wal_size = 80MB
+# port = 5432        # (change requires restart)
+# shared_buffers = '2GB'
+# ssl_cert_file = '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+# ssl_key_file = '/etc/ssl/private/ssl-cert-snakeoil.key'
+# ssl = 'off'
+# stats_temp_directory = '/var/run/postgresql/11-main.pg_stat_tmp'
+# timezone = 'US/Mountain'
+# unix_socket_directories = '/var/run/postgresql'
+# work_mem = '15MB'

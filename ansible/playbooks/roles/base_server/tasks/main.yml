@@ -1,0 +1,12 @@
+---
+
+- name: fast exit when on MacOSX
+  meta: end_play
+  when: ansible_facts.distribution == 'MacOSX'
+
+- include_tasks: "check_secrets.yml"
+- include_tasks: "system.yml"
+- include_tasks: "git.yml"
+- include_tasks: "python.yml"
+- include_tasks: "ssh_config.yml"
+- include_tasks: "status_scripts.yml"

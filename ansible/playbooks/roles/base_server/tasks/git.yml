@@ -1,0 +1,17 @@
+---
+
+- name: Install required system packages
+  apt:
+    name:
+      - git
+  tags: base_server
+  become: yes
+
+- name: Ensure git settings are up-to-date
+  git_config:
+    name: "{{ item.setting }}"
+    value: "{{ item.value }}"
+    scope: global
+  with_items:
+    - { setting: "user.email", value: "{{ git_user }}" }
+    - { setting: "user.name", value: "{{ git_name }}" }

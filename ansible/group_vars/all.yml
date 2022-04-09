@@ -1,0 +1,31 @@
+---
+
+# aptcache: "dockerhost.local:3142"
+aptcache: ""
+# pypicache: "192.168.1.14"
+pypicache: ""
+pypicacheport: ""
+git_user: "adamprogrammer@gmail.com"
+git_name: "Adam"
+apt_conf_content: |
+  # Hello World
+  Acquire::http::Proxy "http://{{ aptcache }}/";
+  Acquire::https::Proxy "http://{{ aptcache }}/";
+
+default_user: pi
+default_group: pi
+default_home_dir: /home/pi
+
+
+# If postgres is using scram-sha-256, do not do the md5 step.  Just vault the plain password.
+# select 'md5' || md5('password' || 'username');
+# main_user_password: md53720e91976472285c057846cad86eb79
+
+# ansible-vault encrypt_string --vault-id postgres_server@vault.txt --stdin-name 'main_user_password'
+main_user_password: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;postgres_server
+          62376231636530613930303231663337316435383237666533343837323434656335663233373838
+          6136323962373930653464613332353836333363333261300a356366613733376264323465336262
+          31663433623139356430363935323563323634376337623362663538643237663539313836303936
+          6230633837333161350a633837633664353236353834373339323339613736323637643365356438
+          30373339666561393936323339306336616664633035616264643630393438626235

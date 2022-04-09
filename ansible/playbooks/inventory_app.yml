@@ -1,0 +1,25 @@
+---
+- hosts: has_inventory_app
+  # gather_facts: yes
+
+  pre_tasks:
+    - name: Getting postgres vars
+      debug:
+        msg: Need geerlingguy.postgresql.yml vars for the database settings
+    - include_vars: vars/geerlingguy.postgresql.yml
+
+    - name: django_admin_pass
+      debug:
+        msg: "django_admin_pass {{ django_admin_pass|wordcount }}"
+
+    - name: django_secret_key
+      debug:
+        msg: "django_secret_key {{ django_secret_key|wordcount }}"
+
+    - name: inventory_user_password
+      debug:
+        msg: "inventory_user_password {{ inventory_user_password|wordcount }}"
+
+  roles:
+    - role: inventory_app
+      # become: yes

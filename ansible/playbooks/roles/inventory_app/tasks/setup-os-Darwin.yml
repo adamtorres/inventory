@@ -1,0 +1,4 @@
+---
+- name: blah blah install stuff
+  debug:
+    msg: "Stuff for OSX to run the inventory app."

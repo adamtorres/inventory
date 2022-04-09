@@ -1,0 +1,6 @@
+[all:vars]
+ansible_user=adam
+ansible_ssh_private_key_file=~/.ssh/macbookair_id_rsa
+
+[base_servers]
+localhost ansible_connection=local prompt_id="GIT"

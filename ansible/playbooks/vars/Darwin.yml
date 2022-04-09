@@ -1,0 +1,10 @@
+# These should be values that could apply to any role.  There should be nothing that would only apply to a single role.
+# These are for Darwin/OSX only.
+
+default_user: adam
+default_group: staff
+default_home_dir: /Users/adam
+default_app_dir: "{{ default_home_dir }}/deploy"
+
+# python_virtualenv_command: /usr/local/bin/pyenv virtualenv --copies
+python_virtualenv_command: python -m venv

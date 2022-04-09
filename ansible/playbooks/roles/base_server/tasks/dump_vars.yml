@@ -1,0 +1,13 @@
+---
+
+- name: Dump pi_pub_key
+  debug:
+    msg: "pi_pub_key = '{{ pi_pub_key }}'"
+
+- name: Dump pi_priv_key
+  debug:
+    msg: "pi_priv_key = '{{ pi_priv_key }}'"
+
+- name: Dump pi_authorized_key
+  debug:
+    msg: "pi_authorized_key = '{{ pi_authorized_key }}'"

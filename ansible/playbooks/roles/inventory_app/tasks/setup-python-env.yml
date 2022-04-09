@@ -1,0 +1,56 @@
+---
+- name: Upgrade pip
+  pip:
+    name: pip
+    state: latest
+    virtualenv: "{{ venv_folder }}"
+    virtualenv_command: "{{ python_virtualenv_command }}"
+    # extra_args: "-i http://{{ pypicache }}/root/pypi/+simple"
+
+- name: Install packages in the app's requirements.txt file.
+  pip:
+    requirements: "{{ app_folder }}/requirements.txt"
+    virtualenv: "{{ venv_folder }}"
+    virtualenv_command: "{{ python_virtualenv_command }}"
+    # extra_args: "-i http://{{ pypicache }}/root/pypi/+simple"
+
+# - name: Brand spanking new app folder.  Run initial database migrations.
+#   shell: "{{ venv_folder }}/bin/python manage.py migrate"
+#   args:
+#     chdir: "{{ app_folder }}/"
+#   # when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+
+- name: Run migrations
+  community.general.django_manage:
+    command: "migrate"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+
+- name: load fixture raw_state
+  community.general.django_manage:
+    command: "loaddata"
+    fixtures: "raw_state"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+
+# - name: Create an initial superuser
+#   community.general.django_manage:
+#     command: "createsuperuser --noinput --username={{ django_admin_user }} --email={{ django_admin_email }}"
+#     app_path: "{{ app_folder }}"
+#     virtualenv: "{{ venv_folder }}"
+#   when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+
+# This runscript uses the INITIAL_ADMIN_* vars added to .env.
+- name: Create an initial superuser
+  community.general.django_manage:
+    command: "runscript create_super_user"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+
+- name: Collect static
+  community.general.django_manage:
+    command: "collectstatic"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"

@@ -1,0 +1,44 @@
+---
+
+- name: Install required python-related system packages
+  apt:
+    name:
+      - python3-pip
+      - python3-setuptools
+      - python3-venv
+      - virtualenv
+  tags: base_server
+  become: yes
+
+# TODO: Is this even needed?  Does not seem like there is a python2.  Disabled for now.
+# - name: Check for python alternative link
+#   stat:
+#     path: "/etc/alternatives/python"
+#   register: pylink
+#
+# - name: Update python version priority
+#   alternatives:
+#     name: python
+#     path: "/usr/bin/{{ item.bin }}"
+#     link: /usr/bin/python
+#     priority: "{{ item.priority }}"
+#   with_items:
+#     - { bin: "python3.9", priority: 1 }
+#   when: (not pylink.stat.exists) or (pylink.stat.islnk and pylink.stat.lnk_source != "/usr/bin/python3.9")
+#   become: yes
+
+- name: Ensure directory for pip config exists.
+  file:
+    path: "{{ ansible_user_dir }}/.config/pip"
+    state: directory
+    mode: '0755'
+  when: pypicache != ""
+
+- name: Add pip config
+  template:
+    src: "templates/pip.conf.j2"
+    dest: "{{ ansible_user_dir }}/.config/pip/pip.conf"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: 0644
+  when: pypicache != ""

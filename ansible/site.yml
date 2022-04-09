@@ -1,0 +1,22 @@
+---
+
+- hosts: base_servers
+  tasks:
+  - name: Starting site playbook
+    debug:
+      msg: starting site.yml
+  - name: Include distribution specific variables for global use
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "playbooks/vars/{{ ansible_facts.os_family }}-{{ ansible_facts.distribution_major_version }}.yml"
+      - "playbooks/vars/{{ ansible_facts.distribution }}-{{ ansible_facts.distribution_version }}.yml"
+      - "playbooks/vars/{{ ansible_facts.os_family }}.yml"
+      - "playbooks/vars/{{ ansible_facts.os_distribution }}.yml"
+      - playbooks/vars/defaults.yml
+    tags:
+      - always
+
+# - import_playbook: playbooks/scratch.yml
+- import_playbook: playbooks/base_server.yml
+- import_playbook: playbooks/postgres.yml
+- import_playbook: playbooks/inventory_app.yml

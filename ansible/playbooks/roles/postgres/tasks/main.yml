@@ -1,0 +1,41 @@
+---
+
+- name: Add postgresql and pgbouncer services to service_status script
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR {{ item.service }}"
+    block: |
+      echo "------- {{ item.service }} ------- {{ item.service }} ------- {{ item.service }} -------"
+      systemctl status --no-pager {{ item.service }}
+      echo "------------------------------------------------------------------------------"
+    dest: "{{ default_home_dir }}/service_status.sh"
+    state: "{{ item.state }}"
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: 0755
+    insertafter: EOF
+  loop:
+    - {"service": "{{ postgresql_daemon }}", "state": "present"}
+    # - {"service": "pgbouncer", "state": "present"}
+
+- name: Add postgresql and pgbouncer services to short_service_status script
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR {{ item.service }}"
+    block: |
+      echo "$(systemctl is-active --no-pager {{item.service}}) - {{item.service}}"
+    dest: "{{ default_home_dir }}/short_service_status.sh"
+    state: "{{ item.state }}"
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: 0755
+    insertafter: EOF
+  loop:
+    - {"service": "{{ postgresql_daemon }}", "state": "present"}
+    # - {"service": "pgbouncer", "state": "present"}
+
+- name: Add the postgres uuid extension to the various databases.
+  community.general.postgresql_ext:
+    login_user: main_user
+    login_password: "{{ main_user_password }}"
+    db: "{{ item.name }}"
+    name: "uuid-ossp"
+  with_items: "{{ postgresql_databases }}"

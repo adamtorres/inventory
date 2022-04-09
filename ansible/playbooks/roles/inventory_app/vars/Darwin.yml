@@ -1,0 +1,5 @@
+repo_folder: "{{ default_home_dir }}/deploy/inventory_app"
+app_folder: "{{ repo_folder }}/web"
+venv_folder: "{{ default_home_dir }}/deploy/venv.inventory_app"
+
+python_virtualenv_command: python -m venv

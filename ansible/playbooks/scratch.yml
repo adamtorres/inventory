@@ -1,0 +1,9 @@
+---
+- hosts: base_servers
+  tags: base_server
+  gather_facts: yes
+
+  tasks:
+    - name: Show something
+      debug:
+        msg: "ansible_fips = {{ ansible_fips }}"

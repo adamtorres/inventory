@@ -1,0 +1,13 @@
+---
+- hosts: base_servers
+  tags: base_server
+
+  pre_tasks:
+    - name: Starting base-server playbook
+      debug:
+        msg: starting base-server.yml
+        
+  tasks:
+    - name: Including base_server role
+      include_role:
+        name: base_server

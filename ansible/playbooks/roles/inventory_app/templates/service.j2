@@ -1,0 +1,17 @@
+[Unit]
+Description={{ service_description }}
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+WorkingDirectory={{ app_folder }}
+Environment="PYTHONUNBUFFERED=1"
+ExecStart={{ venv_folder }}/bin/python manage.py runserver 0:{{ http_port }}
+StandardInput=tty-force
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier={{ service_syslog_id }}
+
+[Install]
+WantedBy=multi-user.target

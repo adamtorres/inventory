@@ -1,0 +1,20 @@
+---
+
+- name: Ensure service status script exists
+  copy:
+    src: templates/service_status.sh
+    dest: "{{ default_home_dir }}/service_status.sh"
+    force: no
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: "0755"
+
+- name: Ensure short service status script exists
+  copy:
+    src: templates/short_service_status.sh
+    dest: "{{ default_home_dir }}/short_service_status.sh"
+    force: no
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: "0755"
+ 

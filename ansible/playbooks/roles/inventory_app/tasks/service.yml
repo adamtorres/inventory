@@ -1,0 +1,84 @@
+---
+- name: create the service to start the inventory app http server
+  template:
+    src: "service.j2"
+    dest: "/lib/systemd/system/{{ service_name }}.service"
+    mode: 0644
+  become: yes
+  notify: restart inventory app http service
+
+- name: set inventory app http service to start automagically
+  service:
+    name: "{{ service_name }}"
+    enabled: yes
+  become: yes
+  notify: restart inventory app http service
+
+- name: Configure inventory app http rsyslog entries
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR {{ service_name }}"
+    block: |
+      /var/log/{{ service_log }}
+      {
+      	rotate 4
+      	weekly
+      	missingok
+      	notifempty
+      	compress
+      	delaycompress
+      	sharedscripts
+      	postrotate
+      		/usr/lib/rsyslog/rsyslog-rotate
+      	endscript
+      }
+    create: yes
+    owner: root
+    group: root
+    insertafter: EOF
+    mode: "0644"
+    path: "/etc/logrotate.d/rsyslog"
+  become: yes
+
+- name: Configure logging filter for inventory app http server
+  blockinfile:
+    block: |
+      if $programname == '{{ service_syslog_id }}' then /var/log/{{ service_log }}
+      & stop
+    create: yes
+    owner: root
+    group: root
+    insertafter: EOF
+    mode: "0644"
+    path: "/etc/rsyslog.d/{{ service_syslog_id }}.conf"
+  become: yes
+  notify: restart rsyslog
+
+- name: Add inventory app http service to service_status script
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR {{ item.service }}"
+    block: |
+      echo "------- {{ item.service }} ------- {{ item.service }} ------- {{ item.service }} -------"
+      systemctl status --no-pager {{ item.service }}
+      echo "------------------------------------------------------------------------------"
+    dest: "{{ default_home_dir }}/service_status.sh"
+    state: "{{ item.state }}"
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: 0755
+    insertafter: EOF
+  with_items:
+    - {"service": "{{ service_name }}", "state": "present"}
+
+- name: Add inventory app service to short_service_status script
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR {{ item.service }}"
+    block: |
+      echo "$(systemctl is-active --no-pager {{item.service}}) - {{item.service}}"
+    dest: "{{ default_home_dir }}/short_service_status.sh"
+    state: "{{ item.state }}"
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: 0755
+    insertafter: EOF
+  loop:
+    - {"service": "{{ service_name }}", "state": "present"}

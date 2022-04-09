@@ -1,0 +1,29 @@
+---
+- hosts: has_postgres
+  tags: postgres
+  gather_facts: yes
+
+  pre_tasks:
+    - name: Starting postgres playbook
+      debug:
+        msg: starting postgres.yml
+
+    - include_vars: vars/geerlingguy.postgresql.yml
+
+    - name: main_user_password
+      debug:
+        msg: "main_user_password {{ main_user_password|wordcount }}"
+
+    - name: inventory_user_password
+      debug:
+        msg: "inventory_user_password {{ inventory_user_password|wordcount }}"
+
+
+  roles:
+    - role: geerlingguy.postgresql
+      become: yes
+      when: ansible_facts.os_family == 'Debian'
+
+    - role: postgres
+      become: yes
+      when: ansible_facts.os_family == 'Debian'

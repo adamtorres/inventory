@@ -126,3 +126,6 @@ db.sqlite3
 
 # database files and other data files not to commit
 data/
+
+# Ansible vault file
+vault.txt

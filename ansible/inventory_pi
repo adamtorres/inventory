@@ -1,0 +1,19 @@
+[machines_name]
+pi-bb131f ansible_host=pi-bb131f.local prompt_id="GIT"
+
+[machines_ip]
+pi-bb131f ansible_host=192.168.1.8
+# dc:a6:32:bb:13:1f
+
+[all:vars]
+ansible_user=pi
+ansible_ssh_private_key_file=~/.ssh/macbookair_id_rsa
+
+[base_servers]
+pi-bb131f
+
+[has_postgres]
+pi-bb131f
+
+[has_inventory_app]
+pi-bb131f

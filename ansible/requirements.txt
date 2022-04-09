@@ -1,0 +1,4 @@
+ansible
+docker
+psycopg2-binary
+# jmespath
