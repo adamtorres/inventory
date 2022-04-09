@@ -5,7 +5,9 @@ Django
 django-extensions
 
 # Connects to Postgresql
-psycopg2-binary
+# Using psycopg2-binary causes the following error:
+# django.db.utils.OperationalError: SCRAM authentication requires libpq version 10 or above
+psycopg2
 
 # Reads .env files
 django-dotenv
