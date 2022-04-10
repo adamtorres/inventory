@@ -12,5 +12,8 @@
 - include_tasks: deploy-code.yml
 - include_tasks: "setup-python-env.yml"
 
+# - include_tasks: "setup-python-env-{{ ansible_facts.os_family }}.yml"
+#   when: ansible_facts.distribution != 'MacOSX'
+
 - include_tasks: service.yml
   when: ansible_facts.distribution != 'MacOSX'

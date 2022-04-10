@@ -7,7 +7,23 @@ Conflicts=getty@tty1.service
 Type=simple
 WorkingDirectory={{ app_folder }}
 Environment="PYTHONUNBUFFERED=1"
-ExecStart={{ venv_folder }}/bin/python manage.py runserver 0:{{ http_port }}
+# ExecStart={{ venv_folder }}/bin/python manage.py runserver 0:{{ http_port }}
+ExecStart={{ venv_folder }}/bin/uwsgi \
+    -b 8192 \
+    --uid {{ default_user }} \
+    --gid www-data \
+    --socket {{ inventory_app_uwsgi_socket_file }} \
+    --chmod-socket=664 \
+    --pythonpath {{ app_folder }} \
+    --virtualenv {{ venv_folder }} \
+    --module config.wsgi \
+    --optimize 2 \
+    --processes 3 \
+    --master \
+    --die-on-term \
+    --logto2 {{ inventory_app_uwsgi_log_file }} \
+    --enable-threads \
+    --single-interpreter
 StandardInput=tty-force
 StandardOutput=syslog
 StandardError=syslog
@@ -15,3 +31,6 @@ SyslogIdentifier={{ service_syslog_id }}
 
 [Install]
 WantedBy=multi-user.target
+
+
+

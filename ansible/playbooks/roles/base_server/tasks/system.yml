@@ -22,3 +22,13 @@
       - vim
   tags: base_server
   become: yes
+
+- name: ensure the app folder's parent folder exists
+  file:
+    path: "{{ srv_folder }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+  become: yes
+  when: ansible_facts.distribution != 'MacOSX'

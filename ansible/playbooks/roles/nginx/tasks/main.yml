@@ -1,0 +1,52 @@
+---
+# tasks file for nginx
+- name: install nginx
+  apt: name=nginx state=present
+  become: yes
+
+- name: make sure /etc/nginx directory exists
+  file: >
+    path={{ etc_folder }}/nginx
+    state=directory
+    owner=root
+    group="root"
+    mode=0755
+  become: yes
+
+- name: copy/update nginx config file
+  template: >
+    src="nginx.conf.j2"
+    dest="{{ etc_folder }}/nginx/nginx.conf"
+    owner="root"
+    group="root"
+  become: yes
+
+- name: start and enable nginx
+  service: name=nginx state=started enabled=yes
+  become: yes
+
+- name: Add nginx service to service_status script
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR nginx"
+    block: |
+      echo "------- nginx ------- nginx ------- nginx -------"
+      systemctl status --no-pager nginx
+      echo "------------------------------------------------------------------------------"
+    dest: "{{ default_home_dir }}/service_status.sh"
+    state: "present"
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: 0755
+    insertafter: EOF
+
+- name: Add nginx service to short_service_status script
+  blockinfile:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR nginx"
+    block: |
+      echo "$(systemctl is-active --no-pager nginx) - nginx"
+    dest: "{{ default_home_dir }}/short_service_status.sh"
+    state: "present"
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    mode: 0755
+    insertafter: EOF

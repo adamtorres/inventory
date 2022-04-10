@@ -5,9 +5,9 @@ http_port: 80
 service_syslog_id: inventory-app-http
 service_log: inventory-app-server.log
 
-venv_folder: /srv/venv.inventory_app
+venv_folder: "{{ srv_folder }}/venv.inventory_app"
 repo_url: "https://github.com/adamtorres/inventory.git"
-repo_folder: /srv/inventory_app
+repo_folder: "{{ srv_folder }}/inventory_app"
 sparse_folders:
   - web/
 repo_branch: filter-inventory
@@ -35,3 +35,29 @@ django_secret_key: !vault |
           62623261383165356465616231306163666262623864333436393333313037633565346335303139
           32316638636233373863356264366463346538646434626637636136353634666664643130326262
           38336536393938396431
+
+
+inventory_app_nginx_conf_file_name: inventory-app.conf
+inventory_app_nginx_conf_file_path: "{{ inventory_app_nginx_root_dir }}/sites-available/{{ inventory_app_nginx_conf_file_name }}"
+
+
+# machine ip or fqdn
+inventory_app_nginx_fqdn: "{{ hostvars[groups['has_inventory_app'][0]]['ansible_host'] }}"
+
+# Do not include path as sites-enabled and sites-available are dynamically added.
+inventory_app_nginx_conf_files:
+  - {filename: "{{ inventory_app_nginx_conf_file_name }}"}
+
+# 'Production' means https-only
+inventory_app_django_configuration: 'Development'
+
+# So nginx can host files that Django shouldn't waste time upon.
+inventory_app_static_mount_root: "{{ app_folder }}/public"
+
+inventory_app_uwsgi_file_path: "{{ etc_folder }}/init/uwsgi-inventory-app.conf"
+inventory_app_uwsgi_log_file: "{{ srv_folder }}/log/www/uwsgi_inventory_app.log"
+inventory_app_uwsgi_socket_file_root: "{{ var_run_folder }}/uwsgi-inventory-app"
+inventory_app_uwsgi_socket_file: "{{ inventory_app_uwsgi_socket_file_root }}/uwsgi-inventory-app.sock"
+inventory_app_uwsgi_buffer_size: "16384"
+inventory_app_uwsgi_stats_port: "1717"
+inventory_app_uwsgi_processes: 1

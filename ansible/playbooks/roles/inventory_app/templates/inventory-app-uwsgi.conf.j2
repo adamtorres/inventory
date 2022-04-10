@@ -1,0 +1,37 @@
+# file: {{ inventory_app_uwsgi_file_path }}
+# Used by upstart.  Copied from sos role.  For reference at the moment as this project uses systemd.
+description "uWSGI Inventory App starter"
+
+start on (local-filesystems and runlevel [2345])
+stop on runlevel [016]
+
+respawn
+
+pre-start script
+    # prepare environment
+    mkdir -p {{ inventory_app_uwsgi_socket_file_root }}
+    chown www-data:www-data {{ inventory_app_uwsgi_socket_file_root }}
+end script
+
+# home - is the path to our virtualenv directory
+# pythonpath - the path to our django application
+# module - the wsgi handler python script
+
+exec {{ venv_folder }}/bin/uwsgi \
+-b 8192 \
+--uid {{ default_user }} \
+--gid {{ default_group }}\
+--socket {{ inventory_app_uwsgi_socket_file }} \
+--chmod-socket=664 \
+--pythonpath {{ app_folder }} \
+--virtualenv {{ venv_folder }} \
+--module config.wsgi \
+--optimize 2 \
+--processes 3 \
+--master \
+--die-on-term \
+--logto2 {{ inventory_app_uwsgi_log_file }} \
+--enable-threads \
+--single-interpreter
+#
+#--http :8080 \

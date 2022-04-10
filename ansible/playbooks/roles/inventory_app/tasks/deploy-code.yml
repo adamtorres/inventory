@@ -1,14 +1,4 @@
 ---
-- name: ensure the repo_folder's parent folder exists
-  file:
-    path: "{{ repo_folder | dirname }}"
-    state: directory
-    mode: '0755'
-    owner: "{{ default_user }}"
-    group: "{{ default_group }}"
-  become: yes
-  when: ansible_facts.distribution != 'MacOSX'
-
 - name: ensure the repo_folder folder exists
   file:
     path: "{{ repo_folder }}"
@@ -51,3 +41,11 @@
     src: templates/env.j2
     dest: "{{ repo_folder }}/.env"
     mode: 0640
+
+- name: create robots.txt for inventory app site
+  copy: >
+    src=files/robots.txt
+    dest={{ inventory_app_static_mount_root }}/robots.txt
+    owner=nobody
+    group=nogroup
+  become: yes

@@ -29,3 +29,11 @@ main_user_password: !vault |
           31663433623139356430363935323563323634376337623362663538643237663539313836303936
           6230633837333161350a633837633664353236353834373339323339613736323637643365356438
           30373339666561393936323339306336616664633035616264643630393438626235
+
+etc_folder: /etc
+var_folder: "/var"
+var_run_folder: "{{ var_folder }}/run"
+default_nginx_apps_uid: "{{ default_user }}"
+default_nginx_apps_gid: "{{ default_group }}"
+inventory_app_nginx_root_dir: "{{ etc_folder }}/nginx"
+srv_folder: "/srv"

@@ -16,7 +16,4 @@
     tags:
       - always
 
-# - import_playbook: playbooks/scratch.yml
-# - import_playbook: playbooks/base_server.yml
-# - import_playbook: playbooks/postgres.yml
 - import_playbook: playbooks/inventory_app.yml

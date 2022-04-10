@@ -1,0 +1,9 @@
+---
+
+- hosts: has_inventory_app
+  gather_facts: yes
+  remote_user: "{{ default_user }}"
+
+  roles:
+    - role: nginx
+      when: ansible_facts.os_family == 'Debian'

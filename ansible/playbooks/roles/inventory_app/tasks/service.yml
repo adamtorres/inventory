@@ -1,4 +1,12 @@
 ---
+- name: add www-data group to {{ default_user }} groups
+  user: >
+    name={{ default_user }} 
+    append=true 
+    groups=www-data 
+    state=present
+  become: yes
+
 - name: create the service to start the inventory app http server
   template:
     src: "service.j2"
@@ -6,6 +14,61 @@
     mode: 0644
   become: yes
   notify: restart inventory app http service
+
+- name: install uwsgi for Inventory App
+  pip: name=uwsgi virtualenv={{ venv_folder }}
+  register: result
+  retries: 3 # total attempts to make.  Not 1 + 3.
+  delay: 3 # seconds
+  changed_when: '"Successfully installed" in result["stdout"]'
+  failed_when: result['failed']
+
+# Permissions for /srv/sos/log/www will be www-data:ampops
+- name: create log/www dir under application root
+  file: >
+    path={{ srv_folder }}/log/www 
+    state=directory 
+    owner={{ default_nginx_apps_uid }} 
+    group=www-data 
+    mode=0775
+  become: yes
+
+# Permissions for /srv/sos/log will be ampops:www-data
+- name: create application log dir
+  file: >
+    path={{ srv_folder }}/log
+    state=directory
+    owner={{ default_user }}
+    group={{ default_group }}
+    mode=0775
+  become: yes
+
+- name: disable the default nginx app config
+  file: >
+    path={{ inventory_app_nginx_root_dir }}/sites-enabled/default
+    state=absent
+  notify:
+    - restart nginx
+  become: yes
+
+- name: create uwsgi socket root dir
+  file: >
+    path={{ inventory_app_uwsgi_socket_file_root }}
+    state=directory
+    group=www-data
+    owner={{ default_nginx_apps_uid }}
+    mode=0775
+  become: yes
+
+- name: make sure nginx config directories exists
+  file: >
+    path="{{ inventory_app_nginx_root_dir }}/{{ item }}"
+    state=directory
+    owner=root
+    group="root"
+    mode=0755
+  become: yes
+  with_items: ['sites-available', 'sites-enabled']
 
 - name: set inventory app http service to start automagically
   service:
@@ -82,3 +145,23 @@
     insertafter: EOF
   loop:
     - {"service": "{{ service_name }}", "state": "present"}
+
+- name: Create/Update Inventory App nginx configuration file
+  template: >
+    src=nginx-inventory-app.conf.j2 
+    dest={{ inventory_app_nginx_conf_file_path }}
+  become: yes
+  notify:
+    - restart nginx
+
+- name: enable desired nginx site configs
+  file: >
+    dest="{{ inventory_app_nginx_root_dir }}/sites-enabled/{{ item.filename }}"
+    src="{{ inventory_app_nginx_root_dir }}/sites-available/{{ item.filename }}" 
+    state=link
+    owner=root
+    group="{{ default_group }}"
+  with_items: "{{ inventory_app_nginx_conf_files }}"
+  become: yes
+  notify:
+    - restart nginx

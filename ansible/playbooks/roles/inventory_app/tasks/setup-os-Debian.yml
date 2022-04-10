@@ -4,3 +4,11 @@
     name: libpq5
     state: present
   become: yes
+
+- name: add www-data group to {{ default_user }} groups
+  user: >
+    name={{ default_user }} 
+    append=true 
+    groups=www-data 
+    state=present
+  become: yes
