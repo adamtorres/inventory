@@ -81,17 +81,17 @@ class Command(BaseCommand):
 
         if options['run_clean']:
             print("Running clean step")
-            incoming_actions.do_clean(2000)
+            incoming_actions.do_clean()
             inv_models.console_show_counts()
 
         if options['run_calculate']:
             print("Running calculate step")
-            incoming_actions.do_calculate(2000)
+            incoming_actions.do_calculate()
             inv_models.console_show_counts()
 
         if options['run_create']:
             print("Running create step")
-            incoming_actions.do_create(0)
+            incoming_actions.do_create()
             inv_models.console_show_counts()
 
         if options['incoming_items_data_file']:
@@ -100,7 +100,7 @@ class Command(BaseCommand):
 
         if options['run_import']:
             print("Running import step")
-            incoming_actions.do_import(0)
+            incoming_actions.do_import()
             inv_models.console_show_counts()
 
         print("done.")
