@@ -26,15 +26,13 @@ def generate_existing_unit_pattern() -> str:
 EXISTING_UNIT_SIZE_RE = re.compile(generate_existing_unit_pattern(), re.IGNORECASE)
 
 
-def _do_clean(batch_size=0, allow_new_units=False):
+def _do_clean(allow_new_units=False):
     """
     step 1
     Purpose: Standardize dates, casing, numbers, whatever else makes sense.
     Result: either changes an item to 'cleaned' or 'failed_clean' state.
     """
     qs = inv_models.RawIncomingItem.objects.ready_to_clean()
-    if batch_size > 0:
-        qs = qs[:batch_size]
     items_to_update = []
     fields_to_update = {'state'}
     cleaner = ItemCleaner(allow_new_units=allow_new_units)

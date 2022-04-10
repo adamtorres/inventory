@@ -1,13 +1,11 @@
 from .. import models as inv_models
 
 
-def _do_create(batch_size=1):
+def _do_create():
     """
     step 4
     """
     qs = inv_models.RawIncomingItem.objects.ready_to_create()
-    if batch_size > 0:
-        qs = qs[:batch_size]
     print(f"do_create found {qs.count()} records to create.")
 
     sources = create_sources(qs)

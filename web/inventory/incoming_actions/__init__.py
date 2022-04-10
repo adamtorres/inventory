@@ -14,32 +14,31 @@ def update_item_state(list_of_items, fields_to_update, batch_size=100):
     return 0
 
 
-def do_all_actions(batch_size=1):
-    # batch_size is being ignored at the moment.  Might remove later.
-    do_clean(batch_size=0)
-    do_calculate(batch_size=2000)
-    do_create(batch_size=0)
-    do_import(batch_size=2000)
+def do_all_actions():
+    do_clean()
+    do_calculate()
+    do_create()
+    do_import()
 
 
-def do_calculate(batch_size=1):
-    items_to_update, fields_to_update = _do_calculate(batch_size=batch_size)
-    update_item_state(items_to_update, fields_to_update, batch_size=batch_size)
+def do_calculate():
+    items_to_update, fields_to_update = _do_calculate()
+    update_item_state(items_to_update, fields_to_update)
 
 
-def do_clean(batch_size=1, allow_new_units=False):
-    items_to_update, fields_to_update = _do_clean(batch_size=batch_size, allow_new_units=allow_new_units)
-    update_item_state(items_to_update, fields_to_update, batch_size=batch_size)
+def do_clean(allow_new_units=False):
+    items_to_update, fields_to_update = _do_clean(allow_new_units=allow_new_units)
+    update_item_state(items_to_update, fields_to_update)
 
 
-def do_create(batch_size=1):
-    items_to_update, fields_to_update = _do_create(batch_size=batch_size)
-    update_item_state(items_to_update, fields_to_update, batch_size=batch_size)
+def do_create():
+    items_to_update, fields_to_update = _do_create()
+    update_item_state(items_to_update, fields_to_update)
 
 
-def do_import(batch_size=1):
-    items_to_update, fields_to_update = _do_import(batch_size=batch_size)
-    update_item_state(items_to_update, fields_to_update, batch_size=batch_size)
+def do_import():
+    items_to_update, fields_to_update = _do_import()
+    update_item_state(items_to_update, fields_to_update)
 
 
 def report_on_failures():
