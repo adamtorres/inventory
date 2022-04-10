@@ -8,12 +8,16 @@
     - "{{ ansible_facts.os_distribution }}.yml"
     - defaults/main.yml
 
-- include_tasks: "setup-os-{{ ansible_facts.os_family }}.yml"
-- include_tasks: deploy-code.yml
-- include_tasks: "setup-python-env.yml"
+- name: Initial setup of inventory app
+  block:
+    - include_tasks: "setup-os-{{ ansible_facts.os_family }}.yml"
+    - include_tasks: deploy-code.yml
+    - include_tasks: "setup-python-env.yml"
+    - include_tasks: service.yml
+      when: ansible_facts.distribution != 'MacOSX'
+  when: process_items is not defined or not process_items
 
-# - include_tasks: "setup-python-env-{{ ansible_facts.os_family }}.yml"
-#   when: ansible_facts.distribution != 'MacOSX'
-
-- include_tasks: service.yml
-  when: ansible_facts.distribution != 'MacOSX'
+- name: Loading data to inventory app
+  block:
+    - include_tasks: process_data.yml
+  when: process_items is defined and process_items

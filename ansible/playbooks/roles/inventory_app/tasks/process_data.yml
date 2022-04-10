@@ -1,0 +1,161 @@
+---
+- name: Summary of actions
+  debug:
+    msg: |
+      Remove existing data? {{ remove_data }}
+      Item file? '{{ incoming_data_file }}'
+      Common Name file? '{{ common_item_names_data_file }}'
+
+- name: Upload incoming_data_file to remote
+  ansible.builtin.copy:
+    src: "{{ incoming_data_file }}"
+    dest: "{{ data_folder }}/{{ incoming_data_file | basename }}"
+  when: incoming_data_file is defined and incoming_data_file != ""
+
+- name: Strip local path off of incoming_data_file
+  set_fact:
+    remote_incoming_data_file: "{{ data_folder }}/{{ incoming_data_file | basename }}"
+    remote_incoming_data_file_ingested: "{{ data_folder }}/ingested/{{ incoming_data_file | basename }}"
+  when: incoming_data_file is defined and incoming_data_file != ""
+
+- name: Incoming items post-upload summary of actions
+  debug:
+    msg: |
+      remote_incoming_data_file '{{ remote_incoming_data_file }}'
+      remote_incoming_data_file_ingested '{{ remote_incoming_data_file_ingested }}'
+  when: incoming_data_file is defined and incoming_data_file != ""
+
+- name: Upload common_item_names_data_file to remote
+  ansible.builtin.copy:
+    src: "{{ common_item_names_data_file }}"
+    dest: "{{ data_folder }}/{{ common_item_names_data_file | basename }}"
+  when: common_item_names_data_file is defined and common_item_names_data_file != ""
+
+- name: Strip local path off of common_item_names_data_file
+  set_fact:
+    remote_common_item_names_data_file: "{{ data_folder }}/{{ common_item_names_data_file | basename }}"
+    remote_common_item_names_data_file_ingested: "{{ data_folder }}/ingested/{{ common_item_names_data_file | basename }}"
+  when: common_item_names_data_file is defined and common_item_names_data_file != ""
+
+- name: Common item name post-upload summary of actions
+  debug:
+    msg: |
+      remote_common_item_names_data_file '{{ remote_common_item_names_data_file }}'
+      remote_common_item_names_data_file_ingested '{{ remote_common_item_names_data_file_ingested }}'
+  when: common_item_names_data_file is defined and common_item_names_data_file != ""
+
+- name: Get counts before removing data
+  community.general.django_manage:
+    command: "show_counts"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  register: stdout_before_remove
+  when: remove_data is defined and remove_data
+
+- name: Show counts before removing data
+  debug:
+    var: stdout_before_remove
+  when: remove_data is defined and remove_data
+
+- name: Remove old data
+  community.general.django_manage:
+    command: "runscript remove_data --script-args truncate"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  when: remove_data is defined and remove_data
+
+- name: Get counts before processing
+  community.general.django_manage:
+    command: "show_counts"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  register: stdout_before
+
+- name: Show counts before processing
+  debug:
+    var: stdout_before
+
+- name: Ingest incoming data
+  community.general.django_manage:
+    command: "ingest_items -f '{{ remote_incoming_data_file }}'"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  when: incoming_data_file is defined and incoming_data_file != ""
+
+- name: Move incoming_data_file to ingested folder
+  ansible.builtin.command: "mv '{{ remote_incoming_data_file }}' '{{ remote_incoming_data_file_ingested }}'"
+  args:
+    creates: "{{ remote_incoming_data_file_ingested }}"
+    removes: "{{ remote_incoming_data_file }}"
+  when: incoming_data_file is defined and incoming_data_file != ""
+
+- name: Clean incoming data
+  community.general.django_manage:
+    command: "process_items --clean"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+
+- name: Get unit_size issues after cleaning
+  community.general.django_manage:
+    command: "show_issues --unit-size"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  register: stdout_unit_size
+
+- name: Show unit_size issues after cleaning
+  debug:
+    var: stdout_unit_size.out
+
+- name: Calculate totals
+  community.general.django_manage:
+    command: "process_items --calculate"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+
+- name: Create supporting data
+  community.general.django_manage:
+    command: "process_items --create"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+
+- name: Ingest common names
+  community.general.django_manage:
+    command: "ingest_common_item_names -f '{{ remote_common_item_names_data_file }}'"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  when: common_item_names_data_file is defined and common_item_names_data_file != ""
+
+- name: Move common_item_names_data_file to ingested folder
+  ansible.builtin.command: "mv '{{ remote_common_item_names_data_file }}' '{{ remote_common_item_names_data_file_ingested }}'"
+  args:
+    creates: "{{ remote_common_item_names_data_file_ingested }}"
+    removes: "{{ remote_common_item_names_data_file }}"
+  when: common_item_names_data_file is defined and common_item_names_data_file != ""
+
+- name: Get items missing common names
+  community.general.django_manage:
+    command: "show_issues --common-name"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  register: stdout_common_name
+
+- name: Show items missing common names
+  debug:
+    var: stdout_common_name.out
+
+- name: Import inventory items
+  community.general.django_manage:
+    command: "process_items --import"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+
+- name: Get counts after processing
+  community.general.django_manage:
+    command: "show_counts"
+    app_path: "{{ app_folder }}"
+    virtualenv: "{{ venv_folder }}"
+  register: stdout_after
+
+- name: Show counts after processing
+  debug:
+    var: stdout_after

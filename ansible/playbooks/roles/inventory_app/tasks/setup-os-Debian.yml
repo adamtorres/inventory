@@ -12,3 +12,11 @@
     groups=www-data 
     state=present
   become: yes
+
+- name: create data and ingested directories for datafiles
+  file: >
+    path={{ data_folder }}/ingested
+    state=directory
+    owner={{ default_user }}
+    group={{ default_group }}
+    mode=0755

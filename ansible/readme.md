@@ -127,7 +127,7 @@ pi_priv_key: !vault |
 This should be repeatable without damaging anything.  That's the whole point behind Ansible, really.  Not specifying any tags will ignore the tags except for those with 'never'.  Add `--list-tasks` so see which tasks are run and in which order.
 
 ```
-ansible-playbook --vault-password-file vault.txt -i inventory site.yml
+ansible-playbook --vault-password-file vault.txt -i inventory_pi site.yml
 ```
 
 
@@ -141,5 +141,34 @@ Making code changes and deploying those changes follows these steps.
 4. Run ansible command to deploy.
 
 ```
-ansible-playbook --vault-password-file vault.txt -i inventory --tags bbq_app_recorder site.yml
+ansible-playbook --vault-password-file vault.txt -i inventory_pi update_site.yml
+```
+
+## Loading data via Ansible
+
+Loading data is done with the `inventory_app_process_items.yml` playbook.  This calls the `inventory_app` role with the `process_items` var defined `True`.  This tells the role to run a series of manage commands to process items and load data from the specified files.  This will not successfully load all data as a couple spots wouldput a hold on some records for bad prices, quantities, or unit sizes.  After fixing those issues (currently, a very manual process), running this command again without the files will pick up any unprocessed records.
+
+Note: Relative paths search from playbooks folder and further in that tree.  Not from root of ansible project.
+
+The following command truncates data, uploads data files, and runs the processing steps.  It uses JSON for the extra-vars so `remove_data` can be a proper True/False instead of a string.
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory_pi \
+  --extra-vars '{"incoming_data_file": "../../../invoices/incoming-2022-03-31.tsv", "common_item_names_data_file": "../../../invoices/common_names-2022-03-31.tsv", "remove_data": True}' \
+  playbooks/inventory_app_process_items.yml
+```
+
+If there are any unit sizes listed during the `Show unit_size issues after cleaning` task, check them over.
+
+Force cleaning of records which have unrecognized unit sizes.  This has to be done on the pi at the moment.
+
+```
+. /srv/venv.inventory_app/bin/activate
+./manage.py shell_plus --quiet -c "ia.do_clean(allow_new_units=True)"
+```
+
+After any issues are cleared up, run the processing steps without uploading any files.
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory_pi playbooks/inventory_app_process_items.yml
 ```

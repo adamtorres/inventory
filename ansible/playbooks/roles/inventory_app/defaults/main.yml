@@ -52,7 +52,7 @@ inventory_app_nginx_conf_files:
 inventory_app_django_configuration: 'Development'
 
 # So nginx can host files that Django shouldn't waste time upon.
-inventory_app_static_mount_root: "{{ app_folder }}/public"
+inventory_app_static_mount_root: "{{ app_folder }}/static"
 
 inventory_app_uwsgi_file_path: "{{ etc_folder }}/init/uwsgi-inventory-app.conf"
 inventory_app_uwsgi_log_file: "{{ srv_folder }}/log/www/uwsgi_inventory_app.log"
@@ -61,3 +61,9 @@ inventory_app_uwsgi_socket_file: "{{ inventory_app_uwsgi_socket_file_root }}/uws
 inventory_app_uwsgi_buffer_size: "16384"
 inventory_app_uwsgi_stats_port: "1717"
 inventory_app_uwsgi_processes: 1
+
+# Used by process_items.yml
+data_folder: "/srv/data"
+remove_data: False
+incoming_data_file: ""
+common_item_names_data_file: ""

@@ -8,33 +8,44 @@
     group: "{{ default_group }}"
   register: created_repo_folder
 
-- name: prepare git repository
-  shell: |
-    git init
-    git remote add origin {{ repo_url }}
-  args:
-    chdir: "{{ repo_folder }}"
-    creates: "{{ repo_folder }}/.git"
-
-- name: convert to sparse repo
-  shell: |
-    git sparse-checkout init --cone
-    git sparse-checkout set {{ sparse_folders | join(" ") }}
-  args:
-    chdir: "{{ repo_folder }}"
-    creates: "{{ repo_folder }}/.git/info/sparse-checkout"
+# TODO: sparse-checkout is not working for pulling updated code.  Would like to get this working but not a priority.
+# - name: prepare git repository
+#   shell: |
+#     git init
+#     git remote add origin {{ repo_url }}
+#   args:
+#     chdir: "{{ repo_folder }}"
+#     creates: "{{ repo_folder }}/.git"
+#
+# - name: convert to sparse repo
+#   shell: |
+#     git sparse-checkout init --cone
+#     git sparse-checkout set {{ sparse_folders | join(" ") }}
+#   args:
+#     chdir: "{{ repo_folder }}"
+#     creates: "{{ repo_folder }}/.git/info/sparse-checkout"
 
 # - name: Add folders to sparse checkout
 #   copy:
 #     dest: "{{ repo_folder }}/.git/info/sparse-checkout"
 #     content: '{{ sparse_folders | join("\n") }}'
 
-# TODO: Should this always pull?
-- name: clone code
-  shell: "git pull --depth=1 origin {{ repo_branch }}"
-  args:
-    chdir: "{{ repo_folder }}"
-    # creates: "{{ app_folder }}"
+# - name: clone code
+#   shell: |
+#     git clone {{ repo_url }}
+#     git checkout {{ repo_branch }}
+#   args:
+#     chdir: "{{ repo_folder }}"
+#     creates: "{{ repo_folder }}/.git"
+#   when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+
+- name: Clone code
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ repo_folder }}"
+    single_branch: yes
+    version: "{{ repo_branch }}"
+    force: yes
 
 - name: generate .env
   template:
@@ -42,6 +53,17 @@
     dest: "{{ repo_folder }}/.env"
     mode: 0640
 
+- name: create public directory for Django app if it does not exist
+  file: >
+    path={{ app_folder }}/{{ item }}
+    state=directory
+    owner={{ default_user }}
+    group={{ default_group }}
+    mode=0755
+  with_items: ['static', ]
+
+# TODO: Should the public folder be put outside of the repo?  The --force clobbers things so I'm guessing that's why
+#  this task keeps showing 'changed'.
 - name: create robots.txt for inventory app site
   copy: >
     src=files/robots.txt

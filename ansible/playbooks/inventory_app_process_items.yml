@@ -1,0 +1,22 @@
+---
+- hosts: has_inventory_app
+
+  roles:
+    - role: inventory_app
+  vars: 
+    process_items: true
+    remove_data: false
+    incoming_data_file: ""
+    common_item_names_data_file: ""
+
+### Truncate data, upload data files, and run the processing steps
+### Relative paths search from playbooks folder and further in that tree.  Not from root of ansible project.
+# ansible-playbook --vault-password-file vault.txt -i inventory_pi \
+#   --extra-vars '{"incoming_data_file": "../../../invoices/incoming-2022-03-31.tsv", "common_item_names_data_file": "../../../invoices/common_names-2022-03-31.tsv", "remove_data": True}' \
+#   playbooks/inventory_app_process_items.yml
+
+### Force cleaning of records which have unrecognized unit sizes.
+# ./manage.py shell_plus --quiet -c "ia.do_clean(allow_new_units=True)"
+
+### Just run the processing steps
+# ansible-playbook --vault-password-file vault.txt -i inventory_pi playbooks/inventory_app_process_items.yml
