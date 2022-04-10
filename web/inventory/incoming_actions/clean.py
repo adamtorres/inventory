@@ -38,23 +38,26 @@ def _do_clean(batch_size=0, allow_new_units=False):
     items_to_update = []
     fields_to_update = {'state'}
     cleaner = ItemCleaner(allow_new_units=allow_new_units)
+    item_count = 0
     for i, item in enumerate(qs):
         fields_to_update.update(cleaner.clean(item))
         items_to_update.append(item)
         cleaner.clear()
-    problem_items = validate_item_combos(qs)
+        item_count += 1
+    if item_count:
+        problem_items = validate_item_combos(qs)
 
-    # intersection returns items from the right when they match items from the left.
-    # Use that to pick out the problem items and combine with existing failure_reasons.
-    items_to_add_to_failure_reasons = list(set(problem_items).intersection(items_to_update))
-    for item in items_to_add_to_failure_reasons:
-        problem_item = problem_items.pop(problem_items.index(item))
-        failure_reasons = []
-        if item.failure_reasons:
-            failure_reasons.extend(json.loads(item.failure_reasons))
-        failure_reasons.extend(json.loads(problem_item.failure_reasons))
-        item.failure_reasons = json.dumps(failure_reasons, sort_keys=True, default=str)
-        item.state = problem_item.state
+        # intersection returns items from the right when they match items from the left.
+        # Use that to pick out the problem items and combine with existing failure_reasons.
+        items_to_add_to_failure_reasons = list(set(problem_items).intersection(items_to_update))
+        for item in items_to_add_to_failure_reasons:
+            problem_item = problem_items.pop(problem_items.index(item))
+            failure_reasons = []
+            if item.failure_reasons:
+                failure_reasons.extend(json.loads(item.failure_reasons))
+            failure_reasons.extend(json.loads(problem_item.failure_reasons))
+            item.failure_reasons = json.dumps(failure_reasons, sort_keys=True, default=str)
+            item.state = problem_item.state
 
     print(f"do_clean: items_to_update={len(items_to_update)}, fields_to_update={fields_to_update}")
     return items_to_update, fields_to_update
