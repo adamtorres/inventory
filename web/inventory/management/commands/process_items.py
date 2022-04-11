@@ -65,6 +65,13 @@ class Command(BaseCommand):
             help="Run the import step",
             default=False
         )
+        parser.add_argument(
+            '--force-clean',
+            action='store_true',
+            dest='force_clean',
+            help="Force clean to accept new unit_size values",
+            default=False
+        )
 
     def handle(self, *args, **options):
         if options['run_all']:
@@ -80,8 +87,9 @@ class Command(BaseCommand):
             inv_models.console_show_counts()
 
         if options['run_clean']:
-            print("Running clean step")
-            incoming_actions.do_clean()
+            print("Running clean step" + (" with allow_new_units" if options['force_clean'] else ""))
+            allow_new_units = options['force_clean']
+            incoming_actions.do_clean(allow_new_units)
             inv_models.console_show_counts()
 
         if options['run_calculate']:

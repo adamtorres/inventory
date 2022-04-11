@@ -81,27 +81,46 @@ Load the states for incoming records.
 
 Current steps to import and process data from the spreadsheet.
 ```
+# Remove all data at start - I've not tested updates much at all.
+./manage.py show_counts
 ./manage.py runscript remove_data --script-args truncate
-./manage.py ingest_items -f ../../invoices/incoming-2022-03-16.tsv
-./manage.py shell_plus --quiet -c "ia.do_clean(0)"
-    # Check for new unit failures.
-    ./manage.py shell_plus --quiet -c "print(set([i.unit_size for i in RawIncomingItem.objects.failed('validate_unit_size')]))"
-    # If all is good, rerun do_clean with additional kwarg
-    ./manage.py shell_plus --quiet -c "ia.do_clean(0, allow_new_units=True)"
-    # Recheck for new unit failures.  There should be none.
-    ./manage.py shell_plus --quiet -c "print(set([i.unit_size for i in RawIncomingItem.objects.failed('validate_unit_size')]))"
-./manage.py shell_plus --quiet -c "ia.do_calculate(2000)"
-./manage.py shell_plus --quiet -c "ia.do_create(0)"
-./manage.py shell_plus --quiet -c "from inventory.incoming_actions import clean; clean.console_report_on_failed_validate_item_combos()"
-./manage.py shell_plus --quiet -c "RawIncomingItem.reports.console_group_by_current_state()"
-./manage.py ingest_common_item_names -f ../../invoices/common_names-2022-03-16.tsv
+
+# Load the data.
+./manage.py show_counts
+./manage.py ingest_items -f ../../invoices/incoming-2022-03-29.tsv
+
+# Clean the loaded records.
+./manage.py process_items --clean
+./manage.py show_counts
+    # Check for new unit failures if there are failed records.
+    ./manage.py show_issues --unit-size
+    # If all is good, rerun do_clean with additional kwarg.
+    ./manage.py process_items --clean --force-clean
+    # Recheck for any more failures.  There should be none.
+    ./manage.py show_counts
+
+# Calculate totals.
+./manage.py process_items --calculate
+./manage.py show_counts
+
+# Create supporting records.
+./manage.py process_items --create
+./manage.py show_counts
+
+# Load common item names and assign to existing items.
+./manage.py ingest_common_item_names -f ../../invoices/common_names-2022-03-31.tsv
+# Show items missing common item names.
+./manage.py show_issues --common-name
+
+# Do the final import converting raw items to inventory in stock.
+./manage.py process_items --import
+./manage.py show_counts
 ```
 
-For the debug service, the simple runserver is used.  That is started from within the `web` folder.  The following
-assumes a terminal is opened to the root of the repository.
+For the debug service, the simple `runserver_plus` is used.  That is started from within the `web` folder.  The following assumes a terminal is opened to the root of the repository.
 
 ```
-./manage.py runserver
+./manage.py runserver_plus
 ```
 
 # Development
