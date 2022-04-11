@@ -7,17 +7,25 @@ how a docker-hosted django project could be run from PyCharm.  The readme for th
 that path and I believe I had it working.
 
 
+# Configuration
+## .env files
+
+There are two `.env` files that need setting.  The examples stored in the repo show what is needed.
+
+For `example.db.env`, only `POSTGRES_PASSWORD` is needed and is the password assigned to the postgres user.
+
+For `example.env`, The `DB_*` variables will be shared with all services.  The `DJANGO_*` and `INITIAL_*` vars are for the `web` app.
+
 # Running
 
-The summary is the docker components need to start first.  Then the Django project.  Starting the docker components is
-done with the basic `up` command.
+The docker component(s) need to start first.  Then the Django project.  Starting the docker component(s) is
+done with the basic `up` command.  Currently, the only docker component is the database and is only when running locally for testing.  Since it is just a database with no real customization, we don't really need to watch logs scrolling.  The `--detach` arg will have the command return while the container keeps chugging along.
 
 ```
 docker-compose -f docker-compose.yml up --detach
 ```
 
-Once the docker services are running, the Django project can be started.  Django needs the current working folder to be
-the root of the Django project.  Before any further steps, change to the `web` folder.
+Once the docker services are running, the Django project can be started.  The following examples assume the current working folder to be the root of the Django project.  Before any further steps, change to the `web` folder.
 
 ## First Run
 
@@ -49,24 +57,26 @@ all are from the Django apps.
       Applying sessions.0001_initial... OK
 ```
 
-To make the admin portion of the site functional, a super user needs to be created.  The seetings file has the simple password restrictions commented out for ease of entering in passwords while developing.  The boring and manual option for creating a super user is to use the built-in command and then manually set the password later.
+To make the admin portion of the site functional, a super user needs to be created.  The settings file has the simple password restrictions commented out for ease of entering in passwords while developing.  The boring and manual option for creating a super user is to use the built-in command and then manually set the password later.  Two whole steps!
 
 ```
 ./manage.py createsuperuser [--username some_name] [--email some_name@example.com]
 ```
 
-Or, add `INITIAL_ADMIN_USER`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` to the `.env` file and run the following command which will create the user with the password.  This is how the ansible project creates the user.
+Or, add `INITIAL_ADMIN_USER`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` to the `.env` file and run the following command which will create the user with the password already set.  This is how the ansible project creates the user.
 
 ```
 ./manage.py runscript create_super_user
 ```
 
-Load the states for incoming records.
+Load the item states for incoming records.  This seems like it can be repeated without duplicating data.  Likely because the uuids are included in the fixture.
+
 ```
 ./manage.py loaddata raw_state
 ```
 
-Current steps to import and process data from the spreadsheet.
+Current steps to import and process data from the spreadsheet.  The `show_counts` command is repeated often because it includes a section which shows how many records are at each state.  If any show up as failed, then you need to stop and check out what needs fixed.
+
 ```
 # Remove all data at start - I've not tested updates much at all.
 ./manage.py show_counts
@@ -104,7 +114,7 @@ Current steps to import and process data from the spreadsheet.
 ./manage.py show_counts
 ```
 
-For the debug service, the simple `runserver_plus` is used.  That is started from within the `web` folder.  The following assumes a terminal is opened to the root of the repository.
+For the development, the simple `runserver_plus` is used.  That is started from within the `web` folder.  The following assumes a terminal is opened to the root of the django project.
 
 ```
 ./manage.py runserver_plus
@@ -113,4 +123,8 @@ For the debug service, the simple `runserver_plus` is used.  That is started fro
 # Development
 
 For development, the password restrictions are reduced.  I might see about switching to django-configurations so these
-can be enabled/disabled simply by .env setting instead of commenting code.
+can be enabled/disabled simply by `.env` setting instead of commenting code.
+
+# Deployment
+
+See the `ansible` folder for a readme about deploying the project to a Raspberry Pi.  In my case, I'm using a 4b 8GB which handles things well enough.  Granted, I've not done any load testing so neither the database nor site have been streesed with millions of records or many users.
