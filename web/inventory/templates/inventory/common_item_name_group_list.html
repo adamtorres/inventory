@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Common Item Name List{% endblock %}
+
+{% block styles %}
+<style>
+ul {
+    margin-bottom: 0;
+}
+
+.datatable>thead>tr {
+    position: sticky;
+    background-color: lightgrey;
+    top: 0px;
+}
+.datatable>thead>tr>th{
+    vertical-align: bottom;
+}
+.datatable>tbody>tr>td {
+    vertical-align: top;
+}
+#common-item-list {
+    overflow: scroll;
+    max-height: inherit;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="common-item-list-content">
+    <ul>
+        <li><a href="">New item</a></li>
+    </ul>
+    <table class="datatable datatable-link" id="common-item-list">
+    <thead>
+    <tr>
+        <th>Categories</th>
+        <th>Common name(s)</th>
+        <th>Source names</th>
+        <th>Unit sizes</th>
+        <th>Sources</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cing in object_list %}
+        <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-id="{{ cing.id }}">
+            <td>
+                <ul>
+                {% for category in cing.categories %}
+                    <li>{{ category }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <div>{{ cing.common_name }}</div>
+                {% if cing.common_names|length %}
+                    <ul>
+                    {% for other_name in cing.common_names %}
+                        <li>{{ other_name }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+{#                <div style="padding-left: 1em;">{{ cing.common_names|join:", " }}</div>#}
+            </td>
+            <td>
+                <ul>
+                {% for uncommon_item_name in cing.uncommon_item_names %}
+                    <li>{{ uncommon_item_name }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                {% for unit_size in cing.unit_sizes %}
+                    <li class="{% if not unit_size %}text-muted{% endif %}">{{ unit_size|default:"[unspecified]" }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                {% for source in cing.sources %}
+                    <li>{{ source }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "common-item-list-content"}, resize_content);
+    d.on("resize", {"content_id": "common-item-list-content"}, resize_content);
+    w.trigger("resize");
+});
+</script>
+{% endblock %}

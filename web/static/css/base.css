@@ -1,0 +1,45 @@
+body>main>div {
+    height: 100vh;
+}
+#main-content {
+    overflow: scroll;
+}
+.right-align {
+    text-align: right;
+}
+.dollar-cell::before {
+    content: "$ ";
+    color: lightgreen;
+}
+
+.datatable tr {
+}
+.datatable th {
+    margin: 0;
+    border-right: lightgray solid 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+    background-color: lightgrey;
+}
+.datatable>tbody>tr>td {
+    margin: 0;
+    border-top: black solid 1px;
+    border-right: lightgray solid 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.datatable>tbody>tr:last-child>td {
+    border-bottom: black solid 1px;
+}
+.datatable tr>td:first-child,th:first-child {
+    border-left: lightgray solid 1px;
+}
+.datatable-link tr[data-detail-url] {
+    cursor: pointer;
+}
+.datatable-odd-row {
+    background-color: lightgoldenrodyellow;
+}
+.datatable-even-row {
+    background-color: inherit;
+}

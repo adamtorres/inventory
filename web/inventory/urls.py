@@ -7,6 +7,8 @@ from . import views as i_views
 app_name = "inventory"
 
 urlpatterns = [
+    urls.path("api_common_item_name_groups/", i_views.APICommonItemNameGroupView.as_view(), name="api_common_item_name_groups_list"),
+
     urls.path("api_item_with_in_stock/", i_views.APIItemInStockView.as_view(), name="api_iteminstock_list"),
     urls.path("api_item_with_in_stock/<uuid:pk>/", i_views.APIItemInStockView.as_view(), name="api_iteminstock_detail"),
     urls.path("api_item_with_in_stock_quantities/", i_views.APIItemWithInStockQuantities.as_view(), name="api_itemwithinstockquantities_list"),
@@ -27,6 +29,8 @@ urlpatterns = [
     urls.path("api_usage_create/", i_views.APIUsageCreateView.as_view(), name="api_usage_create"),
     urls.path("api_usage_groups/", i_views.APIUsageGroupListView.as_view(), name="api_usage_group_list"),
     urls.path("api_usage_group/<uuid:pk>/", i_views.APIUsageGroupDetailView.as_view(), name="api_usage_group_detail"),
+
+    urls.path("common_item_name_groups/", i_views.CommonItemNameGroupListView.as_view(), name="common_item_name_group_list"),
 
     urls.path("item_in_stock/", i_views.ItemInStockListView.as_view(), name="item_in_stock_list"),
     urls.path("item_in_stock/<uuid:pk>/", i_views.ItemInStockDetailView.as_view(), name="item_in_stock_detail"),

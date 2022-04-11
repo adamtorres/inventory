@@ -6,7 +6,7 @@ from scrap.models import fields as sc_fields
 from .raw_state import RawState
 
 
-class CommonItemNameGroupManager(sc_models.WideFilterManagerMixin, models.Manager):
+class CommonItemNameGroupManager(sc_models.WideFilterManagerMixin, sc_models.DatedModelManagerMixin, models.Manager):
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.select_related('name')
@@ -94,7 +94,7 @@ class CommonItemNameGroupManager(sc_models.WideFilterManagerMixin, models.Manage
         return q
 
 
-class CommonItemNameGroup(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
+class CommonItemNameGroup(sc_models.WideFilterModelMixin, sc_models.DatedModel):
     # 'name' is the primary name of the group (nonstick spray).
     # Use 'names' to get all common names (cooking spray, pan spray, nonstick spray, pam).
     name = models.ForeignKey(

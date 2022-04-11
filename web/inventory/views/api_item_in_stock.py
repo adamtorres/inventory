@@ -14,8 +14,8 @@ class APIItemInStockView(views.APIView):
 
     def get(self, request, pk=None):
         if pk:
-            object = self.model.objects.get(id=pk)
-            return response.Response(self.serializer_class(object, many=False).data)
+            obj = self.model.objects.get(id=pk)
+            return response.Response(self.serializer_class(obj, many=False).data)
         id_list = request.GET.getlist('id')
         if not id_list:
             id_list = request.GET.getlist('id[]')

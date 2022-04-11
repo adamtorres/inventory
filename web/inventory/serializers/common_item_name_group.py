@@ -47,7 +47,11 @@ class CommonItemNameGroupWideFilterSerializer(serializers.Serializer):
         return sorted({ri.unit_size for ri in obj.raw_items.all()})
 
     def get_order_count(self, obj):
-        return obj.order_count
+        if hasattr(obj, 'order_count'):
+            return obj.order_count
+        return None
 
     def get_remaining_price(self, obj):
-        return obj.remaining_price
+        if hasattr(obj, 'remaining_price'):
+            return obj.remaining_price
+        return None

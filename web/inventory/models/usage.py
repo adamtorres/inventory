@@ -42,7 +42,7 @@ class UsageManager(models.Manager):
 class Usage(sc_models.DatedModel):
     usage_group = models.ForeignKey(
         UsageGroup, on_delete=models.CASCADE, related_name='usages', related_query_name='usages')
-    item_in_stock = models.ForeignKey("inventory.ItemInStock", on_delete=models.CASCADE)
+    item_in_stock = models.ForeignKey("inventory.ItemInStock", on_delete=models.CASCADE, null=True, blank=True)
     used_quantity = sc_fields.DecimalField()
     used_quantity_type = sc_fields.CharField()
     # TODO: used_quantity is of the unit size.  Second input to handle count?  On first use, would need to subtract a
@@ -63,6 +63,8 @@ class Usage(sc_models.DatedModel):
 
     @property
     def previous_count_quantity(self):
+        if self.item_in_stock is None:
+            return None
         if self.used_quantity_type == 'count':
             _previous_count_quantity = self.remaining_count_quantity_snapshot + self.used_quantity
             return _previous_count_quantity % self.item_in_stock.raw_incoming_item.unit_quantity
@@ -70,6 +72,8 @@ class Usage(sc_models.DatedModel):
 
     @property
     def previous_unit_quantity(self):
+        if self.item_in_stock is None:
+            return None
         if self.used_quantity_type == 'count':
             _previous_count_quantity = self.remaining_count_quantity_snapshot + self.used_quantity
             _previous_unit_quantity = self.remaining_unit_quantity_snapshot + int(
