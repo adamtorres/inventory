@@ -1,0 +1,10 @@
+---
+- hosts: base_servers
+
+  roles:
+    - role: service_status
+  vars: 
+    status_type: "short"
+
+# status_type == 'short' results in one line per service and a simple active/inactive flag.
+# Set status_type to 'detailed' for more details.

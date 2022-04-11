@@ -106,7 +106,7 @@ localhost                  : ok=2    changed=1    unreachable=0    failed=0    s
 
 ### Ansible Vault
 
-This accepts input from stdin and creates a vaulted value to include in variable files.  The name of the variable seems to be included in the encryption.  The following assumes there is a line in `vault.txt` with `base_server *********` where the asterisks are some really strong password and definitely not `12345`.
+This accepts input from stdin and creates a vaulted value to include in variable files.  The name of the variable seems to be included in the encryption.  The following assumes there is a line in `vault.txt` with `base_server *********` where the asterisks are some really strong password and definitely not `12345`.  Just a heads up, decrypting seems to be dependent on the vault file not changing.  I've had issues adding a line to the vault file and existing vaulted strings start throwing decryption errors.
 
 ```
 adam@Adams-MacBook-Air: ansible-vault encrypt_string --vault-id base_server@vault.txt --stdin-name 'pi_priv_key'
@@ -171,4 +171,70 @@ After any issues are cleared up, run the processing steps without uploading any 
 
 ```
 ansible-playbook --vault-password-file vault.txt -i inventory_pi playbooks/inventory_app_process_items.yml
+```
+
+## Checking service status
+
+The `base_server` role starts two scripts to give quick status reports on the various services.  The `short` version gives one line per service while the `detailed` version shows quite a lot.
+
+### Short service status
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory_pi playbooks/service_status.yml
+```
+
+In the middle of the output will be a chunk similar to the following.  The main purpose of this form is a simple check for `active`/`inactive`.
+
+```
+TASK [service_status : Show short service status] ************************************************************************************************************************
+ok: [pi-bb131f] =>
+  stdout_short_service_status.stdout: |-
+    ====================================================================================
+    Service status 2022-04-10 23:15:09
+    active - postgresql@13-main
+    active - inventory_app_http
+    active - nginx
+```
+
+### Detailed service status
+
+If you need more information because something isn't working properly, the detailed status might help.  To get the detailed version, the `status_type` variable needs to change.
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory_pi playbooks/service_status.yml --extra-vars="status_type=detailed"
+```
+
+Detailed output can get long so this example output only shows one service.  Currently, this is simply the output from `systemctl status --no-pager <service name>`.  Details included:
+
+* service file (contains starting and stopping details)
+* active/inactive
+* when started
+* uptime
+* pid
+* command line
+* recent log entries
+
+```
+  stdout_detailed_service_status.stdout: |-
+    ====================================================================================
+    Service status 2022-04-10 23:14:29
+    ------- postgresql@13-main ------- postgresql@13-main ------- postgresql@13-main -------
+     postgresql@13-main.service - PostgreSQL Cluster 13-main
+         Loaded: loaded (/lib/systemd/system/postgresql@.service; enabled-runtime; vendor preset: enabled)
+         Active: active (running) since Sat 2022-04-09 11:49:15 MDT; 1 day 11h ago
+       Main PID: 44279 (postgres)
+          Tasks: 7 (limit: 8985)
+            CPU: 4min 25.417s
+         CGroup: /system.slice/system-postgresql.slice/postgresql@13-main.service
+                 44279 /usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql/13/main -c config_file=/etc/postgresql/13/main/postgresql.conf
+                 44281 postgres: 13/main: checkpointer
+                 44282 postgres: 13/main: background writer
+                 44283 postgres: 13/main: walwriter
+                 44284 postgres: 13/main: autovacuum launcher
+                 44285 postgres: 13/main: stats collector
+                 44286 postgres: 13/main: logical replication launcher
+
+    Apr 09 11:49:13 pi-bb131f systemd[1]: Starting PostgreSQL Cluster 13-main...
+    Apr 09 11:49:15 pi-bb131f systemd[1]: Started PostgreSQL Cluster 13-main.
+    ------------------------------------------------------------------------------
 ```

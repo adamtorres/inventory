@@ -1,0 +1,22 @@
+---
+- name: Get short service status
+  shell: "{{ default_home_dir }}/short_service_status.sh"
+  register: stdout_short_service_status
+  when: status_type is not defined or status_type == 'short'
+  changed_when: False
+
+- name: Show short service status
+  debug:
+    var: stdout_short_service_status.stdout
+  when: status_type is not defined or status_type == 'short'
+
+- name: Get detailed service status
+  shell: "{{ default_home_dir }}/service_status.sh"
+  register: stdout_detailed_service_status
+  when: status_type is defined and status_type == 'detailed'
+  changed_when: False
+
+- name: Show detailed service status
+  debug:
+    var: stdout_detailed_service_status.stdout
+  when: status_type is defined and status_type == 'detailed'
