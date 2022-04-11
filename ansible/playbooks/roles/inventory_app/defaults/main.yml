@@ -10,7 +10,7 @@ repo_url: "https://github.com/adamtorres/inventory.git"
 repo_folder: "{{ srv_folder }}/inventory_app"
 sparse_folders:
   - web/
-repo_branch: filter-inventory
+repo_branch: develop
 app_folder: "{{ repo_folder }}/web"
 
 django_admin_user: adam

@@ -45,5 +45,5 @@ urlpatterns = [
     urls.path("usage_cart/", i_views.UsageCartView.as_view(), name="usage_cart"),
     urls.path("usagegroup/<uuid:pk>/", i_views.UsageGroupDetailView.as_view(), name="usagegroup_detail"),
     urls.path("usagegroups/", i_views.UsageGroupListView.as_view(), name="usagegroup_list"),
-    urls.path("", generic.RedirectView.as_view(pattern_name="inventory:rawincomingitem_lookup", permanent=False), name="home"),
+    urls.path("", generic.RedirectView.as_view(pattern_name="inventory:item_in_stock_list", permanent=False), name="home"),
 ]
