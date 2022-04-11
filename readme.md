@@ -29,6 +29,8 @@ Once the docker services are running, the Django project can be started.  The fo
 
 ## First Run
 
+### Migrations
+
 For the first run, migrations must be run.  The output shown is from when the custom app did not have any migrations so
 all are from the Django apps.
 
@@ -57,6 +59,8 @@ all are from the Django apps.
       Applying sessions.0001_initial... OK
 ```
 
+### Admin user
+
 To make the admin portion of the site functional, a super user needs to be created.  The settings file has the simple password restrictions commented out for ease of entering in passwords while developing.  The boring and manual option for creating a super user is to use the built-in command and then manually set the password later.  Two whole steps!
 
 ```
@@ -69,11 +73,15 @@ Or, add `INITIAL_ADMIN_USER`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD
 ./manage.py runscript create_super_user
 ```
 
+### Fixtures
+
 Load the item states for incoming records.  This seems like it can be repeated without duplicating data.  Likely because the uuids are included in the fixture.
 
 ```
 ./manage.py loaddata raw_state
 ```
+
+### Load data
 
 Current steps to import and process data from the spreadsheet.  The `show_counts` command is repeated often because it includes a section which shows how many records are at each state.  If any show up as failed, then you need to stop and check out what needs fixed.
 
@@ -113,6 +121,8 @@ Current steps to import and process data from the spreadsheet.  The `show_counts
 ./manage.py process_items --import
 ./manage.py show_counts
 ```
+
+### Actually running the webserver
 
 For the development, the simple `runserver_plus` is used.  That is started from within the `web` folder.  The following assumes a terminal is opened to the root of the django project.
 
