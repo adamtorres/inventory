@@ -49,29 +49,16 @@ all are from the Django apps.
       Applying sessions.0001_initial... OK
 ```
 
-To make the admin portion of the site functional, a super user needs to be created.  In this example, I used a simple 
-password as this database will be very short-lived and not contain anything of import.
+To make the admin portion of the site functional, a super user needs to be created.  The seetings file has the simple password restrictions commented out for ease of entering in passwords while developing.  The boring and manual option for creating a super user is to use the built-in command and then manually set the password later.
 
 ```
-./manage.py createsuperuser
-    Username (leave blank to use 'adam'):
-    Email address: adam@example.com
-    Password:
-    Password (again):
-    This password is too common.
-    Bypass password validation and create user anyway? [y/N]: y
-    Superuser created successfully.
+./manage.py createsuperuser [--username some_name] [--email some_name@example.com]
 ```
 
-Or, including the user/email on the command line
+Or, add `INITIAL_ADMIN_USER`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD` to the `.env` file and run the following command which will create the user with the password.  This is how the ansible project creates the user.
 
 ```
-./manage.py createsuperuser --username adam --email adam@example.com
-    Password:
-    Password (again):
-    This password is too common.
-    Bypass password validation and create user anyway? [y/N]: y
-    Superuser created successfully.
+./manage.py runscript create_super_user
 ```
 
 Load the states for incoming records.
