@@ -175,7 +175,7 @@ ansible-playbook --vault-password-file vault.txt -i inventory_pi playbooks/inven
 
 ## Checking service status
 
-The `base_server` role starts two scripts to give quick status reports on the various services.  The `short` version gives one line per service while the `detailed` version shows quite a lot.
+The `base_server` role starts two scripts to give quick status reports on the various services.  Each role added to a given server adds its own content to these scripts.  The `short` version gives one line per service while the `detailed` version shows quite a lot.
 
 ### Short service status
 
