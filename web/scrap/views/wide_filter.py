@@ -1,7 +1,9 @@
 from rest_framework import response, views
 
+from scrap import models as sc_models
 
-class WideFilterView(views.APIView):
+
+class WideFilterView(sc_models.QuerysetExtrasMixin, views.APIView):
     model = None
     serializer = None
     prefetch_fields = None
@@ -39,13 +41,4 @@ class WideFilterView(views.APIView):
         filter_qs = self.model.objects.wide_filter(search_terms)
         qs = self.get_queryset().filter(id__in=filter_qs)
         qs = self.order_qs(self.prefetch_qs(qs))
-        return qs
-
-    def order_qs(self, qs):
-        if self.order_fields:
-            return qs.order_by().order_by(*self.order_fields)
-
-    def prefetch_qs(self, qs):
-        if self.prefetch_fields:
-            return qs.prefetch_related(*self.prefetch_fields)
         return qs

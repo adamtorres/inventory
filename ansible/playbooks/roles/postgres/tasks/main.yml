@@ -1,5 +1,6 @@
 ---
 
+
 - name: Add postgresql and pgbouncer services to service_status script
   blockinfile:
     marker: "# {mark} ANSIBLE MANAGED BLOCK FOR {{ item.service }}"
@@ -34,6 +35,8 @@
 
 - name: Add the postgres uuid extension to the various databases.
   community.general.postgresql_ext:
+    # login_host: "{{ hostvars[groups['has_postgres'][0]]['ansible_host'] }}"
+    login_host: "localhost"
     login_user: main_user
     login_password: "{{ main_user_password }}"
     db: "{{ item.name }}"

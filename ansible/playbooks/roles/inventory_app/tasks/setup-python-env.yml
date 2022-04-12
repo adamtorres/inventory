@@ -32,7 +32,7 @@
     fixtures: "raw_state"
     app_path: "{{ app_folder }}"
     virtualenv: "{{ venv_folder }}"
-  when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+#  when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
 
 # - name: Create an initial superuser
 #   community.general.django_manage:
@@ -47,7 +47,7 @@
     command: "runscript create_super_user"
     app_path: "{{ app_folder }}"
     virtualenv: "{{ venv_folder }}"
-  when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
+#  when: created_repo_folder.diff.before.state is defined and created_repo_folder.diff.before.state == 'absent'
 
 - name: Collect static
   community.general.django_manage:

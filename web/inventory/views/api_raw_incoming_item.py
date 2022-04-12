@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 from rest_framework import renderers, response, views, generics
 
+from scrap import models as sc_models
 from .. import models as inv_models, serializers as inv_serializers
 
 
@@ -16,7 +17,7 @@ class RawIncomingItemFilter(filters.FilterSet):
         fields = ['order_number', 'category', 'source', 'name', 'delivery_date', 'partial_name']
 
 
-class APIRawIncomingItemListView(generics.ListAPIView):
+class APIRawIncomingItemListView(sc_models.QuerysetExtrasMixin, generics.ListAPIView):
     model = inv_models.RawIncomingItem
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = RawIncomingItemFilter
@@ -39,13 +40,8 @@ class APIRawIncomingItemListView(generics.ListAPIView):
             return inv_serializers.RawIncomingItemSerializer
         return inv_serializers.HyperlinkedRawIncomingItemSerializer
 
-    def prefetch_qs(self, qs):
-        if self.prefetch_fields:
-            return qs.prefetch_related(*self.prefetch_fields)
-        return qs
 
-
-class APIRawIncomingItemDetailView(generics.GenericAPIView):
+class APIRawIncomingItemDetailView(sc_models.QuerysetExtrasMixin, generics.GenericAPIView):
     model = inv_models.RawIncomingItem
     prefetch_fields = [
         'source_obj', 'category_obj', 'department_obj', 'rawitem_obj',
@@ -65,8 +61,3 @@ class APIRawIncomingItemDetailView(generics.GenericAPIView):
         serializer_class = self.get_serializer_class()
         obj = serializer_class(self.get_queryset().get(id=pk), context={'request': request})
         return response.Response(obj.data)
-
-    def prefetch_qs(self, qs):
-        if self.prefetch_fields:
-            return qs.prefetch_related(*self.prefetch_fields)
-        return qs

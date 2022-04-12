@@ -52,7 +52,7 @@ inventory_app_nginx_conf_files:
 inventory_app_django_configuration: 'Development'
 
 # So nginx can host files that Django shouldn't waste time upon.
-inventory_app_static_mount_root: "{{ app_folder }}/static"
+inventory_app_static_mount_root: "{{ app_folder }}/public"
 
 inventory_app_uwsgi_file_path: "{{ etc_folder }}/init/uwsgi-inventory-app.conf"
 inventory_app_uwsgi_log_file: "{{ srv_folder }}/log/www/uwsgi_inventory_app.log"
