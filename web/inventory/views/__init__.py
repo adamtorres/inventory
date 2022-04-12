@@ -1,3 +1,4 @@
+from .api_category import APICategoryView
 from .api_common_item_name_group import APICommonItemNameGroupView
 from .api_item import APIItemWithInStockQuantities, APICommonItemWithInStockQuantities
 from .api_item_in_stock import APIItemInStockView

@@ -7,6 +7,7 @@ from . import views as i_views
 app_name = "inventory"
 
 urlpatterns = [
+    urls.path("api_categories/", i_views.APICategoryView.as_view(), name="api_category_list"),
     urls.path("api_common_item_name_groups/", i_views.APICommonItemNameGroupView.as_view(), name="api_common_item_name_groups_list"),
 
     urls.path("api_item_with_in_stock/", i_views.APIItemInStockView.as_view(), name="api_iteminstock_list"),
