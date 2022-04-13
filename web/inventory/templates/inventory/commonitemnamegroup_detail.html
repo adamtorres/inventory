@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Common Item Name {{ object.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="common-item-list-content">
+    <div>{{ object.name }}</div>
+    <div>{{ object.names.all|join:", " }}</div>
+    <div>{{ object.category }}</div>
+    <div>{{ object.uncommon_item_names|join:", " }}</div>
+    <ul>
+        <li><a href="{% url "inventory:rawincomingitem_update" pk=object.id %}">Edit</a></li>
+        <li><a href="{% url "inventory:rawincomingitem_delete" pk=object.id %}">Delete</a></li>
+        <li><a href="{% url "inventory:common_item_name_group_list" %}">Back to listing</a></li>
+    </ul>
+</div>
+{% endblock %}

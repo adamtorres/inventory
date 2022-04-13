@@ -39,6 +39,10 @@ class RawItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterManagerMix
             })
         return qs_list
 
+    def missing_better_name(self):
+        # TODO: To be used to either make a page to help fill in the gaps or a manage command somehow.
+        return self.filter(better_name="")
+
     def missing_common_item_name(self):
         return self.exclude(common_item_name_group__isnull=False)
 

@@ -8,7 +8,7 @@ from scrap import views as sc_views
 
 
 class CommonItemNameGroupListView(sc_views.OnPageTitleMixin, generic.TemplateView):
-    template_name = "inventory/common_item_name_group_list.html"
+    template_name = "inventory/commonitemnamegroup_list.html"
     on_page_title = "Common Item Names"
 
     def get_context_data(self, **kwargs):
@@ -25,3 +25,16 @@ class CommonItemNameGroupListView(sc_views.OnPageTitleMixin, generic.TemplateVie
         if resp.status_code != 200:
             return []
         return resp.json()
+
+
+class CommonItemNameGroupCreateView(sc_views.OnPageTitleMixin, generic.CreateView):
+    model = inv_models.CommonItemNameGroup
+    fields = []
+    on_page_title = "Create Common Item Name"
+
+
+class CommonItemNameGroupDetailView(sc_views.OnPageTitleMixin, generic.DetailView):
+    model = inv_models.CommonItemNameGroup
+    on_page_title = "Create Common Item Name"
+
+# TODO: Need to work out how to add/change/delete names from group on a form.

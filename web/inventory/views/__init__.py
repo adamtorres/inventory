@@ -10,7 +10,8 @@ from .api_supporting_data import APISupportingDataView
 from .api_usage import APIUsageChangeView, APIUsageCreateView
 from .api_usage_group import APIUsageGroupListView, APIUsageGroupDetailView
 from .api_wide_filter import CommonItemNameGroupWideFilterView, RawIncomingItemWideFilterView, RawItemWideFilterView
-from .common_item_name_group import CommonItemNameGroupListView
+from .common_item_name_group import (
+    CommonItemNameGroupListView, CommonItemNameGroupCreateView, CommonItemNameGroupDetailView)
 from .item_in_stock import ItemInStockDetailView, ItemInStockListView
 from .random_stats import RandomStatsView
 from .raw_incoming_item import (

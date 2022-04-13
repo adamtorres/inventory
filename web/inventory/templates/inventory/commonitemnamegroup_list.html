@@ -44,9 +44,9 @@ ul {
         <th>Sources</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="common-item-list-body">
     {% for cing in object_list %}
-        <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-id="{{ cing.id }}">
+        <tr class="filtered-item-link {% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}" data-id="{{ cing.id }}">
             <td>
                 <ul>
                 {% for category in cing.categories %}
@@ -96,12 +96,26 @@ ul {
 {% block body_scripts %}
 <script src="{% static "js/layout.js" %}"></script>
 <script type="text/javascript">
+function generete_detail_url(id){
+    // Needed to supply the argument with javascript but wanted to use the url reverse lookup.
+    // Found this as a suggestion online - using a dummy argument and replacing with javascript.
+    return "{% url "inventory:common_item_name_group_detail" pk="00000000-0000-0000-0000-000000000000" %}".replace("00000000-0000-0000-0000-000000000000", id);
+}
+function common_item_click() {
+    let p = $(this);
+    let detail_url = generete_detail_url(p.data('id'));
+    console.log(`detail_url = '${detail_url}'`);
+    window.location = detail_url;
+}
+
 $( document ).ready(function() {
     let w = $(window);
     let d = $(document);
     w.on("resize", {"content_id": "common-item-list-content"}, resize_content);
     d.on("resize", {"content_id": "common-item-list-content"}, resize_content);
     w.trigger("resize");
+    $("#common-item-list-body").on('click', '.filtered-item-link', common_item_click)
+
 });
 </script>
 {% endblock %}

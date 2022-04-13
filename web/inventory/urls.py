@@ -36,6 +36,8 @@ urlpatterns = [
     urls.path("api_usage_group/<uuid:pk>/", i_views.APIUsageGroupDetailView.as_view(), name="api_usage_group_detail"),
 
     urls.path("common_item_name_groups/", i_views.CommonItemNameGroupListView.as_view(), name="common_item_name_group_list"),
+    urls.path("common_item_name_group/new/", i_views.CommonItemNameGroupCreateView.as_view(), name="common_item_name_group_new"),
+    urls.path("common_item_name_group/<uuid:pk>/", i_views.CommonItemNameGroupDetailView.as_view(), name="common_item_name_group_detail"),
 
     urls.path("item_in_stock/", i_views.ItemInStockListView.as_view(), name="item_in_stock_list"),
     urls.path("item_in_stock/<uuid:pk>/", i_views.ItemInStockDetailView.as_view(), name="item_in_stock_detail"),
