@@ -3,14 +3,12 @@ import requests
 from django import urls
 from django.views import generic
 
-from inventory import models as inv_models
 from scrap import views as sc_views
 
 
 class ItemInStockDetailView(sc_views.OnPageTitleMixin, generic.TemplateView):
     template_name = "inventory/item_in_stock_detail.html"
     on_page_title = "Items In Stock"
-    model = inv_models.CommonItemNameGroup
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,7 +29,8 @@ class ItemInStockListView(sc_views.OnPageTitleMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sources'] = inv_models.Source.objects.all().order_by('name')
-        context['categories'] = inv_models.Category.objects.all().order_by('name')
-        context['departments'] = inv_models.Department.objects.all().order_by('name')
+        resp = requests.get(self.request.build_absolute_uri(urls.reverse("inventory:api_supporting_data_list")))
+        if resp.status_code != 200:
+            return context
+        context.update(resp.json())
         return context
