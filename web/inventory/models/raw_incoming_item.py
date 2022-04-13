@@ -1,10 +1,12 @@
 import itertools
+from dateutil import relativedelta
 
 from django import urls
 from django.contrib.postgres import aggregates as pg_agg
 from django.db import models
 from django.db.models import base as models_base
 from django.db.models import functions
+from django.utils import timezone
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
@@ -262,6 +264,28 @@ class RawIncomingItemReportManager(models.Manager):
             item_key = "|".join([str(item[field]) for field in short_list])
             print(f"{item_key}\t{item['categories']}\t{item['item_codes']}")
 
+    def console_routinely_ordered_items(self, months=3):
+        max_len = self.routinely_ordered_items(months=months).annotate(
+            name_len=functions.Length('name'),
+            item_code_len=functions.Length('item_code')
+        ).aggregate(
+            name_max_len=models.Max('name_len'),
+            item_code_max_len=models.Max('item_code_len'),
+        )
+        name_len = max_len['name_max_len']
+        item_code_len = max_len['item_code_max_len']
+        for record in self.routinely_ordered_items(months=months):
+            fields = [
+                f"{record['year_month'].ljust(9)}",
+                record['item_code'].ljust(item_code_len + 2),
+                record['name'].ljust(name_len + 2),
+                str(record['items']).rjust(3),
+                str(round(record['max_pack_price'], 2)).rjust(7),
+                str(round(record['total_extended_price'], 2)).rjust(7),
+                str(round(record['total_delivered_quantity'])).rjust(3),
+            ]
+            print("|".join(fields))
+
     def count_by_action(self, action="clean"):
         rs = RawState.objects.get(name=RawState.action_to_state_name(action))
         return RawIncomingItem.objects.values('state').annotate(
@@ -299,6 +323,63 @@ class RawIncomingItemReportManager(models.Manager):
             models.Q(category_count__gt=1) | models.Q(item_code_count__gt=1)
         )
         return short_qs
+
+    def routinely_ordered_items(self, months=3):
+        """
+        Find items which have multiple orders over a given number of months.
+        Want those orders to be spread vaguely evenly.
+        Should those orders be roughly equal in quantity?
+        """
+        first_of_current_month = timezone.now().date().replace(day=1)
+        last_of_current_month = first_of_current_month + relativedelta.relativedelta(months=1, days=-1)
+        if timezone.now().date() == last_of_current_month:
+            # If today is the last day of the month, then we have a full 'months' worth.  If not, we will end up with
+            # months + the current partial month.
+            months -= 1
+        first_of_months_ago = first_of_current_month - relativedelta.relativedelta(months=months-1)
+
+        # Start a queryset that limits to the given months and excludes donations and out-of-stock items.
+        root_qs = self.filter(delivery_date__range=[first_of_months_ago, last_of_current_month])
+        root_qs = root_qs.exclude(models.Q(po_text='donation') | models.Q(delivered_quantity=0))
+
+        # Select items which have been ordered multiple times in the given months.
+        selected_item_qs = root_qs.values('name', 'item_code').annotate(
+            items=models.Count('id'),
+            first_order=models.Min('delivery_date'),
+            last_order=models.Max('delivery_date'),
+        ).exclude(
+            models.Q(first_order=models.F('last_order')) | models.Q(items__lt=months)
+        )
+
+        # Make the selected items into a filter.  Django ORM doesn't do multi-field joins automatically.
+        selected_item_filter = models.Q()
+        for si in selected_item_qs:
+            selected_item_filter |= models.Q(name=si['name'], item_code=si['item_code'])
+
+        # Filter the root queryset by the selected items
+        filtered_qs = root_qs.filter(selected_item_filter)
+
+        # Now do all the fun stuff to get the per-month numbers for the selected items.
+        qs = filtered_qs.values(
+            'name', 'item_code',
+            year_month=functions.Concat(
+                models.F('delivery_date__year'), models.Value('-'), functions.LPad(
+                    functions.Cast(models.F('delivery_date__month'), models.CharField()), 2),
+                output_field=models.CharField()
+            )
+        )
+        qs = qs.annotate(
+            items=models.Count('id'),
+            # TODO: $/weight items won't work well with pack_price?  maybe?
+            max_pack_price=models.Max('pack_price'),
+            total_extended_price=models.Sum('extended_price'),
+            total_delivered_quantity=models.Sum('delivered_quantity'),
+        )
+
+        qs = qs.order_by('name', 'item_code', 'year_month')
+        return qs
+
+
 
 
 class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
