@@ -6,6 +6,7 @@ from .api_item_in_stock import APIItemInStockView
 from .api_raw_incoming_item import APIRawIncomingItemDetailView, APIRawIncomingItemListView
 from .api_raw_incoming_order import APIRawIncomingOrderDetailView, APIRawIncomingOrderListView
 from .api_source import APISourceView
+from .api_supporting_data import APISupportingDataView
 from .api_usage import APIUsageChangeView, APIUsageCreateView
 from .api_usage_group import APIUsageGroupListView, APIUsageGroupDetailView
 from .api_wide_filter import CommonItemNameGroupWideFilterView, RawIncomingItemWideFilterView, RawItemWideFilterView
