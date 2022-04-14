@@ -392,12 +392,15 @@ class RawIncomingItemReportManager(models.Manager):
         return self.squash_data_routinely_ordered_items(qs, date_range[0], months)
 
     def squash_data_routinely_ordered_items(self, qs, start_date, months):
-        squashed_data = {}
+        squashed_data = {
+            'items_over_time': {},
+            'dates': [(start_date + relativedelta.relativedelta(months=m)).strftime('%Y-%m') for m in range(months)]
+        }
         for record in qs:
             key = f"{record['category_obj__name']}|{record['item_code']}|{record['name']}"
-            if key not in squashed_data:
+            if key not in squashed_data['items_over_time']:
                 # Set the item up with a complete zeroed set of months.
-                squashed_data[key] = {
+                squashed_data['items_over_time'][key] = {
                     'category': record['category_obj__name'],
                     'common_name': record['rawitem_obj__common_item_name_group__name__name'],
                     'item_code': record['item_code'],
@@ -412,18 +415,19 @@ class RawIncomingItemReportManager(models.Manager):
                     'first_pack_price': 0, 'last_pack_price': 0,
                 }
             # Overwrite the zeroed month with actual data.
-            squashed_data[key]['dates'][record['year_month']]['max_pack_price'] = record['max_pack_price']
-            squashed_data[key]['dates'][record['year_month']]['total_extended_price'] = record['total_extended_price']
-            squashed_data[key]['dates'][record['year_month']]['total_delivered_quantity'] = record['total_delivered_quantity']
-            if squashed_data[key]['first_pack_price'] == 0:
-                squashed_data[key]['first_pack_price'] = record['max_pack_price']
-            squashed_data[key]['last_pack_price'] = record['max_pack_price']
+            squashed_data['items_over_time'][key]['dates'][record['year_month']]['max_pack_price'] = record['max_pack_price']
+            squashed_data['items_over_time'][key]['dates'][record['year_month']]['total_extended_price'] = record['total_extended_price']
+            squashed_data['items_over_time'][key]['dates'][record['year_month']]['total_delivered_quantity'] = record['total_delivered_quantity']
+            if squashed_data['items_over_time'][key]['first_pack_price'] == 0:
+                squashed_data['items_over_time'][key]['first_pack_price'] = record['max_pack_price']
+            squashed_data['items_over_time'][key]['last_pack_price'] = record['max_pack_price']
 
         # converts the year_month dicts to lists to make template traversal easier.
-        for key, item_data in squashed_data.items():
+        for key, item_data in squashed_data['items_over_time'].items():
             # This depends on python using ordereddict to keep the yyyy_mm in proper order.  Since they were all
             # created in order, no fancy ordering needs to be done here.
             item_data['monthly_data'] = [year_month_data for year_month_data in item_data['dates'].values()]
+            item_data['pct_change'] = round((item_data['last_pack_price'] / item_data['first_pack_price']) - 1, 2)
         return squashed_data
 
 

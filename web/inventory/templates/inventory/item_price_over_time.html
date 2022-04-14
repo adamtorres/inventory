@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Item Price Over Time{% endblock %}
+
+{% block styles %}
+<style>
+.right-border {
+    border-right: black solid 1px !important;
+}
+.datatable {
+    width: max-content;
+}
+.datatable>thead>tr {
+    position: sticky;
+    background-color: lightgrey;
+    top: 0px;
+}
+.datatable>thead>tr>th{
+    vertical-align: bottom;
+}
+.datatable>tbody>tr>td {
+    vertical-align: top;
+}
+#lookup-content {
+    overflow: scroll;
+    max-height: inherit;
+}
+.year-month-cell {
+    width: 8em;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+<table class="datatable">
+<thead>
+<tr>
+    <th>Category</th>
+    <th>Name and unit size</th>
+    <th class="right-align">First pack price</th>
+    <th class="right-align">Last pack price</th>
+    <th class="right-align right-border">Percent Change</th>
+    {% for year_month in itempriceovertime.dates %}
+        <th class="year-month-cell right-align">{{ year_month }}</th>
+    {% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for item_data in itempriceovertime.items_over_time.values %}
+    <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}">
+        <td>{{ item_data.category }}</td>
+        <td>
+            <div>{{ item_data.unit_size }} {{ item_data.common_name }}</div>
+            <div>{{ item_data.item_code }} / {{ item_data.name }}</div>
+        </td>
+        <td class="dollar-cell right-align">{{ item_data.first_pack_price|floatformat:2|intcomma }}</td>
+        <td class="dollar-cell right-align">{{ item_data.last_pack_price|floatformat:2|intcomma }}</td>
+        <td class="right-align right-border">
+            {% if item_data.pct_change == 0 %}
+                <span class="text-muted">-</span>
+            {% else %}
+                {% widthratio item_data.pct_change 1 100 %}%
+            {% endif %}
+        </td>
+
+        {% for year_month in item_data.monthly_data %}
+            <td class="year-month-cell dollar-cell right-align">
+                {% if year_month.max_pack_price == 0 %}
+                    <span class="text-muted">-</span>
+                {% else %}
+                    {{ year_month.max_pack_price|floatformat:2|intcomma }}
+                {% endif %}
+            </td>
+        {% endfor %}
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

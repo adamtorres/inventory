@@ -23,6 +23,8 @@ urlpatterns = [
     urls.path("api_rawitem/wide_filter/", i_views.RawItemWideFilterView.as_view(), name="api_rawitem_widefilter"),
     urls.path("api_rawincomingitem/wide_filter/", i_views.RawIncomingItemWideFilterView.as_view(), name="api_rawincomingitem_widefilter"),
 
+    urls.path("api_reports_itempriceovertime/", i_views.APIItemPriceOverTimeView.as_view(), name="api_report_itempriceovertime"),
+
     urls.path("api_usage_change/", i_views.APIUsageChangeView.as_view(), name="api_usage_change"),
     urls.path("api_usage_create/", i_views.APIUsageCreateView.as_view(), name="api_usage_create"),
     urls.path("api_usage_groups/", i_views.APIUsageGroupListView.as_view(), name="api_usage_group_list"),
@@ -42,6 +44,9 @@ urlpatterns = [
     urls.path("rawincomingitem/<uuid:pk>/update", i_views.RawIncomingItemUpdateView.as_view(), name="rawincomingitem_update"),
     urls.path("rawincomingitem/<uuid:pk>/delete", i_views.RawIncomingItemDeleteView.as_view(), name="rawincomingitem_delete"),
     urls.path("rawincomingitem/<uuid:pk>/", i_views.RawIncomingItemDetailView.as_view(), name="rawincomingitem_detail"),
+
+    urls.path("reports/itempriceovertime/", i_views.ItemPriceOverTimeView.as_view(), name="report_itempriceovertime"),
+
     urls.path("usage_cart/", i_views.UsageCartView.as_view(), name="usage_cart"),
     urls.path("usagegroup/<uuid:pk>/", i_views.UsageGroupDetailView.as_view(), name="usagegroup_detail"),
     urls.path("usagegroups/", i_views.UsageGroupListView.as_view(), name="usagegroup_list"),
