@@ -1,4 +1,7 @@
 import itertools
+import datetime
+import json
+
 from dateutil import relativedelta
 
 from django import urls
@@ -264,70 +267,29 @@ class RawIncomingItemReportManager(models.Manager):
             item_key = "|".join([str(item[field]) for field in short_list])
             print(f"{item_key}\t{item['categories']}\t{item['item_codes']}")
 
-    def console_routinely_ordered_items(self, months=3):
+    def console_routinely_ordered_items(self, months=3, selected_item_filter=None, sep=';'):
         """
         Output is tab-delimited and designed to be copied to a spreadsheet.
         item_code is prefixed with a single quote so leading zeros are not hidden.
         """
-        # max_len = self.routinely_ordered_items(months=months).annotate(
-        #     name_len=functions.Length('name'),
-        #     item_code_len=functions.Length('item_code')
-        # ).aggregate(
-        #     name_max_len=models.Max('name_len'),
-        #     item_code_max_len=models.Max('item_code_len'),
-        # )
-        # name_len = max_len['name_max_len']
-        # item_code_len = max_len['item_code_max_len']
-
-        squashed_data = {}
+        squashed_data = self.routinely_ordered_items(months=months, selected_item_filter=selected_item_filter)
         start_date = sc_utils.get_monthly_date_range(months)[0]
-        for record in self.routinely_ordered_items(months=months):
-            key = f"{record['category_obj__name']}|{record['item_code']}|{record['name']}"
-            if key not in squashed_data:
-                # Set the item up with a complete zeroed set of months.
-                squashed_data[key] = {
-                    'category': record['category_obj__name'],
-                    'item_code': record['item_code'],
-                    'name': record['name'],
-                    'dates': {
-                        (start_date + relativedelta.relativedelta(months=m)).strftime('%Y-%m'): {
-                            'max_pack_price': 0, 'total_extended_price': 0, 'total_delivered_price': 0,
-                        }
-                        for m in range(months)
-                    },
-                    'first_pack_price': 0, 'last_pack_price': 0,
-                }
-            # Overwrite the zeroed month with actual data.
-            squashed_data[key]['dates'][record['year_month']]['max_pack_price'] = record['max_pack_price']
-            squashed_data[key]['dates'][record['year_month']]['total_extended_price'] = record['total_extended_price']
-            squashed_data[key]['dates'][record['year_month']]['total_delivered_quantity'] = record['total_delivered_quantity']
-            if squashed_data[key]['first_pack_price'] == 0:
-                squashed_data[key]['first_pack_price'] = record['max_pack_price']
-            squashed_data[key]['last_pack_price'] = record['max_pack_price']
 
-            # fields = [
-            #     f"{record['year_month'].ljust(9)}",
-            #     record['item_code'].ljust(item_code_len + 2),
-            #     record['name'].ljust(name_len + 2),
-            #     str(record['items']).rjust(3),
-            #     str(round(record['max_pack_price'], 2)).rjust(7),
-            #     str(round(record['total_extended_price'], 2)).rjust(7),
-            #     str(round(record['total_delivered_quantity'])).rjust(3),
-            # ]
-            # print("|".join(fields))
-        line = "category\titem_code\tname\t"
-        line += "\t".join(
+        line = f"category{sep}common_name{sep}item_code{sep}name{sep}unit_size{sep}"
+        line += f"{sep}".join(
             [(start_date + relativedelta.relativedelta(months=m)).strftime('%Y-%m') for m in range(months)])
-        line += "\tfirst_pack_price\tlast_pack_price\tpct_change"
+        line += f"{sep}first_pack_price{sep}last_pack_price{sep}pct_change"
         print(line)
         for key in squashed_data.keys():
-            line = f"{squashed_data[key]['category']}\t'{squashed_data[key]['item_code']}\t{squashed_data[key]['name']}"
+            line = f"{squashed_data[key]['category']}{sep}{squashed_data[key]['common_name']}{sep}"
+            line += f"'{squashed_data[key]['item_code']}{sep}{squashed_data[key]['name']}"
+            line += f"{sep}{squashed_data[key]['unit_size']}"
             for year_month in squashed_data[key]['dates'].keys():
-                line += f"\t{squashed_data[key]['dates'][year_month]['max_pack_price']}"
-            line += f"\t{squashed_data[key]['first_pack_price']}"
-            line += f"\t{squashed_data[key]['last_pack_price']}"
+                line += f"{sep}{squashed_data[key]['dates'][year_month]['max_pack_price']}"
+            line += f"{sep}{squashed_data[key]['first_pack_price']}"
+            line += f"{sep}{squashed_data[key]['last_pack_price']}"
             pct_change = (squashed_data[key]['last_pack_price'] / squashed_data[key]['first_pack_price'] - 1)
-            line += f"\t{round(pct_change, 2)}"
+            line += f"{sep}{round(pct_change, 2)}"
             print(line)
 
     def count_by_action(self, action="clean"):
@@ -368,36 +330,48 @@ class RawIncomingItemReportManager(models.Manager):
         )
         return short_qs
 
-    def routinely_ordered_items(self, months=3):
+    def routinely_ordered_items(self, months=3, selected_item_filter=None):
         """
         Find items which have multiple orders over a given number of months.
         Want those orders to be spread vaguely evenly.
         Should those orders be roughly equal in quantity?
         """
         # Start a queryset that limits to the given months and excludes donations and out-of-stock items.
-        root_qs = self.filter(delivery_date__range=sc_utils.get_monthly_date_range(months))
+        date_range = sc_utils.get_monthly_date_range(months)
+        root_qs = self.filter(delivery_date__range=date_range)
         root_qs = root_qs.exclude(models.Q(po_text='donation') | models.Q(delivered_quantity=0))
+        # timedelta doesn't accept months so get the approx number of days and divide by two.
+        required_gap = datetime.timedelta(days=months*30/2)
 
-        # Select items which have been ordered multiple times in the given months.
-        selected_item_qs = root_qs.values('name', 'item_code').annotate(
-            items=models.Count('id'),
-            first_order=models.Min('delivery_date'),
-            last_order=models.Max('delivery_date'),
-        ).exclude(
-            models.Q(first_order=models.F('last_order')) | models.Q(items__lt=int(months/2))
-        )
+        if selected_item_filter is None:
+            # The caller can supply their own set of items
+            # Select items which have been ordered multiple times in the given months.
+            selected_item_qs = root_qs.values('name', 'item_code').annotate(
+                items=models.Count('id'),
+                first_order=models.Min('delivery_date'),
+                last_order=models.Max('delivery_date'),
+            )
+            selected_item_qs = selected_item_qs.filter(
+                first_order__year=date_range[0].year, first_order__month=date_range[0].month,
+                last_order__year=date_range[1].year, last_order__month=date_range[1].month
+            )
+            # selected_item_qs = selected_item_qs.exclude(
+            #     models.Q(first_order__lte=models.F('last_order')-required_gap) | models.Q(items__lt=int(months/2))
+            # )
 
-        # Make the selected items into a filter.  Django ORM doesn't do multi-field joins automatically.
-        selected_item_filter = models.Q()
-        for si in selected_item_qs:
-            selected_item_filter |= models.Q(name=si['name'], item_code=si['item_code'])
+            # Make the selected items into a filter.  Django ORM doesn't do multi-field joins automatically.
+            selected_item_filter = models.Q()
+            for si in selected_item_qs:
+                selected_item_filter |= models.Q(name=si['name'], item_code=si['item_code'])
 
         # Filter the root queryset by the selected items
         filtered_qs = root_qs.filter(selected_item_filter)
 
         # Now do all the fun stuff to get the per-month numbers for the selected items.
         qs = filtered_qs.values(
-            'category_obj__name', 'name', 'item_code',
+            'category_obj__name',
+            'rawitem_obj__common_item_name_group__name__name',
+            'name', 'item_code', 'unit_size',
             year_month=functions.Concat(
                 models.F('delivery_date__year'), models.Value('-'), functions.LPad(
                     functions.Cast(models.F('delivery_date__month'), models.CharField()), 2, models.Value('0')),
@@ -412,10 +386,45 @@ class RawIncomingItemReportManager(models.Manager):
             total_delivered_quantity=models.Sum('delivered_quantity'),
         )
 
-        qs = qs.order_by('name', 'item_code', 'year_month')
-        return qs
+        qs = qs.order_by(
+            'category_obj__name', 'rawitem_obj__common_item_name_group__name__name', 'name', 'item_code', 'unit_size',
+            'year_month')
+        return self.squash_data_routinely_ordered_items(qs, date_range[0], months)
 
+    def squash_data_routinely_ordered_items(self, qs, start_date, months):
+        squashed_data = {}
+        for record in qs:
+            key = f"{record['category_obj__name']}|{record['item_code']}|{record['name']}"
+            if key not in squashed_data:
+                # Set the item up with a complete zeroed set of months.
+                squashed_data[key] = {
+                    'category': record['category_obj__name'],
+                    'common_name': record['rawitem_obj__common_item_name_group__name__name'],
+                    'item_code': record['item_code'],
+                    'name': record['name'],
+                    'unit_size': record['unit_size'],
+                    'dates': {
+                        (start_date + relativedelta.relativedelta(months=m)).strftime('%Y-%m'): {
+                            'max_pack_price': 0, 'total_extended_price': 0, 'total_delivered_price': 0,
+                        }
+                        for m in range(months)
+                    },
+                    'first_pack_price': 0, 'last_pack_price': 0,
+                }
+            # Overwrite the zeroed month with actual data.
+            squashed_data[key]['dates'][record['year_month']]['max_pack_price'] = record['max_pack_price']
+            squashed_data[key]['dates'][record['year_month']]['total_extended_price'] = record['total_extended_price']
+            squashed_data[key]['dates'][record['year_month']]['total_delivered_quantity'] = record['total_delivered_quantity']
+            if squashed_data[key]['first_pack_price'] == 0:
+                squashed_data[key]['first_pack_price'] = record['max_pack_price']
+            squashed_data[key]['last_pack_price'] = record['max_pack_price']
 
+        # converts the year_month dicts to lists to make template traversal easier.
+        for key, item_data in squashed_data.items():
+            # This depends on python using ordereddict to keep the yyyy_mm in proper order.  Since they were all
+            # created in order, no fancy ordering needs to be done here.
+            item_data['monthly_data'] = [year_month_data for year_month_data in item_data['dates'].values()]
+        return squashed_data
 
 
 class RawIncomingItem(inv_mixins.GetsModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
