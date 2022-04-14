@@ -8,7 +8,7 @@ from django.db.models import base as models_base
 from django.db.models import functions
 from django.utils import timezone
 
-from scrap import models as sc_models
+from scrap import models as sc_models, utils as sc_utils
 from scrap.models import fields as sc_fields
 from .category import Category
 from .department import Department
@@ -265,26 +265,70 @@ class RawIncomingItemReportManager(models.Manager):
             print(f"{item_key}\t{item['categories']}\t{item['item_codes']}")
 
     def console_routinely_ordered_items(self, months=3):
-        max_len = self.routinely_ordered_items(months=months).annotate(
-            name_len=functions.Length('name'),
-            item_code_len=functions.Length('item_code')
-        ).aggregate(
-            name_max_len=models.Max('name_len'),
-            item_code_max_len=models.Max('item_code_len'),
-        )
-        name_len = max_len['name_max_len']
-        item_code_len = max_len['item_code_max_len']
+        """
+        Output is tab-delimited and designed to be copied to a spreadsheet.
+        item_code is prefixed with a single quote so leading zeros are not hidden.
+        """
+        # max_len = self.routinely_ordered_items(months=months).annotate(
+        #     name_len=functions.Length('name'),
+        #     item_code_len=functions.Length('item_code')
+        # ).aggregate(
+        #     name_max_len=models.Max('name_len'),
+        #     item_code_max_len=models.Max('item_code_len'),
+        # )
+        # name_len = max_len['name_max_len']
+        # item_code_len = max_len['item_code_max_len']
+
+        squashed_data = {}
+        start_date = sc_utils.get_monthly_date_range(months)[0]
         for record in self.routinely_ordered_items(months=months):
-            fields = [
-                f"{record['year_month'].ljust(9)}",
-                record['item_code'].ljust(item_code_len + 2),
-                record['name'].ljust(name_len + 2),
-                str(record['items']).rjust(3),
-                str(round(record['max_pack_price'], 2)).rjust(7),
-                str(round(record['total_extended_price'], 2)).rjust(7),
-                str(round(record['total_delivered_quantity'])).rjust(3),
-            ]
-            print("|".join(fields))
+            key = f"{record['category_obj__name']}|{record['item_code']}|{record['name']}"
+            if key not in squashed_data:
+                # Set the item up with a complete zeroed set of months.
+                squashed_data[key] = {
+                    'category': record['category_obj__name'],
+                    'item_code': record['item_code'],
+                    'name': record['name'],
+                    'dates': {
+                        (start_date + relativedelta.relativedelta(months=m)).strftime('%Y-%m'): {
+                            'max_pack_price': 0, 'total_extended_price': 0, 'total_delivered_price': 0,
+                        }
+                        for m in range(months)
+                    },
+                    'first_pack_price': 0, 'last_pack_price': 0,
+                }
+            # Overwrite the zeroed month with actual data.
+            squashed_data[key]['dates'][record['year_month']]['max_pack_price'] = record['max_pack_price']
+            squashed_data[key]['dates'][record['year_month']]['total_extended_price'] = record['total_extended_price']
+            squashed_data[key]['dates'][record['year_month']]['total_delivered_quantity'] = record['total_delivered_quantity']
+            if squashed_data[key]['first_pack_price'] == 0:
+                squashed_data[key]['first_pack_price'] = record['max_pack_price']
+            squashed_data[key]['last_pack_price'] = record['max_pack_price']
+
+            # fields = [
+            #     f"{record['year_month'].ljust(9)}",
+            #     record['item_code'].ljust(item_code_len + 2),
+            #     record['name'].ljust(name_len + 2),
+            #     str(record['items']).rjust(3),
+            #     str(round(record['max_pack_price'], 2)).rjust(7),
+            #     str(round(record['total_extended_price'], 2)).rjust(7),
+            #     str(round(record['total_delivered_quantity'])).rjust(3),
+            # ]
+            # print("|".join(fields))
+        line = "category\titem_code\tname\t"
+        line += "\t".join(
+            [(start_date + relativedelta.relativedelta(months=m)).strftime('%Y-%m') for m in range(months)])
+        line += "\tfirst_pack_price\tlast_pack_price\tpct_change"
+        print(line)
+        for key in squashed_data.keys():
+            line = f"{squashed_data[key]['category']}\t'{squashed_data[key]['item_code']}\t{squashed_data[key]['name']}"
+            for year_month in squashed_data[key]['dates'].keys():
+                line += f"\t{squashed_data[key]['dates'][year_month]['max_pack_price']}"
+            line += f"\t{squashed_data[key]['first_pack_price']}"
+            line += f"\t{squashed_data[key]['last_pack_price']}"
+            pct_change = (squashed_data[key]['last_pack_price'] / squashed_data[key]['first_pack_price'] - 1)
+            line += f"\t{round(pct_change, 2)}"
+            print(line)
 
     def count_by_action(self, action="clean"):
         rs = RawState.objects.get(name=RawState.action_to_state_name(action))
@@ -330,16 +374,8 @@ class RawIncomingItemReportManager(models.Manager):
         Want those orders to be spread vaguely evenly.
         Should those orders be roughly equal in quantity?
         """
-        first_of_current_month = timezone.now().date().replace(day=1)
-        last_of_current_month = first_of_current_month + relativedelta.relativedelta(months=1, days=-1)
-        if timezone.now().date() == last_of_current_month:
-            # If today is the last day of the month, then we have a full 'months' worth.  If not, we will end up with
-            # months + the current partial month.
-            months -= 1
-        first_of_months_ago = first_of_current_month - relativedelta.relativedelta(months=months-1)
-
         # Start a queryset that limits to the given months and excludes donations and out-of-stock items.
-        root_qs = self.filter(delivery_date__range=[first_of_months_ago, last_of_current_month])
+        root_qs = self.filter(delivery_date__range=sc_utils.get_monthly_date_range(months))
         root_qs = root_qs.exclude(models.Q(po_text='donation') | models.Q(delivered_quantity=0))
 
         # Select items which have been ordered multiple times in the given months.
@@ -348,7 +384,7 @@ class RawIncomingItemReportManager(models.Manager):
             first_order=models.Min('delivery_date'),
             last_order=models.Max('delivery_date'),
         ).exclude(
-            models.Q(first_order=models.F('last_order')) | models.Q(items__lt=months)
+            models.Q(first_order=models.F('last_order')) | models.Q(items__lt=int(months/2))
         )
 
         # Make the selected items into a filter.  Django ORM doesn't do multi-field joins automatically.
@@ -361,10 +397,10 @@ class RawIncomingItemReportManager(models.Manager):
 
         # Now do all the fun stuff to get the per-month numbers for the selected items.
         qs = filtered_qs.values(
-            'name', 'item_code',
+            'category_obj__name', 'name', 'item_code',
             year_month=functions.Concat(
                 models.F('delivery_date__year'), models.Value('-'), functions.LPad(
-                    functions.Cast(models.F('delivery_date__month'), models.CharField()), 2),
+                    functions.Cast(models.F('delivery_date__month'), models.CharField()), 2, models.Value('0')),
                 output_field=models.CharField()
             )
         )
