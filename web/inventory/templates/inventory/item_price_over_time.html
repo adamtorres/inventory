@@ -39,6 +39,30 @@
 <table class="datatable">
 <thead>
 <tr>
+    <th>category</th>
+    <th>item code</th>
+    <th>common name</th>
+    <th>unit_size</th>
+    <th>total spent</th>
+    <th>total units</th>
+</tr>
+</thead>
+<tbody>
+{% for item in itempriceovertime.highest %}
+    <tr data-id="{{ item.rawitem_id }}">
+        <td>{{ item.category }}</td>
+        <td class="right-align">{{ item.item_code }}</td>
+        <td>{{ item.common_name }}</td>
+        <td>{{ item.unit_size }}</td>
+        <td class="dollar-cell right-align">{{ item.total_spent|floatformat:2|intcomma }}</td>
+        <td class="right-align">{{ item.total_unit_quantity|floatformat|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+<table class="datatable">
+<thead>
+<tr>
     <th>Category</th>
     <th>Name and unit size</th>
     <th class="right-align">First pack price</th>

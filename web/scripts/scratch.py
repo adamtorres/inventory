@@ -3,6 +3,8 @@ from django_extensions.management.debug_cursor import monkey_patch_cursordebugwr
 
 
 from inventory import models as inv_models
+from scrap import utils as sc_utils
+from scrap.models import fields as sc_fields
 
 
 def selected_item_report():

@@ -316,6 +316,31 @@ class RawIncomingItemReportManager(models.Manager):
     def group_by_current_state(self):
         return self.values('state__value', 'state__name').annotate(count=models.Count('id'))
 
+    def highest_spending_items(self, months=3, max_items=20):
+        # TODO: This date range and non-zero spent thing is repeated.  Need to extract it.
+        date_range = sc_utils.get_monthly_date_range(months)
+        root_qs = self.filter(delivery_date__range=date_range)
+        root_qs = root_qs.exclude(models.Q(po_text='donation') | models.Q(delivered_quantity=0))
+
+        qs = root_qs.values(
+            'rawitem_obj_id', 'rawitem_obj__common_item_name_group__name__name', 'rawitem_obj__category__name',
+            'rawitem_obj__item_code', 'rawitem_obj__unit_size'
+        )
+        qs = qs.annotate(
+            total_spent=models.Sum('extended_price'),
+            total_unit_quantity=models.Sum(models.F('delivered_quantity') * models.F('pack_quantity')),
+            # min_price_per_unit=models.Min(
+            #     models.F('extended_price') / (models.F('delivered_quantity') * models.F('pack_quantity')),
+            #     output_field=sc_fields.MoneyField()
+            # ),
+            # max_price_per_unit=models.Max(
+            #     models.F('extended_price') / (models.F('delivered_quantity') * models.F('pack_quantity')),
+            #     output_field=sc_fields.MoneyField()
+            # ),
+        )
+        qs = qs.order_by('-total_spent')[:max_items]
+        return qs
+
     def invalid_item_combos(self):
         # from do_clean, this looks for items which would cause dupes when including category/item_code.
         short_list = ['source', 'name', 'unit_size', 'pack_quantity', ]
