@@ -26,6 +26,12 @@
 {#                <li><a href="{% url "usage_report_add" %}" class="link-light rounded">New Usage Report</a></li>#}
             </ul>
         </li>
+        <li>
+            <a href="#ReportsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reports</a>
+            <ul class="collapse list-unstyled" id="ReportsSubmenu">
+                <li><a href="{% url "inventory:report_rollup_by_category" %}" class="link-light rounded">Rollup By Category</a></li>
+            </ul>
+        </li>
     </ul>
 
     <ul class="list-unstyled CTAs">

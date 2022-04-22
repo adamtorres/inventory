@@ -7,6 +7,11 @@ from scrap import utils as sc_utils
 from scrap.models import fields as sc_fields
 
 
+def highest_price_change_test():
+    for item in inv_models.RawIncomingItem.reports.highest_price_change_items(months=6):
+        print(item)
+
+
 def selected_item_report():
     common_item_names = [
         "low fat milk cartons",
@@ -29,4 +34,4 @@ def selected_item_report():
 
 def run():
     with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
-        selected_item_report()
+        highest_price_change_test()

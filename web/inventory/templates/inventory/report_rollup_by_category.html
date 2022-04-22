@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Rollup By Category{% endblock %}
+
+
+{% block styles %}
+<style>
+    .datatable {
+        width: 60%;
+        display: inline-block;
+    }
+    .chart-container {
+        width: 38%;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block head_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
+    <script src="{% static "thirdparty/js/palette.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+    <div id="filter-controls">
+        <input type="hidden" value="{{ time_period }}" id="current-time-period">
+        <select id="select-time-period">
+            {% for time_period_id, time_period_limits in time_periods.items %}
+                {{ time_period_limits }}
+                <option value="{{ time_period_id }}" {% if time_period == time_period_id %}selected{% endif %}>
+                    {{ time_period_limits.name }} / {{ time_period_limits.start__gte|date }} - {{ time_period_limits.end__lte|date }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="button" id="go-to-time-period">Go</button>
+    </div>
+
+    <div id="container" class="chart-container">
+        <canvas id="pie-chart"></canvas>
+    </div>
+
+    <table class="datatable">
+        <thead>
+        <tr>
+            <th>Category</th>
+            <th class="right-align">Total Spent</th>
+            <th class="right-align">Total Spent Percent</th>
+            <th class="right-align">Total Orders</th>
+            <th class="right-align">Total Orders Percent</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for category_data in rollup_by_category.table %}
+            <tr>
+                <td>{{ category_data.category }}</td>
+                <td class="number-col right-align dollar-cell">{{ category_data.extended_price|floatformat:2|intcomma }}</td>
+                <td class="number-col right-align">{% widthratio category_data.percent_of_total_price 1 100 %} %</td>
+                <td class="number-col right-align">{{ category_data.orders }}</td>
+                <td class="number-col right-align">{% widthratio category_data.percent_of_total_orders 1 100 %} %</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+    function go_to_time_period_click() {
+        select_time_period = document.getElementById("select-time-period");
+        current_time_period = document.getElementById("current-time-period");
+        if (current_time_period.value !== select_time_period.value) {
+            window.location = `{% url 'inventory:report_rollup_by_category' %}${select_time_period.value}`;
+        }
+    }
+    let go_to_time_period = document.getElementById("go-to-time-period");
+    go_to_time_period.addEventListener('click', function(event) {
+        go_to_time_period_click();
+    });
+
+    // https://simpleisbetterthancomplex.com/tutorial/2020/01/19/how-to-use-chart-js-with-django.html
+    var config = {
+        type: 'pie',
+        data: {
+            datasets: [{
+                data: {{ rollup_by_category.data|safe }},
+                backgroundColor: palette('tol', {{ rollup_by_category.labels|length }}).map(function(hex) {
+                    return '#' + hex;
+                }),
+                label: 'Population'
+            }],
+            labels: {{ rollup_by_category.labels|safe }}
+        },
+        options: {
+            responsive: true
+        }
+    };
+
+    window.onload = function() {
+        var ctx = document.getElementById('pie-chart').getContext('2d');
+        window.myPie = new Chart(ctx, config);
+    };
+
+</script>
+{% endblock %}

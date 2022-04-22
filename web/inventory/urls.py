@@ -46,6 +46,10 @@ urlpatterns = [
     urls.path("rawincomingitem/<uuid:pk>/", i_views.RawIncomingItemDetailView.as_view(), name="rawincomingitem_detail"),
 
     urls.path("reports/itempriceovertime/", i_views.ItemPriceOverTimeView.as_view(), name="report_itempriceovertime"),
+    urls.path("rollup_by_category/", i_views.ReportRollupByCategoryView.as_view(), name="report_rollup_by_category"),
+    urls.path(
+        "rollup_by_category/<slug:time_period>/", i_views.ReportRollupByCategoryView.as_view(),
+        name="report_rollup_by_category_time_period"),
 
     urls.path("usage_cart/", i_views.UsageCartView.as_view(), name="usage_cart"),
     urls.path("usagegroup/<uuid:pk>/", i_views.UsageGroupDetailView.as_view(), name="usagegroup_detail"),
