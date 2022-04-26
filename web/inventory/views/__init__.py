@@ -13,7 +13,8 @@ from .raw_incoming_item import (
     RawIncomingItemUpdateView)
 from .raw_incoming_order import RawIncomingOrderDetailView, RawIncomingOrderListView
 from .raw_incoming_item_lookup import RawIncomingItemLookupView
+# from .report_item_price_history import ReportItemPriceHistoryView
 from .report_item_price_over_time import ItemPriceOverTimeView
-from .report_rollup_by_category import ReportRollupByCategoryView
+from .report_rollup_by_category import ReportRollupByCategoryView, ReportItemPriceHistoryView
 from .usage_cart import UsageCartView
 from .usage_group import UsageGroupDetailView, UsageGroupListView

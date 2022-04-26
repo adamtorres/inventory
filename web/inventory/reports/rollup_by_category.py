@@ -1,4 +1,4 @@
-from .common import run_report_sql
+from .common import run_pie_report_sql
 
 
 def get_rollup_by_category_data(start_date, end_date):
@@ -9,4 +9,4 @@ def get_rollup_by_category_data(start_date, end_date):
     """
     pie_label_field = 'category'
     pie_data_field = 'extended_price'
-    return run_report_sql(sql, start_date, end_date, pie_label_field, pie_data_field)
+    return run_pie_report_sql(sql, start_date, end_date, pie_label_field, pie_data_field)

@@ -6,6 +6,7 @@ from .item_in_stock import ItemInStock
 from .raw_incoming_item import RawIncomingItem
 from .raw_item import RawItem
 from .raw_state import RawState
+from .report_setting import ReportSetting
 from .source import Source
 from .usage import Usage, UsageGroup
 

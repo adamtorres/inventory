@@ -45,6 +45,10 @@ urlpatterns = [
     urls.path("rawincomingitem/<uuid:pk>/delete", i_views.RawIncomingItemDeleteView.as_view(), name="rawincomingitem_delete"),
     urls.path("rawincomingitem/<uuid:pk>/", i_views.RawIncomingItemDetailView.as_view(), name="rawincomingitem_detail"),
 
+    urls.path(
+        "reports/itempricehistory/<slug:time_period>/", i_views.ReportItemPriceHistoryView.as_view(),
+        name="report_itempricehistory_time_period"),
+    urls.path("reports/itempricehistory/", i_views.ReportItemPriceHistoryView.as_view(), name="report_itempricehistory"),
     urls.path("reports/itempriceovertime/", i_views.ItemPriceOverTimeView.as_view(), name="report_itempriceovertime"),
     urls.path("rollup_by_category/", i_views.ReportRollupByCategoryView.as_view(), name="report_rollup_by_category"),
     urls.path(

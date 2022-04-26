@@ -151,8 +151,8 @@ def create_raw_items(qs):
     manager_func_name = 'items'
     source_model = inv_models.RawIncomingItem
     model = inv_models.RawItem
-    raw_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
-    new_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'category', 'item_code']
+    raw_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'unit_quantity', 'category', 'item_code']
+    new_fields = ['source', 'name', 'unit_size', 'pack_quantity', 'unit_quantity', 'category', 'item_code']
 
     manager_func = getattr(source_model.objects, manager_func_name)
     objs_to_create = []

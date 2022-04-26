@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Rollup By Category{% endblock %}
+
+
+{% block styles %}
+<style>
+    .datatable {
+        width: 60%;
+        display: inline-block;
+    }
+    .chart-container {
+        width: 100%;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block head_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
+    <script src="{% static "thirdparty/js/palette.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+
+<div id="container" class="chart-container">
+    <canvas id="line-chart" class="chart-container"></canvas>
+</div>
+
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+let raw_data = {
+    chart_title: 'Item prices over time',
+    {# for loop converts the date objects to "Mon YY" strings.  Didn't do that in the view because it is purely display. #}
+    labels: [{% for d in item_price_history.data.0.months %}"{{ d|date:"M y" }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [
+        {% for dataset in item_price_history.data %}
+        {
+            label: '{{ dataset.label|escapejs }}',
+            data: [{% for v in dataset.first_count_price %}{% if v == 0 %}NaN{% else %}{{ v }}{% endif %}{% if not forloop.last %},{% endif %}{% endfor %}],
+            hidden: {% if forloop.first %}false{% else %}true{% endif %},
+        },
+        {% endfor %}
+    ]
+};
+let chart_colors = palette('tol', raw_data.datasets.length).map(function(hex) {
+    return '#' + hex;
+});
+
+// skipped and down are used for missing data.
+const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
+const down = (ctx, value) => ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
+
+function add_alpha(in_color, faded=false) {
+    if (faded) {
+        //  20% to hex is 33 /  51.
+        //  40% to hex is 66 / 102.
+        //  60% to hex is 99 / 153.
+        //  80% to hex is cc / 204.
+        // 100% to hex is ff / 255.
+        return in_color + '99';
+    }
+    return in_color + 'FF';
+}
+
+function make_datasets(in_data) {
+    let current_color_idx = 0;
+    let out_data = [];
+    for (let data of in_data.datasets) {
+        let faded_color = add_alpha(chart_colors[current_color_idx], true);
+        let solid_color = add_alpha(chart_colors[current_color_idx]);
+        let x = {
+            label: data.label,
+            data: data.data,
+            hidden: data.hidden,
+            borderColor: faded_color,
+            backgroundColor: solid_color,
+            segment: {
+                borderColor: ctx => skipped(ctx, faded_color) || down(ctx, solid_color),
+                borderDash: ctx => skipped(ctx, [6, 6]),
+            },
+            spanGaps: true,  // connects the data points surrounding the existing data points.
+        };
+        console.log(x);
+        out_data.push(x);
+        current_color_idx += 1;
+    }
+    return out_data;
+}
+
+const config = {
+  type: 'line',
+  //data: will be added onload,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'right',
+      },
+      title: {
+        display: false,
+        text: raw_data.chart_title
+      }
+    }
+  },
+};
+
+window.onload = function() {
+    config.data = {
+        labels: raw_data.labels,
+        datasets: make_datasets(raw_data)
+    };
+    var ctx = document.getElementById('line-chart').getContext('2d');
+    window.myChart = new Chart(ctx, config);
+    console.log(chart_colors);
+};
+</script>
+{% endblock %}

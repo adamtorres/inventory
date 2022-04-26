@@ -54,3 +54,24 @@ class ReportRollupByCategoryView(TimePeriodView, sc_views.OnPageTitleMixin, gene
         context['rollup_by_category'] = inv_reports.get_rollup_by_category_data(
             context['selected_time_period']['start__gte'], context['selected_time_period']['end__lte'])
         return context
+
+
+class ReportItemPriceHistoryView(TimePeriodView, sc_views.OnPageTitleMixin, generic.TemplateView):
+    template_name = "inventory/report_item_price_history.html"
+    on_page_title = "Item Price History"
+    reverse_url_with_time_period = 'inventory:report_itempricehistory_time_period'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'redirect_to' in context:
+            return context
+        items = [
+            "butter", "cut green beans", "hamburger sesame buns", "flour",
+            "low fat milk cartons", "low fat chocolate milk cartons",
+        ]
+        qs = inv_models.ReportSetting.objects.filter(report_name="item_price_history", key="default_items")
+        items = list(qs.values_list('value', flat=True))
+        context['item_price_history'] = inv_reports.get_item_price_history(
+            context['selected_time_period']['start__gte'], context['selected_time_period']['end__lte'], items)
+        return context
+

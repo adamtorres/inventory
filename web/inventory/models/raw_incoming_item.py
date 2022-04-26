@@ -118,7 +118,7 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
         return ri_filter
 
     def items(self, limit_state=None, qs=None, only_new=False):
-        fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'category_obj', 'item_code']
+        fields = ['source_obj', 'name', 'unit_size', 'pack_quantity', 'unit_quantity', 'category_obj', 'item_code']
         qs = (qs or self).values(*fields)
         qs = qs.distinct(*fields)
         qs = self._limit_state(qs, limit_state)
@@ -135,6 +135,7 @@ class RawIncomingItemManager(inv_mixins.GetsManagerMixin, sc_models.WideFilterMa
                 "name": item["name"],
                 "unit_size": item["unit_size"],
                 "pack_quantity": item["pack_quantity"],
+                "unit_quantity": item["unit_quantity"],
                 "item_code": item["item_code"],
             })
         return qs_list
