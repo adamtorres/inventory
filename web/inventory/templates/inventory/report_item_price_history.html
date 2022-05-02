@@ -21,10 +21,15 @@
 {% block head_scripts %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
     <script src="{% static "thirdparty/js/palette.js" %}"></script>
+    <script src="{% static "thirdparty/js/color_change.js" %}"></script>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid" id="lookup-content">
+
+<button class="change-chart-button" name="change_chart_flour" data-id="flour">Flour</button>
+<button class="change-chart-button" name="change_chart_milk" data-id="milk">Milk</button>
+<button class="change-chart-button" name="change_chart_butter" data-id="butter">Butter</button>
 
 <div id="container" class="chart-container">
     <canvas id="line-chart" class="chart-container"></canvas>
@@ -34,7 +39,70 @@
 {% endblock %}
 
 {% block body_scripts %}
+
 <script type="text/javascript">
+
+function change_chart(left_datasets, right_datasets) {
+    left_datasets.push(...right_datasets);
+    multi_axis_config.data.datasets = left_datasets;
+    window.myChart.update();
+}
+
+function change_chart_milk() {
+    let left_datasets = make_left_axis_datasets(split_data.series_5_first_count_price, split_data.series_7_first_count_price);
+    let right_datasets = make_right_axis_datasets(split_data.series_5_total_extended_price, split_data.series_7_total_extended_price);
+    change_chart(left_datasets, right_datasets)
+}
+
+function change_chart_butter() {
+    let left_datasets = make_left_axis_datasets(split_data.series_3_first_count_price);
+    let right_datasets = make_right_axis_datasets(split_data.series_3_total_extended_price);
+    change_chart(left_datasets, right_datasets)
+}
+
+function change_chart_flour() {
+    let left_datasets = make_left_axis_datasets(split_data.series_2_first_unit_price);
+    let right_datasets = make_right_axis_datasets(split_data.series_2_total_extended_price);
+    change_chart(left_datasets, right_datasets)
+}
+
+function change_chart_click(e) {
+    if (e.dataset.id === 'milk') {
+        change_chart_milk();
+    }
+    if (e.dataset.id === 'butter') {
+        change_chart_butter();
+    }
+    if (e.dataset.id === 'flour') {
+        change_chart_flour();
+    }
+}
+let split_data = {
+// config.data.datasets = [make_dataset(split_data.series_3_total_extended_price)];
+// window.myChart.update();
+
+// multi_axis_config.data.datasets = make_multi_axis_dataset(split_data.series_3_first_count_price, split_data.series_3_total_extended_price, chart_colors[0], chart_colors[1]);
+// multi_axis_config.data.datasets = make_multi_axis_dataset(split_data.series_3_first_count_price, split_data.series_3_total_extended_price, chart_colors[0], chart_colors[1]);
+// window.myChart.update();
+// 7 = milk
+// 5 = choc milk
+// a.push(...b) to extend a with elements from b
+
+{% for dataset in item_price_history.data %}
+    series_{{ dataset.id }}_first_count_price: {
+        label: '{{ dataset.label|escapejs }} Price per count',
+        data: [{% for v in dataset.first_count_price %}{% if v == 0 %}NaN{% else %}{{ v }}{% endif %}{% if not forloop.last %},{% endif %}{% endfor %}],
+    },
+    series_{{ dataset.id }}_first_unit_price: {
+        label: '{{ dataset.label|escapejs }} Price per unit',
+        data: [{% for v in dataset.first_unit_price %}{% if v == 0 %}NaN{% else %}{{ v }}{% endif %}{% if not forloop.last %},{% endif %}{% endfor %}],
+    },
+    series_{{ dataset.id }}_total_extended_price: {
+        label: '{{ dataset.label|escapejs }} Total spent',
+        data: [{% for v in dataset.total_extended_price %}{% if v == 0 %}NaN{% else %}{{ v }}{% endif %}{% if not forloop.last %},{% endif %}{% endfor %}],
+    }{% if not forloop.last %},{% endif %}
+{% endfor %}
+}
 let raw_data = {
     chart_title: 'Item prices over time',
     {# for loop converts the date objects to "Mon YY" strings.  Didn't do that in the view because it is purely display. #}
@@ -69,25 +137,68 @@ function add_alpha(in_color, faded=false) {
     return in_color + 'FF';
 }
 
+function make_dataset(one_data, chart_color) {
+    let faded_color = add_alpha(chart_color, true);
+    let solid_color = add_alpha(chart_color);
+    return {
+        label: one_data.label,
+        data: one_data.data,
+        hidden: one_data.hidden,
+        borderColor: faded_color,
+        backgroundColor: solid_color,
+        segment: {
+            borderColor: ctx => skipped(ctx, faded_color) || down(ctx, solid_color),
+            borderDash: ctx => skipped(ctx, [6, 6]),
+        },
+        spanGaps: true,  // connects the data points surrounding the existing data points.
+    };
+}
+
+function make_multi_axis_dataset(left_data, right_data, left_chart_color, right_chart_color) {
+    let left_dataset = make_dataset(left_data, left_chart_color);
+    left_dataset.yAxisID = 'y';
+    let right_dataset = make_dataset(right_data, right_chart_color);
+    right_dataset.yAxisID = 'y1';
+    return [left_dataset, right_dataset];
+}
+
+function make_left_or_right_axis_datasets(left_or_right, ...raw_datasets) {
+    // live demo of colors http://google.github.io/palette.js/
+    let palette_set = 'mpn65'; // ((left_or_right === 'y') ? 'cb-Greens' : 'cb-Purples');
+    let _chart_colors = palette(palette_set, raw_datasets.length).map(function(hex) {
+        return '#' + hex;
+    });
+    if (left_or_right === 'y1') {
+        _chart_colors = _chart_colors.map(function(_color) {
+            return pSBC(0.4, _color);
+        });
+    }
+    let current_color_idx = 0;
+    let out_data = [];
+    for (let data of raw_datasets) {
+        let chart_color = _chart_colors[current_color_idx];
+        let _dataset = make_dataset(data, chart_color);
+        _dataset.yAxisID = left_or_right;
+        out_data.push(_dataset);
+        current_color_idx += 1;
+    }
+    return out_data;
+}
+
+function make_left_axis_datasets(...raw_datasets) {
+    return make_left_or_right_axis_datasets('y', ...raw_datasets);
+}
+
+function make_right_axis_datasets(...raw_datasets) {
+    return make_left_or_right_axis_datasets('y1', ...raw_datasets);
+}
+
 function make_datasets(in_data) {
     let current_color_idx = 0;
     let out_data = [];
     for (let data of in_data.datasets) {
-        let faded_color = add_alpha(chart_colors[current_color_idx], true);
-        let solid_color = add_alpha(chart_colors[current_color_idx]);
-        let x = {
-            label: data.label,
-            data: data.data,
-            hidden: data.hidden,
-            borderColor: faded_color,
-            backgroundColor: solid_color,
-            segment: {
-                borderColor: ctx => skipped(ctx, faded_color) || down(ctx, solid_color),
-                borderDash: ctx => skipped(ctx, [6, 6]),
-            },
-            spanGaps: true,  // connects the data points surrounding the existing data points.
-        };
-        console.log(x);
+        let chart_color = chart_colors[current_color_idx];
+        let x = make_dataset(data, chart_color);
         out_data.push(x);
         current_color_idx += 1;
     }
@@ -96,7 +207,7 @@ function make_datasets(in_data) {
 
 const config = {
   type: 'line',
-  //data: will be added onload,
+  // data: will be added onload,
   options: {
     responsive: true,
     plugins: {
@@ -111,14 +222,60 @@ const config = {
   },
 };
 
+const multi_axis_config = {
+  type: 'line',
+  // data: data,
+  options: {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    stacked: false,
+    plugins: {
+      title: {
+        display: true,
+        text: raw_data.chart_title
+      }
+    },
+    scales: {
+      y: {
+        type: 'linear',
+        display: true,
+        position: 'left',
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+
+        // grid line settings
+        grid: {
+          drawOnChartArea: false, // only want the grid lines for one axis to show up
+        },
+      },
+    }
+  },
+};
 window.onload = function() {
     config.data = {
         labels: raw_data.labels,
         datasets: make_datasets(raw_data)
     };
+    multi_axis_config.data = {
+        labels: raw_data.labels,
+        datasets: make_multi_axis_dataset(split_data.series_3_first_count_price, split_data.series_3_total_extended_price, chart_colors[0], pSBC(0.4, chart_colors[0]))
+    }
     var ctx = document.getElementById('line-chart').getContext('2d');
-    window.myChart = new Chart(ctx, config);
-    console.log(chart_colors);
+    window.myChart = new Chart(ctx, multi_axis_config);
+
+    let change_chart_buttons = document.getElementsByClassName('change-chart-button');
+    for (let btn of change_chart_buttons) {
+        btn.addEventListener('click', function(event) {
+            change_chart_click(this);
+        });
+    }
+
 };
 </script>
 {% endblock %}

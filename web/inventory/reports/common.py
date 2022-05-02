@@ -21,7 +21,7 @@ def run_line_report_sql(sql, start_date, end_date, label_field, **kwargs):
                 # orders, total_count_quantity, total_unit_quantity, total_extended_price
                 if f == label_field:
                     data_tmp['label'] = v
-                if isinstance(v, list):
+                if isinstance(v, list) or f == 'id':
                     data_tmp[f] = v
             line_data.append(data_tmp)
         return {
