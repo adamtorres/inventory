@@ -158,13 +158,21 @@ ansible-playbook --vault-password-file vault.txt -i inventory_pi \
   playbooks/inventory_app_process_items.yml
 ```
 
+When not passing `remove_data`, you do not need to use JSON.
+
+```
+ansible-playbook --vault-password-file vault.txt -i inventory_pi \
+  --extra-vars="incoming_data_file=../../../invoices/incoming-2022-03-31.tsv common_item_names_data_file=../../../invoices/common_names-2022-03-31.tsv" \
+  playbooks/inventory_app_process_items.yml
+```
+
 If there are any unit sizes listed during the `Show unit_size issues after cleaning` task, check them over.
 
 Force cleaning of records which have unrecognized unit sizes.  This has to be done on the pi at the moment.
 
 ```
 . /srv/venv.inventory_app/bin/activate
-./manage.py shell_plus --quiet -c "ia.do_clean(allow_new_units=True)"
+./manage.py process_items --clean --force-clean
 ```
 
 After any issues are cleared up, run the processing steps without uploading any files.

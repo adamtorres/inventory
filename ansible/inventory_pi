@@ -1,8 +1,8 @@
 [machines_name]
-pi-bb131f ansible_host=pi-bb131f.local prompt_id="GIT"
+pi-bb131f ansible_host=pi-bb131f.local prompt_id="PROD"
 
 [machines_ip]
-pi-bb131f ansible_host=192.168.1.8
+pi-bb131f ansible_host=192.168.1.9
 # dc:a6:32:bb:13:1f
 
 [all:vars]
