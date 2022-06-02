@@ -1,0 +1,20 @@
+[machines_name]
+pi-bb12c1 ansible_host=pi-bb12c1.local prompt_id="DEV"
+
+[machines_ip]
+pi-bb12c1 ansible_host=192.168.1.14
+# dc:a6:32:bb:12:c0 eth0
+# dc:a6:32:bb:12:c1 wlan0
+
+[all:vars]
+ansible_user=pi
+ansible_ssh_private_key_file=~/.ssh/macbookair_id_rsa
+
+[base_servers]
+pi-bb12c1
+
+[has_postgres]
+pi-bb12c1
+
+[has_inventory_app]
+pi-bb12c1

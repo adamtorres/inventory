@@ -1,0 +1,55 @@
+### Load an old incoming and common item name file
+ansible-playbook --vault-password-file vault.txt -i inventory_pi_dev \
+  --extra-vars '{"incoming_data_file": "../../../invoices/incoming-2022-03-31.tsv", "common_item_names_data_file": "../../../invoices/common_names-2022-03-31.tsv", "remove_data": True}' \
+  playbooks/inventory_app_process_items.yml
+
+### The failed unit sizes were fine.  Force them through.
+pi@pi-bb12c1: ./manage.py process_items --all --force-clean
+
+
+
+
+
+### Update with just the incoming file
+ansible-playbook --vault-password-file vault.txt -i inventory_pi_dev \
+  --extra-vars 'incoming_data_file=../../../invoices/incoming-2022-04-07-update.tsv' \
+  playbooks/inventory_app_process_items.yml
+
+### The failed unit sizes were fine.  Force them through.
+pi@pi-bb12c1: ./manage.py process_items --all --force-clean
+
+### Show the item names which need common names assigned.  Copy these to the spreadsheet and assign them.
+pi@pi-bb12c1: ./manage.py show_issues --common-name
+
+### Update with just the common item name file made from the previous step.
+ansible-playbook --vault-password-file vault.txt -i inventory_pi_dev \
+  --extra-vars 'common_item_names_data_file=../../../invoices/common_names-2022-04-07.tsv' \
+  playbooks/inventory_app_process_items.yml
+
+
+
+
+
+ansible-playbook --vault-password-file vault.txt -i inventory_pi_dev \
+  --extra-vars '{"incoming_data_file": "../../../invoices/incoming-2022-04-07.tsv", "common_item_names_data_file": "../../../invoices/common_names-2022-04-07.tsv", "remove_data": True}' \
+  playbooks/inventory_app_process_items.yml
+
+
+
+### Update with just the incoming file
+ansible-playbook --vault-password-file vault.txt -i inventory_pi \
+  --extra-vars 'incoming_data_file=../../../invoices/incoming-2022-04-07-update.tsv' \
+  playbooks/inventory_app_process_items.yml
+
+### The failed unit sizes were fine.  Force them through.
+pi@pi-bb131f: ./manage.py process_items --all --force-clean
+
+### Show the item names which need common names assigned.  Copy these to the spreadsheet and assign them.
+pi@pi-bb131f: ./manage.py show_issues --common-name
+
+### Update with just the common item name file made from the previous step.
+ansible-playbook --vault-password-file vault.txt -i inventory_pi \
+  --extra-vars 'common_item_names_data_file=../../../invoices/common_names-2022-04-07.tsv' \
+  playbooks/inventory_app_process_items.yml
+
+
