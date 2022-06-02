@@ -37,6 +37,7 @@ urlpatterns = [
 
     urls.path("rawincomingorders/", i_views.RawIncomingOrderListView.as_view(), name="rawincomingorder_list"),
     urls.path("rawincomingorder/<uuid:pk>/", i_views.RawIncomingOrderDetailView.as_view(), name="rawincomingorder_detail"),
+    urls.path("rawincomingorder/new/", i_views.RawIncomingOrderCreateView.as_view(), name="rawincomingorder_new"),
 
     urls.path("rawincomingitems/", i_views.RawIncomingItemListView.as_view(), name="rawincomingitem_list"),
     urls.path("rawincomingitems/lookup/", i_views.RawIncomingItemLookupView.as_view(), name="rawincomingitem_lookup"),

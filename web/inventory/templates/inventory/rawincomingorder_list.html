@@ -12,6 +12,7 @@
 {% block content %}
     <ul>
     <li><a href="{% url "inventory:rawincomingorder_list" %}?reset">reset filters</a></li>
+    <li><a href="{% url "inventory:rawincomingorder_new" %}">New Order</a></li>
     </ul>
     <table class="datatable datatable-link" id="order-list">
     <thead>

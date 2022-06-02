@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Update{% else %}Create{% endif %} Raw Order{% endblock %}
+
+{% block content %}
+    <h2>{% if object %}Update{% else %}Create{% endif %} Order</h2>
+    <form action="" method="post">
+        {% csrf_token %}
+        {% for hidden_field in form.hidden_fields %}
+          {{ hidden_field.errors }}
+          {{ hidden_field }}
+        {% endfor %}
+        {{ form.non_form_errors }}
+
+        {{ form.as_p }}
+
+        {{formset.management_form}}
+        {% for item_form in formset %}
+            <div>
+            Item Form!
+            {{ item_form.as_p }}
+            </div>
+        {% endfor %}
+        <ul>
+            <li>
+                <button class="btn btn-primary w-75" type="submit">
+                    {% if object %}Update{% else %}Create{% endif %}
+                </button>
+            </li>
+            <li><a class="btn btn-secondary w-75" href="{% if object %}{% url "inventory:rawincomingorder_detail" pk=object.id %}{% else %}{% url "inventory:rawincomingorder_list" %}{% endif %}">Cancel</a></li>
+        </ul>
+    </form>
+{% endblock %}

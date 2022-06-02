@@ -11,7 +11,7 @@ from .random_stats import RandomStatsView
 from .raw_incoming_item import (
     RawIncomingItemCreateView, RawIncomingItemDeleteView, RawIncomingItemDetailView, RawIncomingItemListView,
     RawIncomingItemUpdateView)
-from .raw_incoming_order import RawIncomingOrderDetailView, RawIncomingOrderListView
+from .raw_incoming_order import RawIncomingOrderCreateView, RawIncomingOrderDetailView, RawIncomingOrderListView
 from .raw_incoming_item_lookup import RawIncomingItemLookupView
 # from .report_item_price_history import ReportItemPriceHistoryView
 from .report_item_price_over_time import ItemPriceOverTimeView
