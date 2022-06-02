@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Item Price Change{% endblock %}
+
+{% block styles %}
+<style>
+.right-border {
+    border-right: black solid 1px !important;
+}
+.datatable {
+    width: max-content;
+}
+.datatable>thead>tr {
+    position: sticky;
+    background-color: lightgrey;
+    top: 0px;
+}
+.datatable>thead>tr>th{
+    vertical-align: bottom;
+}
+.datatable>tbody>tr>td {
+    vertical-align: top;
+}
+#lookup-content {
+    overflow: scroll;
+    max-height: inherit;
+}
+.year-month-cell {
+    width: 8em;
+}
+
+.negative-dollar {
+    color: red;
+}
+.negative-dollar::before {
+    content: "(";
+    color: red;
+}
+.negative-dollar::after {
+    content: ")";
+    color: red;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+<table class="datatable">
+<thead>
+<tr>
+    <th class="right-border" colspan="6"></th>
+    <th style="text-align: center;" class="right-border" colspan="3">First Order</th>
+    <th style="text-align: center;" class="right-border" colspan="3">Last Order</th>
+    <th colspan="3"></th>
+</tr>
+<tr>
+    <th>Source</th>
+    <th>Category</th>
+    <th>Item Name and Code</th>
+    <th class="right-align">Pack Qty</th>
+    <th class="right-align">Unit Size</th>
+    <th class="right-align right-border">Unit Qty</th>
+    <th class="right-align">Date</th>
+    <th class="right-align">Pack Price</th>
+    <th class="right-align right-border">$/Count</th>
+    <th class="right-align">Date</th>
+    <th class="right-align">Pack Price</th>
+    <th class="right-align right-border">$/Count</th>
+    <th class="right-align">Pack Price Change</th>
+    <th class="right-align">Orders</th>
+    <th class="right-align">Total Spent</th>
+</tr>
+</thead>
+<tbody>
+{% for item_data in itempricechange.table %}
+    <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}">
+        <td>{{ item_data.source_name }}</td>
+        <td>{{ item_data.category_name }}</td>
+        <td>
+            <div>{{ item_data.commonitem_name }}</div>
+            <div>{{ item_data.ticked_item_code }} - {{ item_data.name }}</div>
+        </td>
+        <td class="right-align">{{ item_data.pack_quantity }}</td>
+        <td class="right-align">{{ item_data.unit_size }}</td>
+        <td class="right-align right-border">{{ item_data.unit_quantity }}</td>
+        <td class="right-align">{{ item_data.first_order }}</td>
+        <td class="dollar-cell right-align">{{ item_data.first_pack_price|floatformat:2|intcomma }}</td>
+        <td class="dollar-cell right-align right-border">{{ item_data.first_price_per_count|floatformat:2|intcomma }}</td>
+        <td class="right-align">{{ item_data.last_order }}</td>
+        <td class="dollar-cell right-align">{{ item_data.last_pack_price|floatformat:2|intcomma }}</td>
+        <td class="dollar-cell right-align right-border">{{ item_data.last_price_per_count|floatformat:2|intcomma }}</td>
+        <td class="dollar-cell right-align">
+            {% if item_data.pack_price_change == 0 %}
+                <span class="text-muted">-</span>
+            {% elif item_data.pack_price_change < 0 %}
+                <span class="negative-dollar">{{ item_data.pack_price_change|floatformat:2|intcomma }}</span>
+            {% else %}
+                {{ item_data.pack_price_change|floatformat:2|intcomma }}
+            {% endif %}
+        </td>
+        <td class="right-align">{{ item_data.orders|intcomma }}</td>
+        <td class="dollar-cell right-align">{{ item_data.total_spent|floatformat:2|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

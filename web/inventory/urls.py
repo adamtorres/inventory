@@ -23,6 +23,7 @@ urlpatterns = [
     urls.path("api_rawitem/wide_filter/", i_views.RawItemWideFilterView.as_view(), name="api_rawitem_widefilter"),
     urls.path("api_rawincomingitem/wide_filter/", i_views.RawIncomingItemWideFilterView.as_view(), name="api_rawincomingitem_widefilter"),
 
+    urls.path("api_reports_itempricechange/", i_views.APIItemPriceChangeView.as_view(), name="api_report_itempricechange"),
     urls.path("api_reports_itempriceovertime/", i_views.APIItemPriceOverTimeView.as_view(), name="api_report_itempriceovertime"),
 
     urls.path("api_usage_change/", i_views.APIUsageChangeView.as_view(), name="api_usage_change"),
@@ -49,6 +50,7 @@ urlpatterns = [
     urls.path(
         "reports/itempricehistory/<slug:time_period>/", i_views.ReportItemPriceHistoryView.as_view(),
         name="report_itempricehistory_time_period"),
+    urls.path("reports/itempricechange/", i_views.ReportItemPriceChangeView.as_view(), name="report_itempricechange"),
     urls.path("reports/itempricehistory/", i_views.ReportItemPriceHistoryView.as_view(), name="report_itempricehistory"),
     urls.path("reports/itempriceovertime/", i_views.ItemPriceOverTimeView.as_view(), name="report_itempriceovertime"),
     urls.path("rollup_by_category/", i_views.ReportRollupByCategoryView.as_view(), name="report_rollup_by_category"),

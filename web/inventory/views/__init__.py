@@ -2,6 +2,7 @@ from .api_item import APIItemWithInStockQuantities, APICommonItemWithInStockQuan
 from .api_item_in_stock import APIItemInStockView
 from .api_raw_incoming_item import APIRawIncomingItemDetailView, APIRawIncomingItemListView
 from .api_raw_incoming_order import APIRawIncomingOrderDetailView, APIRawIncomingOrderListView
+from .api_report_get_item_price_change import APIItemPriceChangeView
 from .api_report_item_price_over_time import APIItemPriceOverTimeView
 from .api_usage import APIUsageChangeView, APIUsageCreateView
 from .api_usage_group import APIUsageGroupListView, APIUsageGroupDetailView
@@ -13,6 +14,7 @@ from .raw_incoming_item import (
     RawIncomingItemUpdateView)
 from .raw_incoming_order import RawIncomingOrderCreateView, RawIncomingOrderDetailView, RawIncomingOrderListView
 from .raw_incoming_item_lookup import RawIncomingItemLookupView
+from .report_item_price_change import ReportItemPriceChangeView
 # from .report_item_price_history import ReportItemPriceHistoryView
 from .report_item_price_over_time import ItemPriceOverTimeView
 from .report_rollup_by_category import ReportRollupByCategoryView, ReportItemPriceHistoryView
