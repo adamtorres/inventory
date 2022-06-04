@@ -21,8 +21,16 @@ class APIItemPriceChangeView(views.APIView):
             "cream cheese",
             "flour",
             "ground beef",
+            'large eggs', 'eggs',
+            'mixed vegetables', 'california vegetable blend', 'scandinavian vegetable blend', '5 way vegetable mix', 'fajita vegetables',
+            'diced mixed fruit', 'fruit cocktail', 'sliced peaches', 'diced pears', 'apple slices', 'crushed pineapple', 'pineapple chunks', 'pineapple slices', 'pineapple tidbits',
+            'country fried beef fritter', 'beef top round', 'pickled beet slices',
+            'grape juice', 'apple juice', 'orange juice', 'cranberry cocktail juice',
+            'center cut pork chop boneless', 'center cut pork loin boneless', 'center cut pork loin boneless strap off', 'pork loin boneless rolled tied', 'center cut pork loin boneless strap on',
+            'chicken cordon bleu', 'frozen chicken breast', 'breaded chicken breast patty precooked'
+
         ]
-        months = 6
+        months = 12
         # highest_qs = inv_models.RawIncomingItem.reports.highest_spending_items(months=months)
         # highest_filter = highest_qs.values_list('rawitem_obj_id', flat=True)
         # selected_item_filter = models.Q(rawitem_obj_id__in=highest_filter)
