@@ -9,6 +9,21 @@
     <title>{% block title %}Title{% endblock %}</title>
 
     <style type="text/css">
+        @media print
+        {
+            body {
+                font-size: 4pt;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            @page {
+                size: landscape;
+            }
+            .no-print, .no-print *
+            {
+                display: none !important;
+            }
+        }
         body>main>div {
             height: 100vh;
         }

@@ -10,7 +10,13 @@
     border-right: black solid 1px !important;
 }
 .datatable {
-    width: max-content;
+    width: 100%;
+    font-size: 90%;
+}
+@media print {
+    .datatable {
+        font-size: 70%;
+    }
 }
 .datatable>thead>tr {
     position: sticky;
@@ -42,6 +48,21 @@
     content: ")";
     color: red;
 }
+.thin-number {
+    width: 3rem;
+}
+.thinner-number {
+    width: 2rem;
+}
+.thin-dollar {
+    width: 4rem;
+}
+.date-col {
+    width: 6em;
+}
+.text-nowrap {
+    white-space: nowrap;
+}
 
 </style>
 {% endblock %}
@@ -51,41 +72,49 @@
 <table class="datatable">
 <thead>
 <tr>
-    <th class="right-border" colspan="6"></th>
+    <th class="right-border" colspan="5"></th>
     <th style="text-align: center;" class="right-border" colspan="3">First Order</th>
     <th style="text-align: center;" class="right-border" colspan="3">Last Order</th>
     <th colspan="3"></th>
 </tr>
 <tr>
-    <th>Source</th>
-    <th>Category</th>
+{#    <th>Source</th>#}
+{#    <th>Category</th>#}
+    <th>
+        <div>Source</div>
+        <div>Category</div>
+    </th>
     <th>Item Name and Code</th>
-    <th class="right-align">Pack Qty</th>
-    <th class="right-align">Unit Size</th>
-    <th class="right-align right-border">Unit Qty</th>
-    <th class="right-align">Date</th>
-    <th class="right-align">Pack Price</th>
-    <th class="right-align right-border">$/Count</th>
-    <th class="right-align">Date</th>
-    <th class="right-align">Pack Price</th>
-    <th class="right-align right-border">$/Count</th>
-    <th class="right-align">Pack Price Change</th>
-    <th class="right-align">Orders</th>
+    <th class="right-align thinner-number">Pack Qty</th>
+    <th class="right-align thinner-number">Unit Size</th>
+    <th class="right-align thinner-number right-border">Unit Qty</th>
+    <th class="right-align date-col">Date</th>
+    <th class="right-align thin-dollar">Pack Price</th>
+    <th class="right-align thin-dollar right-border">$/Count</th>
+    <th class="right-align date-col">Date</th>
+    <th class="right-align thin-dollar">Pack Price</th>
+    <th class="right-align thin-dollar right-border">$/Count</th>
+    <th class="right-align thin-dollar">Pack Price Change</th>
+    <th class="right-align thin-number">Orders</th>
     <th class="right-align">Total Spent</th>
 </tr>
 </thead>
 <tbody>
 {% for item_data in itempricechange.table %}
-    <tr class="{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}">
-        <td>{{ item_data.source_name }}</td>
-        <td>{{ item_data.category_name }}</td>
+    <tr class="{% ifchanged item_data.commonitem_name %}{% cycle 'datatable-odd-row' 'datatable-even-row' as row_class %}{% else %}{{ row_class }}{% endifchanged %}">
+{#        <td>{{ item_data.source_name }}</td>#}
+{#        <td>{{ item_data.category_name }}</td>#}
+        <td>
+            <div>{{ item_data.source_name }}</div>
+            <div>{{ item_data.category_name }}</div>
+        </td>
         <td>
             <div>{{ item_data.commonitem_name }}</div>
-            <div>{{ item_data.ticked_item_code }} - {{ item_data.name }}</div>
+            <div class="text-nowrap">{{ item_data.ticked_item_code }} - {{ item_data.name }}</div>
         </td>
-        <td class="right-align">{{ item_data.pack_quantity }}</td>
+        <td class="right-align">{{ item_data.pack_quantity|floatformat|intcomma }}</td>
         <td class="right-align">{{ item_data.unit_size }}</td>
-        <td class="right-align right-border">{{ item_data.unit_quantity }}</td>
+        <td class="right-align right-border">{{ item_data.unit_quantity|floatformat|intcomma }}</td>
         <td class="right-align">{{ item_data.first_order }}</td>
         <td class="dollar-cell right-align">{{ item_data.first_pack_price|floatformat:2|intcomma }}</td>
         <td class="dollar-cell right-align right-border">{{ item_data.first_price_per_count|floatformat:2|intcomma }}</td>
