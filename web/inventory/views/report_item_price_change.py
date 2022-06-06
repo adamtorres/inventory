@@ -1,3 +1,4 @@
+from dateutil import parser
 import requests
 
 from django import urls
@@ -19,4 +20,14 @@ class ReportItemPriceChangeView(sc_views.OnPageTitleMixin, generic.TemplateView)
         if resp.status_code != 200:
             return context
         context['itempricechange'] = resp.json()
+        # The date formatting in the template does not work with the date strings as returned by the api.
+        context['itempricechange']['settings']['start_date'] = parser.parse(
+            context['itempricechange']['settings']['start_date'])
+        context['itempricechange']['settings']['end_date'] = parser.parse(
+            context['itempricechange']['settings']['end_date'])
+
+        context['itempricechange']['stats']['min_date'] = parser.parse(
+            context['itempricechange']['stats']['min_date'])
+        context['itempricechange']['stats']['max_date'] = parser.parse(
+            context['itempricechange']['stats']['max_date'])
         return context

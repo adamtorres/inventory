@@ -69,8 +69,8 @@ class ReportItemPriceHistoryView(TimePeriodView, sc_views.OnPageTitleMixin, gene
             "butter", "cut green beans", "hamburger sesame buns", "flour",
             "low fat milk cartons", "low fat chocolate milk cartons",
         ]
-        qs = inv_models.ReportSetting.objects.filter(report_name="item_price_history", key="default_items")
-        items = list(qs.values_list('value', flat=True))
+        report_settings = inv_models.ReportSetting.objects.for_report('item_price_history')
+        items = report_settings['default_items']
         context['item_price_history'] = inv_reports.get_item_price_history(
             context['selected_time_period']['start__gte'], context['selected_time_period']['end__lte'], items)
         return context
