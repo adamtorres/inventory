@@ -24,6 +24,7 @@ RETURNS TABLE (
     "last_pack_price" NUMERIC(10, 4),
     "last_price_per_count" NUMERIC(10, 4),
     "pack_price_change" NUMERIC(10, 4),
+    "unit_price_change" NUMERIC(10, 4),
     "orders" BIGINT,
     "total_spent" NUMERIC(10, 4)
 )
@@ -165,6 +166,24 @@ BEGIN
                 ELSE short_data."first_pack_price"
             END
         ) AS "pack_price_change",
+        ROUND(
+            CASE
+                WHEN short_data."last_total_weight" > 0
+                    -- If total_weight is populated, pack_price is already a $/weight value.
+                    THEN short_data."last_pack_price"
+                WHEN short_data."pack_quantity" > 0
+                    THEN ROUND(short_data."last_pack_price" / short_data."pack_quantity", 4)
+                ELSE short_data."last_pack_price"
+            END / short_data."unit_quantity"
+            - CASE
+                WHEN short_data."first_total_weight" > 0
+                    -- If total_weight is populated, pack_price is already a $/weight value.
+                    THEN short_data."first_pack_price"
+                WHEN short_data."pack_quantity" > 0
+                    THEN ROUND(short_data."first_pack_price" / short_data."pack_quantity", 4)
+                ELSE short_data."first_pack_price"
+            END / short_data."unit_quantity", 4
+        ) AS "unit_price_change",
         short_data."orders",
         short_data."total_spent"
     FROM short_data
