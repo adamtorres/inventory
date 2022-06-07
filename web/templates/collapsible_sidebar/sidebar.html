@@ -30,6 +30,8 @@
             <a href="#ReportsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reports</a>
             <ul class="collapse list-unstyled" id="ReportsSubmenu">
                 <li><a href="{% url "inventory:report_rollup_by_category" %}" class="link-light rounded">Rollup By Category</a></li>
+                <li><a href="{% url "inventory:report_itempricehistory_time_period" time_period="last_twelve_months" %}" class="link-light rounded">Item Price History</a></li>
+                <li><a href="{% url "inventory:report_itempricechange" %}" class="link-light rounded">Item Price Change</a></li>
             </ul>
         </li>
     </ul>
