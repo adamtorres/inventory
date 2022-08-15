@@ -6,20 +6,23 @@ from scrap.models import fields as sc_fields
 
 
 class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
-    def source_names(self):
-        return self.values('source__name').order('source__name').distinct('source__name')
-
-    def unit_sizes(self):
-        return self.values('unit_size').order('unit_size').distinct('unit_size')
+    def common_names(self):
+        return self.values('common_name').order_by('common_name').distinct('common_name')
 
     def cryptic_names(self):
-        return self.values('cryptic_name').order('cryptic_name').distinct('cryptic_name')
+        return self.values('cryptic_name').order_by('cryptic_name').distinct('cryptic_name')
+
+    def source_names(self):
+        return self.values('source__name').order_by('source__name').distinct('source__name')
+
+    def source_categories(self):
+        return self.values('source_category').order_by('source_category').distinct('source_category')
+
+    def unit_sizes(self):
+        return self.values('unit_size').order_by('unit_size').distinct('unit_size')
 
     def verbose_names(self):
-        return self.values('verbose_name').order('verbose_name').distinct('verbose_name')
-
-    def common_names(self):
-        return self.values('common_name').order('common_name').distinct('common_name')
+        return self.values('verbose_name').order_by('verbose_name').distinct('verbose_name')
 
 
 class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
@@ -30,7 +33,16 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
 
     delivered_date = models.DateField()
     source = models.ForeignKey("inventory.Source", on_delete=models.CASCADE)
-    brand = sc_fields.CharField(blank=False, verbose_name="Brand name")
+    brand = sc_fields.CharField(verbose_name="Brand name")
+
+    customer_number = sc_fields.CharField()
+    order_number = sc_fields.CharField()
+    po_text = sc_fields.CharField()
+
+    line_item_number = models.IntegerField(default=0, null=False, blank=True)
+
+    source_category = sc_fields.CharField(
+        help_text="Source-specific category.  Need our own as some of these don't make sense.")
 
     # This might vary from order to order as RSM and Sysco have not been consistent.
     cryptic_name = sc_fields.CharField(blank=False, help_text="Source-specific name of item as it appears on invoices")
@@ -52,19 +64,34 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     delivered_quantity = models.IntegerField(
         default=1, help_text="How many packs did we get?  Not ordered or back-ordered; physically present.")
 
+    pack_cost = sc_fields.MoneyField()
     pack_quantity = sc_fields.CharField(blank=False, help_text="For a pack of 6 #10 cans, this would be 6.")
 
+    # unit_cost = sc_fields.MoneyField(help_text="calculated and saved to make other calculations easier")
     unit_quantity = models.IntegerField(
         default=1, help_text="count within a unit - dozen eggs would be 12.  50lb flour would be 50.")
 
     unit_size = sc_fields.CharField(
         blank=False, help_text="1dz, 50lb, 12pk.  Might have the same number as unit_quantity")
 
+    extended_cost = sc_fields.MoneyField(help_text="includes tax and any shipping fees")
+
     total_weight = models.DecimalField(max_digits=8, decimal_places=4, default=0)
-    individual_weights = pg_fields.ArrayField(models.DecimalField(max_digits=8, decimal_places=4))
+    individual_weights = pg_fields.ArrayField(models.DecimalField(max_digits=8, decimal_places=4), default=list)
 
     # Peanut Butter.  No brand, unit size, item code, source, location, etc.
     common_name = sc_fields.CharField(blank=False, help_text="Common brand-less name of item")
 
     extra_notes = sc_fields.CharField(help_text="Any extra stuff for the item")
     extra_code = sc_fields.CharField(help_text="A second code or whatever.")
+    scanned_filename = sc_fields.CharField(help_text="name of the scanned image file in case we need to verify data")
+
+    # TODO: tax, category
+
+    discrepancy = sc_fields.MoneyField(
+        help_text="to hold the difference between extended_cost and calculating from quantity/pack_cost")
+
+    objects = SourceItemManager()
+
+    def __str__(self):
+        return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
