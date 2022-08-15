@@ -39,3 +39,5 @@ django-filter
 
 # for making calls to the api from within code
 requests
+
+../../v6/django-scrap
