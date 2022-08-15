@@ -15,7 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.views import generic
+
+from . import views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # urls.path('news/', urls.include('news.urls', namespace='news')),
+
+    path('', views.PlaceholderView.as_view(), name="homepage"),
+    # Redirect a path-less url to a specific page without it being permanent.
+    # path('', generic.RedirectView.as_view(pattern_name="app:urlname", permanent=False), name="homepage"),
 ]

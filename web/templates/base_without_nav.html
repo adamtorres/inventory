@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:,">
+
+    <title>{% block title %}Page title{% endblock %}</title>
+
+    {% block navpanel_css %}
+    {% endblock %}
+
+    {% block styles %}
+    {% endblock %}
+
+    {% block head_scripts %}
+    {% endblock %}
+</head>
+<body>
+<main>
+{% block modal_body %}
+    {# for any modal forms - just starting to learn bootstrap's modals and they seem to need to be high in the tree. #}
+{% endblock %}
+<div class="wrapper">
+    {% block navpanel_body %}
+        {# left side panel #}
+    {% endblock %}
+    <div id="content" class="p-2 flex-grow-1">
+        {% block navpanel_header %}
+            {# panel that runs across the top of the page #}
+        {% endblock %}
+        <div id="main-content" class="">
+            {% block content %}
+                {# main content #}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+</main>
+{% block navpanel_js %}
+{% endblock %}
+{% block body_scripts %}
+{% endblock %}
+</body>
+</html>
