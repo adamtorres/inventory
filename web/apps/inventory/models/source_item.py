@@ -12,6 +12,14 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
     def cryptic_names(self):
         return self.values('cryptic_name').order_by('cryptic_name').distinct('cryptic_name')
 
+    def order_numbers(self):
+        return self.values('order_number').order_by('order_number').distinct('order_number')
+
+    def orders(self):
+        qs = self.values('source', 'delivered_date', 'order_number')
+        qs = qs.order_by('delivered_date', 'source', 'order_number')
+        return qs.distinct('delivered_date', 'source', 'order_number')
+
     def source_names(self):
         return self.values('source__name').order_by('source__name').distinct('source__name')
 
