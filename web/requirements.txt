@@ -1,0 +1,41 @@
+# The webserver
+Django
+
+# Provides runserver_plus and shell_plus
+django-extensions
+
+# Connects to Postgresql
+# Using psycopg2-binary causes the following error:
+# django.db.utils.OperationalError: SCRAM authentication requires libpq version 10 or above
+# This appears to be a problem for ARM as the v3 code on osx is using the binary.
+psycopg2-binary
+
+# Reads .env files
+django-dotenv
+
+# used to localize times
+pytz
+
+# Used by runserver_plus
+Werkzeug
+
+# Converts between units like cups/quarts/milliliters.  This is my fork which adds volume.
+# git+https://github.com/adamtorres/unit-convert@master#egg=unit-convert
+
+# provides a fancier django admin interface.  Using it because it promised to handle GenericForeignKey nicely.
+# django-grappelli
+
+# Trying to add colors to print-sql output
+pygments
+
+# to parse dates from invoice files
+python-dateutil
+
+# mainly for the serializer
+djangorestframework
+
+# for if/when more user-driven filtering is desired.
+django-filter
+
+# for making calls to the api from within code
+requests
