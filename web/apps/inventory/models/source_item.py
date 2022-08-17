@@ -51,8 +51,12 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
 class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     wide_filter_fields = {
         'name': ['cryptic_name', 'verbose_name', 'common_name'],
-        'general': ['cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code'],
+        'general': [
+            'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size'],
+        'quantity': ['delivered_quantity', 'pack_quantity', 'unit_quantity'],
+        'unit_size': ['unit_size'],
     }
+    wide_filter_fields_any = []
 
     delivered_date = models.DateField()
     source = models.ForeignKey("inventory.Source", on_delete=models.CASCADE)
@@ -88,7 +92,7 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
         default=1, help_text="How many packs did we get?  Not ordered or back-ordered; physically present.")
 
     pack_cost = sc_fields.MoneyField()
-    pack_quantity = sc_fields.CharField(default="1", help_text="For a pack of 6 #10 cans, this would be 6.")
+    pack_quantity = models.IntegerField(default=1, help_text="For a pack of 6 #10 cans, this would be 6.")
 
     # unit_cost = sc_fields.MoneyField(help_text="calculated and saved to make other calculations easier")
     unit_quantity = models.IntegerField(
