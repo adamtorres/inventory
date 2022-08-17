@@ -6,31 +6,46 @@ from scrap.models import fields as sc_fields
 
 
 class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
+    def _value_order_distinct(self, field_names, exclude_blank=True):
+        if isinstance(field_names, str):
+            field_names = [field_names]
+        qs = self
+        if exclude_blank:
+            # This excludes when any one of the field_names is blank.
+            q = models.Q()
+            for fn in field_names:
+                q |= models.Q(**{fn: ""})
+            # # This excludes only when all the field_names are blank.
+            # q = models.Q(**{fn: "" for fn in field_names})
+            qs = qs.exclude(q)
+        return qs.values(*field_names).order_by(*field_names).distinct(*field_names)
+
     def common_names(self):
-        return self.values('common_name').order_by('common_name').distinct('common_name')
+        return self._value_order_distinct('common_name')
 
     def cryptic_names(self):
-        return self.values('cryptic_name').order_by('cryptic_name').distinct('cryptic_name')
+        return self._value_order_distinct('cryptic_name')
 
     def order_numbers(self):
-        return self.values('order_number').order_by('order_number').distinct('order_number')
+        return self._value_order_distinct('order_number')
 
     def orders(self):
-        qs = self.values('source', 'delivered_date', 'order_number')
-        qs = qs.order_by('delivered_date', 'source', 'order_number')
-        return qs.distinct('delivered_date', 'source', 'order_number')
+        return self._value_order_distinct(['delivered_date', 'source', 'order_number'])
 
     def source_names(self):
-        return self.values('source__name').order_by('source__name').distinct('source__name')
+        return self._value_order_distinct('source__name')
 
     def source_categories(self):
-        return self.values('source_category').order_by('source_category').distinct('source_category')
+        return self._value_order_distinct('source_category')
 
     def unit_sizes(self):
-        return self.values('unit_size').order_by('unit_size').distinct('unit_size')
+        return self._value_order_distinct('unit_size')
 
     def verbose_names(self):
-        return self.values('verbose_name').order_by('verbose_name').distinct('verbose_name')
+        return self._value_order_distinct('verbose_name')
+
+    def missing_verbose_name(self):
+        return self.filter(verbose_name="").values('cryptic_name').order_by('cryptic_name').distinct('cryptic_name')
 
 
 class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
@@ -57,10 +72,10 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
 
     # This doesn't change any of the words or order.  It might add words where completely missing.
     # Just changes things like "PORK LOIN BNLS CC STR/OFF" to "Pork loin boneless center cut strap off"
-    verbose_name = sc_fields.CharField(blank=False, help_text="More human-readable name of the item")
+    verbose_name = sc_fields.CharField(help_text="More human-readable name of the item")
 
     # This might also change over time.  Yay.
-    item_code = sc_fields.CharField(blank=False, help_text="String of text that should uniquely identify the item")
+    item_code = sc_fields.CharField(help_text="String of text that should uniquely identify the item")
 
     # 5x 12pk of 12oz soda - this is 5 12pks of soda cans
     #   quantity=5, pack_quantity=12, unit_quantity=12, unit_size=12oz
@@ -73,14 +88,13 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
         default=1, help_text="How many packs did we get?  Not ordered or back-ordered; physically present.")
 
     pack_cost = sc_fields.MoneyField()
-    pack_quantity = sc_fields.CharField(blank=False, help_text="For a pack of 6 #10 cans, this would be 6.")
+    pack_quantity = sc_fields.CharField(default="1", help_text="For a pack of 6 #10 cans, this would be 6.")
 
     # unit_cost = sc_fields.MoneyField(help_text="calculated and saved to make other calculations easier")
     unit_quantity = models.IntegerField(
         default=1, help_text="count within a unit - dozen eggs would be 12.  50lb flour would be 50.")
 
-    unit_size = sc_fields.CharField(
-        blank=False, help_text="1dz, 50lb, 12pk.  Might have the same number as unit_quantity")
+    unit_size = sc_fields.CharField(help_text="1dz, 50lb, 12pk.  Might have the same number as unit_quantity")
 
     extended_cost = sc_fields.MoneyField(help_text="includes tax and any shipping fees")
 
@@ -88,7 +102,7 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     individual_weights = pg_fields.ArrayField(models.DecimalField(max_digits=8, decimal_places=4), default=list)
 
     # Peanut Butter.  No brand, unit size, item code, source, location, etc.
-    common_name = sc_fields.CharField(blank=False, help_text="Common brand-less name of item")
+    common_name = sc_fields.CharField(help_text="Common brand-less name of item")
 
     extra_notes = sc_fields.CharField(help_text="Any extra stuff for the item")
     extra_code = sc_fields.CharField(help_text="A second code or whatever.")

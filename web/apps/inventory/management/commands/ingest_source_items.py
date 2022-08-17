@@ -59,10 +59,15 @@ class Command(commands.IngestCommand):
             "max_date": None,
         }
 
+    def postclean_row(self, named_row):
+        if named_row.pack_quantity <= 0:
+            named_row.pack_quantity = 1
+        return named_row
+
     def preclean_row(self, raw_row_data):
         raw_row_data = self.text_to_date(raw_row_data, ['delivered_date'])
         raw_row_data = self.text_to_number(
-            raw_row_data, ["delivered_quantity", "line_item_number", "pack_quantity"], int, 0)
+            raw_row_data, ["delivered_quantity", "line_item_number", "pack_quantity"], int, 1)
         raw_row_data = self.text_to_number(raw_row_data, ["total_weight", "pack_cost", "extended_cost"], float, 0)
         return super().preclean_row(raw_row_data)
 
