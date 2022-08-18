@@ -1,0 +1,26 @@
+<nav id="sidebar" class="active no-print">
+    <div class="sidebar-header">
+        <h3>Bear Lake Senior Citizen Center Inventory</h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <p><a href="{% url "homepage" %}" class="link-light rounded">Home</a></p>
+        <li class="active">
+            {# TODO: Would be nice to have a way for only these links to cause the sidebar to start open on the next page. #}
+            <a href="#SourceItemSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Source Items</a>
+            <ul class="collapse list-unstyled" id="SourceItemSubmenu">
+                <li><a href="{% url "inventory:sourceitem_search" %}" class="link-light rounded">Search</a></li>
+                <li><a href="{% url "inventory:sourceitem_stats" %}" class="link-light rounded">Random Stats</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="list-unstyled CTAs">
+        <li>
+            <a href="#" class="download">Some other link</a>
+        </li>
+        <li>
+            <a href="#" class="article">Some link</a>
+        </li>
+    </ul>
+</nav>
