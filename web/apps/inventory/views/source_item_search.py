@@ -8,6 +8,6 @@ class SourceItemSearchView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sources'] = inv_models.SourceItem.objects.source_names()
+        context['sources'] = inv_models.Source.objects.active_sources()
         context['categories'] = inv_models.SourceItem.objects.source_categories()
         return context

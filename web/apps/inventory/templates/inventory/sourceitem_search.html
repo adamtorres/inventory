@@ -4,21 +4,98 @@
 {% block title %}Search Source Items{% endblock %}
 
 {% block styles %}
+<style>
+.choice-filter {
+
+}
+.choice-filter-comment {
+    color: lightgray;
+}
+.choice-inline {
+    display: inline-block;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-Sources:
-<ul>
-    {% for obj in sources %}
-        <li>{{ obj.source__name }}</li>
-    {% endfor %}
-</ul>
-Categories:
-<ul>
-    {% for obj in categories %}
-        <li>{{ obj.source_category }}</li>
-    {% endfor %}
-</ul>
+<div class="container-fluid" id="lookup-content">
+    <div id="filter-controls">
+        <div class="accordion" id="filter-limits-parent">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="filter-limits-heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter-limits-collapsible" aria-expanded="false" aria-controls="filter-limits-collapsible">
+                        Limit by Source or Category
+                    </button>
+                </h2>
+                <div id="filter-limits-collapsible" class="accordion-collapse collapse" aria-labelledby="filter-limits-heading" data-bs-parent="#filter-limits-parent">
+                    <div class="accordion-body">
+                        <div>
+                            <div>
+                                <span class="choice-filter">Limit to selected source(s) </span>
+                                <span class="choice-filter-comment">or select none for no filter</span>
+                            </div>
+                            <div class="choice-inline">
+                                {% for source in sources %}
+                                    <div class="choice-inline" style="margin-right: 2em;">
+                                        <div class="choice-inline">
+                                            <input type="checkbox" name="filter-source" id="filter-source-{{ source.id }}" value="{{ source.id }}">
+                                        </div>
+                                        <div class="choice-inline">
+                                            <label for="filter-source-{{ source.id }}">{{ source.name|title }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div>
+                            <div>
+                                <span class="choice-filter">Limit to selected category(ies) </span>
+                                <span class="choice-filter-comment">or select none for no filter</span>
+                            </div>
+                            <div class="choice-inline">
+                                {% for category in categories %}
+                                    <div class="choice-inline" style="margin-right: 2em;">
+                                        <div class="choice-inline">
+                                            <input type="checkbox" name="filter-category" id="filter-category-{{ category.row_number }}" value="{{ category.row_number }}">
+                                        </div>
+                                        <div class="choice-inline">
+                                            <label for="filter-category-{{ category.row_number }}">{{ category.source_category|title }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label class="d-block" for="filter-quantity">Quantity:</label>
+                <input type="text" id="filter-quantity" class="filter-input" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-unit-size">Unit size:</label>
+                <input type="text" id="filter-unit-size" class="filter-input" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-item-name">Item name:</label>
+                <input type="text" id="filter-item-name" class="filter-input" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-comment">Comment:</label>
+                <input type="text" id="filter-comment" class="filter-input" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-order-number">Order Number:</label>
+                <input type="text" id="filter-order-number" class="filter-input" />
+            </div>
+            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ item_id }}" />
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block body_scripts %}
