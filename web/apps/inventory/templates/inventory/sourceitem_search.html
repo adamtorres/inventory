@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search Source Items{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+Sources:
+<ul>
+    {% for obj in sources %}
+        <li>{{ obj.source__name }}</li>
+    {% endfor %}
+</ul>
+Categories:
+<ul>
+    {% for obj in categories %}
+        <li>{{ obj.source_category }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
