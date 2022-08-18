@@ -1,5 +1,7 @@
 from django.contrib.postgres import fields as pg_fields
 from django.db import models
+from django.db.models import functions
+
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
@@ -46,6 +48,19 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
 
     def missing_verbose_name(self):
         return self.filter(verbose_name="").values('cryptic_name').order_by('cryptic_name').distinct('cryptic_name')
+
+    def stats(self):
+        return self.annotate(
+            order_id=functions.Concat(
+                models.F('delivered_date'), models.F('source'), models.F('order_number'),
+                output_field=models.CharField())
+        ).aggregate(
+            min_delivered_date=models.Min('delivered_date'),
+            max_delivered_date=models.Max('delivered_date'),
+            sum_extended_cost=models.Sum('extended_cost'),
+            count_line_item=models.Count('id'),
+            count_order=models.Count('order_id', distinct=True),
+        )
 
 
 class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):

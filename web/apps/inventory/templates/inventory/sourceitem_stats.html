@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Source Items Stats{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+Stats:
+<ul>
+    {% for key, value in stats.items %}
+        <li>{{ key }}: {{ value }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

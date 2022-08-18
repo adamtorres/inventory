@@ -7,4 +7,5 @@ app_name = "inventory"
 
 urlpatterns = [
     urls.path("sourceitem/search/", i_views.SourceItemSearchView.as_view(), name="sourceitem_search"),
+    urls.path("sourceitem/stats/", i_views.SourceItemStatsView.as_view(), name="sourceitem_stats"),
 ]
