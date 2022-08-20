@@ -1,5 +1,7 @@
 # The webserver
-Django
+# TODO: Pinned to 4.0.6 because django-extensions uses 'requires_system_checks=False'
+#  which Django 4.1 doesn't like.
+Django==4.0.6
 
 # Provides runserver_plus and shell_plus
 django-extensions
@@ -40,4 +42,4 @@ django-filter
 # for making calls to the api from within code
 requests
 
-../../v6/django-scrap
+-e ../../v6/django-scrap

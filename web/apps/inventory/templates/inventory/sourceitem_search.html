@@ -14,6 +14,15 @@
 .choice-inline {
     display: inline-block;
 }
+
+#result-table tr th {
+    background-color: lightgrey;
+    position: sticky;
+}
+#result-table tr:nth-child(even) {
+    background-color: lightgoldenrodyellow;
+}
+
 </style>
 {% endblock %}
 
@@ -95,8 +104,156 @@
         </div>
     </div>
 </div>
-
+<div id="calculation-div">
+    <h5>
+        Selected item
+    </h5>
+    <div class="row selected-item-text-row">
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-name">Item: </label>
+                <span id="calc-item-name">[item name]</span>
+            </div>
+        </div>
+    </div>
+</div>
+<pre id="on-page-log">
+Log.
+</pre>
+<table style="display: none;" class="filtered-item-template-container">
+    <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
+        <td class="border date-cell" data-field="delivered_date">__delivered_date__</td>
+        <td class="border" data-field="brand">__brand__</td>
+        <td class="border" data-field="source_name">__source_name__</td>
+        <td class="border" data-field="order_number">__order_number__</td>
+        <td class="border d-none" data-field="po_text">__po_text__</td>
+        <td class="border right-align d-none" data-field="line_item_number">__line_item_number__</td>
+        <td class="border d-none" data-field="source_category">__source_category__</td>
+        <td class="border">
+            <div data-field="cryptic_name"></div>
+            <div data-field="verbose_name"></div>
+            <div data-field="common_name"></div>
+        </td>
+        <td class="border d-none" data-field="item_code">__item_code__</td>
+        <td class="border d-none" data-field="extra_code">__extra_code__</td>
+        <td class="border right-align" data-field="delivered_quantity">__delivered_quantity__</td>
+        <td class="border right-align" data-field="pack_quantity">__pack_quantity__</td>
+        <td class="border right-align" data-field="unit_size">__unit_size__</td>
+        <td class="border right-align" data-field="unit_quantity">__unit_quantity__</td>
+        <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
+        <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
+        <td class="border right-align" data-field="total_weight">__total_weight__</td>
+        <td class="border right-align" data-field="individual_weights">__individual_weights__</td>
+        <td class="border d-none" data-field="extra_notes">__extra_notes__</td>
+        <td class="border d-none" data-field="scanned_filename">__scanned_filename__</td>
+    </tr>
+</table>
+<table id="result-table">
+    <thead>
+        <tr>
+            <th class="border date-cell">delivered_date</th>
+            <th class="border">brand</th>
+            <th class="border">source_name</th>
+            <th class="border">order_number</th>
+            <th class="border d-none">po_text</th>
+            <th class="border d-none">line_item_number</th>
+            <th class="border d-none">source_category</th>
+            <th class="border">name</th>
+            <th class="border d-none">item_code</th>
+            <th class="border d-none">extra_code</th>
+            <th class="border right-align">delivered_quantity</th>
+            <th class="border right-align">pack_quantity</th>
+            <th class="border right-align">unit_size</th>
+            <th class="border right-align">unit_quantity</th>
+            <th class="border right-align">pack_cost</th>
+            <th class="border right-align">extended_cost</th>
+            <th class="border right-align">total_weight</th>
+            <th class="border right-align">individual_weights</th>
+            <th class="border d-none">extra_notes</th>
+            <th class="border d-none">scanned_filename</th>
+        </tr>
+    </thead>
+    <tbody id="result-table-body">
+    </tbody>
+</table>
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static "js/layout.js" %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/wide_filter.js' %}"></script>
+<script type="application/javascript">
+filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
+filter_fields = [
+    "delivered_date",
+    {#"source",#}
+    "brand",
+    "order_number",
+    {#"po_text",#}
+    "line_item_number",
+    "source_category",
+    "cryptic_name", "verbose_name", "common_name",
+    "item_code", "delivered_quantity",
+    "pack_cost", "pack_quantity",
+    "unit_quantity", "unit_size",
+    "extended_cost", "total_weight", "individual_weights",
+    "extra_notes", "extra_code", "scanned_filename",
+];
+remove_decimals = ["delivered_quantity", "pack_quantity"];
+money_fields = ["extended_cost"];
+filter_results_div_id = "result-table-body";
+filter_input_fields = [
+    {element: "[name='filter-source']", ajax_var: "source"},
+    {element: "[name='filter-category']", ajax_var: "source_category"},
+    {element: "#filter-quantity", ajax_var: "quantity"},
+    {element: "#filter-unit-size", ajax_var: "unit_size"},
+    {element: "#filter-item-name", ajax_var: "name"},
+    {element: "#filter-comment", ajax_var: "comment"},
+    {element: "#filter-order-number", ajax_var: "order_number"},
+];
+filter_input_empty_if_only = ['category', 'source'];
+filter_result_fields = [
+    {element: "data-field='name'", destination_field_id: "calc-item-name"},
+];
+
+function round(v) {
+    return Math.round(v * 100) / 100;
+}
+function setup_event_handlers() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "lookup-content"}, resize_content);
+    d.on("resize", {"content_id": "lookup-content"}, resize_content);
+    w.trigger("resize");
+
+    w.on(filter_requested_event_name, function() {
+        // filter sent to server, hide calculations as there's no longer a selected item.
+        $("#calculation-div").addClass("d-none");
+    });
+    w.on(filter_results_populated_event_name, function() {
+        // filter results arrived.  Still no selected item.
+        $("#calculation-div").addClass("d-none");
+        let item_id_tag = $("#filter-item-id");
+        if (item_id_tag.val() !== "") {
+            let item_row = $(`#${filter_results_div_id} tr:first`);
+            item_row.trigger("click");
+            item_id_tag.val("");
+        }
+    });
+    w.on(item_selected_event_name, function() {
+        // Now that there's a selected item, update the calculations.  This also unhides the section.
+        // update_calculations();
+    });
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+
+    // Hide the calculations by default as there's no selected item on page load.
+    $("#calculation-div").addClass("d-none");
+
+    // load_from_item_id();
+});
+
+</script>
 {% endblock %}

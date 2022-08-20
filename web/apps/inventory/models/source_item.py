@@ -40,7 +40,8 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
     def source_categories(self):
         return self.values('source_category').annotate(
             line_items=models.Count('id'),
-            row_number=expressions.Window(expression=functions.RowNumber(), order_by='source_category'),
+            row_number=expressions.Window(
+                expression=functions.RowNumber(), order_by=models.F('source_category').asc()),
         ).order_by('source_category')
 
     def unit_sizes(self):
@@ -68,11 +69,16 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
 
 class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     wide_filter_fields = {
-        'name': ['cryptic_name', 'verbose_name', 'common_name'],
         'general': [
-            'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size'],
+            'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size',
+            'order_number'],
+        'source': ['source__name'],
+        'category': ['source_category'],
         'quantity': ['delivered_quantity', 'pack_quantity', 'unit_quantity'],
         'unit_size': ['unit_size'],
+        'name': ['cryptic_name', 'verbose_name', 'common_name'],
+        'comment': ['extra_notes'],
+        'order_number': ['order_number'],
     }
     wide_filter_fields_any = []
 

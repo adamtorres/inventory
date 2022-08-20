@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'rest_framework',
+    'django.contrib.humanize',
     'scrap',
     'inventory.apps.InventoryConfig',
 ]
@@ -166,3 +168,17 @@ SHELL_PLUS_IMPORTS = [
 SHELL_PLUS_PYGMENTS_ENABLED = True
 SHELL_PLUS_PRINT_SQL_TRUNCATE = 0
 RUNSERVER_PLUS_PRINT_SQL_TRUNCATE = 0
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        # TODO: figure out the permissions when POSTing from ajax.
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+}
