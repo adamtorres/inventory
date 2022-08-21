@@ -16,6 +16,24 @@ class Command(commands.IngestCommand):
         "extra_code", "item_code", "pack_cost", "pack_tax", "extended_cost", "total_weight", "extra_notes", "scan_file",
         "checked"
     ]
+    generated_data_row_fields = ["unit_quantity"]
+    unit_size_suffixes = {
+        'dz': 12,
+        'ct': 1,
+        'pk': 1,
+    }
+
+    def calc_unit_size(self, raw_row_data):
+        unit_quantity = 1
+        unit_size = raw_row_data[self.field_index["unit_size"]]
+        for suffix, suffix_value in self.unit_size_suffixes.items():
+            if unit_size.endswith(suffix):
+                try:
+                    unit_quantity = int(unit_size[:-len(suffix)]) * suffix_value
+                except ValueError:
+                    unit_quantity = suffix_value
+                print(f"calc_unit_size:{suffix}:{unit_size}:unit_quantity={unit_quantity}")
+        return unit_quantity
 
     def create_source_items(self, data):
         items_to_create = []
@@ -33,6 +51,7 @@ class Command(commands.IngestCommand):
                 pack_cost=rec.pack_cost,
                 pack_quantity=rec.pack_quantity,
                 unit_size=rec.unit_size,
+                unit_quantity=rec.unit_quantity,
                 extended_cost=rec.extended_cost,
                 total_weight=rec.total_weight,
                 extra_notes=rec.extra_notes,
@@ -69,6 +88,7 @@ class Command(commands.IngestCommand):
         raw_row_data = self.text_to_number(
             raw_row_data, ["delivered_quantity", "line_item_number", "pack_quantity"], int, 1)
         raw_row_data = self.text_to_number(raw_row_data, ["total_weight", "pack_cost", "extended_cost"], float, 0)
+        raw_row_data.append(self.calc_unit_size(raw_row_data))
         return super().preclean_row(raw_row_data)
 
     def process_output(self, data):
