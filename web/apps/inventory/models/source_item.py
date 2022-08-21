@@ -69,6 +69,7 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
 
 class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     wide_filter_fields = {
+        'item_id': ['id'],
         'general': [
             'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size',
             'order_number'],

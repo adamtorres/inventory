@@ -23,6 +23,58 @@
     background-color: lightgoldenrodyellow;
 }
 
+#calculation-div {
+    border: green solid 2px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+#calculation-div .col-sm-1 input {
+    width: 100%;
+}
+label {
+    font-weight: bold;
+}
+.selected-item-text-row .col {
+    border: grey solid 1px;
+    text-align: left;
+}
+.selected-item-row .col {
+    border: grey solid 1px;
+    text-align: right;
+}
+.per_unit_cell {
+    display: inline-block;
+    border: grey solid 1px;
+    justify-content: space-between !important;
+    min-width: 10em;
+}
+.per_unit_cell * {
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.5em;
+}
+.per_unit_cell *[data-field="units"] {
+    width: 4em;
+}
+.per_unit_cell *[data-field="cost_for_the_units"] {
+    width: 6em;
+}
+.per_unit_cell:first-child {
+
+}
+.per_unit_cell:last-child {
+
+}
+#calculated-per-pack-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
+#calculated-per-unit-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
 </style>
 {% endblock %}
 
@@ -115,6 +167,142 @@
                 <span id="calc-item-name">[item name]</span>
             </div>
         </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-common-item-name">Common Item Name: </label>
+                <span id="calc-common-item-name">[common item name]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-comment">Line Item Comment: </label>
+                <span id="calc-item-comment">[comment on the line item]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-rawitem-comment">Item Comment: </label>
+                <span id="calc-rawitem-comment">[comment on the item itself]</span>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row row-cols-5 selected-item-row">
+        <div class="col col-sm-1">
+            <label for="calc-quantity">Quantity</label>
+        </div>
+        <div class="col col-sm-1">
+            <label for="calc-pack-quantity">Pack Quantity</label>
+        </div>
+        <div class="col col-sm-1">
+            <label for="calc-unit-size">Unit Size</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-price">Price</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-pack-price" id="calc-pack-price-label">Pack Price</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-count-price" id="calc-unit-price-label"><span style="text-transform: capitalize;" data-term="calc-unit-size-term">Count</span> Price</label>
+        </div>
+    </div>
+    <div class="row row-cols-5 selected-item-row">
+        <div class="col col-sm-1">
+            <span id="calc-quantity"></span>
+        </div>
+        <div class="col col-sm-1">
+            <span id="calc-pack-quantity"></span>
+        </div>
+        <div class="col col-sm-1">
+            <span id="calc-unit-size"></span>
+            <span id="calc-unit-quantity" class="d-none"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-price" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-pack-price" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-unit-price" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-count-price" class="dollar-cell"></span>
+        </div>
+    </div>
+    <hr />
+    <div id="calc-weight-specific-cells" class="d-none selected-item-row">
+        <div class="row row-cols-3">
+            <div class="col col-sm-1">
+                <label for="calc-weight">Weight</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-avg-pack-weight">Avg Pack Weight</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-avg-unit-weight">Avg Unit Weight</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-price-per-weight">Price per unit of weight</label>
+            </div>
+        </div>
+        <div class="row row-cols-3 selected-item-row">
+            <div class="col col-sm-1">
+                <span id="calc-weight"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-avg-pack-weight"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-avg-unit-weight"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-price-per-weight" class="dollar-cell"></span>
+            </div>
+        </div>
+    <hr />
+    </div>
+    <div class="row">
+        <div class="col" id="calculated-results">
+            <div id="calculated-per-pack-prices-container">
+                <h5>
+                    Total price for a given number of packs
+                </h5>
+                <div class="d-none">
+                    <div class="per_unit_cell" id="per_pack_row_template">
+                        <div class="" data-field="packs">__packs__</div>
+                        <div class="" data-field="cost_for_the_packs">__cost_for_the_packs__</div>
+                    </div>
+                </div>
+                <div class="" id="calculated-per-pack-prices">
+
+                </div>
+            </div>
+
+            <h5>
+                Total price for a given number of units
+            </h5>
+            <div class="d-none">
+                <div class="per_unit_cell" id="per_unit_row_template">
+                    <div class="" data-field="units">__units__</div>
+                    <div class="" data-field="cost_for_the_units">__cost_for_the_units__</div>
+                </div>
+            </div>
+            <div class="" id="calculated-per-unit-prices">
+
+            </div>
+
+            <div class="d-none" id="calculated-per-count-prices-container">
+                <h5>Total price for a given <span data-term="calc-unit-size-term">count</span> (ex: eggs come in dozens, this would show a per egg price)</h5>
+                <div class="" id="calculated-per-count-prices">
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <pre id="on-page-log">
@@ -123,54 +311,54 @@ Log.
 <table style="display: none;" class="filtered-item-template-container">
     <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
         <td class="border date-cell" data-field="delivered_date">__delivered_date__</td>
-        <td class="border" data-field="brand">__brand__</td>
-        <td class="border" data-field="source_name">__source_name__</td>
-        <td class="border" data-field="order_number">__order_number__</td>
-        <td class="border d-none" data-field="po_text">__po_text__</td>
-        <td class="border right-align d-none" data-field="line_item_number">__line_item_number__</td>
-        <td class="border d-none" data-field="source_category">__source_category__</td>
         <td class="border">
-            <div data-field="cryptic_name"></div>
-            <div data-field="verbose_name"></div>
-            <div data-field="common_name"></div>
+            <span data-field="source_name">__source_name__</span> :
+            <span data-field="order_number">__order_number__</span> :
+            <span data-field="po_text">__po_text__</span> :
+            <span data-field="line_item_number">__line_item_number__</span>
         </td>
+
+        <td class="border d-none" data-field="source_category">__source_category__</td>
         <td class="border d-none" data-field="item_code">__item_code__</td>
         <td class="border d-none" data-field="extra_code">__extra_code__</td>
-        <td class="border right-align" data-field="delivered_quantity">__delivered_quantity__</td>
-        <td class="border right-align" data-field="pack_quantity">__pack_quantity__</td>
-        <td class="border right-align" data-field="unit_size">__unit_size__</td>
-        <td class="border right-align" data-field="unit_quantity">__unit_quantity__</td>
+        <td class="border d-none" data-field="brand">__brand__</td>
+        <td class="border">
+            <div data-field="source_item_name"></div>
+            <div data-field="common_name"></div>
+        </td>
+        <td class="border">
+            <span data-field="pack_quantity">__pack_quantity__</span>pk
+            <span data-field="unit_size">__unit_size__</span> :
+            <span data-field="unit_quantity">__unit_quantity__</span>
+        </td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
-        <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
+        <td class="border right-align" data-field="delivered_quantity">__delivered_quantity__</td>
         <td class="border right-align" data-field="total_weight">__total_weight__</td>
-        <td class="border right-align" data-field="individual_weights">__individual_weights__</td>
-        <td class="border d-none" data-field="extra_notes">__extra_notes__</td>
-        <td class="border d-none" data-field="scanned_filename">__scanned_filename__</td>
+        <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
+        <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
+        <td class="border d-none">
+            <div data-field="extra_notes">__extra_notes__</div>
+            <div data-field="scanned_filename">__scanned_filename__</div>
+        </td>
     </tr>
 </table>
 <table id="result-table">
     <thead>
         <tr>
-            <th class="border date-cell">delivered_date</th>
-            <th class="border">brand</th>
-            <th class="border">source_name</th>
-            <th class="border">order_number</th>
-            <th class="border d-none">po_text</th>
-            <th class="border d-none">line_item_number</th>
-            <th class="border d-none">source_category</th>
-            <th class="border">name</th>
-            <th class="border d-none">item_code</th>
-            <th class="border d-none">extra_code</th>
-            <th class="border right-align">delivered_quantity</th>
-            <th class="border right-align">pack_quantity</th>
-            <th class="border right-align">unit_size</th>
-            <th class="border right-align">unit_quantity</th>
-            <th class="border right-align">pack_cost</th>
-            <th class="border right-align">extended_cost</th>
-            <th class="border right-align">total_weight</th>
-            <th class="border right-align">individual_weights</th>
-            <th class="border d-none">extra_notes</th>
-            <th class="border d-none">scanned_filename</th>
+            <th class="border date-cell">Delivered Date</th>
+            <th class="border">Source/Order/Line Item Number</th>
+            <th class="border d-none">Source Category</th>
+            <th class="border d-none">Item Code</th>
+            <th class="border d-none">Extra Code</th>
+            <th class="border d-none">Brand</th>
+            <th class="border">Item Name</th>
+            <th class="border">Pack/Unit Details</th>
+            <th class="border right-align">Pack Cost</th>
+            <th class="border right-align">Qty</th>
+            <th class="border right-align">Total Weight</th>
+            <th class="border right-align d-none">Individual Weights</th>
+            <th class="border right-align">Extended Cost</th>
+            <th class="border d-none">Notes/Scanned Filename</th>
         </tr>
     </thead>
     <tbody id="result-table-body">
@@ -193,7 +381,7 @@ filter_fields = [
     {#"po_text",#}
     "line_item_number",
     "source_category",
-    "cryptic_name", "verbose_name", "common_name",
+    "source_item_name", "common_name",
     "item_code", "delivered_quantity",
     "pack_cost", "pack_quantity",
     "unit_quantity", "unit_size",
@@ -204,6 +392,7 @@ remove_decimals = ["delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
+    {element: "#filter-item-id", ajax_var: "item_id"},
     {element: "[name='filter-source']", ajax_var: "source"},
     {element: "[name='filter-category']", ajax_var: "source_category"},
     {element: "#filter-quantity", ajax_var: "quantity"},
@@ -214,11 +403,143 @@ filter_input_fields = [
 ];
 filter_input_empty_if_only = ['category', 'source'];
 filter_result_fields = [
-    {element: "data-field='name'", destination_field_id: "calc-item-name"},
+    {element: "data-field='source_item_name'", destination_field_id: "calc-item-name"},
+    {element: "data-field='common_name'", destination_field_id: "calc-common-item-name"},
+    {element: "data-field='extra_notes'", destination_field_id: "calc-item-comment"},
+    {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
+    {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"},
+    {element: "data-field='unit_size'", destination_field_id: "calc-unit-size"},
+    {element: "data-field='unit_quantity'", destination_field_id: "calc-unit-quantity"},
+    {element: "data-field='extended_cost'", destination_field_id: "calc-price"},
+    {element: "data-field='pack_cost'", destination_field_id: "calc-pack-price"},
+    {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
 ];
 
 function round(v) {
     return Math.round(v * 100) / 100;
+}
+function load_from_item_id() {
+    let item_id_tag = $("#filter-item-id");
+    if (item_id_tag.val() !== "") {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
+function update_calculations() {
+    let weight = parseFloat($("#calc-weight").text());
+    let pack_quantity = parseFloat($("#calc-pack-quantity").text());
+    let quantity = parseFloat($("#calc-quantity").text());
+    let unit_quantity = parseInt($("#calc-unit-quantity").text());
+    let pack_price = parseFloat($("#calc-pack-price").text());
+    let total_price = parseFloat($("#calc-price").text());
+    let pack_price_per_weight = 0;
+    let price_per_unit = total_price / quantity / pack_quantity;
+    $("#calc-unit-price").text(round(price_per_unit));
+    let price_per_count = price_per_unit / unit_quantity;
+    $("#calc-count-price").text(round(price_per_count));
+
+    pack_price = round(price_per_unit * pack_quantity);  // NOTE: tax got included by using extended_price
+    $("#calc-pack-price").text(round(pack_price).toFixed(2));
+
+    if (weight > 0) {
+        pack_price_per_weight = pack_price;
+        $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
+        let avg_pack_weight = weight / quantity;
+        let avg_unit_weight = weight / quantity / pack_quantity;
+        $("#calc-avg-pack-weight").text(round(avg_pack_weight));
+        $("#calc-avg-unit-weight").text(round(avg_unit_weight));
+        $("#calc-weight-specific-cells").removeClass("d-none");
+    } else {
+        $("#calc-weight-specific-cells").addClass("d-none");
+
+    }
+    let total_units = pack_quantity * quantity;
+    let row_template = $(`#per_unit_row_template`);
+    let per_unit_table = $(`#calculated-per-unit-prices`);
+    per_unit_table.empty();
+    for(let i = 0; i < total_units; i++) {
+        let item_clone = row_template.clone();
+        item_clone.attr('id', null);
+        item_clone.find('[data-field]').each(function() {
+            let e = $(this);
+            let key = e.data('field');
+            if (key === "units") {
+                e.text(round(i+1));
+            }
+            if (key === "cost_for_the_units") {
+                e.html("<span class='dollar-cell'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
+            }
+        });
+        // item_clone.removeClass("hidden");
+        per_unit_table.append(item_clone);
+    }
+    let per_count_table = $(`#calculated-per-count-prices`);
+    per_count_table.empty();
+    if (unit_quantity > 1) {
+        $("#calculated-per-count-prices-container").removeClass("d-none");
+        let unit_size = $("#calc-unit-size").text();
+        let unit_grouping = 0;
+        if (unit_size.endsWith("dz")) {
+            unit_grouping = 12;
+        }
+
+        $('span[data-term="calc-unit-size-term"]').each(function(index) {
+            if (unit_size.endsWith("lb")) {
+                $(this).text("pound");
+            } else {
+                $(this).text("count");
+            }
+        })
+
+        for(let i = 0; i < unit_quantity; i++) {
+            if (unit_grouping > 0) {
+                if (i % unit_grouping === 0) {
+                    per_count_table.append(`<div>${(i / unit_grouping) + 1} group of ${unit_grouping}</div>`);
+                }
+            }
+            let item_clone = row_template.clone();
+            item_clone.attr('id', null);
+            item_clone.find('[data-field]').each(function() {
+                let e = $(this);
+                let key = e.data('field');
+                if (key === "units") {
+                    e.text(round(i+1));
+                }
+                if (key === "cost_for_the_units") {
+                    e.html("<span class='dollar-cell'>" + round(price_per_count * (i+1)).toFixed(2) + "</span>");
+                }
+            });
+            // item_clone.removeClass("hidden");
+            per_count_table.append(item_clone);
+        }
+    } else {
+        $("#calculated-per-count-prices-container").addClass("d-none");
+    }
+
+    if (quantity > 1) {
+        $("#calculated-per-pack-prices-container").removeClass("d-none");
+        let row_template = $(`#per_pack_row_template`);
+        let per_pack_table = $(`#calculated-per-pack-prices`);
+        per_pack_table.empty();
+        for(let i = 0; i < quantity; i++) {
+            let item_clone = row_template.clone();
+            item_clone.attr('id', null);
+            item_clone.find('[data-field]').each(function() {
+                let e = $(this);
+                let key = e.data('field');
+                if (key === "packs") {
+                    e.text(round(i+1));
+                }
+                if (key === "cost_for_the_packs") {
+                    e.html("<span class='dollar-cell'>" + round(pack_price * (i+1)).toFixed(2) + "</span>");
+                }
+            });
+            per_pack_table.append(item_clone);
+
+        }
+    } else {
+        $("#calculated-per-pack-prices-container").addClass("d-none");
+    }
+    $("#calculation-div").removeClass("d-none");
 }
 function setup_event_handlers() {
     let w = $(window);
@@ -243,7 +564,7 @@ function setup_event_handlers() {
     });
     w.on(item_selected_event_name, function() {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
-        // update_calculations();
+        update_calculations();
     });
 }
 $( document ).ready(function() {
@@ -252,7 +573,7 @@ $( document ).ready(function() {
     // Hide the calculations by default as there's no selected item on page load.
     $("#calculation-div").addClass("d-none");
 
-    // load_from_item_id();
+    load_from_item_id();
 });
 
 </script>
