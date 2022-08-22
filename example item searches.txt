@@ -21,3 +21,9 @@ http://localhost:8000/inventory/sourceitem/search/?item-name=pepsi&pick-first=yu
 
 1x 4pk of beef bottom round which has a total weight
 http://localhost:8000/inventory/sourceitem/search/?item-name=beef+round&order-number=385979225&pick-first=yup
+
+1x 30dz eggs
+http://localhost:8000/inventory/sourceitem/search/?item-name=egg+shell&order-number=485212206&pick-first=yup
+
+3x 6pk #10 cans of green beans
+http://localhost:8000/inventory/sourceitem/search/?item-name=bean+green&order-number=485292245&pick-first=yup

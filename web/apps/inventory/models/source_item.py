@@ -142,19 +142,34 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     discrepancy = sc_fields.MoneyField(
         help_text="to hold the difference between extended_cost and calculating from quantity/pack_cost")
 
+    # by_pack would mean each use is (pack_quantity) of (unit_size)
+    # by_unit would mean each use is (unit_size)
+    # by_count would mean each use is a subdivision of unit_size if available.
+    #   Some products have a 'lb' unit_size but would not make sense to break down to that level.
+    #   Others, like #10 cans, are a single unit and should not be subdivided.
+
     # Example:
     # Order 385651775, "labella pasta noodle egg xwide"
-    #   delivered_quantity=3, pack_quantity=2, unit_size=5lb
-    # by_pack would mean each use is 2 5lb units for a total of 10lb of egg noodle.
+    #   delivered_quantity=3, pack_quantity=2, unit_size=5lb, unit_quantity=5
+    # by_pack would mean each use is 2(pack_quantity) 5lb(unit_size) units for a total of 10lb of egg noodle.
     # by_unit would mean each use is 1 5lb unit
-    # by_count would not be different than by_unit for this product.
+    # by_count would mean each use is 1lb - would not make sense for this product.
+
     # Example:
     # Order 485212206, "whlfcls egg shell large white"
-    #   delivered_quantity=1, pack_quantity=1, unit_size=30dz
-    # by_pack would mean each use is 30dz eggs
-    # by_unit would mean each use is 1 egg?
-    # by_count would not be different than by_unit for this product.
+    #   delivered_quantity=1, pack_quantity=1, unit_size=30dz, unit_quantity=360
+    # by_pack would mean each use is 1(pack_quantity) unit of 30dz(unit_size) eggs
+    # by_unit would mean each use is 1 30dz(unit_size) of eggs
+    # by_count would mean 1 egg makes sense for this product.
+
+    # Example:
+    # Order 485292245, "sys cls bean green cut 4sv bl fcy"
+    #   delivered_quantity=3, pack_quantity=6, unit_size=#10, unit_quantity=1
+    # by_pack would mean each use is 6(pack_quantity) unit of #10(unit_size) cans
+    # by_unit would mean each use is 1 #10(unit_size) of cans
+    # by_count would not make sense for this product as a single #10 can cannot be subdivided.
     use_type = "by_count|by_unit|by_pack"
+
     objects = SourceItemManager()
 
     def __str__(self):
