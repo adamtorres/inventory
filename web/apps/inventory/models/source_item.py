@@ -9,6 +9,9 @@ from scrap.models import fields as sc_fields
 
 
 class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()  # .exclude(delivered_quantity=0)
+
     def _value_order_distinct(self, field_names, exclude_blank=True):
         if isinstance(field_names, str):
             field_names = [field_names]
@@ -183,6 +186,8 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
             return self.delivered_quantity * self.pack_quantity * self.unit_quantity
 
     def per_use_cost(self):
+        if self.initial_quantity() == 0:
+            return 0
         return self.extended_cost / self.initial_quantity()
 
     def remaining_cost(self):

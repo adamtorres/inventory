@@ -347,6 +347,7 @@ Log.
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
         <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
         <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
+        <td class="border right-align dollar-cell" data-field="per_use_cost">__per_use_cost__</td>
         <td class="border right-align dollar-cell" data-field="remaining_cost">__remaining_cost__</td>
         <td class="border d-none">
             <div data-field="extra_notes">__extra_notes__</div>
@@ -371,6 +372,7 @@ Log.
             <th class="border right-align">Pack Cost</th>
             <th class="border right-align d-none">Individual Weights</th>
             <th class="border right-align">Extended Cost</th>
+            <th class="border right-align">Per Use Cost</th>
             <th class="border right-align">Remaining Cost</th>
             <th class="border d-none">Notes/Scanned Filename</th>
         </tr>
@@ -402,10 +404,10 @@ filter_fields = [
     "unit_quantity", "unit_size",
     "extended_cost", "total_weight", "individual_weights",
     "extra_notes", "extra_code", "scanned_filename",
-    "remaining_quantity", "remaining_cost",
+    "remaining_quantity", "remaining_cost", "per_use_cost",
 ];
 remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
-money_fields = ["extended_cost", "remaining_cost"];
+money_fields = ["extended_cost", "remaining_cost", "per_use_cost"];
 hide_parent_if_empty = ["order_number", "po_text"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
