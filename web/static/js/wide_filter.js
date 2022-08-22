@@ -149,6 +149,9 @@ function setup_filtered_results_events() {
 }
 function filtered_item_click() {
     let p = $(this);
+    if (!p.hasClass('filtered-item-top')) {
+        p = p.parent();
+    }
     filter_result_fields.forEach(tag => {
         let item_data_attr = tag['element'];
         let dest_tag_id = tag['destination_field_id'];

@@ -81,6 +81,9 @@ label {
     flex-wrap: wrap;
     width: 100%;
 }
+.filtered-item-link {
+    cursor: pointer;
+}
 </style>
 {% endblock %}
 
@@ -319,8 +322,8 @@ label {
 Log.
 </pre>
 <table style="display: none;" class="filtered-item-template-container">
-    <tr class="filtered-item-link filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
-        <td class="border date-cell" data-field="delivered_date">__delivered_date__</td>
+    <tr class="filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
+        <td class="border date-cell filtered-item-link" data-field="delivered_date">__delivered_date__</td>
         <td class="border">
             <span data-field="source_name">__source_name__</span> :
             <span><span data-field="order_number">__order_number__</span> :</span>
