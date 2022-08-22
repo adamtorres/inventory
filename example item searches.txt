@@ -27,3 +27,7 @@ http://localhost:8000/inventory/sourceitem/search/?item-name=egg+shell&order-num
 
 3x 6pk #10 cans of green beans
 http://localhost:8000/inventory/sourceitem/search/?item-name=bean+green&order-number=485292245&pick-first=yup
+
+Egg noodles
+http://localhost:8000/inventory/sourceitem/search/?item-name=egg+noo
+

@@ -4,7 +4,7 @@ from .. import models as inv_models
 
 
 class SourceItemWideFilterSerializer(serializers.ModelSerializer):
-    initial_quantity = serializers.SerializerMethodField()
+    remaining_cost = serializers.SerializerMethodField()
     source_name = serializers.SerializerMethodField()
     source_item_name = serializers.SerializerMethodField()
 
@@ -27,11 +27,11 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
             "unit_quantity", "unit_size",
             "extended_cost", "total_weight", "individual_weights",
             "extra_notes", "extra_code", "scanned_filename",
-            "initial_quantity",
+            "remaining_quantity", "remaining_cost",
         ]
 
-    def get_initial_quantity(self, obj):
-        return obj.initial_quantity()
+    def get_remaining_cost(self, obj):
+        return obj.remaining_cost()
 
     def get_source_item_name(self, obj):
         return obj.verbose_name or obj.cryptic_name

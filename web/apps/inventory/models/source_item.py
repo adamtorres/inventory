@@ -181,3 +181,9 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
             return self.delivered_quantity * self.pack_quantity
         if self.use_by_count():
             return self.delivered_quantity * self.pack_quantity * self.unit_quantity
+
+    def per_use_cost(self):
+        return self.extended_cost / self.initial_quantity()
+
+    def remaining_cost(self):
+        return self.per_use_cost() * self.remaining_quantity

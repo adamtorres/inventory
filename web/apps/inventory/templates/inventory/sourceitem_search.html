@@ -343,10 +343,11 @@ Log.
             <span data-field="unit_size">__unit_size__</span>
             <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
         </td>
-        <td class="border right-align" data-field="initial_quantity">__initial_quantity__</td>
+        <td class="border right-align" data-field="remaining_quantity">__remaining_quantity__</td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
         <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
         <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
+        <td class="border right-align dollar-cell" data-field="remaining_cost">__remaining_cost__</td>
         <td class="border d-none">
             <div data-field="extra_notes">__extra_notes__</div>
             <div data-field="scanned_filename">__scanned_filename__</div>
@@ -366,10 +367,11 @@ Log.
             <th class="border right-align">Total Weight</th>
             <th class="border right-align">Qty</th>
             <th class="border">Pack/Unit Details</th>
-            <th class="border">Initial Qty</th>
+            <th class="border">Remaining Qty</th>
             <th class="border right-align">Pack Cost</th>
             <th class="border right-align d-none">Individual Weights</th>
             <th class="border right-align">Extended Cost</th>
+            <th class="border right-align">Remaining Cost</th>
             <th class="border d-none">Notes/Scanned Filename</th>
         </tr>
     </thead>
@@ -400,10 +402,10 @@ filter_fields = [
     "unit_quantity", "unit_size",
     "extended_cost", "total_weight", "individual_weights",
     "extra_notes", "extra_code", "scanned_filename",
-    "initial_quantity",
+    "remaining_quantity", "remaining_cost",
 ];
-remove_decimals = ["delivered_quantity", "pack_quantity"];
-money_fields = ["extended_cost"];
+remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
+money_fields = ["extended_cost", "remaining_cost"];
 hide_parent_if_empty = ["order_number", "po_text"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
