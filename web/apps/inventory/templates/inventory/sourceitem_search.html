@@ -605,6 +605,7 @@ function clear_form() {
     $("#filter-limits-collapsible").find('input[name="filter-category"]').each(function() {
         $(this).prop("checked", false);
     });
+    $(window).trigger(force_filter_refresh_event_name);
 }
 $( document ).ready(function() {
     setup_event_handlers();
