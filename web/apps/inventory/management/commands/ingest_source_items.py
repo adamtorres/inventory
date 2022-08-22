@@ -100,6 +100,8 @@ class Command(commands.IngestCommand):
                 print(f"{k}: {len(data[k])} items in list.")
         self.update_sources(data)
         self.create_source_items(data)
+        inv_models.SourceItem.objects.override_use_types()
+        inv_models.SourceItem.objects.apply_remaining_quantities()
 
     def process_row(self, row_number, named_row, data):
         data["record_count"] += 1
