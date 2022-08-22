@@ -1,0 +1,20 @@
+5x 27pk of milk where unit_size is 8oz
+http://localhost:8000/inventory/sourceitem/search/?unit-size=8oz&quantity=27&item-name=milk&pick-first=yup
+
+5x 36pk of 1lb butter
+http://localhost:8000/inventory/sourceitem/search/?unit-size=1lb&item-name=butter&pick-first=yup
+
+2x 12pk of pasta where unit_size is 1lb.
+http://localhost:8000/inventory/sourceitem/search/?item-name=labella+pasta&pick-first=yup
+
+3x 50lb bags of flour - unit size is "50lb", pack_quantity is 1.
+http://localhost:8000/inventory/sourceitem/search/?item-name=all+purp+flour&pick-first=yup
+
+Single 600pk of margarine
+http://localhost:8000/inventory/sourceitem/search/?item-name=margarine+cup&pick-first=yup
+
+Single 750pk of butter
+http://localhost:8000/inventory/sourceitem/search/?item-name=butter+cup&pick-first=yup
+
+2x 12pks of soda
+http://localhost:8000/inventory/sourceitem/search/?item-name=pepsi&pick-first=yup
