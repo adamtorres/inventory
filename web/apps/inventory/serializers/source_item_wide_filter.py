@@ -16,7 +16,7 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
             "source_name",
             "brand",
             "order_number",
-            # "po_text",
+            "po_text",
             "line_item_number",
             "source_category",
             "source_item_name",

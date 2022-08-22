@@ -18,3 +18,6 @@ http://localhost:8000/inventory/sourceitem/search/?item-name=butter+cup&pick-fir
 
 2x 12pks of soda
 http://localhost:8000/inventory/sourceitem/search/?item-name=pepsi&pick-first=yup
+
+1x 4pk of beef bottom round which has a total weight
+http://localhost:8000/inventory/sourceitem/search/?item-name=beef+round&order-number=385979225&pick-first=yup

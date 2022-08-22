@@ -229,7 +229,7 @@ label {
         </div>
         <div class="col col-sm-1">
             <span id="calc-unit-size"></span>
-            <span id="calc-unit-quantity" class=""></span>
+            <span id="calc-unit-quantity" class="d-none"></span>
         </div>
         <div class="col col-sm-2">
             <span id="calc-price" class="dollar-cell"></span>
@@ -323,8 +323,8 @@ Log.
         <td class="border date-cell" data-field="delivered_date">__delivered_date__</td>
         <td class="border">
             <span data-field="source_name">__source_name__</span> :
-            <span data-field="order_number">__order_number__</span> :
-            <span data-field="po_text">__po_text__</span> :
+            <span><span data-field="order_number">__order_number__</span> :</span>
+            <span><span data-field="po_text">__po_text__</span> : </span>
             <span data-field="line_item_number">__line_item_number__</span>
         </td>
 
@@ -336,14 +336,14 @@ Log.
             <div data-field="source_item_name"></div>
             <div data-field="common_name"></div>
         </td>
+        <td class="border right-align" data-field="total_weight">__total_weight__</td>
+        <td class="border right-align"><span data-field="delivered_quantity">__delivered_quantity__</span>x</td>
         <td class="border">
             <span data-field="pack_quantity">__pack_quantity__</span>pk
-            <span data-field="unit_size">__unit_size__</span> :
-            <span data-field="unit_quantity">__unit_quantity__</span>
+            <span data-field="unit_size">__unit_size__</span>
+            <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
         </td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
-        <td class="border right-align" data-field="delivered_quantity">__delivered_quantity__</td>
-        <td class="border right-align" data-field="total_weight">__total_weight__</td>
         <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
         <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
         <td class="border d-none">
@@ -356,16 +356,16 @@ Log.
     <thead>
         <tr>
             <th class="border date-cell">Delivered Date</th>
-            <th class="border">Source/Order/Line Item Number</th>
+            <th class="border">Source/Order/Line Item</th>
             <th class="border d-none">Source Category</th>
             <th class="border d-none">Item Code</th>
             <th class="border d-none">Extra Code</th>
             <th class="border d-none">Brand</th>
             <th class="border">Item Name</th>
+            <th class="border right-align">Total Weight</th>
+            <th class="border right-align">Qty</th>
             <th class="border">Pack/Unit Details</th>
             <th class="border right-align">Pack Cost</th>
-            <th class="border right-align">Qty</th>
-            <th class="border right-align">Total Weight</th>
             <th class="border right-align d-none">Individual Weights</th>
             <th class="border right-align">Extended Cost</th>
             <th class="border d-none">Notes/Scanned Filename</th>
@@ -386,9 +386,10 @@ filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
 filter_fields = [
     "delivered_date",
     {#"source",#}
+    "source_name",
     "brand",
     "order_number",
-    {#"po_text",#}
+    "po_text",
     "line_item_number",
     "source_category",
     "source_item_name", "common_name",
@@ -400,6 +401,7 @@ filter_fields = [
 ];
 remove_decimals = ["delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost"];
+hide_parent_if_empty = ["order_number", "po_text"];
 filter_results_div_id = "result-table-body";
 filter_input_fields = [
     {element: "#filter-item-id", ajax_var: "item_id"},

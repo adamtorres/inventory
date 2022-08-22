@@ -67,6 +67,9 @@ function new_item(data) {
                 e.text(format_date_str(record_value));
             } else {
                 e.text(record_value);
+                if (hide_parent_if_empty.includes(key) && (record_value === undefined || record_value === "")) {
+                    e.parent().addClass("d-none");
+                }
             }
         } else {
             e.text("");
