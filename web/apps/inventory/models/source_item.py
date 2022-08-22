@@ -168,9 +168,35 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     # by_pack would mean each use is 6(pack_quantity) unit of #10(unit_size) cans
     # by_unit would mean each use is 1 #10(unit_size) of cans
     # by_count would not make sense for this product as a single #10 can cannot be subdivided.
-    use_type = "by_count|by_unit|by_pack"
+    BY_PACK = 'BP'
+    BY_UNIT = 'BU'
+    BY_COUNT = 'BC'
+    USE_TYPE_CHOICES = [
+        (BY_PACK, 'By Pack'),
+        (BY_UNIT, 'By Unit'),
+        (BY_COUNT, 'By Count'),
+    ]
+    use_type = models.CharField(max_length=2, choices=USE_TYPE_CHOICES, default=BY_UNIT)
+    remaining_quantity = models.IntegerField(null=True)
 
     objects = SourceItemManager()
 
     def __str__(self):
         return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
+
+    def use_by_count(self):
+        return self.use_type == self.BY_COUNT
+
+    def use_by_pack(self):
+        return self.use_type == self.BY_PACK
+
+    def use_by_unit(self):
+        return self.use_type == self.BY_UNIT
+
+    def initial_quantity(self):
+        if self.use_by_pack():
+            return self.delivered_quantity
+        if self.use_by_unit():
+            return self.delivered_quantity * self.pack_quantity
+        if self.use_by_count():
+            return self.delivered_quantity * self.pack_quantity * self.unit_quantity

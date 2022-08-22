@@ -343,6 +343,7 @@ Log.
             <span data-field="unit_size">__unit_size__</span>
             <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
         </td>
+        <td class="border right-align" data-field="initial_quantity">__initial_quantity__</td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
         <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
         <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
@@ -365,6 +366,7 @@ Log.
             <th class="border right-align">Total Weight</th>
             <th class="border right-align">Qty</th>
             <th class="border">Pack/Unit Details</th>
+            <th class="border">Initial Qty</th>
             <th class="border right-align">Pack Cost</th>
             <th class="border right-align d-none">Individual Weights</th>
             <th class="border right-align">Extended Cost</th>
@@ -398,6 +400,7 @@ filter_fields = [
     "unit_quantity", "unit_size",
     "extended_cost", "total_weight", "individual_weights",
     "extra_notes", "extra_code", "scanned_filename",
+    "initial_quantity",
 ];
 remove_decimals = ["delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost"];
