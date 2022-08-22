@@ -21,6 +21,7 @@ class Command(commands.IngestCommand):
         'dz': 12,
         'ct': 1,
         'pk': 1,
+        'lb': 1,
     }
 
     def calc_unit_size(self, raw_row_data):
@@ -32,7 +33,6 @@ class Command(commands.IngestCommand):
                     unit_quantity = int(unit_size[:-len(suffix)]) * suffix_value
                 except ValueError:
                     unit_quantity = suffix_value
-                print(f"calc_unit_size:{suffix}:{unit_size}:unit_quantity={unit_quantity}")
         return unit_quantity
 
     def create_source_items(self, data):

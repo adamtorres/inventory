@@ -142,6 +142,19 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     discrepancy = sc_fields.MoneyField(
         help_text="to hold the difference between extended_cost and calculating from quantity/pack_cost")
 
+    # Example:
+    # Order 385651775, "labella pasta noodle egg xwide"
+    #   delivered_quantity=3, pack_quantity=2, unit_size=5lb
+    # by_pack would mean each use is 2 5lb units for a total of 10lb of egg noodle.
+    # by_unit would mean each use is 1 5lb unit
+    # by_count would not be different than by_unit for this product.
+    # Example:
+    # Order 485212206, "whlfcls egg shell large white"
+    #   delivered_quantity=1, pack_quantity=1, unit_size=30dz
+    # by_pack would mean each use is 30dz eggs
+    # by_unit would mean each use is 1 egg?
+    # by_count would not be different than by_unit for this product.
+    use_type = "by_count|by_unit|by_pack"
     objects = SourceItemManager()
 
     def __str__(self):

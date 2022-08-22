@@ -87,6 +87,9 @@ label {
 {% block content %}
 <div class="container-fluid" id="lookup-content">
     <div id="filter-controls">
+        <div class="row">
+            <div class="col-sm-2 btn btn-warning" id="clear_form"><span >Clear Form</span></div>
+        </div>
         <div class="accordion" id="filter-limits-parent">
             <div class="accordion-item">
                 <h2 class="accordion-header" id="filter-limits-heading">
@@ -140,25 +143,26 @@ label {
         <div class="row">
             <div class="col">
                 <label class="d-block" for="filter-quantity">Quantity:</label>
-                <input type="text" id="filter-quantity" class="filter-input" />
+                <input type="text" id="filter-quantity" class="filter-input" value="{{ pass_in_quantity }}"/>
             </div>
             <div class="col">
                 <label class="d-block" for="filter-unit-size">Unit size:</label>
-                <input type="text" id="filter-unit-size" class="filter-input" />
+                <input type="text" id="filter-unit-size" class="filter-input" value="{{ pass_in_unit_size }}" />
             </div>
             <div class="col">
                 <label class="d-block" for="filter-item-name">Item name:</label>
-                <input type="text" id="filter-item-name" class="filter-input" />
+                <input type="text" id="filter-item-name" class="filter-input" value="{{ pass_in_item_name }}" />
             </div>
             <div class="col">
                 <label class="d-block" for="filter-comment">Comment:</label>
-                <input type="text" id="filter-comment" class="filter-input" />
+                <input type="text" id="filter-comment" class="filter-input" value="{{ pass_in_comment }}" />
             </div>
             <div class="col">
                 <label class="d-block" for="filter-order-number">Order Number:</label>
-                <input type="text" id="filter-order-number" class="filter-input" />
+                <input type="text" id="filter-order-number" class="filter-input" value="{{ pass_in_order_number }}" />
             </div>
-            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ item_id }}" />
+            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ pass_in_item_id }}" />
+            <input type="hidden" id="filter-pick-first" class="filter-input" value="{{ pass_in_pick_first }}" />
         </div>
     </div>
 </div>
@@ -195,7 +199,7 @@ label {
     <hr />
     <div class="row row-cols-5 selected-item-row">
         <div class="col col-sm-1">
-            <label for="calc-quantity">Quantity</label>
+            <label for="calc-quantity">Delivered Quantity</label>
         </div>
         <div class="col col-sm-1">
             <label for="calc-pack-quantity">Pack Quantity</label>
@@ -225,7 +229,7 @@ label {
         </div>
         <div class="col col-sm-1">
             <span id="calc-unit-size"></span>
-            <span id="calc-unit-quantity" class="d-none"></span>
+            <span id="calc-unit-quantity" class=""></span>
         </div>
         <div class="col col-sm-2">
             <span id="calc-price" class="dollar-cell"></span>
@@ -276,7 +280,7 @@ label {
         <div class="col" id="calculated-results">
             <div id="calculated-per-pack-prices-container">
                 <h5>
-                    Total price for a given number of packs
+                    Total price for a given number of packs (should match the delivered quantity)
                 </h5>
                 <div class="d-none">
                     <div class="per_unit_cell" id="per_pack_row_template">
@@ -290,7 +294,7 @@ label {
             </div>
 
             <h5>
-                Total price for a given number of units
+                Total price for a given number of units within a pack - if a single pack has 2 units, multiply that by delivered quantity.
             </h5>
             <div class="d-none">
                 <div class="per_unit_cell" id="per_unit_row_template">
@@ -400,7 +404,7 @@ filter_results_div_id = "result-table-body";
 filter_input_fields = [
     {element: "#filter-item-id", ajax_var: "item_id"},
     {element: "[name='filter-source']", ajax_var: "source"},
-    {element: "[name='filter-category']", ajax_var: "source_category"},
+    {element: "[name='filter-category']", ajax_var: "category"},
     {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item-name", ajax_var: "name"},
@@ -430,6 +434,20 @@ function load_from_item_id() {
         $(window).trigger(force_filter_refresh_event_name);
     }
 }
+function load_from_url_search() {
+    let search_fields_populated = false;
+    let search_fields = [
+        "#filter-order-number", "#filter-comment", "#filter-item-name", "#filter-unit-size", "#filter-quantity"];
+    search_fields.forEach(search_field_name => {
+        let search_field = $(search_field_name);
+        if (search_field.val() !== "") {
+            search_fields_populated = true;
+        }
+    });
+    if (search_fields_populated) {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
 function update_calculations() {
     let weight = parseFloat($("#calc-weight").text());
     let pack_quantity = parseFloat($("#calc-pack-quantity").text());
@@ -456,7 +474,6 @@ function update_calculations() {
         $("#calc-weight-specific-cells").removeClass("d-none");
     } else {
         $("#calc-weight-specific-cells").addClass("d-none");
-
     }
     let total_units = pack_quantity * quantity;
     let row_template = $(`#per_unit_row_template`);
@@ -562,15 +579,31 @@ function setup_event_handlers() {
         // filter results arrived.  Still no selected item.
         $("#calculation-div").addClass("d-none");
         let item_id_tag = $("#filter-item-id");
-        if (item_id_tag.val() !== "") {
+        let pick_first_tag = $("#filter-pick-first");
+        if ((item_id_tag.val() !== "") || (pick_first_tag.val() !== "")) {
             let item_row = $(`#${filter_results_div_id} tr:first`);
             item_row.trigger("click");
             item_id_tag.val("");
+            pick_first_tag.val("");
         }
     });
     w.on(item_selected_event_name, function() {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
         update_calculations();
+    });
+    $("#clear_form").on("click", clear_form);
+}
+function clear_form() {
+    let search_fields = [
+        "#filter-order-number", "#filter-comment", "#filter-item-name", "#filter-unit-size", "#filter-quantity"];
+    search_fields.forEach(search_field_name => {
+        $(search_field_name).val("");
+    });
+    $("#filter-limits-collapsible").find('input[name="filter-source"]').each(function() {
+        $(this).prop("checked", false);
+    });
+    $("#filter-limits-collapsible").find('input[name="filter-category"]').each(function() {
+        $(this).prop("checked", false);
     });
 }
 $( document ).ready(function() {
@@ -580,6 +613,7 @@ $( document ).ready(function() {
     $("#calculation-div").addClass("d-none");
 
     load_from_item_id();
+    load_from_url_search();
 });
 
 </script>
