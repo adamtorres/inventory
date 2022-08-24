@@ -664,6 +664,23 @@ function prepare_remaining_quantity_controls(_selected_row) {
     let remaining_quantity = selected_row.find('[data-field="remaining_quantity"]').text();
     nbr_ctrl.attr("max", remaining_quantity);
 }
+function link_to_search() {
+    let args = [];
+    let tags_to_use = ['filter-quantity', 'filter-unit-size', 'filter-item-name', 'filter-comment', 'filter-order-number'];
+    $(".filter-input").each(function() {
+        let tag = $(this);
+        console.log(`'${tag.prop('id')}' == '${tag.val()}'`);
+        if (tags_to_use.includes(tag.prop('id'))) {
+            let url_arg_name = tag.prop('id').replace("filter-", "");
+            args.push({[url_arg_name]: tag.val()});
+        }
+    });
+    // TODO: Need the source and category filters.
+    let selected_row = get_highlighted_row();
+    args.push({'pick-id': selected_row.data('id')});
+    console.log(args);
+    console.log($.param(args));
+}
 function clear_form() {
     let search_fields = [
         "#filter-order-number", "#filter-comment", "#filter-item-name", "#filter-unit-size", "#filter-quantity"];

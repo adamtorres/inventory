@@ -31,3 +31,14 @@ function highlight_row(_row) {
 function is_highlighted(row) {
     return row.hasClass('selected-row');
 }
+function get_highlighted_row() {
+    let table_body = $(`#${highlight_container_id}`);
+    let selected_row = null;
+    table_body.find(".filtered-item-top").each(function() {
+        let row = $(this);
+        if (is_highlighted(row)) {
+            selected_row = row;
+        }
+    });
+    return selected_row;
+}
