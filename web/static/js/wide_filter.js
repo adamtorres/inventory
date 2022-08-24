@@ -164,7 +164,7 @@ function filtered_item_click() {
             dest_tag.text(item_val);
         }
     });
-    $(window).trigger(item_selected_event_name);
+    $(window).trigger(item_selected_event_name, p);
 }
 
 var keypress_timer;

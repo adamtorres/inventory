@@ -413,6 +413,7 @@ Log.
 <script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/wide_filter.js' %}"></script>
+<script src="{% static 'js/highlight-row.js' %}"></script>
 <script type="application/javascript">
 filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
 filter_fields = [
@@ -436,6 +437,7 @@ remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost", "remaining_cost", "per_use_cost"];
 hide_parent_if_empty = ["order_number", "po_text"];
 filter_results_div_id = "result-table-body";
+highlight_container_id = filter_results_div_id;
 filter_input_fields = [
     {element: "#filter-item-id", ajax_var: "item_id"},
     {element: "[name='filter-source']", ajax_var: "source"},
@@ -621,14 +623,17 @@ function setup_event_handlers() {
         if ((item_id_tag.val() !== "") || (pick_first_tag.val() !== "")) {
             // TODO: Might need to change this if the link goes back to the row instead of a cell.
             let item_row = $(`#${filter_results_div_id} tr:first`);
+            highlight_row(item_row);
             item_row.find(".filtered-item-link").trigger("click");
             item_id_tag.val("");
             pick_first_tag.val("");
         }
     });
-    w.on(item_selected_event_name, function() {
+    w.on(item_selected_event_name, function(e, selected_row) {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
         update_calculations();
+
+        highlight_row(selected_row);
 
         $('html, body').stop().animate({'scrollTop':$('#calculation-div').offset().top}, 100);
     });
