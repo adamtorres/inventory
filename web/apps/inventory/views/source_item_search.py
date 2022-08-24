@@ -8,7 +8,7 @@ class SourceItemSearchView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pass_along = ["item-id", "pick-first", "quantity", "unit-size", "item-name", "comment", "order-number"]
+        pass_along = ["item-id", "pick-first", "pick-id", "quantity", "unit-size", "item-name", "comment", "order-number"]
         for get_param in pass_along:
             if get_param in self.request.GET:
                 context[f"pass_in_{get_param.replace('-', '_')}"] = self.request.GET[get_param]

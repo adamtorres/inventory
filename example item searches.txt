@@ -31,3 +31,12 @@ http://localhost:8000/inventory/sourceitem/search/?item-name=bean+green&order-nu
 Egg noodles
 http://localhost:8000/inventory/sourceitem/search/?item-name=egg+noo
 
+Search "arsl conc" and select a specific one which is not the first or last.  ID specific so won't survive a data reload.  Hash date/source/order_number/line_item_number/item_code?
+http://localhost:8000/inventory/sourceitem/search/?item-name=arsl+conc&pick-id=dcccd754-5a7b-4f2c-bdbf-0e80ed81cec6
+
+SELECT DISTINCT
+    cryptic_name, delivered_quantity, pack_quantity, unit_quantity, unit_size, remaining_quantity, use_type
+FROM inventory_sourceitem
+WHERE cryptic_name LIKE '%beef%'
+ORDER BY cryptic_name, unit_size, pack_quantity;
+

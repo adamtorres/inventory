@@ -165,6 +165,7 @@ label {
                 <input type="text" id="filter-order-number" class="filter-input" value="{{ pass_in_order_number }}" />
             </div>
             <input type="hidden" id="filter-item-id" class="filter-input" value="{{ pass_in_item_id }}" />
+            <input type="hidden" id="filter-pick-id" class="filter-input" value="{{ pass_in_pick_id }}" />
             <input type="hidden" id="filter-pick-first" class="filter-input" value="{{ pass_in_pick_first }}" />
         </div>
     </div>
@@ -219,7 +220,10 @@ label {
         </div>
         <div class="col">
             <label for="calc-selected-item-inventory-adjustment">Use: </label>
-            <input type="number" id="calc-selected-item-inventory-adjustment" min="" max="" value="0">
+            <input type="number" id="calc-selected-item-inventory-adjustment" max="" value="0">
+        </div>
+        <div class="col">
+            <span type="button" class="button btn-success" id="calc-adjust-selected-item-inventory-quantity">Adjust Remaining Quantity</span>
         </div>
     </div>
     <hr />
@@ -619,6 +623,7 @@ function setup_event_handlers() {
         // filter results arrived.  Still no selected item.
         $("#calculation-div").addClass("d-none");
         let item_id_tag = $("#filter-item-id");
+        let pick_id_tag = $("#filter-pick-id");
         let pick_first_tag = $("#filter-pick-first");
         if ((item_id_tag.val() !== "") || (pick_first_tag.val() !== "")) {
             // TODO: Might need to change this if the link goes back to the row instead of a cell.
@@ -628,16 +633,36 @@ function setup_event_handlers() {
             item_id_tag.val("");
             pick_first_tag.val("");
         }
+        if (pick_id_tag.val() !== "") {
+            let result_table = $(`#${filter_results_div_id}`);
+            result_table.find(".filtered-item-top").each(function() {
+                let row = $(this);
+                if (pick_id_tag.val() === row.data('id')) {
+                    // Found the item.  trigger the click event.
+                    row.find(".filtered-item-link").trigger("click");
+                    pick_id_tag.val("");
+                }
+            });
+        }
     });
     w.on(item_selected_event_name, function(e, selected_row) {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
         update_calculations();
 
         highlight_row(selected_row);
+        prepare_remaining_quantity_controls(selected_row);
 
         $('html, body').stop().animate({'scrollTop':$('#calculation-div').offset().top}, 100);
     });
     $("#clear_form").on("click", clear_form);
+}
+function prepare_remaining_quantity_controls(_selected_row) {
+    let nbr_ctrl = $("#calc-selected-item-inventory-adjustment");
+    let selected_row = $(_selected_row);
+    let item_id = selected_row.data('id');
+    console.log(item_id);
+    let remaining_quantity = selected_row.find('[data-field="remaining_quantity"]').text();
+    nbr_ctrl.attr("max", remaining_quantity);
 }
 function clear_form() {
     let search_fields = [
