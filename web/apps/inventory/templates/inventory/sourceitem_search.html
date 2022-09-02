@@ -501,9 +501,9 @@ function update_calculations() {
     let total_price = parseFloat($("#calc-price").text());
     let pack_price_per_weight = 0;
     let price_per_unit = total_price / quantity / pack_quantity;
-    $("#calc-unit-price").text(round(price_per_unit));
+    $("#calc-unit-price").text(round(price_per_unit).toFixed(2));
     let price_per_count = price_per_unit / unit_quantity;
-    $("#calc-count-price").text(round(price_per_count));
+    $("#calc-count-price").text(round(price_per_count).toFixed(2));
 
     pack_price = round(price_per_unit * pack_quantity);  // NOTE: tax got included by using extended_price
     $("#calc-pack-price").text(round(pack_price).toFixed(2));
