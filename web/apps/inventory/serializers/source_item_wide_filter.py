@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .. import models as inv_models
+from ..common import use_type
 
 
 class SourceItemWideFilterSerializer(serializers.ModelSerializer):
@@ -8,6 +9,7 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
     remaining_cost = serializers.SerializerMethodField()
     source_name = serializers.SerializerMethodField()
     source_item_name = serializers.SerializerMethodField()
+    use_type_str = serializers.SerializerMethodField()
 
     class Meta:
         model = inv_models.SourceItem
@@ -29,6 +31,7 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
             "extended_cost", "total_weight", "individual_weights",
             "extra_notes", "extra_code", "scanned_filename",
             "remaining_quantity", "remaining_cost", "per_use_cost",
+            "use_type", "use_type_str",
         ]
 
     def get_per_use_cost(self, obj):
@@ -42,3 +45,6 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
 
     def get_source_name(self, obj):
         return obj.source.name
+
+    def get_use_type_str(self, obj):
+        return use_type.use_type_to_str(obj.use_type)

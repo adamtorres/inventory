@@ -33,3 +33,9 @@ USE_TYPE_CHOICES = [
     (BY_UNIT, 'By Unit'),
     (BY_COUNT, 'By Count'),
 ]
+
+USE_TYPE_TRANSLATE = {k: v for k, v in USE_TYPE_CHOICES}
+
+
+def use_type_to_str(use_type):
+    return USE_TYPE_TRANSLATE.get(use_type, None)

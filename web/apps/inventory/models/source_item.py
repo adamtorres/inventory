@@ -1,11 +1,18 @@
+import json
+import logging
+
 from django.contrib.postgres import fields as pg_fields
 from django.db import models
 from django.db.models import expressions, functions
 
 
+from .. import errors
 from ..common import use_type
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
+
+
+logger = logging.getLogger(__name__)
 
 
 class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
@@ -167,6 +174,28 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
 
     def __str__(self):
         return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
+
+    def adjust_quantity(self, _use_type, expected_remaining_quantity, value):
+        if self.use_type != _use_type:
+            raise errors.UseTypeMismatchError(
+                use_type.use_type_to_str(_use_type), use_type.use_type_to_str(self.use_type))
+        if self.remaining_quantity < value:
+            raise ValueError(f"Insufficient quantity({self.remaining_quantity}) to satisfy adjustment({value}).")
+        if self.remaining_quantity != expected_remaining_quantity:
+            raise ValueError(
+                f"Expected remaining quantity({expected_remaining_quantity}) does not match "
+                f"existing({self.remaining_quantity}).")
+        log_data = {
+            'id': self.id,
+            'previous': self.remaining_quantity,
+            'use_type': self.use_type,
+            'adjustment': value,
+        }
+        self.remaining_quantity -= value
+        self.save()
+        log_data['new'] = self.remaining_quantity
+        logger.info(f"adjust_quantity|{json.dumps(log_data, sort_keys=True, default=str)}")
+        return self.remaining_quantity
 
     def use_by_count(self):
         return self.use_type == use_type.BY_COUNT

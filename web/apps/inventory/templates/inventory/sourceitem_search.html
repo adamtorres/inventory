@@ -174,6 +174,7 @@ label {
     <h5>
         Selected item
     </h5>
+    <input type="hidden" name="calc-item-id" id="calc-item-id" />
     <div class="row selected-item-text-row">
         <div class="row">
             <div class="col text-left">
@@ -217,6 +218,11 @@ label {
         <div class="col">
             <label for="calc-remaining-quantity">Remaining Quantity: </label>
             <span id="calc-remaining-quantity">[remaining quantity]</span>
+        </div>
+        <div class="col">
+            <span>Used how: </span>
+            <span id="calc-use-type-str">[use type str]</span>
+            <span class="d-none" id="calc-use-type">[use type]</span>
         </div>
         <div class="col">
             <label for="calc-selected-item-inventory-adjustment">Use: </label>
@@ -352,6 +358,7 @@ Log.
     <tr class="filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
         <td class="border date-cell filtered-item-link" data-field="delivered_date">__delivered_date__</td>
         <td class="border">
+            <span class="d-none" data-field="id">__id__</span>
             <span data-field="source_name">__source_name__</span> :
             <span><span data-field="order_number">__order_number__</span> :</span>
             <span><span data-field="po_text">__po_text__</span> : </span>
@@ -369,9 +376,15 @@ Log.
         <td class="border right-align" data-field="total_weight">__total_weight__</td>
         <td class="border right-align"><span data-field="delivered_quantity">__delivered_quantity__</span>x</td>
         <td class="border">
-            <span data-field="pack_quantity">__pack_quantity__</span>pk
-            <span data-field="unit_size">__unit_size__</span>
-            <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
+            <div>
+                <span data-field="pack_quantity">__pack_quantity__</span>pk
+                <span data-field="unit_size">__unit_size__</span>
+                <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
+            </div>
+            <div>
+                <span class="d-none" data-field="use_type">__use_type__</span>
+                <span class="d-none" data-field="use_type_str">__use_type_str__</span>
+            </div>
         </td>
         <td class="border right-align" data-field="remaining_quantity">__remaining_quantity__</td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
@@ -413,6 +426,7 @@ Log.
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static "js/layout.js" %}"></script>
 <script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
@@ -421,6 +435,7 @@ Log.
 <script type="application/javascript">
 filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
 filter_fields = [
+    "id",
     "delivered_date",
     {#"source",#}
     "source_name",
@@ -436,6 +451,7 @@ filter_fields = [
     "extended_cost", "total_weight", "individual_weights",
     "extra_notes", "extra_code", "scanned_filename",
     "remaining_quantity", "remaining_cost", "per_use_cost",
+    "use_type", "use_type_str",
 ];
 remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost", "remaining_cost", "per_use_cost"];
@@ -467,6 +483,9 @@ filter_result_fields = [
     {element: "data-field='pack_cost'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
     {element: "data-field='remaining_quantity'", destination_field_id: "calc-remaining-quantity"},
+    {element: "data-field='id'", destination_field_id: "calc-item-id"},
+    {element: "data-field='use_type'", destination_field_id: "calc-use-type"},
+    {element: "data-field='use_type_str'", destination_field_id: "calc-use-type-str"},
 ];
 
 function round(v) {
@@ -608,6 +627,44 @@ function update_calculations() {
     }
     $("#calculation-div").removeClass("d-none");
 }
+function adjust_selected_item_inventory_quantity() {
+    let item_id = $("#calc-item-id").val();
+    let use_quantity = $("#calc-selected-item-inventory-adjustment").val();
+    let remaining_quantity = $("#calc-remaining-quantity").text();
+    let use_type = $("#calc-use-type").text();
+    logit(`Adjusting ${item_id} from ${remaining_quantity} by ${use_quantity}.`);
+    // Should prevent further changes while waiting for this change.  Do not want multiple usages to be sent.
+    // Though, sending the remaining with the request would allow the SQL to only update if the remaining matches.
+    // First would work but subsequent would fail.
+    let values_to_send = {
+        "item_id": item_id,
+        "remaining_quantity": remaining_quantity,
+        "use_quantity": use_quantity,
+        "use_type": use_type,
+    };
+    let headers = {};
+    headers['X-CSRFToken'] = csrftoken;
+    var jqxhr = $.ajax({
+        url: "{% url "inventory:api_sourceitem_quantity_adjustment" %}",
+        type: "put",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(values_to_send),
+        headers: headers,
+        // traditional: true
+    })
+    .done(function() {
+        logit("ajax success");
+        // After the item is adjusted, need to reload the table.
+        $("#filter-pick-id").val(item_id);
+        $(window).trigger(force_filter_refresh_event_name);
+    })
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+        logit("ajax always");
+    });
+}
 function setup_event_handlers() {
     let w = $(window);
     let d = $(document);
@@ -655,6 +712,7 @@ function setup_event_handlers() {
         $('html, body').stop().animate({'scrollTop':$('#calculation-div').offset().top}, 100);
     });
     $("#clear_form").on("click", clear_form);
+    $("#calc-adjust-selected-item-inventory-quantity").on("click", adjust_selected_item_inventory_quantity);
 }
 function prepare_remaining_quantity_controls(_selected_row) {
     let nbr_ctrl = $("#calc-selected-item-inventory-adjustment");
@@ -675,7 +733,7 @@ function link_to_search() {
             args[url_arg_name] = tag.val();
         }
     });
-    // TODO: Need the source and category filters.
+    // TODO: Need the source and category filters and need to add pick-id or pick-first.
     let selected_row = get_highlighted_row();
     args['pick-id'] = selected_row.data('id');
     let url_string = $.param(args);
