@@ -89,6 +89,9 @@ label {
     padding: 0.5em;
     border-radius: 10px;
 }
+.no-remaining-quantity td {
+    background-color: lightgrey;
+}
 </style>
 {% endblock %}
 
@@ -679,6 +682,7 @@ function new_filtered_item(e, new_filtered_item_row) {
     let new_row = $(new_filtered_item_row);
     let remaining_quantity = parseInt(new_row.find('[data-field="remaining_quantity"]').text());
     if (remaining_quantity === 0) {
+        new_row.addClass('no-remaining-quantity');
         new_row.addClass('text-muted');
     }
 }
