@@ -22,6 +22,7 @@ var filter_result_fields = [
 ];
 const item_selected_event_name = 'item_selected';
 const filter_requested_event_name = 'filter_requested';
+const new_filtered_item_event_name = 'new_filtered_item';
 const filter_results_populated_event_name = 'filtered_results_populated';
 const force_filter_refresh_event_name = 'force_filter_refresh';
 
@@ -81,6 +82,7 @@ function new_item(data) {
         let dest_tag = item_clone.find(tag['dest_tag']);
         dest_tag.attr(tag['dest_attr'], data[tag['src_field']]);
     });
+    $(window).trigger(new_filtered_item_event_name, item_clone);
     return item_clone;
 }
 function get_values_to_send() {

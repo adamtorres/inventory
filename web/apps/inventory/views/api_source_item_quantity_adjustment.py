@@ -9,7 +9,7 @@ from django.shortcuts import render
 
 from rest_framework import response, views, exceptions
 
-from inventory import models as inv_models, serializers as inv_serializers
+from inventory import models as inv_models, serializers as inv_serializers, errors
 
 
 logger = logging.getLogger(__name__)
@@ -34,13 +34,18 @@ class SourceItemQuantityAdjustmentView(views.APIView):
             adjusted_quantity = int(request.data['remaining_quantity'])
             use_quantity = int(request.data['use_quantity'])
         except ValueError:
-            return exceptions.ValidationError("Bad value in arguments")
+            messages.error(request, "Bad value in arguments.")
+            resp_data['msg'] = render(request, 'messages.html').content
+            # return exceptions.ValidationError("Bad value in arguments")
+            return response.Response(resp_data)
         resp_data['id'] = request.data['item_id']
         resp_data['previous'] = adjusted_quantity
         resp_data['new'] = adjusted_quantity
         resp_data['adjustment'] = use_quantity
         if use_quantity == 0:
             # Noop.  Don't hit database.
+            messages.info(request, "No change to quantity.")
+            resp_data['msg'] = render(request, 'messages.html').content
             return response.Response(resp_data)
 
         try:
@@ -50,11 +55,22 @@ class SourceItemQuantityAdjustmentView(views.APIView):
             #   'use_type': 'BU'}
             obj = self.queryset.get(id=request.data['item_id'])
         except self.queryset.model.DoesNotExist:
-            return exceptions.NotFound()
+            messages.error(request, "Specified item not found.")
+            resp_data['msg'] = render(request, 'messages.html').content
+            # return exceptions.NotFound()
+            return response.Response(resp_data)
         except self.queryset.model.MultipleObjectsReturned:
-            return exceptions.ValidationError("Multiple objects returned")
+            messages.error(request, "Multiple items returned.  Somehow.  Even though using the primary key.")
+            resp_data['msg'] = render(request, 'messages.html').content
+            # return exceptions.ValidationError("Multiple objects returned")
+            return response.Response(resp_data)
 
-        obj.adjust_quantity(request.data['use_type'], adjusted_quantity, use_quantity)
+        try:
+            obj.adjust_quantity(request.data['use_type'], adjusted_quantity, use_quantity)
+        except errors.InsufficientQuantityError as ex:
+            messages.error(request, str(ex))
+            resp_data['msg'] = render(request, 'messages.html').content
+            return response.Response(resp_data)
         resp_data['new'] = obj.remaining_quantity
         messages.success(
             request,

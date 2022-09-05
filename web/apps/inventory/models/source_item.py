@@ -180,7 +180,8 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
             raise errors.UseTypeMismatchError(
                 use_type.use_type_to_str(_use_type), use_type.use_type_to_str(self.use_type))
         if self.remaining_quantity < value:
-            raise ValueError(f"Insufficient quantity({self.remaining_quantity}) to satisfy adjustment({value}).")
+            # raise ValueError(f"Insufficient quantity({self.remaining_quantity}) to satisfy adjustment({value}).")
+            raise errors.InsufficientQuantityError(self.remaining_quantity, value)
         if self.remaining_quantity != expected_remaining_quantity:
             raise ValueError(
                 f"Expected remaining quantity({expected_remaining_quantity}) does not match "

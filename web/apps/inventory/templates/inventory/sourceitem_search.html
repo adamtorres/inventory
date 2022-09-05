@@ -675,6 +675,13 @@ function adjust_selected_item_inventory_quantity() {
         logit("ajax always");
     });
 }
+function new_filtered_item(e, new_filtered_item_row) {
+    let new_row = $(new_filtered_item_row);
+    let remaining_quantity = parseInt(new_row.find('[data-field="remaining_quantity"]').text());
+    if (remaining_quantity === 0) {
+        new_row.addClass('text-muted');
+    }
+}
 function setup_event_handlers() {
     let w = $(window);
     let d = $(document);
@@ -712,6 +719,7 @@ function setup_event_handlers() {
             });
         }
     });
+    w.on(new_filtered_item_event_name, new_filtered_item);
     w.on(item_selected_event_name, function(e, selected_row) {
         // Now that there's a selected item, update the calculations.  This also unhides the section.
         update_calculations();
