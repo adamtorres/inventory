@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
+    'django_filters',
+    'drf_messages',
     'django.contrib.humanize',
     'scrap',
     'inventory.apps.InventoryConfig',
@@ -79,6 +81,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# storage.session.SessionStorage - saves to session (database hit)
+# storage.cookie.CookieStorage - saves to cookie
+# storage.fallback.FallbackStorage - DEFAULT - tries cookie, then session if message too large.
+# drf_messages.storage.DBStorage - Allows messages to work with DRF.
+# MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
+MESSAGE_STORAGE = "drf_messages.storage.DBStorage"
+MESSAGES_USE_SESSIONS = True
+MESSAGES_DELETE_READ = False
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

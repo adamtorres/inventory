@@ -16,3 +16,15 @@ function resize_content(e) {
     let content_offset = content_obj.offset().top - w.scrollTop();
     content_obj.css("max-height", window_height - content_offset);
 }
+
+function get_screen_info() {
+    let w = $(window);
+    let window_height = w.height();
+    let window_width = w.width();
+    return {
+        'window_height': window_height,
+        'window_center_height': window_height / 2,
+        'window_width': window_width,
+        'window_center_width': window_width / 2,
+    }
+}

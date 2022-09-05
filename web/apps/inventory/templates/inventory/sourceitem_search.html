@@ -84,6 +84,11 @@ label {
 .filtered-item-link {
     cursor: pointer;
 }
+
+.button {
+    padding: 0.5em;
+    border-radius: 10px;
+}
 </style>
 {% endblock %}
 
@@ -428,6 +433,7 @@ Log.
 {% block body_scripts %}
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static "js/layout.js" %}"></script>
+<script src="{% static "js/messages.js" %}"></script>
 <script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/wide_filter.js' %}"></script>
@@ -652,11 +658,15 @@ function adjust_selected_item_inventory_quantity() {
         headers: headers,
         // traditional: true
     })
-    .done(function() {
-        logit("ajax success");
+    .done(function(e) {
+        console.log(`adjusted quantity of '${e.adjustment}' from '${e.previous}' to '${e.new}'.`);
         // After the item is adjusted, need to reload the table.
         $("#filter-pick-id").val(item_id);
         $(window).trigger(force_filter_refresh_event_name);
+        $("#calc-selected-item-inventory-adjustment").val("0");
+        if ('msg' in e) {
+            showPopupMessage(e.msg);
+        }
     })
     .fail(function() {
         logit("ajax fail");

@@ -33,8 +33,11 @@ pygments
 # to parse dates from invoice files
 python-dateutil
 
-# mainly for the serializer
+# mainly for the serializer but now for APIView
 djangorestframework
+
+# allow Django messages to work with djangorestframework
+drf-messages
 
 # for if/when more user-driven filtering is desired.
 django-filter

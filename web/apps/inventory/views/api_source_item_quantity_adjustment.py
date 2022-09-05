@@ -1,13 +1,25 @@
+import json
 import logging
 
-from rest_framework import response, views, exceptions
+from django import http
+from django.contrib import messages
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.shortcuts import render
 
-from scrap import views as sc_views
+from rest_framework import response, views, exceptions
 
 from inventory import models as inv_models, serializers as inv_serializers
 
 
 logger = logging.getLogger(__name__)
+
+
+def render_to_json(request, data):
+    return http.HttpResponse(
+        json.dumps(data, ensure_ascii=False),
+        mimetype=request.is_ajax() and "application/json" or "text/html"
+    )
 
 
 class SourceItemQuantityAdjustmentView(views.APIView):
@@ -17,15 +29,19 @@ class SourceItemQuantityAdjustmentView(views.APIView):
         adjusted_quantity = 0
         use_quantity = 0
         obj = None
+        resp_data = {'id': None, 'previous': 0, 'adjustment': 0, 'new': 0}
         try:
             adjusted_quantity = int(request.data['remaining_quantity'])
             use_quantity = int(request.data['use_quantity'])
         except ValueError:
             return exceptions.ValidationError("Bad value in arguments")
-
+        resp_data['id'] = request.data['item_id']
+        resp_data['previous'] = adjusted_quantity
+        resp_data['new'] = adjusted_quantity
+        resp_data['adjustment'] = use_quantity
         if use_quantity == 0:
             # Noop.  Don't hit database.
-            return response.Response({'id': request.data['item_id'], 'remaining_quantity': adjusted_quantity})
+            return response.Response(resp_data)
 
         try:
             # { 'item_id': 'c69db32e-3cd1-4658-812b-d91615ac2950',
@@ -39,5 +55,10 @@ class SourceItemQuantityAdjustmentView(views.APIView):
             return exceptions.ValidationError("Multiple objects returned")
 
         obj.adjust_quantity(request.data['use_type'], adjusted_quantity, use_quantity)
+        resp_data['new'] = obj.remaining_quantity
+        messages.success(
+            request,
+            f"Adjusted quantity from {resp_data['previous']} by {-1 * resp_data['adjustment']} to {resp_data['new']}.")
+        resp_data['msg'] = render(request, 'messages.html').content
 
-        return response.Response({'id': obj.id, 'remaining_quantity': adjusted_quantity})
+        return response.Response(resp_data)

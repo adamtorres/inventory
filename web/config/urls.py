@@ -22,6 +22,8 @@ from . import views
 
 
 urlpatterns = [
+    path('messages/', urls.include('drf_messages.urls')),
+
     path('admin/', admin.site.urls),
     # urls.path('news/', urls.include('news.urls', namespace='news')),
 

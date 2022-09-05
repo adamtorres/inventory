@@ -91,6 +91,13 @@
 {% block modal_body %}
     {# for any modal forms - just starting to learn bootstrap's modals and they seem to need to be high in the tree. #}
 {% endblock %}
+<div class="message-container">
+    <div id="popup-messages-content" class="message">
+        <ul id="popup-messages-content-ul" class="message-list">
+            {% include 'messages.html' %}
+        </ul>
+    </div>
+</div>
 <div class="wrapper">
     {% block navpanel_body %}
         {# left side panel #}
