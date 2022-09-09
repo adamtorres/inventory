@@ -39,3 +39,7 @@ USE_TYPE_TRANSLATE = {k: v for k, v in USE_TYPE_CHOICES}
 
 def use_type_to_str(use_type):
     return USE_TYPE_TRANSLATE.get(use_type, None)
+
+
+def use_type_to_single_word(use_type):
+    return USE_TYPE_TRANSLATE.get(use_type, '')[3:].lower()

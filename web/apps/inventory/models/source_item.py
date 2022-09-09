@@ -79,6 +79,7 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
 
     def override_use_types(self):
         # Importing here to avoid circular dependencies.
+        # TODO: if user customizes some, this would clobber those changes.
         from inventory.models import UseTypeOverride
         for uto in UseTypeOverride.objects.all():
             SourceItem.objects.filter(uto.source_item_filter()).update(use_type=uto.use_type)
@@ -169,11 +170,21 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
 
     use_type = models.CharField(max_length=2, choices=use_type.USE_TYPE_CHOICES, default=use_type.BY_UNIT)
     remaining_quantity = models.IntegerField(null=True)
+    #
+    remaining_pack_quantity = models.IntegerField(null=True)
+    remaining_unit_quantity = models.IntegerField(null=True)
+    remaining_count_quantity = models.IntegerField(null=True)
 
     objects = SourceItemManager()
 
     def __str__(self):
         return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
+
+    def get_remaining_quantity(self, _use_type):
+        return getattr(self, f"remaining_{use_type.use_type_to_single_word(_use_type)}_quantity")
+
+    def adjust_quantity_x(self, _use_type, expected_remaining_quantity, value):
+        pass
 
     def adjust_quantity(self, _use_type, expected_remaining_quantity, value):
         if self.use_type != _use_type:
