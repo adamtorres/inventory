@@ -28,6 +28,7 @@ urlpatterns = [
     # urls.path('news/', urls.include('news.urls', namespace='news')),
 
     path('inventory/', urls.include('inventory.urls', namespace="inventory")),
+    path('market/', urls.include('market.urls', namespace="market")),
 
     path('', generic.RedirectView.as_view(
         pattern_name="inventory:sourceitem_search", permanent=False), name="homepage"),

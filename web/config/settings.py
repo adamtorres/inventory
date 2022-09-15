@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'scrap',
     'inventory.apps.InventoryConfig',
+    'market.apps.MarketConfig',
 ]
 
 MIDDLEWARE = [
