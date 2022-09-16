@@ -16,7 +16,35 @@
 <div>
     Packs: {{ order.quantity }}
 </div>
-
+<div>
+    Ordered: {{ order.date_ordered }}
+</div>
+{% if order.can_be_made %}
+    <div>
+        <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="modify-action" value="made">
+            <input type="submit" value="Mark Order as Made" />
+        </form>
+    </div>
+{% else %}
+    <div>
+        Made: {{ order.date_made }}
+    </div>
+    {% if order.can_be_picked_up %}
+        <div>
+            <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="modify-action" value="picked-up">
+                <input type="submit" value="Mark Order as Picked Up" />
+            </form>
+        </div>
+    {% else %}
+        <div>
+            Picked Up: {{ order.pickup_date }}
+        </div>
+    {% endif %}
+{% endif %}
 <div>
     <a href="{% url "market:order_list" %}">Back to list</a>
 </div>
