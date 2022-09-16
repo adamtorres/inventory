@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market : Order{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<div>
+    Who: {{ order.who }}
+</div>
+<div>
+    Pack: {{ order.item_pack.item.name }} {{ order.item_pack.item.quantity }}
+</div>
+<div>
+    Packs: {{ order.quantity }}
+</div>
+
+<div>
+    <a href="{% url "market:order_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

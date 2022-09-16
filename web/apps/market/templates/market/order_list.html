@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market : Order List{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<ul>
+{% for order in order_list %}
+    <li>
+        <a href="{% url "market:order_detail" pk=order.pk %}">
+            {{ order.state }} {{ order.date_ordered }} {{ order.who }}, {{ order.quantity }}x {{ order.item_pack }}
+        </a>
+    </li>
+{% endfor %}
+</ul>
+<div>
+    <a href="{% url "market:order_create" %}">Add Order</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
