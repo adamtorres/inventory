@@ -13,6 +13,14 @@
                 <li><a href="{% url "inventory:sourceitem_stats" %}" class="link-light rounded">Random Stats</a></li>
             </ul>
         </li>
+        <li class="">
+            <a href="#MarketSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Market</a>
+            <ul class="collapse list-unstyled" id="MarketSubmenu">
+                <li><a href="{% url "market:item_list" %}" class="link-light rounded">Items</a></li>
+                <li><a href="{% url "market:item_pack_list" %}" class="link-light rounded">Item Packs</a></li>
+                <li><a href="{% url "market:order_list" %}" class="link-light rounded">Orders</a></li>
+            </ul>
+        </li>
     </ul>
 
     <ul class="list-unstyled CTAs">

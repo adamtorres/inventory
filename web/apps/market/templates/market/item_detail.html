@@ -13,8 +13,25 @@
 <div>
     Category: {{ item.category }}
 </div>
+<div>
+    Pack Sizes:
+    <ul>
+        {% for item_pack in item.item_packs.all %}
+            <li>{{ item_pack }}</li>
+        {% endfor %}
+    </ul>
+</div>
 
 <div>
+    Tags:
+    <ul>
+        {% for tag in item.tags.all %}
+            <li>{{ tag }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+    <div>
     <a href="{% url "market:item_list" %}">Back to list</a>
 </div>
 {% endblock %}

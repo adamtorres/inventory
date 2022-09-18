@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market : Item Pack{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<div>
+    Item: {{ item_pack.item }}
+</div>
+<div>
+    Quantity: {{ item_pack.quantity }}
+</div>
+
+<div>
+    <a href="{% url "market:item_pack_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
