@@ -8,13 +8,9 @@ from market import models as mkt_models
 class OrderCreateView(generic.CreateView):
     model = mkt_models.Order
     fields = [
-        'item_pack',
-        'quantity',
         'date_ordered',
         'who',
-        'sale_price_per_pack',
         'sale_price',
-        'material_cost_per_pack',
         'material_cost',
     ]
 

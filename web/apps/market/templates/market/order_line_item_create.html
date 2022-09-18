@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market : New Order with items{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.management_form }}
+    {{ form.non_form_errors }}
+    {% for hidden_field in form.hidden_fields %}
+        {{ hidden_field.errors }}
+    {% endfor %}
+    <table>
+    {{ form.as_table }}
+    </table>
+    <input type="submit" value="Save">
+</form>
+
+<div>
+    <a href="{% url "market:order_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
