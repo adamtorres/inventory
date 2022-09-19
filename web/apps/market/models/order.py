@@ -17,6 +17,9 @@ class Order(sc_models.UUIDModel):
     sale_price = sc_fields.MoneyField(help_text="sale price for all items in the order")
     material_cost = sc_fields.MoneyField(help_text="cost of materials for all items in the order.")
 
+    class Meta:
+        ordering = ['-date_ordered', 'who', 'id']
+
     def __str__(self):
         return f"{self.date_ordered} : {self.who} : {self.state()}"
 

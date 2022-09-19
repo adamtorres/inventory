@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Market : Item Pack{% endblock %}
@@ -12,6 +13,9 @@
 </div>
 <div>
     Quantity: {{ item_pack.quantity }}
+</div>
+<div>
+    Cost of Materials: ${{ item_pack.material_cost_per_pack|floatformat:2|intcomma }}
 </div>
 
 <div>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Market : Item Pack List{% endblock %}
@@ -7,11 +8,24 @@
 {% endblock %}
 
 {% block content %}
-<ul>
+<table>
+<thead>
+<tr>
+    <th>Quantity</th>
+    <th>Item</th>
+    <th>Material Cost</th>
+</tr>
+</thead>
+<tbody>
 {% for item_pack in item_pack_list %}
-    <li><a href="{% url "market:item_pack_detail" pk=item_pack.pk %}">{{ item_pack }}</a></li>
+    <tr>
+    <td>{{ item_pack.quantity_str }}</td>
+    <td><a href="{% url "market:item_pack_detail" pk=item_pack.pk %}">{{ item_pack.item }}</a></td>
+    <td>${{ item_pack.material_cost_per_pack|floatformat:2|intcomma }}</td>
+    </tr>
 {% endfor %}
-</ul>
+</tbody>
+</table>
 <div>
     <a href="{% url "market:item_pack_create" %}">Add Item Pack</a>
 </div>
