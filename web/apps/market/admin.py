@@ -3,12 +3,21 @@ from django.contrib import admin
 from . import models as mkt_models
 
 
+admin.AdminSite.site_header = "Customized Admin Site Header From Market"
+
+
+class ItemPackInLine(admin.TabularInline):
+    model = mkt_models.ItemPack
+    extra = 0
+
+
+class ItemAdmin(admin.ModelAdmin):
+    inlines = [ItemPackInLine]
+
+
 class OrderLineItemInline(admin.TabularInline):
     model = mkt_models.OrderLineItem
     extra = 3
-
-
-admin.AdminSite.site_header = "Customized Admin Site Header From Market"
 
 
 class OrderAdmin(admin.ModelAdmin):
@@ -22,8 +31,7 @@ class OrderAdmin(admin.ModelAdmin):
     # search_fields = ['question_text']
 
 
-admin.site.register(mkt_models.Item)
-admin.site.register(mkt_models.ItemPack)
+admin.site.register(mkt_models.Item, ItemAdmin)
 admin.site.register(mkt_models.OnSaleItemPack)
 admin.site.register(mkt_models.Order, OrderAdmin)
 admin.site.register(mkt_models.Sale)
