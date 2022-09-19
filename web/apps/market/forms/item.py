@@ -1,7 +1,7 @@
 from django import forms
 
 from scrap.forms import fields as sc_fields
-from market import models as mkt_models
+from market import models as mkt_models, utils
 
 
 class ItemForm(forms.ModelForm):
@@ -14,8 +14,9 @@ class ItemForm(forms.ModelForm):
         (12, "Dozen"),
     )
     name = forms.CharField()
-    category = forms.ChoiceField(choices=mkt_models.Item.ITEM_CATEGORIES)
-    item_pack_quantities = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=PACK_QUANTITIES)
+    category = forms.ChoiceField(choices=utils.ITEM_CATEGORIES)
+    item_pack_quantities = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple, choices=PACK_QUANTITIES, required=False)
     tags = forms.ModelMultipleChoiceField(
         mkt_models.Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
     material_cost_per_item = sc_fields.MoneyField(required=True)

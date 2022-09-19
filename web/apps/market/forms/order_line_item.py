@@ -7,7 +7,10 @@ from market import models as mkt_models
 class OrderLineItemForm(forms.ModelForm):
     template_name_table = "market/forms/order_line_item_form_table.html"
     line_item_position = forms.IntegerField()
-    item_pack = forms.ModelChoiceField(mkt_models.ItemPack.objects.all())  # widget=sc_widgets.AutocompleteWidget
+    item_pack = sc_fields.ComplicatedModelChoiceField(
+        mkt_models.ItemPack.objects.all(),
+        additional_fields_for_options=['suggested_sale_price_per_pack']
+    )  # widget=sc_widgets.AutocompleteWidget
     quantity = forms.IntegerField()
     sale_price_per_pack = sc_fields.MoneyField()
     material_cost_per_pack = sc_fields.MoneyField()

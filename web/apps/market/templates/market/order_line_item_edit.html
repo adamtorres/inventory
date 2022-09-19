@@ -47,12 +47,21 @@
 {% block body_scripts %}
 <script src="{% static 'js/add_new_form.js' %}"></script>
 <script type="text/javascript">
+function item_pack_selected(e) {
+    // this == the select tag.  Use 'option:selected' to find the selected option tag.
+    let option_selected = $("option:selected", this);
+    let suggested_sale_price_per_pack = option_selected.attr('suggested_sale_price_per_pack');
+    let current_row = option_selected.parents('.form-row');
+    let suggested_sale_price_per_pack_tag = current_row.find('.sale_price_per_pack_col input[type=number]');
+    suggested_sale_price_per_pack_tag.val(suggested_sale_price_per_pack);
+}
 $( document ).ready(function() {
     {#autocomplete_url = "{% url 'inc_autocomplete_items' %}";#}
     form_name = "line_items";
     after_add_focus_suffix = "-item_pack";
     {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
     {#autocomplete_display_field = "name";#}
+    $(document).on('change', '#formset-table tbody tr select', item_pack_selected);
 })
 </script>
 

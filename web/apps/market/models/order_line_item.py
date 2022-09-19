@@ -18,6 +18,9 @@ class OrderLineItem(sc_models.UUIDModel):
     material_cost_per_pack = sc_fields.MoneyField(help_text="cost of materials for a single pack.")
     material_cost = sc_fields.MoneyField(help_text="cost of materials for the order.")
 
+    class Meta:
+        ordering = ['order', 'line_item_position']
+
     def __str__(self):
         # TODO: save a local copy of item_pack str so it doesn't hit the db again and in case item_pack changes.
         return f"{self.quantity}x {self.item_pack or self.item_pack_str}"
