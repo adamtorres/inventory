@@ -9,6 +9,11 @@ def today():
     return timezone.localdate(timezone.now())
 
 
+class OrderManager(models.Manager):
+    def incomplete(self):
+        return self.exclude(pickup_date__isnull=False)
+
+
 class Order(sc_models.UUIDModel):
     date_ordered = models.DateField(default=today)
     date_made = models.DateField(null=True, blank=True)
@@ -16,6 +21,8 @@ class Order(sc_models.UUIDModel):
     who = sc_fields.CharField()
     sale_price = sc_fields.MoneyField(help_text="sale price for all items in the order")
     material_cost = sc_fields.MoneyField(help_text="cost of materials for all items in the order.")
+
+    objects = OrderManager()
 
     class Meta:
         ordering = ['-date_ordered', 'who', 'id']
@@ -40,6 +47,9 @@ class Order(sc_models.UUIDModel):
 
     def can_be_picked_up(self):
         return not self.pickup_date
+
+    def is_completed(self):
+        return not self.can_be_picked_up()
 
     def set_order_made(self):
         if not self.date_made:

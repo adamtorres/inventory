@@ -23,7 +23,22 @@ class OrderDetailView(generic.DetailView):
 
 
 class OrderListView(generic.ListView):
-    queryset = mkt_models.Order.objects.all()
+    include_completed = True
+
+    def get(self, request, *args, **kwargs):
+        self.include_completed = request.GET.get('completed', '').lower() == "true"
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['include_completed'] = self.include_completed
+        return context
+
+    def get_queryset(self):
+        if self.include_completed:
+            return mkt_models.Order.objects.all()
+        else:
+            return mkt_models.Order.objects.incomplete()
 
 
 class OrderModifyByActionView(generic.View):

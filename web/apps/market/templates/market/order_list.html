@@ -7,15 +7,33 @@
 {% endblock %}
 
 {% block content %}
-<ul>
+<table>
+<thead>
+<tr>
+    <th>State</th>
+    <th>Ordered</th>
+    <th>Made</th>
+    <th>Pickup</th>
+    <th>Who</th>
+</tr>
+</thead>
 {% for order in order_list %}
-    <li>
-        <a href="{% url "market:order_detail" pk=order.pk %}">
-            {{ order.state }} {{ order.date_ordered }} {{ order.who }}, {{ order.quantity }}x {{ order.item_pack }}
-        </a>
-    </li>
+    <tr style="border: black solid 1px;" class="{% if order.can_be_made %} bg-success text-light {% elif order.can_be_picked_up %} bg-warning {% elif order.is_completed %} text-muted {% endif %}">
+        <td style="border-right: grey solid 1px;">{{ order.state }}</td>
+        <td style="border-right: grey solid 1px;">{{ order.date_ordered }}</td>
+        <td style="border-right: grey solid 1px;">{{ order.date_made|default_if_none:"" }}</td>
+        <td style="border-right: grey solid 1px;">{{ order.pickup_date|default_if_none:"" }}</td>
+        <td><a href="{% url "market:order_detail" pk=order.pk %}">{{ order.who }}</a></td>
+    </tr>
 {% endfor %}
-</ul>
+</table>
+<div>
+    {% if include_completed %}
+    <a href="{% url "market:order_list" %}">Hide Completed Orders</a>
+    {% else %}
+    <a href="{% url "market:order_list" %}?completed=true">Show Completed Orders</a>
+    {% endif %}
+</div>
 <div>
     <a href="{% url "market:order_create" %}">Add Order</a>
 </div>
