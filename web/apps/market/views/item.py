@@ -26,7 +26,6 @@ class ItemPackQuantitiesMixin:
         if hasattr(self, 'object') and getattr(self, 'object'):
             ipq = [str(i) for i in self.object.item_packs.all().values_list('quantity', flat=True)]
             initial['item_pack_quantities'] = ipq
-            print(f"ItemUpdateView.get_initial: initial = {initial}")
         return initial
 
 

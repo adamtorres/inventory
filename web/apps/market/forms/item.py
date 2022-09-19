@@ -16,7 +16,8 @@ class ItemForm(forms.ModelForm):
     name = forms.CharField()
     category = forms.ChoiceField(choices=mkt_models.Item.ITEM_CATEGORIES)
     item_pack_quantities = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=PACK_QUANTITIES)
-    tags = forms.ModelMultipleChoiceField(mkt_models.Tag.objects.all(), widget=forms.CheckboxSelectMultiple)
+    tags = forms.ModelMultipleChoiceField(
+        mkt_models.Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
     material_cost_per_item = sc_fields.MoneyField()
 
     class Meta:

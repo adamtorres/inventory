@@ -19,9 +19,6 @@ class OrderLineItemForm(forms.ModelForm):
     def clean_material_cost_per_pack(self):
         return self.cleaned_data['material_cost_per_pack'] or 0.0
 
-    # def clean_sale_price_per_pack(self):
-    #     return self.cleaned_data['sale_price_per_pack'] or 0.0
-
     def get_context(self):
         context = super().get_context()
         # TODO: I don't really like how the placeholder is being set for the AutocompleteWidget. (copied from v3-old)
@@ -37,6 +34,5 @@ class OrderLineItemForm(forms.ModelForm):
 
 OrderLineItemFormset = forms.inlineformset_factory(
     mkt_models.Order, mkt_models.OrderLineItem, OrderLineItemForm,
-    # fields=('line_item_position', 'item_pack',  'quantity',  'sale_price_per_pack', 'material_cost_per_pack',),
     extra=0, can_delete=True,
 )
