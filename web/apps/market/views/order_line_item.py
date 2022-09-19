@@ -13,6 +13,7 @@ class OrderLineItemCreateView(generic.detail.SingleObjectMixin, generic.FormView
     def form_valid(self, form):
         form.save()
         # TODO: messages.add_message(blah)
+        self.object.calculate_totals()
         return http.HttpResponseRedirect(self.get_success_url())
 
     def get(self, request, *args, **kwargs):

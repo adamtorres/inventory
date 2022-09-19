@@ -10,8 +10,8 @@ class OrderCreateView(generic.CreateView):
     fields = [
         'date_ordered',
         'who',
-        'sale_price',
-        'material_cost',
+        # 'sale_price',
+        # 'material_cost',
     ]
 
     def get_success_url(self):

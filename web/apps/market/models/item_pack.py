@@ -12,5 +12,7 @@ class ItemPack(sc_models.UUIDModel):
         ordering = ['item', 'quantity']
 
     def __str__(self):
-        qty = "dz" if self.quantity == 12 else f"{self.quantity}pk"
-        return f"{qty} {self.item}"
+        return f"{self.quantity_str()} {self.item}"
+
+    def quantity_str(self):
+        return "dz" if self.quantity == 12 else f"{self.quantity}pk"

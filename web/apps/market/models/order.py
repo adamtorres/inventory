@@ -20,6 +20,18 @@ class Order(sc_models.UUIDModel):
     def __str__(self):
         return f"{self.date_ordered} : {self.who} : {self.state()}"
 
+    def calculate_totals(self):
+        material_cost = 0
+        sale_price = 0
+        for line_item in self.line_items.all():
+            line_item.calculate_totals()
+            material_cost += line_item.material_cost
+            sale_price += line_item.sale_price
+        if (self.material_cost != material_cost) or (self.sale_price != sale_price):
+            self.material_cost = material_cost
+            self.sale_price = sale_price
+            self.save()
+
     def can_be_made(self):
         return not self.date_made
 

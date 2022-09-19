@@ -20,3 +20,10 @@ class OrderLineItem(sc_models.UUIDModel):
         # TODO: save a local copy of item_pack str so it doesn't hit the db again and in case item_pack changes.
         return f"{self.quantity}x {self.item_pack}"
 
+    def calculate_totals(self):
+        material_cost = self.material_cost_per_pack * self.quantity
+        sale_price = self.sale_price_per_pack * self.quantity
+        if (self.material_cost != material_cost) or (self.sale_price != sale_price):
+            self.material_cost = material_cost
+            self.sale_price = sale_price
+            self.save()

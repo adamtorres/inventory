@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Market : Order{% endblock %}
@@ -48,10 +49,17 @@
 <div>
 <ul>
 {% for order_line_item in order.line_items.all %}
-    <li>{{ order_line_item }}</li>
+    <li>${{ order_line_item.sale_price|floatformat:2|intcomma }}, ${{ order_line_item.material_cost|floatformat:2|intcomma }}, {{ order_line_item }} at
+        ${{ order_line_item.sale_price_per_pack|floatformat:2|intcomma }} per {{ order_line_item.item_pack.quantity_str }}</li>
 {% endfor %}
 </ul>
 <a href="{% url "market:order_line_item_edit" pk=order.pk %}">Add/Remove Line Items</a>
+<div>
+    Total Sale: ${{ order.sale_price|floatformat:2|intcomma }}
+<div>
+</div>
+    Total Material Cost: ${{ order.material_cost|floatformat:2|intcomma }}
+</div>
 </div>
 <div>
     <a href="{% url "market:order_list" %}">Back to list</a>
