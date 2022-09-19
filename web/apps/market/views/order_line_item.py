@@ -5,9 +5,9 @@ from django.views import generic
 from market import models as mkt_models, forms as mkt_forms
 
 
-class OrderLineItemCreateView(generic.detail.SingleObjectMixin, generic.FormView):
+class OrderLineItemEditView(generic.detail.SingleObjectMixin, generic.FormView):
     model = mkt_models.Order
-    template_name = "market/order_line_item_create.html"
+    template_name = "market/order_line_item_edit.html"
     object = None
 
     def form_valid(self, form):
@@ -32,4 +32,4 @@ class OrderLineItemCreateView(generic.detail.SingleObjectMixin, generic.FormView
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(OrderLineItemCreateView, self).post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)

@@ -16,9 +16,9 @@ class OrderLineItemForm(forms.ModelForm):
         model = mkt_models.OrderLineItem
         fields = ['line_item_position', 'item_pack',  'quantity',  'sale_price_per_pack', 'material_cost_per_pack']
 
-    # def clean_material_cost_per_pack(self):
-    #     return self.cleaned_data['material_cost_per_pack'] or 0.0
-    #
+    def clean_material_cost_per_pack(self):
+        return self.cleaned_data['material_cost_per_pack'] or 0.0
+
     # def clean_sale_price_per_pack(self):
     #     return self.cleaned_data['sale_price_per_pack'] or 0.0
 
@@ -29,6 +29,10 @@ class OrderLineItemForm(forms.ModelForm):
         # if value:
         #     context['form']['item'].field.widget.attrs['placeholder'] = str(context['form'].instance)
         return context
+
+    def save(self, commit=True):
+        self.cleaned_data['material_cost_per_pack'] = self.cleaned_data['item_pack'].material_cost_per_pack
+        return super().save(commit=commit)
 
 
 OrderLineItemFormset = forms.inlineformset_factory(

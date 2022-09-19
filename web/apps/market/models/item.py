@@ -18,7 +18,8 @@ ITEM_CATEGORIES = [
 class Item(sc_models.UUIDModel):
     name = sc_fields.CharField()
     category = models.CharField(max_length=25, choices=ITEM_CATEGORIES, default=ITEM_CATEGORY_COOKIE)
-    tags = models.ManyToManyField("market.Tag", related_name="items", related_query_name="items")
+    tags = models.ManyToManyField("market.Tag", related_name="items", related_query_name="items", null=True, blank=True)
+    material_cost_per_item = sc_fields.MoneyField()
 
     def __str__(self):
         return self.name

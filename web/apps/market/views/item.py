@@ -6,7 +6,7 @@ from market import models as mkt_models
 
 class ItemCreateView(generic.CreateView):
     model = mkt_models.Item
-    fields = ['name', 'category']
+    fields = ['name', 'category', 'material_cost_per_item']
 
     def get_success_url(self):
         return urls.reverse('market:item_detail', args=(self.object.id,))
