@@ -8,6 +8,7 @@ app_name = "market"
 urlpatterns = [
     urls.path("items/", m_views.ItemListView.as_view(), name="item_list"),
     urls.path("item/<uuid:pk>", m_views.ItemDetailView.as_view(), name="item_detail"),
+    urls.path("item/<uuid:pk>/edit", m_views.ItemUpdateView.as_view(), name="item_update"),
     urls.path("item/new", m_views.ItemCreateView.as_view(), name="item_create"),
     urls.path("item_packs/", m_views.ItemPackListView.as_view(), name="item_pack_list"),
     urls.path("item_pack/<uuid:pk>", m_views.ItemPackDetailView.as_view(), name="item_pack_detail"),

@@ -34,7 +34,10 @@
     </ul>
 </div>
 
-    <div>
+<div>
+    <a href="{% url "market:item_update" pk=item.id %}">Edit Item</a>
+</div>
+<div>
     <a href="{% url "market:item_list" %}">Back to list</a>
 </div>
 {% endblock %}

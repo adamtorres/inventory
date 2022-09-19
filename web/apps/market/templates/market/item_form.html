@@ -13,9 +13,15 @@
     <input type="submit" value="Save">
 </form>
 
+{% if item.id %}
+<div>
+    <a href="{% url "market:item_detail" pk=item.id %}">Cancel</a>
+</div>
+{% endif %}
 <div>
     <a href="{% url "market:item_list" %}">Back to list</a>
 </div>
+
 {% endblock %}
 
 {% block body_scripts %}

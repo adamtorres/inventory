@@ -16,10 +16,17 @@ class ItemPack(sc_models.UUIDModel):
     def __str__(self):
         return f"{self.quantity_str()} {self.item}"
 
+    def calculate_material_cost(self, commit=True):
+        material_cost_per_pack = self.item.material_cost_per_item * self.quantity
+        if self.material_cost_per_pack != material_cost_per_pack:
+            self.material_cost_per_pack = material_cost_per_pack
+            if commit:
+                self.save()
+
     def quantity_str(self):
         return "dz" if self.quantity == 12 else f"{self.quantity}pk"
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.material_cost_per_pack = self.item.material_cost_per_item * self.quantity
+        self.calculate_material_cost(commit=False)
         return super().save(
             force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
