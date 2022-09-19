@@ -1,0 +1,43 @@
+{# Used by urls.reverse("order_line_item_edit") #}
+{# which points to OrderLineItemCreateView #}
+{# which uses OrderLineItemFormSet #}
+{# which uses OrderLineItemForm #}
+{# which uses this file. #}
+{% if form.instance.id %}
+  <!-- existing item -->
+{% else %}
+  <!-- new item -->
+{% endif %}
+    <td class="delete_col">
+        {{ form.DELETE.errors }}
+        {{ form.DELETE }}
+        <span id="hidden-fields-{{ form.instance.id }}">
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field.errors }}
+                {{ hidden_field }}
+            {% endfor %}
+        </span>
+    </td>
+    <td class="line_item_position_col">
+        {{ form.line_item_position.errors }}
+        {{ form.line_item_position }}
+        {# TODO: populate this via the add_new_form.js call?  Recalculate on edit page load to fix gaps? #}
+    </td>
+    <td class="item_pack_col">
+        {{ form.item_pack.errors }}
+        {{ form.item_pack }}
+    </td>
+    <td class="quantity_col">
+        {{ form.quantity.errors }}
+        {{ form.quantity }}
+    </td>
+    <td class="sale_price_per_pack_col">
+        {{ form.sale_price_per_pack.errors }}
+        {{ form.sale_price_per_pack }}
+    </td>
+    <td class="material_cost_per_pack_col">
+        {{ form.material_cost_per_pack.errors }}
+        {{ form.material_cost_per_pack }}
+    </td>
+
+{# TODO: add a javascript calculated extended price? #}

@@ -24,6 +24,7 @@ class OrderLineItemCreateView(generic.detail.SingleObjectMixin, generic.FormView
         return super().get_context_data(**kwargs)
 
     def get_form(self, form_class=None):
+        # The base get_form does not pass the instance kwarg.
         return mkt_forms.OrderLineItemFormset(**self.get_form_kwargs(), instance=self.object)
 
     def get_success_url(self):

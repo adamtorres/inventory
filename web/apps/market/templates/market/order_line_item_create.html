@@ -14,9 +14,29 @@
     {% for hidden_field in form.hidden_fields %}
         {{ hidden_field.errors }}
     {% endfor %}
-    <table>
-    {{ form.as_table }}
+    <table id="formset-table">
+        <thead>
+            <tr>
+                <th>{{ form.empty_form.DELETE.label }}</th>
+                <th>{{ form.empty_form.line_item_position.label }}</th>
+                <th>{{ form.empty_form.item_pack.label }}</th>
+                <th>{{ form.empty_form.quantity.label }}</th>
+                <th>{{ form.empty_form.sale_price_per_pack.label }}</th>
+                <th>{{ form.empty_form.material_cost_per_pack.label }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr class='form-row' id='empty-row' style="display:none;">
+            {{ form.empty_form.as_table }}
+        </tr>
+        {% for line_item_form in form.forms %}
+            <tr>
+                {{ line_item_form.as_table }}
+            </tr>
+        {% endfor %}
+        </tbody>
     </table>
+    <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new item</a></div>
     <input type="submit" value="Save">
 </form>
 
@@ -26,4 +46,15 @@
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static 'js/add_new_form.js' %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    {#autocomplete_url = "{% url 'inc_autocomplete_items' %}";#}
+    form_name = "line_items";
+    after_add_focus_suffix = "-item_pack";
+    {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
+    {#autocomplete_display_field = "name";#}
+})
+</script>
+
 {% endblock %}
