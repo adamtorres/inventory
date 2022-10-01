@@ -1,4 +1,6 @@
+import collections
 import datetime
+import functools
 from collections import defaultdict
 
 from ... import models as inv_models
@@ -23,6 +25,16 @@ class Command(commands.IngestCommand):
         'pk': 1,
         'lb': 1,
     }
+
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+        parser.add_argument(
+            '--distinct-items',
+            action='store_true',
+            dest='distinct_items',
+            help="Dump distinct pack qty, unit size, item combos.  Makes no database changes.",
+            default=False,
+        )
 
     def calc_unit_size(self, raw_row_data):
         unit_quantity = 1
@@ -98,6 +110,9 @@ class Command(commands.IngestCommand):
                 print(f"{k}: {data[k]}")
             else:
                 print(f"{k}: {len(data[k])} items in list.")
+        if self.additional_options.get("distinct_items"):
+            self.show_distinct_items(data)
+            return
         self.update_sources(data)
         self.create_source_items(data)
         inv_models.SourceItem.objects.override_use_types()
@@ -112,6 +127,45 @@ class Command(commands.IngestCommand):
             data["min_date"] = named_row.delivered_date
         if data["max_date"] is None or named_row.delivered_date > data["max_date"]:
             data["max_date"] = named_row.delivered_date
+
+    def show_distinct_items(self, data):
+        print("\nDistinct items")
+        full_key_counts = collections.defaultdict(int)
+        minimal_key_counts = collections.defaultdict(int)
+        nested_dict = functools.partial(collections.defaultdict, list)
+        minimal_key_records = collections.defaultdict(nested_dict)
+        for rec in data["records"]:
+            source_category = rec.source_category
+            item_name = rec.item_name
+            item_code = rec.item_code
+            pack_quantity = repr(rec.pack_quantity)
+            unit_size = rec.unit_size
+            unit_quantity = repr(rec.unit_quantity)
+            full_key = " || ".join([item_name, pack_quantity, unit_size, source_category, item_code, unit_quantity])
+            minimal_key = " || ".join([item_name, pack_quantity, unit_size])
+            full_key_counts[full_key] += 1
+            minimal_key_counts[minimal_key] += 1
+            minimal_key_records[minimal_key][full_key].append(rec)
+        print(f"full_key_counts has {len(full_key_counts)}")
+        print(f"minimal_key_counts has {len(minimal_key_counts)}")
+        minimal_key_keys = sorted(minimal_key_counts.keys())
+        records = 0
+        record_limit = 0
+        for minimal_key in minimal_key_keys:
+            print(f"\n{'*'*80}\n{minimal_key}\n")
+            for full_key in minimal_key_records[minimal_key].keys():
+                if len(minimal_key_records[minimal_key]) > 1:
+                    print(f"\n{'-' * 40}\n{full_key}\n")
+                for rec in minimal_key_records[minimal_key][full_key]:
+                    print("|".join([
+                        rec.item_name, f"pq={rec.pack_quantity}", f"us={rec.unit_size}", f"uq={rec.unit_quantity}",
+                        rec.source_category, rec.item_code, str(rec.delivered_date)
+                    ]))
+                    records += 1
+                    if record_limit and records >= record_limit:
+                        break
+            if record_limit and records >= record_limit:
+                break
 
     def update_sources(self, data):
         existing_sources = inv_models.Source.objects.filter(
