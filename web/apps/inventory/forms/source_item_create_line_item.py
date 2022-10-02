@@ -1,7 +1,9 @@
+import functools
 from django import forms
 from django.contrib.postgres import forms as pg_forms
+from django.forms import formset_factory
 
-# from inventory import models as inv_models
+from inventory import models as inv_models
 
 
 class SourceItemCreateLineItemForm(forms.Form):
@@ -12,3 +14,23 @@ class SourceItemCreateLineItemForm(forms.Form):
 
     class Meta:
         pass
+
+
+class SourceItemCreateLineItemModelForm(forms.ModelForm):
+    class Meta:
+        model = inv_models.SourceItem
+        fields = '__all__'
+        widgets = {
+            'source_category': forms.TextInput(attrs={'placeholder': 'category from source'}),
+            'item_code': forms.TextInput(attrs={'placeholder': 'item code'}),
+            'extra_code': forms.TextInput(attrs={'placeholder': 'extra code'}),
+            'cryptic_name': forms.TextInput(attrs={'placeholder': 'name as appears on invoice/receipt'}),
+            'verbose_name': forms.TextInput(attrs={'placeholder': 'cleaned up cryptic name'}),
+            'common_name': forms.TextInput(attrs={'placeholder': 'a more human-readable name'}),
+            'extra_notes': forms.TextInput(attrs={'placeholder': 'extra notes'}),
+            'scanned_filename': forms.TextInput(attrs={'placeholder': 'scanned filename'}),
+        }
+
+
+_SourceItemCreateLineItemModelFormSet = formset_factory(SourceItemCreateLineItemModelForm, extra=0, can_delete=False)
+SourceItemCreateLineItemModelFormSet = functools.partial(_SourceItemCreateLineItemModelFormSet, prefix='lineitemform')

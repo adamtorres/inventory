@@ -79,7 +79,13 @@ li {
 .line-items-section {
     position: fixed;
 }
-
+.empty-form div {
+    /* this is on the li but didn't work without specifying the div */
+    display: none;
+}
+.hidden-fields {
+    display: none;
+}
 /* 2 Column Card Layout */
 @media screen and (max-width: 736px) {
     .collection-container {
@@ -117,11 +123,12 @@ li {
     /* The maximum column width, that can wrap */
     .item-container {
         display: grid;
-        grid-template-columns: 2em 2em 1fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 2em 4em 1fr 1fr 1fr 1fr 1fr;
     }
     .attribute-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(var(--column-width-min), 1fr));
+        /* Attempted to customize the max but doesn't look like it did anything. */
+        grid-template-columns: repeat(auto-fit, minmax(var(--column-width-min), var(--column-width-max)));
     }
     .collection {
         border-top: 1px solid gray;
@@ -153,23 +160,28 @@ li {
     }
     .item-information {
         /* Contains category, codes, and names */
-        --column-width-min: 15em;
+        --column-width-min: 20em;
+        --column-width-max: 2fr;
     }
     .pack-quantities {
         /* pack and unit quantities and unit size */
         --column-width-min: 5em;
+        --column-width-max: 1fr;
     }
     .weights {
         /* total and individual weights */
         --column-width-min: 5em;
+        --column-width-max: 1fr;
     }
     .order-quantity-and-cost {
         /* pack and extended costs and delivered quantity */
         --column-width-min: 5em;
+        --column-width-max: 1fr;
     }
     .additional-info {
         /* extra notes and scanned filename (if available) */
-        --column-width-min: 15em;
+        --column-width-min: 20em;
+        --column-width-max: 2fr;
     }
 
 }
@@ -213,6 +225,7 @@ Log.
 <section class="line-items-section">
     <p>Need a non-model-driven formset for these.</p>
     <p>Needs to have +/- and reorder controls.</p>
+    {{ line_item_formset.management_form }}
     <div class="sticky">
         <ol class="collection collection-container collection-header">
     <li class="header item-container">
@@ -247,38 +260,193 @@ Log.
     </li>
 </ol>
     </div>
-<ol class="collection collection-container">
-    <li class="item item-container">
+<ol class="collection collection-container" id="line_item_list">
+    <li class="item item-container empty-form" id="empty-form">
+        <div class="hidden-fields">
+            {{ line_item_formset.empty_form.delivered_date }}
+            {{ line_item_formset.empty_form.source }}
+            {{ line_item_formset.empty_form.customer_number }}
+            {{ line_item_formset.empty_form.order_number }}
+            {{ line_item_formset.empty_form.po_text }}
+        </div>
         <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
-        <div class="attribute" data-name="Line Item Number" data-field="line_item_number">#</div>
+        <div class="attribute" data-name="Line Item Number" data-field="line_item_number">
+            {{ line_item_formset.empty_form.line_item_number.errors }}
+            {{ line_item_formset.empty_form.line_item_number }}
+        </div>
         <div class="attribute-container item-information">
-            <div class="attribute" data-name="Source Category" data-field="source_category"><input name="item-source-category" type="text" placeholder="canned & dry, dairy, meat"></div>
-            <div class="attribute" data-name="Item Code" data-field="item_code"><input name="item-code" type="text" placeholder="item code"></div>
-            <div class="attribute" data-name="Extra Code" data-field="extra_code"><input name="item-extra-code" type="text" placeholder="extra code"></div>
-            <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name"><input name="item-cryptic-name" type="text" placeholder="cryptic name"></div>
-            <div class="attribute" data-name="Verbose Name" data-field="verbose_name"><input name="item-verbose-name" type="text" placeholder="verbose name"></div>
-            <div class="attribute" data-name="Common Name" data-field="common_name"><input name="item-common-name" type="text" placeholder="common name"></div>
+            <div class="attribute" data-name="Source Category" data-field="source_category">
+                {{ line_item_formset.empty_form.source_category.errors }}
+                {{ line_item_formset.empty_form.source_category }}
+            </div>
+            <div class="attribute" data-name="Item Code" data-field="item_code">
+                {{ line_item_formset.empty_form.item_code.errors }}
+                {{ line_item_formset.empty_form.item_code }}
+            </div>
+            <div class="attribute" data-name="Extra Code" data-field="extra_code">
+                {{ line_item_formset.empty_form.extra_code.errors }}
+                {{ line_item_formset.empty_form.extra_code }}
+            </div>
+            <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
+                {{ line_item_formset.empty_form.cryptic_name.errors }}
+                {{ line_item_formset.empty_form.cryptic_name }}
+            </div>
+            <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
+                {{ line_item_formset.empty_form.verbose_name.errors }}
+                {{ line_item_formset.empty_form.verbose_name }}
+            </div>
+            <div class="attribute" data-name="Common Name" data-field="common_name">
+                {{ line_item_formset.empty_form.common_name.errors }}
+                {{ line_item_formset.empty_form.common_name }}
+            </div>
         </div>
         <div class="attribute-container pack-quantities">
-            <div class="attribute" data-name="Pack Quantity" data-field="pack_quantity"><input name="item-pack-quantity" type="number" placeholder="1"></div>
-            <div class="attribute" data-name="Unit Quantity" data-field="unit_quantity"><input name="item-unit-quantity" type="number" placeholder="1"></div>
-            <div class="attribute" data-name="Unit Size" data-field="unit_size"><input name="item-unit-size" type="text" placeholder="unit size"></div>
+            <div class="attribute" data-name="Pack Quantity" data-field="pack_quantity">
+                {{ line_item_formset.empty_form.pack_quantity.errors }}
+                {{ line_item_formset.empty_form.pack_quantity }}
+            </div>
+            <div class="attribute" data-name="Unit Quantity" data-field="unit_quantity">
+                {{ line_item_formset.empty_form.unit_quantity.errors }}
+                {{ line_item_formset.empty_form.unit_quantity }}
+            </div>
+            <div class="attribute" data-name="Unit Size" data-field="unit_size">
+                {{ line_item_formset.empty_form.unit_size.errors }}
+                {{ line_item_formset.empty_form.unit_size }}
+            </div>
         </div>
         <div class="attribute-container weights">
-            <div class="attribute" data-name="Total Weight" data-field="total_weight"><input name="item-total-weight" type="number" placeholder="1" step="0.5"></div>
-            <div class="attribute" data-name="Individual Weights" data-field="individual_weights"></div>
+            <div class="attribute" data-name="Total Weight" data-field="total_weight">
+                {{ line_item_formset.empty_form.total_weight.errors }}
+                {{ line_item_formset.empty_form.total_weight }}
+            </div>
+            <div class="attribute" data-name="Individual Weights" data-field="individual_weights">
+                {{ line_item_formset.empty_form.individual_weights.errors }}
+                {{ line_item_formset.empty_form.individual_weights }}
+            </div>
         </div>
         <div class="attribute-container order-quantity-and-cost">
-            <div class="attribute" data-name="Delivered Quantity" data-field="delivered_quantity"><input name="item-delivered-quantity" type="number" placeholder="0"></div>
-            <div class="attribute" data-name="Pack Cost" data-field="pack_cost"><input name="item-pack-cost" type="number" placeholder="0"></div>
-            <div class="attribute" data-name="Extended Cost" data-field="extended_cost"><input name="item-extended-cost" type="number" placeholder="0"></div>
+            <div class="attribute" data-name="Delivered Quantity" data-field="delivered_quantity">
+                {{ line_item_formset.empty_form.delivered_quantity.errors }}
+                {{ line_item_formset.empty_form.delivered_quantity }}
+            </div>
+            <div class="attribute" data-name="Pack Cost" data-field="pack_cost">
+                {{ line_item_formset.empty_form.pack_cost.errors }}
+                {{ line_item_formset.empty_form.pack_cost }}
+            </div>
+            <div class="attribute" data-name="Extended Cost" data-field="extended_cost">
+                {{ line_item_formset.empty_form.extended_cost.errors }}
+                {{ line_item_formset.empty_form.extended_cost }}
+            </div>
         </div>
         <div class="attribute-container additional-info">
-            <div class="attribute" data-name="Extra Notes" data-field="extra_notes"><input name="item-extra notes" type="text" placeholder="extra notes"></div>
-            <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename"><input name="item-scanned-filename" type="text" placeholder="scanned filename"></div>
+            <div class="attribute" data-name="Extra Notes" data-field="extra_notes">
+                {{ line_item_formset.empty_form.extra_notes.errors }}
+                {{ line_item_formset.empty_form.extra_notes }}
+            </div>
+            <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename">
+                {{ line_item_formset.empty_form.scanned_filename.errors }}
+                {{ line_item_formset.empty_form.scanned_filename }}
+            </div>
         </div>
     </li>
+    {% for line_item_form in line_item_formset.forms %}
+        <li class="item item-container empty-form">
+            <div class="hidden-fields">
+                <span id="hidden-fields-{{ line_item_form.instance.id }}">
+                    {% for hidden_field in line_item_form.hidden_fields %}
+                        {{ hidden_field.errors }}
+                        {{ hidden_field }}
+                    {% endfor %}
+                </span>
+                {{ line_item_form.delivered_date }}
+                {{ line_item_form.source }}
+                {{ line_item_form.customer_number }}
+                {{ line_item_form.order_number }}
+                {{ line_item_form.po_text }}
+            </div>
+            <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
+            <div class="attribute" data-name="Line Item Number" data-field="line_item_number">
+                {{ line_item_form.line_item_number.errors }}
+                {{ line_item_form.line_item_number }}
+            </div>
+            <div class="attribute-container item-information">
+                <div class="attribute" data-name="Source Category" data-field="source_category">
+                    {{ line_item_form.source_category.errors }}
+                    {{ line_item_form.source_category }}
+                </div>
+                <div class="attribute" data-name="Item Code" data-field="item_code">
+                    {{ line_item_form.item_code.errors }}
+                    {{ line_item_form.item_code }}
+                </div>
+                <div class="attribute" data-name="Extra Code" data-field="extra_code">
+                    {{ line_item_form.extra_code.errors }}
+                    {{ line_item_form.extra_code }}
+                </div>
+                <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
+                    {{ line_item_form.cryptic_name.errors }}
+                    {{ line_item_form.cryptic_name }}
+                </div>
+                <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
+                    {{ line_item_form.verbose_name.errors }}
+                    {{ line_item_form.verbose_name }}
+                </div>
+                <div class="attribute" data-name="Common Name" data-field="common_name">
+                    {{ line_item_form.common_name.errors }}
+                    {{ line_item_form.common_name }}
+                </div>
+            </div>
+            <div class="attribute-container pack-quantities">
+                <div class="attribute" data-name="Pack Quantity" data-field="pack_quantity">
+                    {{ line_item_form.pack_quantity.errors }}
+                    {{ line_item_form.pack_quantity }}
+                </div>
+                <div class="attribute" data-name="Unit Quantity" data-field="unit_quantity">
+                    {{ line_item_form.unit_quantity.errors }}
+                    {{ line_item_form.unit_quantity }}
+                </div>
+                <div class="attribute" data-name="Unit Size" data-field="unit_size">
+                    {{ line_item_form.unit_size.errors }}
+                    {{ line_item_form.unit_size }}
+                </div>
+            </div>
+            <div class="attribute-container weights">
+                <div class="attribute" data-name="Total Weight" data-field="total_weight">
+                    {{ line_item_form.total_weight.errors }}
+                    {{ line_item_form.total_weight }}
+                </div>
+                <div class="attribute" data-name="Individual Weights" data-field="individual_weights">
+                    {{ line_item_form.individual_weights.errors }}
+                    {{ line_item_form.individual_weights }}
+                </div>
+            </div>
+            <div class="attribute-container order-quantity-and-cost">
+                <div class="attribute" data-name="Delivered Quantity" data-field="delivered_quantity">
+                    {{ line_item_form.delivered_quantity.errors }}
+                    {{ line_item_form.delivered_quantity }}
+                </div>
+                <div class="attribute" data-name="Pack Cost" data-field="pack_cost">
+                    {{ line_item_form.pack_cost.errors }}
+                    {{ line_item_form.pack_cost }}
+                </div>
+                <div class="attribute" data-name="Extended Cost" data-field="extended_cost">
+                    {{ line_item_form.extended_cost.errors }}
+                    {{ line_item_form.extended_cost }}
+                </div>
+            </div>
+            <div class="attribute-container additional-info">
+                <div class="attribute" data-name="Extra Notes" data-field="extra_notes">
+                    {{ line_item_form.extra_notes.errors }}
+                    {{ line_item_form.extra_notes }}
+                </div>
+                <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename">
+                    {{ line_item_form.scanned_filename.errors }}
+                    {{ line_item_form.scanned_filename }}
+                </div>
+            </div>
+        </li>
+    {% endfor %}
 </ol>
+<div class=""><a class='add-new-form' href='#'>+ Add new item</a></div>
 </section>
 </div>
 {# Cannot put anything after the line items because of fixed position.  Need to clean up the html/css. #}
@@ -287,6 +455,11 @@ Log.
 {% block body_scripts %}
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/add_new_form.js' %}"></script>
 <script type="application/javascript">
+form_name = 'lineitemform';
+line_item_position_id = 'line_item_number';
+formset_container_id = 'line_item_list';
+after_add_focus_suffix = '-source_category';
 </script>
 {% endblock %}

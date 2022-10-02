@@ -1,10 +1,9 @@
 var form_name = "set this to the overall name of the form fields.  i.e. line_items, items, etc.";
 var after_add_focus_suffix = "set this from page as it will likely be different for each use.";
 var line_item_position_id = "line_item_position";
-
+var formset_container_id = "set this to the id of the table or list that contains the forms.  No #";
 function add_new_form(focus_suffix="") {
-
-    empty_obj = $('#empty-row').clone()
+    empty_obj = $(`#${formset_container_id}`).find('#empty-form').clone()
     empty_obj.attr('id', null)
 
     total_forms = $(`#id_${form_name}-TOTAL_FORMS`)
@@ -33,9 +32,10 @@ function add_new_form(focus_suffix="") {
     })
 
     total_forms.val(total_forms_value + 1)
-
+    empty_obj.removeClass('empty-form');
     empty_obj.show()
-    $('#formset-table > tbody:last-child').append(empty_obj);
+    /* TODO: make work with list and table "> tbody:last-child" for table */
+    $(`#${formset_container_id}`).append(empty_obj);
     if ((focus_suffix !== "") && (focus_after_add_id)) {
         document.getElementById(focus_after_add_id).focus()
     }

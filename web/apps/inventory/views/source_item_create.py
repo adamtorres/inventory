@@ -11,5 +11,5 @@ class SourceItemCreateView(generic.TemplateView):
         context['sources'] = inv_models.Source.objects.active_sources()
         context['categories'] = inv_models.SourceItem.objects.source_categories()
         context['order_form'] = inv_forms.SourceItemCreateOrderForm()
-        context['line_item_form'] = inv_forms.SourceItemCreateLineItemForm()
+        context['line_item_formset'] = inv_forms.SourceItemCreateLineItemModelFormSet()
         return context
