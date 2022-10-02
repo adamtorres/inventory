@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Create Source Items{% endblock %}
 
@@ -223,9 +224,12 @@ Log.
 </section>
 <hr />
 <section class="line-items-section">
+<form method="post" id="sourceitem-create-form">
+    {% csrf_token %}
     <p>Need a non-model-driven formset for these.</p>
     <p>Needs to have +/- and reorder controls.</p>
     {{ line_item_formset.management_form }}
+    {{ line_item_formset.non_form_errors }}
     <div class="sticky">
         <ol class="collection collection-container collection-header">
     <li class="header item-container">
@@ -261,13 +265,13 @@ Log.
 </ol>
     </div>
 <ol class="collection collection-container" id="line_item_list">
-    <li class="item item-container empty-form" id="empty-form">
+    <li class="item item-container empty-form" id="empty-form" data-form-number="">
         <div class="hidden-fields">
-            {{ line_item_formset.empty_form.delivered_date }}
-            {{ line_item_formset.empty_form.source }}
-            {{ line_item_formset.empty_form.customer_number }}
-            {{ line_item_formset.empty_form.order_number }}
-            {{ line_item_formset.empty_form.po_text }}
+            {{ line_item_formset.empty_form.delivered_date|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.source|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.customer_number|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.order_number|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.po_text|set_data:"copy:yup" }}
         </div>
         <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
         <div class="attribute" data-name="Line Item Number" data-field="line_item_number">
@@ -350,7 +354,7 @@ Log.
         </div>
     </li>
     {% for line_item_form in line_item_formset.forms %}
-        <li class="item item-container empty-form">
+        <li class="item item-container" data-form-number="{{ forloop.counter0 }}">
             <div class="hidden-fields">
                 <span id="hidden-fields-{{ line_item_form.instance.id }}">
                     {% for hidden_field in line_item_form.hidden_fields %}
@@ -358,11 +362,11 @@ Log.
                         {{ hidden_field }}
                     {% endfor %}
                 </span>
-                {{ line_item_form.delivered_date }}
-                {{ line_item_form.source }}
-                {{ line_item_form.customer_number }}
-                {{ line_item_form.order_number }}
-                {{ line_item_form.po_text }}
+                {{ line_item_form.delivered_date|set_data:"copy:yup" }}
+                {{ line_item_form.source|set_data:"copy:yup" }}
+                {{ line_item_form.customer_number|set_data:"copy:yup" }}
+                {{ line_item_form.order_number|set_data:"copy:yup" }}
+                {{ line_item_form.po_text|set_data:"copy:yup" }}
             </div>
             <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
             <div class="attribute" data-name="Line Item Number" data-field="line_item_number">
@@ -447,6 +451,8 @@ Log.
     {% endfor %}
 </ol>
 <div class=""><a class='add-new-form' href='#'>+ Add new item</a></div>
+<input type="submit" name="save" value="Save">
+</form>
 </section>
 </div>
 {# Cannot put anything after the line items because of fixed position.  Need to clean up the html/css. #}
@@ -461,5 +467,28 @@ form_name = 'lineitemform';
 line_item_position_id = 'line_item_number';
 formset_container_id = 'line_item_list';
 after_add_focus_suffix = '-source_category';
+
+function update_hidden_fields() {
+    let order_section = $("section.order-section");
+    console.log(``)
+    let formset_container = $(`#${formset_container_id}`);
+    formset_container.find("li:not(#empty-form)").each(function() {
+        let item_li = $(this);
+        let form_number = item_li.attr("data-form-number");
+        let form_prefix = `id_${form_name}-${form_number}-`;
+        console.log(`form_prefix = ${form_prefix}`);
+        item_li.find("[data-copy=yup]").each(function() {
+            let input_tag = $(this);
+            let base_tag_name = input_tag.attr('id').replace(form_prefix, "");
+            let order_tag = order_section.find(`#id_${base_tag_name}`);
+            console.log(`input_tag = ${input_tag.attr('id')}, change from '${input_tag.val()}' to '${order_tag.val()}'`);
+            input_tag.val(order_tag.val());
+        });
+    });
+}
+$('#sourceitem-create-form').on('submit', function() {
+    update_hidden_fields();
+    return true;
+});
 </script>
 {% endblock %}

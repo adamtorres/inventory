@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_messages',
     'django.contrib.humanize',
+    'widget_tweaks',
     'scrap',
     'inventory.apps.InventoryConfig',
     'market.apps.MarketConfig',

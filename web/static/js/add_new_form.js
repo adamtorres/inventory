@@ -9,6 +9,7 @@ function add_new_form(focus_suffix="") {
     total_forms = $(`#id_${form_name}-TOTAL_FORMS`)
 
     total_forms_value = parseInt(total_forms.val())
+    empty_obj.attr('data-form-number', total_forms_value);
     focus_after_add_id = "";
     empty_obj.find('input, label, select, textarea, div, ul').each(function() {
         to_edit_attributes = ['id', 'name', 'for', 'aria-labelledby']
