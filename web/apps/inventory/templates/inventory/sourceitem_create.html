@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Source Items{% endblock %}
+
+{% block styles %}
+<style>
+* {
+    box-sizing: border-box;
+}
+
+
+.order-section {
+}
+.order-table {
+    /* TODO: Should this just be a flex as I don't really care about field placement? */
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "order-delivered-date"
+        "order-source"
+        "order-customer-number"
+        "order-order-number"
+        "order-po-text";
+    display: grid;
+}
+@media only screen and (min-width: 500px){
+    .order-table {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-areas:
+            "order-delivered-date order-source ."
+            "order-customer-number order-order-number order-po-text";
+    }
+}
+@media only screen and (min-width: 1000px){
+    .order-table {
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-areas:
+            "order-delivered-date order-source order-customer-number order-order-number order-po-text";
+    }
+}
+
+.order-header {
+    font-weight: bold;
+    background-color: lightgrey;
+    width: 100%;
+}
+.order-delivered-date {
+    grid-column: order-delivered-date;
+}
+.order-source {
+    grid-column: order-source;
+}
+.order-customer-number {
+    grid-column: order-customer-number;
+}
+.order-order-number {
+    grid-column: order-order-number;
+}
+.order-po-text {
+    grid-column: order-po-text;
+}
+input {
+    width: 100%;
+}
+
+ol.collection {
+    margin: 0px;
+    padding: 0px;
+}
+.sticky {
+    /* Used on a div containing a single-element ol which has the header.
+    Makes the header stick to the visible window */
+    top: 0px;
+    position: sticky;
+}
+li {
+    list-style: none;
+}
+.line-items-section {
+    position: fixed;
+}
+
+/* 2 Column Card Layout */
+@media screen and (max-width: 736px) {
+    .collection-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 20px;
+    }
+    .item {
+        border: 1px solid gray;
+        border-radius: 2px;
+        padding: 10px;
+    }
+    .collection-header>li {
+        display: none;
+    }
+    .attribute::before {
+        content: attr(data-name);
+    }
+    /* Attribute name for first column, and attribute value for second column. */
+    .attribute {
+        display: grid;
+        grid-template-columns: minmax(9em, 30%) 1fr;
+    }
+}
+
+/* 1 Column Card Layout */
+@media screen and (max-width:580px) {
+    .collection-container {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (min-width: 737px) {
+    /* The maximum column width, that can wrap */
+    .item-container {
+        display: grid;
+        grid-template-columns: 2em 2em 1fr 1fr 1fr 1fr 1fr;
+    }
+    .attribute-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(var(--column-width-min), 1fr));
+    }
+    .collection {
+        border-top: 1px solid gray;
+    }
+    .collection-header{
+        display: block;
+    }
+    .collection-header>.item-container {
+        background-color: blanchedalmond;
+
+    }
+
+    /* In order to maximize row lines, only display one line for a cell */
+    .attribute {
+        border-right: 1px solid gray;
+        border-bottom: 1px solid gray;
+        padding: 2px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .attribute-header {
+        overflow: unset;
+        white-space: unset;
+        text-overflow: unset;
+    }
+    .item:hover {
+        background-color: rgb(200, 227, 252);
+    }
+    .item-information {
+        /* Contains category, codes, and names */
+        --column-width-min: 15em;
+    }
+    .pack-quantities {
+        /* pack and unit quantities and unit size */
+        --column-width-min: 5em;
+    }
+    .weights {
+        /* total and individual weights */
+        --column-width-min: 5em;
+    }
+    .order-quantity-and-cost {
+        /* pack and extended costs and delivered quantity */
+        --column-width-min: 5em;
+    }
+    .additional-info {
+        /* extra notes and scanned filename (if available) */
+        --column-width-min: 15em;
+    }
+
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="create-content">
+<pre id="on-page-log">
+Log.
+</pre>
+<hr />
+
+<hr />
+<section class="order-section">
+    <div class="order-table">
+        <div class="order-delivered-date">
+            <div class="order-header">{{ order_form.delivered_date.label }}</div>
+            {{ order_form.delivered_date }}
+        </div>
+        <div class="order-source">
+            <div class="order-header">{{ order_form.source.label }}</div>
+            {{ order_form.source }}
+        </div>
+        <div class="order-customer-number">
+            <div class="order-header">{{ order_form.customer_number.label }}</div>
+            {{ order_form.customer_number }}
+        </div>
+        <div class="order-order-number">
+            <div class="order-header">{{ order_form.order_number.label }}</div>
+            {{ order_form.order_number }}
+        </div>
+        <div class="order-po-text">
+            <div class="order-header">{{ order_form.po_text.label }}</div>
+            {{ order_form.po_text }}
+        </div>
+    </div>
+</section>
+<hr />
+<section class="line-items-section">
+    <p>Need a non-model-driven formset for these.</p>
+    <p>Needs to have +/- and reorder controls.</p>
+    <div class="sticky">
+        <ol class="collection collection-container collection-header">
+    <li class="header item-container">
+        <div class="attribute" data-comment="select box?"></div>
+        <div class="attribute" data-name="Line Item Number" data-field="line_item_number">#</div>
+        <div class="attribute-container item-information">
+            <div class="attribute attribute-header" data-name="Source Category" data-field="source_category">Source Category</div>
+            <div class="attribute attribute-header" data-name="Item Code" data-field="item_code">Item Code</div>
+            <div class="attribute attribute-header" data-name="Extra Code" data-field="extra_code">Extra Code</div>
+            <div class="attribute attribute-header" data-name="Cryptic Name" data-field="cryptic_name">Cryptic Name</div>
+            <div class="attribute attribute-header" data-name="Verbose Name" data-field="verbose_name">Verbose Name</div>
+            <div class="attribute attribute-header" data-name="Common Name" data-field="common_name">Common Name</div>
+        </div>
+        <div class="attribute-container pack-quantities">
+            <div class="attribute attribute-header" data-name="Pack Quantity" data-field="pack_quantity">Pack Quantity</div>
+            <div class="attribute attribute-header" data-name="Unit Quantity" data-field="unit_quantity">Unit Quantity</div>
+            <div class="attribute attribute-header" data-name="Unit Size" data-field="unit_size">Unit Size</div>
+        </div>
+        <div class="attribute-container weights">
+            <div class="attribute attribute-header" data-name="Total Weight" data-field="total_weight">Total Weight</div>
+            <div class="attribute attribute-header" data-name="Individual Weights" data-field="individual_weights">Individual Weights</div>
+        </div>
+        <div class="attribute-container order-quantity-and-cost">
+            <div class="attribute attribute-header" data-name="Delivered Quantity" data-field="delivered_quantity">Delivered Quantity</div>
+            <div class="attribute attribute-header" data-name="Pack Cost" data-field="pack_cost">Pack Cost</div>
+            <div class="attribute attribute-header" data-name="Extended Cost" data-field="extended_cost">Extended Cost</div>
+        </div>
+        <div class="attribute-container additional-info">
+            <div class="attribute attribute-header" data-name="Extra Notes" data-field="extra_notes">Extra Notes</div>
+            <div class="attribute attribute-header" data-name="Scanned Filename" data-field="scanned_filename">Scanned Filename</div>
+        </div>
+    </li>
+</ol>
+    </div>
+<ol class="collection collection-container">
+    <li class="item item-container">
+        <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
+        <div class="attribute" data-name="Line Item Number" data-field="line_item_number">#</div>
+        <div class="attribute-container item-information">
+            <div class="attribute" data-name="Source Category" data-field="source_category"><input name="item-source-category" type="text" placeholder="canned & dry, dairy, meat"></div>
+            <div class="attribute" data-name="Item Code" data-field="item_code"><input name="item-code" type="text" placeholder="item code"></div>
+            <div class="attribute" data-name="Extra Code" data-field="extra_code"><input name="item-extra-code" type="text" placeholder="extra code"></div>
+            <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name"><input name="item-cryptic-name" type="text" placeholder="cryptic name"></div>
+            <div class="attribute" data-name="Verbose Name" data-field="verbose_name"><input name="item-verbose-name" type="text" placeholder="verbose name"></div>
+            <div class="attribute" data-name="Common Name" data-field="common_name"><input name="item-common-name" type="text" placeholder="common name"></div>
+        </div>
+        <div class="attribute-container pack-quantities">
+            <div class="attribute" data-name="Pack Quantity" data-field="pack_quantity"><input name="item-pack-quantity" type="number" placeholder="1"></div>
+            <div class="attribute" data-name="Unit Quantity" data-field="unit_quantity"><input name="item-unit-quantity" type="number" placeholder="1"></div>
+            <div class="attribute" data-name="Unit Size" data-field="unit_size"><input name="item-unit-size" type="text" placeholder="unit size"></div>
+        </div>
+        <div class="attribute-container weights">
+            <div class="attribute" data-name="Total Weight" data-field="total_weight"><input name="item-total-weight" type="number" placeholder="1" step="0.5"></div>
+            <div class="attribute" data-name="Individual Weights" data-field="individual_weights"></div>
+        </div>
+        <div class="attribute-container order-quantity-and-cost">
+            <div class="attribute" data-name="Delivered Quantity" data-field="delivered_quantity"><input name="item-delivered-quantity" type="number" placeholder="0"></div>
+            <div class="attribute" data-name="Pack Cost" data-field="pack_cost"><input name="item-pack-cost" type="number" placeholder="0"></div>
+            <div class="attribute" data-name="Extended Cost" data-field="extended_cost"><input name="item-extended-cost" type="number" placeholder="0"></div>
+        </div>
+        <div class="attribute-container additional-info">
+            <div class="attribute" data-name="Extra Notes" data-field="extra_notes"><input name="item-extra notes" type="text" placeholder="extra notes"></div>
+            <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename"><input name="item-scanned-filename" type="text" placeholder="scanned filename"></div>
+        </div>
+    </li>
+</ol>
+</section>
+</div>
+{# Cannot put anything after the line items because of fixed position.  Need to clean up the html/css. #}
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/csrf_cookie.js" %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script type="application/javascript">
+</script>
+{% endblock %}

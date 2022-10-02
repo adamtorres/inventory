@@ -155,6 +155,8 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
 
     total_weight = models.DecimalField(max_digits=8, decimal_places=4, default=0)
     individual_weights = pg_fields.ArrayField(models.DecimalField(max_digits=8, decimal_places=4), default=list)
+    # from django.contrib.postgres import forms as pg_forms
+    # pg_forms.SimpleArrayField
 
     # Peanut Butter.  No brand, unit size, item code, source, location, etc.
     common_name = sc_fields.CharField(help_text="Common brand-less name of item")

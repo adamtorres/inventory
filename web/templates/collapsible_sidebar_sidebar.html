@@ -9,6 +9,7 @@
             {# TODO: Would be nice to have a way for only these links to cause the sidebar to start open on the next page. #}
             <a href="#SourceItemSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Source Items</a>
             <ul class="collapse list-unstyled" id="SourceItemSubmenu">
+                <li><a href="{% url "inventory:sourceitem_create" %}" class="link-light rounded">Create</a></li>
                 <li><a href="{% url "inventory:sourceitem_search" %}" class="link-light rounded">Search</a></li>
                 <li><a href="{% url "inventory:sourceitem_stats" %}" class="link-light rounded">Random Stats</a></li>
             </ul>
