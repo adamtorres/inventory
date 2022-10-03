@@ -60,7 +60,7 @@
 .order-po-text {
     grid-column: order-po-text;
 }
-input {
+input, select {
     width: 100%;
 }
 
@@ -198,6 +198,8 @@ Log.
 <hr />
 
 <hr />
+<form method="post" id="sourceitem-create-form">
+    {% csrf_token %}
 <section class="order-section">
     <div class="order-table">
         <div class="order-delivered-date">
@@ -224,8 +226,6 @@ Log.
 </section>
 <hr />
 <section class="line-items-section">
-<form method="post" id="sourceitem-create-form">
-    {% csrf_token %}
     <p>Need a non-model-driven formset for these.</p>
     <p>Needs to have +/- and reorder controls.</p>
     {{ line_item_formset.management_form }}
@@ -452,8 +452,8 @@ Log.
 </ol>
 <div class=""><a class='add-new-form' href='#'>+ Add new item</a></div>
 <input type="submit" name="save" value="Save">
-</form>
 </section>
+</form>
 </div>
 {# Cannot put anything after the line items because of fixed position.  Need to clean up the html/css. #}
 {% endblock %}

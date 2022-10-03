@@ -171,13 +171,16 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
         help_text="to hold the difference between extended_cost and calculating from quantity/pack_cost")
 
     use_type = models.CharField(max_length=2, choices=use_type.USE_TYPE_CHOICES, default=use_type.BY_UNIT)
-    remaining_quantity = models.IntegerField(null=True)
+    remaining_quantity = models.IntegerField(null=False, default=0)
     #
-    remaining_pack_quantity = models.IntegerField(null=True)
-    remaining_unit_quantity = models.IntegerField(null=True)
-    remaining_count_quantity = models.IntegerField(null=True)
+    remaining_pack_quantity = models.IntegerField(null=False, default=0)
+    remaining_unit_quantity = models.IntegerField(null=False, default=0)
+    remaining_count_quantity = models.IntegerField(null=False, default=0)
 
     objects = SourceItemManager()
+
+    class Meta:
+        ordering = ['-delivered_date', 'source_id', 'order_number', 'line_item_number']
 
     def __str__(self):
         return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"

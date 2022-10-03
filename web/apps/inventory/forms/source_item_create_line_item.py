@@ -1,7 +1,6 @@
-import functools
 from django import forms
 from django.contrib.postgres import forms as pg_forms
-from django.forms import formset_factory
+from django.forms import models
 
 from inventory import models as inv_models
 
@@ -20,6 +19,10 @@ class SourceItemCreateLineItemModelForm(forms.ModelForm):
     class Meta:
         model = inv_models.SourceItem
         fields = '__all__'
+        exclude = [
+            "use_type", "remaining_quantity", "remaining_pack_quantity", "remaining_unit_quantity",
+            "remaining_count_quantity", "discrepancy"
+        ]
         widgets = {
             'source_category': forms.TextInput(attrs={'placeholder': 'category from source'}),
             'item_code': forms.TextInput(attrs={'placeholder': 'item code'}),
@@ -32,5 +35,12 @@ class SourceItemCreateLineItemModelForm(forms.ModelForm):
         }
 
 
-_SourceItemCreateLineItemModelFormSet = formset_factory(SourceItemCreateLineItemModelForm, extra=0, can_delete=False)
-SourceItemCreateLineItemModelFormSet = functools.partial(_SourceItemCreateLineItemModelFormSet, prefix='lineitemform')
+class MyBaseModelFormSet(models.BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Unsure why but on a GET request, BaseModelFormSet does an unfiltered select.
+        self.queryset = inv_models.SourceItem.objects.none()
+
+
+SourceItemCreateLineItemModelFormSet = models.modelformset_factory(
+    inv_models.SourceItem, SourceItemCreateLineItemModelForm, extra=0, can_delete=False, formset=MyBaseModelFormSet)
