@@ -24,6 +24,8 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
             "line_item_number",
             "source_category",
             "source_item_name",
+            "cryptic_name",
+            "verbose_name",
             "common_name",
             "item_code", "delivered_quantity",
             "pack_cost", "pack_quantity",
