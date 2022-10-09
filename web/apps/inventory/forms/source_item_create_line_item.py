@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.postgres import forms as pg_forms
 from django.forms import models
 
+import scrap.forms.widgets
 from inventory import models as inv_models
 
 
@@ -16,6 +17,8 @@ class SourceItemCreateLineItemForm(forms.Form):
 
 
 class SourceItemCreateLineItemModelForm(forms.ModelForm):
+    cryptic_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
+
     class Meta:
         model = inv_models.SourceItem
         fields = '__all__'
@@ -23,16 +26,16 @@ class SourceItemCreateLineItemModelForm(forms.ModelForm):
             "use_type", "remaining_quantity", "remaining_pack_quantity", "remaining_unit_quantity",
             "remaining_count_quantity", "discrepancy"
         ]
-        widgets = {
-            'source_category': forms.TextInput(attrs={'placeholder': 'category from source'}),
-            'item_code': forms.TextInput(attrs={'placeholder': 'item code'}),
-            'extra_code': forms.TextInput(attrs={'placeholder': 'extra code'}),
-            'cryptic_name': forms.TextInput(attrs={'placeholder': 'name as appears on invoice/receipt'}),
-            'verbose_name': forms.TextInput(attrs={'placeholder': 'cleaned up cryptic name'}),
-            'common_name': forms.TextInput(attrs={'placeholder': 'a more human-readable name'}),
-            'extra_notes': forms.TextInput(attrs={'placeholder': 'extra notes'}),
-            'scanned_filename': forms.TextInput(attrs={'placeholder': 'scanned filename'}),
-        }
+        # widgets = {
+        #     'source_category': forms.TextInput(attrs={'placeholder': ''}),
+        #     'item_code': forms.TextInput(attrs={'placeholder': 'item code'}),
+        #     'extra_code': forms.TextInput(attrs={'placeholder': 'extra code'}),
+        #     'cryptic_name': forms.TextInput(attrs={'placeholder': 'name as appears on invoice/receipt'}),
+        #     'verbose_name': forms.TextInput(attrs={'placeholder': 'cleaned up cryptic name'}),
+        #     'common_name': forms.TextInput(attrs={'placeholder': 'a more human-readable name'}),
+        #     'extra_notes': forms.TextInput(attrs={'placeholder': 'extra notes'}),
+        #     'scanned_filename': forms.TextInput(attrs={'placeholder': 'scanned filename'}),
+        # }
 
 
 class MyBaseModelFormSet(models.BaseModelFormSet):

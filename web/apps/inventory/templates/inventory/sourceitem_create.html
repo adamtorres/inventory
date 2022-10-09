@@ -5,12 +5,11 @@
 {% block title %}Create Source Items{% endblock %}
 
 {% block styles %}
+{{ line_item_formset.media }}
 <style>
 * {
     box-sizing: border-box;
 }
-
-
 .order-section {
 }
 .order-table {
@@ -264,6 +263,7 @@ Log.
     </li>
 </ol>
     </div>
+{% include "inventory/autocomplete_source_item_template.html" %}
 <ol class="collection collection-container" id="line_item_list">
     <li class="item item-container empty-form" id="empty-form" data-form-number="">
         <div class="hidden-fields">
@@ -281,27 +281,27 @@ Log.
         <div class="attribute-container item-information">
             <div class="attribute" data-name="Source Category" data-field="source_category">
                 {{ line_item_formset.empty_form.source_category.errors }}
-                {{ line_item_formset.empty_form.source_category }}
+                {{ line_item_formset.empty_form.source_category|attr:"placeholder:category from source" }}
             </div>
             <div class="attribute" data-name="Item Code" data-field="item_code">
                 {{ line_item_formset.empty_form.item_code.errors }}
-                {{ line_item_formset.empty_form.item_code }}
+                {{ line_item_formset.empty_form.item_code|attr:"placeholder:item code" }}
             </div>
             <div class="attribute" data-name="Extra Code" data-field="extra_code">
                 {{ line_item_formset.empty_form.extra_code.errors }}
-                {{ line_item_formset.empty_form.extra_code }}
+                {{ line_item_formset.empty_form.extra_code|attr:"placeholder:extra code" }}
             </div>
             <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
                 {{ line_item_formset.empty_form.cryptic_name.errors }}
-                {{ line_item_formset.empty_form.cryptic_name }}
+                {{ line_item_formset.empty_form.cryptic_name|attr:"placeholder:name as appears on invoice/receipt" }}
             </div>
             <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
                 {{ line_item_formset.empty_form.verbose_name.errors }}
-                {{ line_item_formset.empty_form.verbose_name }}
+                {{ line_item_formset.empty_form.verbose_name|attr:"placeholder:cleaned up cryptic name" }}
             </div>
             <div class="attribute" data-name="Common Name" data-field="common_name">
                 {{ line_item_formset.empty_form.common_name.errors }}
-                {{ line_item_formset.empty_form.common_name }}
+                {{ line_item_formset.empty_form.common_name|attr:"placeholder:a more human-readable name" }}
             </div>
         </div>
         <div class="attribute-container pack-quantities">
@@ -345,11 +345,11 @@ Log.
         <div class="attribute-container additional-info">
             <div class="attribute" data-name="Extra Notes" data-field="extra_notes">
                 {{ line_item_formset.empty_form.extra_notes.errors }}
-                {{ line_item_formset.empty_form.extra_notes }}
+                {{ line_item_formset.empty_form.extra_notes|attr:"placeholder:extra notes" }}
             </div>
             <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename">
                 {{ line_item_formset.empty_form.scanned_filename.errors }}
-                {{ line_item_formset.empty_form.scanned_filename }}
+                {{ line_item_formset.empty_form.scanned_filename|attr:"placeholder:scanned filename" }}
             </div>
         </div>
     </li>
@@ -462,6 +462,7 @@ Log.
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/add_new_form.js' %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
 <script type="application/javascript">
 form_name = 'lineitemform';
 line_item_position_id = 'line_item_number';
@@ -490,5 +491,17 @@ $('#sourceitem-create-form').on('submit', function() {
     update_hidden_fields();
     return true;
 });
+
+autocomplete_li_template_id = "autocomplete-source-item-template";
+autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
+autocomplete_fields = [
+    "source_name", "brand", "source_category", "cryptic_name", "verbose_name", "common_name", "item_code",
+    "pack_quantity", "unit_quantity", "unit_size", "extra_code",
+];
+autocomplete_display_field = "";
+autocomplete_copy_values = {};
+autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
+autocomplete_container_id = "line_item_list";
+autocomplete_setup_events();
 </script>
 {% endblock %}

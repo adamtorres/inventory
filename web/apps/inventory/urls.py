@@ -7,6 +7,9 @@ app_name = "inventory"
 
 urlpatterns = [
     urls.path(
+        "api/sourceitem/autocomplete/", i_views.SourceItemAutocompleteSearchView.as_view(),
+        name="api_sourceitem_autocomplete"),
+    urls.path(
         "api/sourceitem/wide_filter/", i_views.SourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
     urls.path(
         "api/sourceitem/quantity_adjustment/", i_views.SourceItemQuantityAdjustmentView.as_view(),

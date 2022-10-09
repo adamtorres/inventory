@@ -176,6 +176,7 @@ SHELL_PLUS_IMPORTS = [
     # 'from some_app import some_module as renamed_module',
     # 'import some_app',
     'from inventory import models as inv_models',
+    'from inventory import views as inv_views',
     'from market import models as mkt_models',
 ]
 SHELL_PLUS_PYGMENTS_ENABLED = True

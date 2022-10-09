@@ -15,7 +15,7 @@ from scrap.models import fields as sc_fields
 logger = logging.getLogger(__name__)
 
 
-class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
+class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
     def get_queryset(self):
         return super().get_queryset()  # .exclude(delivered_quantity=0)
 
@@ -93,7 +93,7 @@ class SourceItemManager(sc_models.WideFilterManagerMixin, models.Manager):
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
 
-class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
+class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     wide_filter_fields = {
         'item_id': ['id'],
         'general': [
@@ -108,6 +108,10 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
         'order_number': ['order_number'],
     }
     wide_filter_fields_any = []
+    autocomplete_filter_fields = [
+        'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size',
+        'order_number',
+    ]
 
     delivered_date = models.DateField()
     source = models.ForeignKey("inventory.Source", on_delete=models.CASCADE)
@@ -184,6 +188,10 @@ class SourceItem(sc_models.WideFilterModelMixin, sc_models.UUIDModel):
 
     def __str__(self):
         return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
+
+    def debug_str(self):
+        # Just a shortcut to display arbitrary fields for debugging
+        return f"{self.delivered_date} / {self.cryptic_name} / {self.verbose_name} / {self.unit_size}"
 
     def get_remaining_quantity(self, _use_type):
         return getattr(self, f"remaining_{use_type.use_type_to_single_word(_use_type)}_quantity")

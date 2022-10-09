@@ -1,3 +1,4 @@
+from .api_source_item_autocomplete_search import SourceItemAutocompleteSearchView
 from .api_source_item_quantity_adjustment import SourceItemQuantityAdjustmentView
 from .api_source_item_wide_filter import SourceItemWideFilterView
 from .source_item_create import SourceItemCreateView
