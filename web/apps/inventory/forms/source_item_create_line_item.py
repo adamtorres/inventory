@@ -17,7 +17,12 @@ class SourceItemCreateLineItemForm(forms.Form):
 
 
 class SourceItemCreateLineItemModelForm(forms.ModelForm):
+    source_category = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
+    item_code = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
+    extra_code = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
     cryptic_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
+    verbose_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
+    common_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
 
     class Meta:
         model = inv_models.SourceItem

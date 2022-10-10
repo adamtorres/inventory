@@ -5,7 +5,7 @@
 {% block title %}Create Source Items{% endblock %}
 
 {% block styles %}
-{{ line_item_formset.media }}
+{{ line_item_formset.media.css }}
 <style>
 * {
     box-sizing: border-box;
@@ -150,6 +150,9 @@ li {
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+    .with-autocomplete {
+        overflow: visible;
+    }
     .attribute-header {
         overflow: unset;
         white-space: unset;
@@ -187,6 +190,11 @@ li {
 }
 
 </style>
+{% endblock %}
+
+{% block head_scripts %}
+{#{{ line_item_formset.media.js }}  Gives the getComputedStyle error#}
+{#<script src="{% static "3rdparty/bootstrap-5.1.3-dist/js/bootstrap.bundle.js" %}"></script>#}
 {% endblock %}
 
 {% block content %}
@@ -279,27 +287,27 @@ Log.
             {{ line_item_formset.empty_form.line_item_number }}
         </div>
         <div class="attribute-container item-information">
-            <div class="attribute" data-name="Source Category" data-field="source_category">
+            <div class="attribute with-autocomplete" data-name="Source Category" data-field="source_category">
                 {{ line_item_formset.empty_form.source_category.errors }}
                 {{ line_item_formset.empty_form.source_category|attr:"placeholder:category from source" }}
             </div>
-            <div class="attribute" data-name="Item Code" data-field="item_code">
+            <div class="attribute with-autocomplete" data-name="Item Code" data-field="item_code">
                 {{ line_item_formset.empty_form.item_code.errors }}
                 {{ line_item_formset.empty_form.item_code|attr:"placeholder:item code" }}
             </div>
-            <div class="attribute" data-name="Extra Code" data-field="extra_code">
+            <div class="attribute with-autocomplete" data-name="Extra Code" data-field="extra_code">
                 {{ line_item_formset.empty_form.extra_code.errors }}
                 {{ line_item_formset.empty_form.extra_code|attr:"placeholder:extra code" }}
             </div>
-            <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
+            <div class="attribute with-autocomplete" data-name="Cryptic Name" data-field="cryptic_name">
                 {{ line_item_formset.empty_form.cryptic_name.errors }}
                 {{ line_item_formset.empty_form.cryptic_name|attr:"placeholder:name as appears on invoice/receipt" }}
             </div>
-            <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
+            <div class="attribute with-autocomplete" data-name="Verbose Name" data-field="verbose_name">
                 {{ line_item_formset.empty_form.verbose_name.errors }}
                 {{ line_item_formset.empty_form.verbose_name|attr:"placeholder:cleaned up cryptic name" }}
             </div>
-            <div class="attribute" data-name="Common Name" data-field="common_name">
+            <div class="attribute with-autocomplete" data-name="Common Name" data-field="common_name">
                 {{ line_item_formset.empty_form.common_name.errors }}
                 {{ line_item_formset.empty_form.common_name|attr:"placeholder:a more human-readable name" }}
             </div>
@@ -454,15 +462,20 @@ Log.
 <input type="submit" name="save" value="Save">
 </section>
 </form>
+
 </div>
 {# Cannot put anything after the line items because of fixed position.  Need to clean up the html/css. #}
+
 {% endblock %}
 
 {% block body_scripts %}
+{#{{ line_item_formset.media.js }} getComputedStyle error #}
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/add_new_form.js' %}"></script>
 <script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/autocomplete.js' %}"></script>  {# with bundle.js up top, gives getComputedStyle error.  w/o bundle.js anywhere, works. #}
+{#{{ line_item_formset.media.js }} getComputedStyle error #}
 <script type="application/javascript">
 form_name = 'lineitemform';
 line_item_position_id = 'line_item_number';
@@ -495,13 +508,27 @@ $('#sourceitem-create-form').on('submit', function() {
 autocomplete_li_template_id = "autocomplete-source-item-template";
 autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
 autocomplete_fields = [
-    "source_name", "brand", "source_category", "cryptic_name", "verbose_name", "common_name", "item_code",
-    "pack_quantity", "unit_quantity", "unit_size", "extra_code",
+    {#"source_name", "brand", "source_category", "cryptic_name", "verbose_name", "common_name", "item_code",#}
+    {#"pack_quantity", "unit_quantity", "unit_size", "extra_code",#}
+    "source_category",
+    "source_name", "pack_quantity", "unit_size", "cryptic_name", "common_name", "item_code", "extra_code",
 ];
-autocomplete_display_field = "";
-autocomplete_copy_values = {};
+autocomplete_display_field = "cryptic_name";
+autocomplete_copy_values = {
+    {#"source_name": "",#}
+    "source_category": "source_category",
+    "pack_quantity": "pack_quantity",
+    "unit_size": "unit_size",
+    "cryptic_name": "cryptic_name",
+    "common_name": "common_name",
+    "item_code": "item_code",
+    "extra_code": "extra_code",
+};
 autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
 autocomplete_container_id = "line_item_list";
-autocomplete_setup_events();
+$( document ).ready(function() {
+    autocomplete_setup_events();
+});
 </script>
+{# {{ line_item_formset.media.js }}  Uses the default value for autocomplete_url and no popup #}
 {% endblock %}
