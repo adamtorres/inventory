@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Measure : New Item{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+</form>
+
+{% if measure.id %}
+<div>
+    <a href="{% url "conversion:measure_detail" pk=measure.id %}">Cancel</a>
+</div>
+{% endif %}
+<div>
+    <a href="{% url "conversion:measure_list" %}">Back to list</a>
+</div>
+
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

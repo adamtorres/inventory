@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Measures{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static "conversion/css/measure-grid.css" %}">
+{% endblock %}
+
+{% block content %}
+<div class="measures">
+    <div class="measure">
+        <span class="measure-cryptic-name">Cryptic Name</span>
+        <span class="measure-verbose-name">Verbose Name</span>
+        <span class="measure-common-name">Common Name</span>
+        <span class="measure-date">Date</span>
+        <span class="measure-count">Measured Count</span>
+        <span class="measure-unit">Measured Unit</span>
+        <span class="measure-converted-amount">Converted Count</span>
+        <span class="measure-converted-unit">Converted Unit</span>
+        <span class="measure-converted-avg">Avg per Unit</span>
+    </div>
+
+{% for measure in measure_list %}
+    <a href="{% url "conversion:measure_detail" pk=measure.pk %}">
+    <div class="measure">
+        <span class="measure-cryptic-name">{{ measure.cryptic_name }}</span>
+        <span class="measure-verbose-name">{{ measure.verbose_name }}</span>
+        <span class="measure-common-name">{{ measure.common_name }}</span>
+        <span class="measure-date">{{ measure.measure_date|date:"M j, Y" }}</span>
+        <span class="measure-count">{{ measure.measuring_count|floatformat:2|intcomma }}</span>
+        <span class="measure-unit">{{ measure.measuring_unit }}</span>
+        <span class="measure-converted-amount">{{ measure.converted_amount|floatformat:2|intcomma }}</span>
+        <span class="measure-converted-unit">{{ measure.converted_unit }}</span>
+        <span class="measure-converted-avg">{{ measure.avg_converted_per_measuring|floatformat:2|intcomma }}</span>
+    </div>
+    </a>
+{% endfor %}
+</div>
+<div>
+    <a href="{% url "conversion:measure_create" %}">Add Measure</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

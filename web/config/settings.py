@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'scrap',
     'inventory.apps.InventoryConfig',
     'market.apps.MarketConfig',
+    'conversion.apps.ConversionConfig',
 ]
 
 MIDDLEWARE = [
@@ -178,6 +180,7 @@ SHELL_PLUS_IMPORTS = [
     'from inventory import models as inv_models',
     'from inventory import views as inv_views',
     'from market import models as mkt_models',
+    'from conversion import models as con_models',
 ]
 SHELL_PLUS_PYGMENTS_ENABLED = True
 SHELL_PLUS_PRINT_SQL_TRUNCATE = 0

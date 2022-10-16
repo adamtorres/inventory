@@ -25,7 +25,7 @@ Werkzeug
 # git+https://github.com/adamtorres/unit-convert@master#egg=unit-convert
 
 # provides a fancier django admin interface.  Using it because it promised to handle GenericForeignKey nicely.
-# django-grappelli
+django-grappelli
 
 # Trying to add colors to print-sql output
 pygments

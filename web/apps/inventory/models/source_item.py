@@ -189,6 +189,10 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
     def __str__(self):
         return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
 
+    @staticmethod
+    def autocomplete_search_fields():
+        return "id__iexact", "cryptic_name__icontains", "verbose_name__icontains", "common_name__icontains"
+
     def debug_str(self):
         # Just a shortcut to display arbitrary fields for debugging
         return f"{self.delivered_date} / {self.cryptic_name} / {self.verbose_name} / {self.unit_size}"
@@ -243,6 +247,10 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         if self.initial_quantity() == 0:
             return 0
         return self.extended_cost / self.initial_quantity()
+
+    def related_label(self):
+        # Used by grappelli autocomplete
+        return f"related_label = {self}"
 
     def remaining_cost(self):
         return self.per_use_cost() * self.remaining_quantity

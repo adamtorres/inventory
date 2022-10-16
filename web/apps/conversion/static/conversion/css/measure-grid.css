@@ -1,0 +1,38 @@
+.measures {
+}
+.measure {
+    border: black solid 1px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-areas:
+        "m-cryptic-name m-date m-converted-avg"
+        "m-verbose-name m-count m-unit"
+        "m-common-name m-converted-amount m-converted-unit";
+}
+.measure-cryptic-name {
+    grid-area: m-cryptic-name;
+}
+.measure-verbose-name {
+    grid-area: m-verbose-name;
+}
+.measure-common-name {
+    grid-area: m-common-name;
+}
+.measure-date {
+    grid-area: m-date;
+}
+.measure-count {
+    grid-area: m-count;
+}
+.measure-unit {
+    grid-area: m-unit;
+}
+.measure-converted-amount {
+    grid-area: m-converted-amount;
+}
+.measure-converted-unit {
+    grid-area: m-converted-unit;
+}
+.measure-converted-avg {
+    grid-area: m-converted-avg;
+}

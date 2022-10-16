@@ -22,6 +22,8 @@ from . import views
 
 
 urlpatterns = [
+    path('grappelli/', urls.include('grappelli.urls')),
+
     path('messages/', urls.include('drf_messages.urls')),
 
     path('admin/', admin.site.urls),
@@ -29,6 +31,7 @@ urlpatterns = [
 
     path('inventory/', urls.include('inventory.urls', namespace="inventory")),
     path('market/', urls.include('market.urls', namespace="market")),
+    path('conversion/', urls.include('conversion.urls', namespace="conversion")),
 
     path('', generic.RedirectView.as_view(
         pattern_name="inventory:sourceitem_search", permanent=False), name="homepage"),

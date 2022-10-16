@@ -1,0 +1,50 @@
+.conversions {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+.conversion {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+    grid-template-areas:
+        "con-item con-min  con-avg con-max";
+}
+.conversion-item {
+    grid-column: con-item;
+}
+.conversion-min {
+    grid-column: con-min;
+}
+.conversion-avg {
+    grid-column: con-avg;
+}
+.conversion-max {
+    grid-column: con-max;
+}
+.conversion-count {
+    grid-column: con-count;
+    display: none;
+}
+.conversion-first-date {
+    grid-column: con-first-date;
+    display: none;
+}
+.conversion-last-date {
+    grid-column: con-last-date;
+    display: none;
+}
+@media only screen and (min-width: 1000px) {
+    .conversion {
+        grid-template-columns: 2fr repeat(4, 1fr) 1.5fr 1.5fr;
+        grid-template-areas:
+            "con-item con-min  con-avg con-max con-count con-first-date con-last-date";
+    }
+    .conversion-count {
+        display: block;
+    }
+    .conversion-first-date {
+        display: block;
+    }
+    .conversion-last-date {
+        display: block;
+    }
+}

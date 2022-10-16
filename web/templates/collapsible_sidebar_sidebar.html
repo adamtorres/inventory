@@ -21,6 +21,13 @@
                 <li><a href="{% url "market:order_list" %}" class="link-light rounded">Orders</a></li>
             </ul>
         </li>
+        <li class="">
+            <a href="#ConversionSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Conversion</a>
+            <ul class="collapse list-unstyled" id="ConversionSubmenu">
+                <li><a href="{% url "conversion:average_report" %}" class="link-light rounded">Average Measures</a></li>
+                <li><a href="{% url "conversion:measure_list" %}" class="link-light rounded">Measures</a></li>
+            </ul>
+        </li>
     </ul>
 
     <ul class="list-unstyled CTAs">
