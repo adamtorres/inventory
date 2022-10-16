@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.postgres import forms as pg_forms
 from django.forms import models
 
-import scrap.forms.widgets
+from scrap.forms import widgets as sc_widgets
 from inventory import models as inv_models
 
 
@@ -17,12 +17,12 @@ class SourceItemCreateLineItemForm(forms.Form):
 
 
 class SourceItemCreateLineItemModelForm(forms.ModelForm):
-    source_category = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
-    item_code = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
-    extra_code = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
-    cryptic_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
-    verbose_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
-    common_name = forms.CharField(widget=scrap.forms.widgets.AutocompleteWidget)
+    source_category = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    item_code = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    extra_code = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    cryptic_name = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    verbose_name = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    common_name = forms.CharField(widget=sc_widgets.AutocompleteWidget)
 
     class Meta:
         model = inv_models.SourceItem

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Measure : New Item{% endblock %}
 
@@ -7,12 +8,39 @@
 {% endblock %}
 
 {% block content %}
+{% include "inventory/autocomplete_source_item_template.html" %}
+<ol id="new-measure-container">
+<li>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <div class="attribute with-autocomplete" data-name="Item" data-field="item">
+        {{ form.item.errors }}
+        {{ form.item|attr:"placeholder:Pick an item" }}
+    </div>
+    <div class="attribute with-autocomplete" data-name="Measure Date" data-field="measure_date">
+        {{ form.measure_date.errors }}
+        {{ form.measure_date|attr:"placeholder:When the measuring happened" }}
+    </div>
+    <div class="attribute with-autocomplete" data-name="Measured Count" data-field="measuring_count">
+        {{ form.measuring_count.errors }}
+        {{ form.measuring_count|attr:"placeholder:How many was measured" }}
+    </div>
+    <div class="attribute with-autocomplete" data-name="Measured Unit" data-field="measuring_unit">
+        {{ form.measuring_unit.errors }}
+        {{ form.measuring_unit|attr:"placeholder:Unit for the measured item" }}
+    </div>
+    <div class="attribute with-autocomplete" data-name="Converted Amount" data-field="converted_amount">
+        {{ form.converted_amount.errors }}
+        {{ form.converted_amount|attr:"placeholder:How many of the converted units" }}
+    </div>
+    <div class="attribute with-autocomplete" data-name="Converted Unit" data-field="converted_unit">
+        {{ form.converted_unit.errors }}
+        {{ form.converted_unit|attr:"placeholder:Unit for the converted measure" }}
+    </div>
     <input type="submit" value="Save">
 </form>
-
+</li>
+</ol>
 {% if measure.id %}
 <div>
     <a href="{% url "conversion:measure_detail" pk=measure.id %}">Cancel</a>
@@ -21,8 +49,29 @@
 <div>
     <a href="{% url "conversion:measure_list" %}">Back to list</a>
 </div>
+<hr />
+<pre id="on-page-log">
+Log.
+</pre>
 
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/autocomplete.js' %}"></script>
+<script type="application/javascript">
+autocomplete_li_template_id = "autocomplete-source-item-template";
+autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
+autocomplete_fields = [
+    "source_category", "source_name", "pack_quantity", "unit_size", "cryptic_name", "common_name", "item_code",
+    "extra_code", ];
+autocomplete_display_field = "";
+autocomplete_copy_values = {};
+autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
+autocomplete_container_id = "new-measure-container";
+$( document ).ready(function() {
+    autocomplete_setup_events();
+});
+</script>
 {% endblock %}

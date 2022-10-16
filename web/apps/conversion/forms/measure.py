@@ -2,6 +2,8 @@ import logging
 
 from django import forms
 
+from scrap.forms import widgets as sc_widgets
+
 from conversion import models as con_models
 
 
@@ -10,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 class MeasureForm(forms.ModelForm):
     avg_converted_per_measuring = forms.HiddenInput()
+    item = forms.CharField(widget=sc_widgets.AutocompleteWidget)
 
     class Meta:
         model = con_models.Measure
