@@ -22,7 +22,10 @@
 </div>
 
 <div>
-    <a href="{% url "conversion:measure_list" %}">Measures</a>
+<ul>
+    <li><a href="{% url "conversion:measure_list" %}">Measures</a></li>
+    <li><a href="{% url "conversion:average_report" %}">Average Measures</a></li>
+</ul>
 </div>
 {% endblock %}
 

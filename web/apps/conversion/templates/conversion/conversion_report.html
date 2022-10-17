@@ -6,11 +6,21 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static "conversion/css/conversion-grid.css" %}">
+<style>
+.header {
+    font-weight: bold;
+    background-color: lightgrey;
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div>
+    <a href="{% url "conversion:measure_create" %}">Add Measure</a>
+</div>
+
 <div class="conversions">
-    <div class="conversion">
+    <div class="conversion header">
         <span class="conversion-item">Item</span>
         <span class="conversion-min">Min</span>
         <span class="conversion-avg">Avg</span>

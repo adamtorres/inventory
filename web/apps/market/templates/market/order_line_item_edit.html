@@ -24,8 +24,8 @@
                 <th>{{ form.empty_form.sale_price_per_pack.label }}</th>
             </tr>
         </thead>
-        <tbody>
-        <tr class='form-row' id='empty-row' style="display:none;">
+        <tbody id="formset-table-body">
+        <tr class='form-row' id='empty-form' style="display:none;">
             {{ form.empty_form.as_table }}
         </tr>
         {% for line_item_form in form.forms %}
@@ -59,6 +59,7 @@ $( document ).ready(function() {
     {#autocomplete_url = "{% url 'inc_autocomplete_items' %}";#}
     form_name = "line_items";
     after_add_focus_suffix = "-item_pack";
+    formset_container_id = "formset-table-body";
     {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
     {#autocomplete_display_field = "name";#}
     $(document).on('change', '#formset-table tbody tr select', item_pack_selected);

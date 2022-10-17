@@ -21,6 +21,7 @@ class SourceItemAutocompleteSerializer(serializers.ModelSerializer):
             "unit_quantity",
             "unit_size",
             "extra_code",
+            "id",
         ]
 
     def get_source_name(self, obj):

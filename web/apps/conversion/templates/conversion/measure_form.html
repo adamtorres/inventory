@@ -65,9 +65,11 @@ autocomplete_li_template_id = "autocomplete-source-item-template";
 autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
 autocomplete_fields = [
     "source_category", "source_name", "pack_quantity", "unit_size", "cryptic_name", "common_name", "item_code",
-    "extra_code", ];
+    "extra_code", "id", ];
 autocomplete_display_field = "";
-autocomplete_copy_values = {};
+autocomplete_copy_values = {
+    "cryptic_name": "id_item-text",
+};
 autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
 autocomplete_container_id = "new-measure-container";
 $( document ).ready(function() {

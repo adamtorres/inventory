@@ -6,11 +6,17 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static "conversion/css/measure-grid.css" %}">
+<style>
+.header {
+    font-weight: bold;
+    background-color: lightgrey;
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="measures">
-    <div class="measure">
+    <div class="measure header">
         <span class="measure-cryptic-name">Cryptic Name</span>
         <span class="measure-verbose-name">Verbose Name</span>
         <span class="measure-common-name">Common Name</span>
