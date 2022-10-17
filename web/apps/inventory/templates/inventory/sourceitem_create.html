@@ -303,11 +303,11 @@ Log.
                 {{ line_item_formset.empty_form.cryptic_name.errors }}
                 {{ line_item_formset.empty_form.cryptic_name|attr:"placeholder:name as appears on invoice/receipt" }}
             </div>
-            <div class="attribute with-autocomplete" data-name="Verbose Name" data-field="verbose_name">
+            <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
                 {{ line_item_formset.empty_form.verbose_name.errors }}
                 {{ line_item_formset.empty_form.verbose_name|attr:"placeholder:cleaned up cryptic name" }}
             </div>
-            <div class="attribute with-autocomplete" data-name="Common Name" data-field="common_name">
+            <div class="attribute" data-name="Common Name" data-field="common_name">
                 {{ line_item_formset.empty_form.common_name.errors }}
                 {{ line_item_formset.empty_form.common_name|attr:"placeholder:a more human-readable name" }}
             </div>
@@ -382,19 +382,19 @@ Log.
                 {{ line_item_form.line_item_number }}
             </div>
             <div class="attribute-container item-information">
-                <div class="attribute" data-name="Source Category" data-field="source_category">
+                <div class="attribute with-autocomplete" data-name="Source Category" data-field="source_category">
                     {{ line_item_form.source_category.errors }}
                     {{ line_item_form.source_category }}
                 </div>
-                <div class="attribute" data-name="Item Code" data-field="item_code">
+                <div class="attribute with-autocomplete" data-name="Item Code" data-field="item_code">
                     {{ line_item_form.item_code.errors }}
                     {{ line_item_form.item_code }}
                 </div>
-                <div class="attribute" data-name="Extra Code" data-field="extra_code">
+                <div class="attribute with-autocomplete" data-name="Extra Code" data-field="extra_code">
                     {{ line_item_form.extra_code.errors }}
                     {{ line_item_form.extra_code }}
                 </div>
-                <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
+                <div class="attribute with-autocomplete" data-name="Cryptic Name" data-field="cryptic_name">
                     {{ line_item_form.cryptic_name.errors }}
                     {{ line_item_form.cryptic_name }}
                 </div>

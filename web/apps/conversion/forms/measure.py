@@ -20,7 +20,7 @@ class MeasureForm(forms.ModelForm):
         fields = ["item", "measure_date", "measuring_unit", "measuring_count", "converted_unit", "converted_amount"]
 
     def clean_item(self):
-        logger.debug(f"MeasureForm.clean_item: cleaned({self.cleaned_data.get('item')}) data({self.data.get('item')})")
+        # logger.debug(f"MeasureForm.clean_item:cleaned({self.cleaned_data.get('item')}) data({self.data.get('item')})")
         return inv_models.SourceItem.objects.get(id=self.data.get('item'))
 
     def save(self, commit=True):

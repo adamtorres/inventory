@@ -21,8 +21,7 @@ class SourceItemCreateLineItemModelForm(forms.ModelForm):
     item_code = forms.CharField(widget=sc_widgets.AutocompleteWidget)
     extra_code = forms.CharField(widget=sc_widgets.AutocompleteWidget)
     cryptic_name = forms.CharField(widget=sc_widgets.AutocompleteWidget)
-    verbose_name = forms.CharField(widget=sc_widgets.AutocompleteWidget)
-    common_name = forms.CharField(widget=sc_widgets.AutocompleteWidget)
+    individual_weights = pg_forms.SimpleArrayField(forms.DecimalField(max_digits=8, decimal_places=4), required=False)
 
     class Meta:
         model = inv_models.SourceItem
