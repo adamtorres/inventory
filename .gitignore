@@ -129,3 +129,6 @@ data/
 
 # Ansible vault file
 vault.txt
+
+# scratch folder that doesn't need tracked.
+scratch/
