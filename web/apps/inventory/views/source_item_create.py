@@ -1,7 +1,12 @@
+import logging
+
 from django import urls
 from django.views import generic
 
 from inventory import forms as inv_forms, models as inv_models
+
+
+logger = logging.getLogger(__name__)
 
 
 class SourceItemCreateView(generic.FormView):
@@ -27,5 +32,16 @@ class SourceItemCreateView(generic.FormView):
         return super().form_invalid(form)
 
     def form_valid(self, form):
+        instances = form.save(commit=False)
+        for instance in instances:
+            logger.debug(f"SourceItemCreateView.form_valid|instance.source_category({instance.source_category!r})")
+            if instance.pack_cost and instance.pack_quantity and instance.delivered_quantity and not instance.extended_cost:
+                if instance.total_weight:
+                    instance.extended_cost = instance.pack_cost * instance.total_weight
+                    logger.debug(f"{instance.extended_cost!r} = {instance.pack_cost!r} * {instance.total_weight}")
+                else:
+                    instance.extended_cost = instance.pack_cost * instance.delivered_quantity
+                    logger.debug(f"{instance.extended_cost!r} = {instance.pack_cost!r} * {instance.delivered_quantity}")
+            # instance.save()
         form.save()
         return super().form_valid(form)

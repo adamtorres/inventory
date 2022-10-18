@@ -10,6 +10,9 @@
 * {
     box-sizing: border-box;
 }
+.non_form_errors, .non_field_errors {
+    border: black solid 1px;
+}
 .order-section {
 }
 .order-table {
@@ -203,7 +206,7 @@ li {
 Log.
 </pre>
 <hr />
-
+<span class="test-btn">Populate Test Data</span>
 <hr />
 <form method="post" id="sourceitem-create-form">
     {% csrf_token %}
@@ -212,6 +215,7 @@ Log.
         <div class="order-delivered-date">
             <div class="order-header">{{ order_form.delivered_date.label }}</div>
             {{ order_form.delivered_date }}
+            <span class="delivered-today-btn">Today</span>
         </div>
         <div class="order-source">
             <div class="order-header">{{ order_form.source.label }}</div>
@@ -236,7 +240,12 @@ Log.
     <p>Need a non-model-driven formset for these.</p>
     <p>Needs to have +/- and reorder controls.</p>
     {{ line_item_formset.management_form }}
+    <div class="non_form_errors">
     {{ line_item_formset.non_form_errors }}
+    </div>
+    <div class="non_field_errors">
+    {{ line_item_formset.non_field_errors }}
+    </div>
     <div class="sticky">
         <ol class="collection collection-container collection-header">
     <li class="header item-container">
@@ -362,7 +371,18 @@ Log.
         </div>
     </li>
     {% for line_item_form in line_item_formset.forms %}
+        {% if line_item_form.non_form_errors or line_item_form.non_field_errors %}
+        <li>
+            <div class="non_form_errors">
+            {{ line_item_form.non_form_errors }}
+            </div>
+            <div class="non_field_errors">
+            {{ line_item_form.non_field_errors }}
+            </div>
+        </li>
+        {% endif %}
         <li class="item item-container" data-form-number="{{ forloop.counter0 }}">
+
             <div class="hidden-fields">
                 <span id="hidden-fields-{{ line_item_form.instance.id }}">
                     {% for hidden_field in line_item_form.hidden_fields %}
@@ -480,7 +500,8 @@ Log.
 form_name = 'lineitemform';
 line_item_position_id = 'line_item_number';
 formset_container_id = 'line_item_list';
-after_add_focus_suffix = '-source_category';
+after_add_focus_suffix = '-source_category-text';
+copy_from_previous = ['scanned_filename'];
 
 function update_hidden_fields() {
     let order_section = $("section.order-section");
@@ -504,14 +525,38 @@ $('#sourceitem-create-form').on('submit', function() {
     update_hidden_fields();
     return true;
 });
+$('.delivered-today-btn').on('click', function() {
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let yyyy = today.getFullYear();
+    $('#id_delivered_date').val(yyyy + '-' + mm + '-' + dd);
+});
+$('.test-btn').on('click', function() {
+    // Populates the form enough for quick testing.
+    $('.delivered-today-btn').trigger('click');
+    // Did not work
+    // $("#id_source").val($("#id_source option:first").val());
+    $("#id_source")[0].selectedIndex = 2;
+    $('#id_customer_number').val("cust number");
+    $('#id_order_number').val("order number");
+    $('#id_po_text').val("po text");
+    $('.add-new-form').trigger('click');
+    $('#id_lineitemform-0-source_category-text').val("source_category-text");
+    $('#id_lineitemform-0-item_code-text').val("item_code-text");
+    $('#id_lineitemform-0-extra_code-text').val("extra_code-text");
+    $('#id_lineitemform-0-cryptic_name-text').val("cryptic_name-text");
+    $('#id_lineitemform-0-verbose_name').val("verbose_name");
+    $('#id_lineitemform-0-common_name').val("common_name");
+});
 
 autocomplete_li_template_id = "autocomplete-source-item-template";
 autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
 autocomplete_fields = [
     {#"source_name", "brand", "source_category", "cryptic_name", "verbose_name", "common_name", "item_code",#}
     {#"pack_quantity", "unit_quantity", "unit_size", "extra_code",#}
-    "source_category",
-    "source_name", "pack_quantity", "unit_size", "cryptic_name", "common_name", "item_code", "extra_code",
+    "source_category", "source_name", "pack_quantity", "unit_size", "cryptic_name", "verbose_name", "common_name",
+    "item_code", "extra_code",
 ];
 autocomplete_display_field = "cryptic_name";
 autocomplete_copy_values = {
@@ -520,6 +565,7 @@ autocomplete_copy_values = {
     "pack_quantity": "pack_quantity",
     "unit_size": "unit_size",
     "cryptic_name": "cryptic_name",
+    "verbose_name": "verbose_name",
     "common_name": "common_name",
     "item_code": "item_code",
     "extra_code": "extra_code",
