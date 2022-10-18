@@ -17,8 +17,6 @@ class SourceItemCreateView(generic.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["line_item_formset"] = context["form"]
-        # context['sources'] = inv_models.Source.objects.active_sources()
-        # context['categories'] = inv_models.SourceItem.objects.source_categories()
         if self.request.method == 'POST':
             context['order_form'] = inv_forms.SourceItemCreateOrderForm(self.request.POST)
         if self.request.method == 'GET':
@@ -28,20 +26,17 @@ class SourceItemCreateView(generic.FormView):
     def get_success_url(self):
         return urls.reverse('inventory:sourceitem_search')
 
-    def form_invalid(self, form):
-        return super().form_invalid(form)
-
     def form_valid(self, form):
         instances = form.save(commit=False)
         for instance in instances:
-            logger.debug(f"SourceItemCreateView.form_valid|instance.source_category({instance.source_category!r})")
-            if instance.pack_cost and instance.pack_quantity and instance.delivered_quantity and not instance.extended_cost:
+            if (
+                    instance.pack_cost and instance.pack_quantity and instance.delivered_quantity
+                    and not instance.extended_cost):
                 if instance.total_weight:
                     instance.extended_cost = instance.pack_cost * instance.total_weight
                     logger.debug(f"{instance.extended_cost!r} = {instance.pack_cost!r} * {instance.total_weight}")
                 else:
                     instance.extended_cost = instance.pack_cost * instance.delivered_quantity
                     logger.debug(f"{instance.extended_cost!r} = {instance.pack_cost!r} * {instance.delivered_quantity}")
-            # instance.save()
         form.save()
         return super().form_valid(form)

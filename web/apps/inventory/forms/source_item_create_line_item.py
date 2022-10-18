@@ -26,9 +26,9 @@ class SourceItemCreateLineItemForm(forms.Form):
 
 class SourceItemCreateLineItemModelForm(forms.ModelForm):
     source_category = forms.CharField(widget=sc_widgets.AutocompleteWidget, required=False)
-    item_code = forms.CharField(widget=sc_widgets.AutocompleteWidget, required=False)
-    extra_code = forms.CharField(widget=sc_widgets.AutocompleteWidget, required=False)
-    cryptic_name = forms.CharField(widget=sc_widgets.AutocompleteWidget, required=False)
+    item_code = forms.CharField(required=False)
+    extra_code = forms.CharField(required=False)
+    cryptic_name = forms.CharField(required=False)
     individual_weights = pg_forms.SimpleArrayField(forms.DecimalField(max_digits=8, decimal_places=4), required=False)
 
     class Meta:
@@ -70,29 +70,33 @@ class SourceItemCreateLineItemModelForm(forms.ModelForm):
         return key, value
 
     def autocomplete_field_clean(self, field_name):
-        # This is for when the user did not select from the dropdown and typed something.
+        """ This is for when the user did not select from the dropdown and typed something. """
         key, form_value = self.get_formset_field_name_and_value(field_name)
+        if field_name not in self.get_autocomplete_fields():
+            # Field is not using AutocompleteWidget.  Nothing to do.
+            return form_value
         visible_key, visible_value = self.get_formset_field_name_and_value(field_name + "-text", added_prefix="id_")
         self.log(f"Form:{key}({form_value!r}), Visible:{visible_key}({visible_value!r})")
         if visible_value and not form_value:
             # User typed instead of selecting from dropdown
             form_value = visible_value
         elif visible_value and (visible_value != form_value):
-            # User typed something else
+            # User typed something else.
+            # TODO: What if the user typed something, then selected something from the dropdown?
             form_value = visible_value
         return form_value
 
     def clean_source_category(self):
         return self.autocomplete_field_clean('source_category')
 
-    def clean_item_code(self):
-        return self.autocomplete_field_clean('item_code')
-
-    def clean_extra_code(self):
-        return self.autocomplete_field_clean('extra_code')
-
-    def clean_cryptic_name(self):
-        return self.autocomplete_field_clean('cryptic_name')
+    # def clean_item_code(self):
+    #     return self.autocomplete_field_clean('item_code')
+    #
+    # def clean_extra_code(self):
+    #     return self.autocomplete_field_clean('extra_code')
+    #
+    # def clean_cryptic_name(self):
+    #     return self.autocomplete_field_clean('cryptic_name')
 
 
 class MyBaseModelFormSet(models.BaseModelFormSet):

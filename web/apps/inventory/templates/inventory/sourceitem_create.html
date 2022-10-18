@@ -300,15 +300,15 @@ Log.
                 {{ line_item_formset.empty_form.source_category.errors }}
                 {{ line_item_formset.empty_form.source_category|attr:"placeholder:category from source" }}
             </div>
-            <div class="attribute with-autocomplete" data-name="Item Code" data-field="item_code">
+            <div class="attribute" data-name="Item Code" data-field="item_code">
                 {{ line_item_formset.empty_form.item_code.errors }}
                 {{ line_item_formset.empty_form.item_code|attr:"placeholder:item code" }}
             </div>
-            <div class="attribute with-autocomplete" data-name="Extra Code" data-field="extra_code">
+            <div class="attribute" data-name="Extra Code" data-field="extra_code">
                 {{ line_item_formset.empty_form.extra_code.errors }}
                 {{ line_item_formset.empty_form.extra_code|attr:"placeholder:extra code" }}
             </div>
-            <div class="attribute with-autocomplete" data-name="Cryptic Name" data-field="cryptic_name">
+            <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
                 {{ line_item_formset.empty_form.cryptic_name.errors }}
                 {{ line_item_formset.empty_form.cryptic_name|attr:"placeholder:name as appears on invoice/receipt" }}
             </div>
@@ -406,15 +406,15 @@ Log.
                     {{ line_item_form.source_category.errors }}
                     {{ line_item_form.source_category }}
                 </div>
-                <div class="attribute with-autocomplete" data-name="Item Code" data-field="item_code">
+                <div class="attribute" data-name="Item Code" data-field="item_code">
                     {{ line_item_form.item_code.errors }}
                     {{ line_item_form.item_code }}
                 </div>
-                <div class="attribute with-autocomplete" data-name="Extra Code" data-field="extra_code">
+                <div class="attribute" data-name="Extra Code" data-field="extra_code">
                     {{ line_item_form.extra_code.errors }}
                     {{ line_item_form.extra_code }}
                 </div>
-                <div class="attribute with-autocomplete" data-name="Cryptic Name" data-field="cryptic_name">
+                <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
                     {{ line_item_form.cryptic_name.errors }}
                     {{ line_item_form.cryptic_name }}
                 </div>
@@ -543,9 +543,9 @@ $('.test-btn').on('click', function() {
     $('#id_po_text').val("po text");
     $('.add-new-form').trigger('click');
     $('#id_lineitemform-0-source_category-text').val("source_category-text");
-    $('#id_lineitemform-0-item_code-text').val("item_code-text");
-    $('#id_lineitemform-0-extra_code-text').val("extra_code-text");
-    $('#id_lineitemform-0-cryptic_name-text').val("cryptic_name-text");
+    $('#id_lineitemform-0-item_code').val("item_code");
+    $('#id_lineitemform-0-extra_code').val("extra_code");
+    $('#id_lineitemform-0-cryptic_name').val("cryptic_name");
     $('#id_lineitemform-0-verbose_name').val("verbose_name");
     $('#id_lineitemform-0-common_name').val("common_name");
 });
@@ -553,22 +553,22 @@ $('.test-btn').on('click', function() {
 autocomplete_li_template_id = "autocomplete-source-item-template";
 autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
 autocomplete_fields = [
-    {#"source_name", "brand", "source_category", "cryptic_name", "verbose_name", "common_name", "item_code",#}
-    {#"pack_quantity", "unit_quantity", "unit_size", "extra_code",#}
-    "source_category", "source_name", "pack_quantity", "unit_size", "cryptic_name", "verbose_name", "common_name",
-    "item_code", "extra_code",
+    {# TODO: add brand? #}
+    "source_category", "source_name", "pack_quantity", "unit_quantity", "unit_size", "cryptic_name", "verbose_name",
+    "common_name", "item_code", "extra_code",
 ];
 autocomplete_display_field = "cryptic_name";
 autocomplete_copy_values = {
     {#"source_name": "",#}
     "source_category": "source_category",
-    "pack_quantity": "pack_quantity",
-    "unit_size": "unit_size",
+    "item_code": "item_code",
+    "extra_code": "extra_code",
     "cryptic_name": "cryptic_name",
     "verbose_name": "verbose_name",
     "common_name": "common_name",
-    "item_code": "item_code",
-    "extra_code": "extra_code",
+    "pack_quantity": "pack_quantity",
+    "unit_quantity": "unit_quantity",
+    "unit_size": "unit_size",
 };
 autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
 autocomplete_container_id = "line_item_list";
