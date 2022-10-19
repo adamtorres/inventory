@@ -11,13 +11,28 @@
     font-weight: bold;
     background-color: lightgrey;
 }
+#hidden-table-container {
+    display: none;
+}
+table {
+    border: black solid 1px;
+    width: 100%;
+}
+th {
+    border: black solid 1px;
+    background-color: lightgrey;
+}
+td {
+    border: black solid 1px;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div>
-    <a href="{% url "conversion:measure_create" %}">Add Measure</a>
-</div>
+<ul>
+    <li><a href="{% url "conversion:measure_create" %}">Add Measure</a></li>
+    <li><span id="copy-table-btn">Copy to clipboard</span></li>
+</ul>
 
 <div class="conversions">
     <div class="conversion header">
@@ -45,7 +60,49 @@
     </div>
 {% endfor %}
 </div>
+
+<div id="hidden-table-container">
+<table id="hidden-table">
+<thead>
+<tr>
+    <th>Item</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Min</th>
+    <th>Avg</th>
+    <th>Max</th>
+    <th>Count</th>
+    <th>First Date</th>
+    <th>Last Date</th>
+</tr>
+</thead>
+<tbody>
+{% for conversion in conversions %}
+    <tr>
+        <td>{{ conversion.item_name|title }}</td>
+        <td>{{ conversion.measuring_unit }}</td>
+        <td>{{ conversion.converted_unit }}</td>
+        <td>{{ conversion.min|floatformat:2|intcomma }}</td>
+        <td>{{ conversion.avg|floatformat:2|intcomma }}</td>
+        <td>{{ conversion.max|floatformat:2|intcomma }}</td>
+        <td>{{ conversion.count|intcomma }}</td>
+        <td>{{ conversion.first_date|date:"M j, Y" }}</td>
+        <td>{{ conversion.last_date|date:"M j, Y" }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
 {% endblock %}
 
 {% block body_scripts %}
+<script type="application/javascript">
+$("#copy-table-btn").on("click", function() {
+    // let html_to_copy = $("#hidden-table").html();
+    let html_to_copy = document.getElementById("hidden-table-container").innerHTML;
+    const blobInput = new Blob([html_to_copy], { type: 'text/html' });
+    navigator.clipboard.write([new ClipboardItem({ 'text/html': blobInput })]);
+});
+
+</script>
 {% endblock %}
