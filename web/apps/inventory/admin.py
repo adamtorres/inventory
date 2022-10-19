@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from . import models as inv_models
+from . import forms as inv_forms, models as inv_models
 
 
 admin.AdminSite.site_header = "Customized Admin Site Header From Inventory"
 
 
 class SourceItemAdmin(admin.ModelAdmin):
+    form = inv_forms.SourceItemAdminForm
     search_fields = ['cryptic_name', 'verbose_name', 'common_name', 'item_code', ]
     fieldsets = (
         ('Order', {

@@ -21,23 +21,27 @@
 
 <div class="conversions">
     <div class="conversion header">
-        <span class="conversion-item">Item</span>
-        <span class="conversion-min">Min</span>
-        <span class="conversion-avg">Avg</span>
-        <span class="conversion-max">Max</span>
-        <span class="conversion-count">Count</span>
-        <span class="conversion-first-date">First Date</span>
-        <span class="conversion-last-date">Last Date</span>
+        <div class="conversion-item">Item</div>
+        <div class="conversion-from-unit">From</div>
+        <div class="conversion-to-unit">To</div>
+        <div class="conversion-min">Min</div>
+        <div class="conversion-avg">Avg</div>
+        <div class="conversion-max">Max</div>
+        <div class="conversion-count">Count</div>
+        <div class="conversion-first-date">First Date</div>
+        <div class="conversion-last-date">Last Date</div>
     </div>
 {% for conversion in conversions %}
     <div class="conversion">
-        <span class="conversion-item">{{ conversion.item_name|title }}</span>
-        <span class="conversion-min">{{ conversion.min|floatformat:2|intcomma }}</span>
-        <span class="conversion-avg">{{ conversion.avg|floatformat:2|intcomma }}</span>
-        <span class="conversion-max">{{ conversion.max|floatformat:2|intcomma }}</span>
-        <span class="conversion-count">{{ conversion.count|intcomma }}</span>
-        <span class="conversion-first-date">{{ conversion.first_date|date:"M j, Y" }}</span>
-        <span class="conversion-last-date">{{ conversion.last_date|date:"M j, Y" }}</span>
+        <div class="conversion-item">{{ conversion.item_name|title }}</div>
+        <div class="conversion-from-unit">{{ conversion.measuring_unit }}</div>
+        <div class="conversion-to-unit">{{ conversion.converted_unit }}</div>
+        <div class="conversion-min">{{ conversion.min|floatformat:2|intcomma }}</div>
+        <div class="conversion-avg">{{ conversion.avg|floatformat:2|intcomma }}</div>
+        <div class="conversion-max">{{ conversion.max|floatformat:2|intcomma }}</div>
+        <div class="conversion-count">{{ conversion.count|intcomma }}</div>
+        <div class="conversion-first-date">{{ conversion.first_date|date:"M j, Y" }}</div>
+        <div class="conversion-last-date">{{ conversion.last_date|date:"M j, Y" }}</div>
     </div>
 {% endfor %}
 </div>

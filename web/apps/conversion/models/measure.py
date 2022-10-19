@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.db.models import functions, expressions
 
 from scrap import models as sc_models
@@ -14,7 +14,7 @@ class MeasureManager(models.Manager):
             models.When(~models.Q(common_name=''), models.F('common_name')),
             models.When(~models.Q(verbose_name=''), models.F('verbose_name')),
             default=models.F('cryptic_name')
-        ))).values('item_name', 'converted_unit').annotate(
+        ))).values('item_name', 'measuring_unit', 'converted_unit').annotate(
             min=models.Min('avg_converted_per_measuring'),
             max=models.Max('avg_converted_per_measuring'),
             avg=models.Avg('avg_converted_per_measuring'),
@@ -22,8 +22,31 @@ class MeasureManager(models.Manager):
             first_date=models.Min('measure_date'),
             last_date=models.Max('measure_date'),
         )
-        qs = qs.order_by('item_name', 'converted_unit')
+        qs = qs.order_by('item_name', 'measuring_unit', 'converted_unit')
         return qs
+
+    def refresh_missing_names(self, dry_run=True):
+        verbose_name_qs = self.filter(verbose_name="").exclude(item__verbose_name="")
+        common_name_qs = self.filter(common_name="").exclude(item__common_name="")
+        if dry_run:
+            verbose_name_updated = verbose_name_qs.count()
+            common_name_updated = common_name_qs.count()
+        else:
+            # Added .order_by() for tuning to remove any ordering as it is filtering on id.
+            # Cannot just do F('item__verbose_name') as Django ORM doesn't like it and gives the following exception:
+            #   django.core.exceptions.FieldError: Joined field references are not permitted in this query
+            with transaction.atomic():
+                verbose_name_updated = verbose_name_qs.update(
+                    verbose_name=models.Subquery(
+                        self.filter(pk=models.OuterRef('pk')).order_by().values('item__verbose_name')[:1])
+                )
+                common_name_updated = common_name_qs.update(
+                    common_name=models.Subquery(
+                        self.filter(pk=models.OuterRef('pk')).order_by().values('item__common_name')[:1])
+                )
+                if dry_run:
+                    transaction.rollback()
+        return verbose_name_updated, common_name_updated
 
 
 class Measure(sc_models.DatedModel):

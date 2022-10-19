@@ -4,12 +4,20 @@
 }
 .conversion {
     display: grid;
-    grid-template-columns: 2fr repeat(3, 1fr);
+    grid-template-columns: repeat(8, 0.75fr);
     grid-template-areas:
-        "con-item con-min  con-avg con-max";
+        "con-item con-item con-item con-item con-item con-item con-from-unit con-to-unit"
+        ". . . . con-min con-avg con-max con-count";
+    border-bottom: black solid 1px;
 }
 .conversion-item {
     grid-column: con-item;
+}
+.conversion-from-unit {
+    grid-column: con-from-unit;
+}
+.conversion-to-unit {
+    grid-column: con-to-unit;
 }
 .conversion-min {
     grid-column: con-min;
@@ -22,7 +30,6 @@
 }
 .conversion-count {
     grid-column: con-count;
-    display: none;
 }
 .conversion-first-date {
     grid-column: con-first-date;
@@ -34,17 +41,14 @@
 }
 @media only screen and (min-width: 1000px) {
     .conversion {
-        grid-template-columns: 2fr repeat(4, 1fr) 1.5fr 1.5fr;
+        grid-template-columns: 2fr repeat(6, 0.75fr);
         grid-template-areas:
-            "con-item con-min  con-avg con-max con-count con-first-date con-last-date";
-    }
-    .conversion-count {
-        display: block;
+            "con-item con-from-unit con-to-unit con-min con-avg con-max con-count";
     }
     .conversion-first-date {
-        display: block;
+        /*display: block;*/
     }
     .conversion-last-date {
-        display: block;
+        /*display: block;*/
     }
 }
