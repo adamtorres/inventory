@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Source Items Orders{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+    <div>
+    Source: {{ order_items.0.source }}
+    </div>
+    <div>
+    Delivered Date: {{ order_items.0.delivered_date|date:"M j, Y" }}
+    </div>
+    <div>
+    Order Number: {{ order_items.0.order_number }}
+    </div>
+    <div>
+    Total Cost: ${{ order.0.sum_extended_cost|floatformat:2|intcomma }}
+    </div>
+<table>
+<thead>
+<tr>
+    <td>#</td>
+    <td>Item</td>
+    <td>Cost</td>
+</tr>
+</thead>
+<tbody>
+    {% for order_item in order_items %}
+        <tr class="order-item-row">
+            <td>{{ order_item.line_item_number|intcomma }}</td>
+            <td>{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>
+            <td>${{ order_item.extended_cost|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+<div>
+<a href="{% url "inventory:sourceitem_orders" %}">Order list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="application/javascript">
+$(".order-row").on("click", function() {
+    let e = $(this);
+    console.log(`source='${e.attr('data-source-id')}', delivered_date='${e.attr('data-delivered-date')}', order_number='${e.attr('data-order-number')}'`);
+
+});
+</script>
+{% endblock %}

@@ -15,6 +15,8 @@ urlpatterns = [
         "api/sourceitem/quantity_adjustment/", i_views.SourceItemQuantityAdjustmentView.as_view(),
         name="api_sourceitem_quantity_adjustment"),
 
+    urls.path("sourceitem/orders/", i_views.SourceItemOrdersView.as_view(), name="sourceitem_orders"),
+    urls.path("sourceitem/order/<str:source>/<str:delivered_date>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items"),
     urls.path("sourceitem/search/", i_views.SourceItemSearchView.as_view(), name="sourceitem_search"),
     urls.path("sourceitem/stats/", i_views.SourceItemStatsView.as_view(), name="sourceitem_stats"),
     urls.path("sourceitem/create/", i_views.SourceItemCreateView.as_view(), name="sourceitem_create"),

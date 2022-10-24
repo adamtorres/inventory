@@ -92,6 +92,39 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         if items_to_update:
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
+    def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
+        qs = self
+        if source_id:
+            qs = qs.filter(source_id=source_id)
+        if source_name:
+            qs = qs.filter(source__name__iexact=source_name)
+        if delivered_date:
+            qs = qs.filter(delivered_date=delivered_date)
+        if order_number:
+            qs = qs.filter(order_number=order_number)
+        qs = qs.annotate(
+            order_id=functions.Concat(
+                models.F('delivered_date'), models.Value('|'), models.F('source'), models.Value('|'),
+                models.F('order_number'), output_field=models.CharField())
+        )
+
+        return qs.values('source', 'source__name', 'delivered_date', 'order_number', 'order_id').annotate(
+            sum_extended_cost=models.Sum('extended_cost'),
+            count_line_item=models.Count('id'),
+        ).order_by('-delivered_date', 'source__name', 'order_number')
+
+    def order_items(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
+        qs = self
+        if source_id:
+            qs = qs.filter(source_id=source_id)
+        if source_name:
+            qs = qs.filter(source__name__iexact=source_name)
+        if delivered_date:
+            qs = qs.filter(delivered_date=delivered_date)
+        if order_number:
+            qs = qs.filter(order_number=order_number)
+        return qs.order_by('-delivered_date', 'source__name', 'order_number', 'line_item_number')
+
 
 class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterModelMixin, sc_models.UUIDModel):
     wide_filter_fields = {

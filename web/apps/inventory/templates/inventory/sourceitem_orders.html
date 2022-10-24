@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Source Items Orders{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table>
+<thead>
+<tr>
+    <td>Source</td>
+    <td>Delivered Date</td>
+    <td>Order Number</td>
+    <td>Cost</td>
+    <td>Items</td>
+</tr>
+</thead>
+<tbody>
+    {% for order in orders %}
+        <tr class="order-row" data-source-id="{{ order.source }}" data-delivered-date="{{ order.delivered_date|date:"Y-m-d" }}"
+            data-order-number="{{ order.order_number }}"
+            data-order-url="{% url "inventory:sourceitem_order_items" source=order.source delivered_date=order.delivered_date|date:"Y-m-d" order_number=order.order_number|default:"nope"|urlencode %}">
+            <td>{{ order.source__name }}</td>
+            <td>{{ order.delivered_date|date:"M j, Y" }}</td>
+            <td>{{ order.order_number }}</td>
+            <td>${{ order.sum_extended_cost|floatformat:2|intcomma }}</td>
+            <td>{{ order.count_line_item|intcomma }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="application/javascript">
+$(".order-row").on("click", function() {
+    let e = $(this);
+    window.location.assign(e.attr('data-order-url'));
+});
+</script>
+{% endblock %}
