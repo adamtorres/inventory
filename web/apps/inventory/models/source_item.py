@@ -15,6 +15,23 @@ from scrap.models import fields as sc_fields
 logger = logging.getLogger(__name__)
 
 
+def add_filter(qs, kwarg_name, value):
+    kwarg_names = {
+        'single': {
+            'str': f"{kwarg_name}__iexact",
+            'other': kwarg_name,
+        },
+        'list': f"{kwarg_name}__in",
+    }
+    value_type = 'str' if isinstance(value, str) else 'other'
+    if value:
+        if isinstance(value, list):
+            qs = qs.filter(**{kwarg_names['list']: value})
+        else:
+            qs = qs.filter(**{kwarg_names['single'][value_type]: value})
+    return qs
+
+
 class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
     def get_queryset(self):
         return super().get_queryset()  # .exclude(delivered_quantity=0)
@@ -93,21 +110,15 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
     def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
-        qs = self
-        if source_id:
-            qs = qs.filter(source_id=source_id)
-        if source_name:
-            qs = qs.filter(source__name__iexact=source_name)
-        if delivered_date:
-            qs = qs.filter(delivered_date=delivered_date)
-        if order_number:
-            qs = qs.filter(order_number=order_number)
+        qs = add_filter(self, "source_id", source_id)
+        qs = add_filter(qs, "source__name", source_name)
+        qs = add_filter(qs, "delivered_date", delivered_date)
+        qs = add_filter(qs, "order_number", order_number)
         qs = qs.annotate(
             order_id=functions.Concat(
                 models.F('delivered_date'), models.Value('|'), models.F('source'), models.Value('|'),
                 models.F('order_number'), output_field=models.CharField())
         )
-
         return qs.values('source', 'source__name', 'delivered_date', 'order_number', 'order_id').annotate(
             sum_extended_cost=models.Sum('extended_cost'),
             count_line_item=models.Count('id'),
@@ -145,6 +156,9 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size',
         'order_number',
     ]
+    autocomplete_extra_data_fields = {
+        'source': 'source_id',
+    }
 
     delivered_date = models.DateField()
     source = models.ForeignKey("inventory.Source", on_delete=models.CASCADE)

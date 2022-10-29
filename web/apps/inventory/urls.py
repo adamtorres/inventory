@@ -7,13 +7,15 @@ app_name = "inventory"
 
 urlpatterns = [
     urls.path(
-        "api/sourceitem/autocomplete/", i_views.SourceItemAutocompleteSearchView.as_view(),
+        "api/sourceitem/autocomplete/", i_views.APISourceItemAutocompleteSearchView.as_view(),
         name="api_sourceitem_autocomplete"),
     urls.path(
-        "api/sourceitem/wide_filter/", i_views.SourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
+        "api/sourceitem/orders/", i_views.APISourceItemOrdersView.as_view(), name="api_sourceitem_orders"),
     urls.path(
-        "api/sourceitem/quantity_adjustment/", i_views.SourceItemQuantityAdjustmentView.as_view(),
+        "api/sourceitem/quantity_adjustment/", i_views.APISourceItemQuantityAdjustmentView.as_view(),
         name="api_sourceitem_quantity_adjustment"),
+    urls.path(
+        "api/sourceitem/wide_filter/", i_views.APISourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
 
     urls.path("sourceitem/orders/", i_views.SourceItemOrdersView.as_view(), name="sourceitem_orders"),
     urls.path("sourceitem/order/<str:source>/<str:delivered_date>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items"),

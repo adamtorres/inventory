@@ -549,7 +549,11 @@ $('.test-btn').on('click', function() {
     $('#id_lineitemform-0-verbose_name').val("verbose_name");
     $('#id_lineitemform-0-common_name').val("common_name");
 });
-
+function ac_extra_data() {
+    // Adds extra data to the autocomplete to help filter results.
+    // In this case, sends the source along so sysco products aren't suggested when entering a broulims receipt.
+    return {'source': $('#id_source').val()};
+}
 autocomplete_li_template_id = "autocomplete-source-item-template";
 autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
 autocomplete_fields = [
@@ -572,6 +576,8 @@ autocomplete_copy_values = {
 };
 autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
 autocomplete_container_id = "line_item_list";
+// autocomplete_debug_log = true;
+autocomplete_extra_data_func = ac_extra_data;
 $( document ).ready(function() {
     autocomplete_setup_events();
 });

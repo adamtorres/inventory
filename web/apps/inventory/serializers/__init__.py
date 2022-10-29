@@ -1,2 +1,3 @@
 from .source_item_autocomplete import SourceItemAutocompleteSerializer
+from .source_item_order import SourceItemOrderSerializer
 from .source_item_wide_filter import SourceItemWideFilterSerializer

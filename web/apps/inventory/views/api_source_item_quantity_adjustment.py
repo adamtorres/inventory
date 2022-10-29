@@ -22,7 +22,7 @@ def render_to_json(request, data):
     )
 
 
-class SourceItemQuantityAdjustmentView(views.APIView):
+class APISourceItemQuantityAdjustmentView(views.APIView):
     queryset = inv_models.SourceItem.objects.all()
 
     def put(self, request, *args, **kwargs):
