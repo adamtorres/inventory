@@ -9,6 +9,7 @@ class SourceItemOrderSerializer(serializers.Serializer):
     order_id = serializers.SerializerMethodField()
     sum_extended_cost = serializers.SerializerMethodField()
     count_line_item = serializers.SerializerMethodField()
+    scanned_filenames = serializers.SerializerMethodField()
 
     def update(self, instance, validated_data):
         raise NotImplementedError("Nope.  Not gonna do it.")
@@ -31,6 +32,9 @@ class SourceItemOrderSerializer(serializers.Serializer):
     def get_delivered_date(self, obj):
         return obj['delivered_date']
 
+    def get_scanned_filenames(self, obj):
+        return obj['scanned_filenames']
+    
     def get_sum_extended_cost(self, obj):
         return obj['sum_extended_cost']
 

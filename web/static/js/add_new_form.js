@@ -59,6 +59,7 @@ function add_new_form(focus_suffix="") {
     if ((focus_suffix !== "") && (focus_after_add_id)) {
         document.getElementById(focus_after_add_id).focus()
     }
+    $('html, body').stop().animate({'scrollTop':$(`#${focus_after_add_id}`).offset().top}, 100);
 }
 
 $('.add-new-form').click(function(e) {

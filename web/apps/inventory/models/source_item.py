@@ -1,7 +1,7 @@
 import json
 import logging
 
-from django.contrib.postgres import fields as pg_fields
+from django.contrib.postgres import fields as pg_fields, aggregates as pg_agg
 from django.db import models
 from django.db.models import expressions, functions
 
@@ -110,10 +110,16 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
     def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
-        qs = add_filter(self, "source_id", source_id)
-        qs = add_filter(qs, "source__name", source_name)
-        qs = add_filter(qs, "delivered_date", delivered_date)
-        qs = add_filter(qs, "order_number", order_number)
+        logger.debug(f"SourceItemManager.order_list: args = {source_id!r}, {source_name!r}, {delivered_date!r}, {order_number!r}")
+        if (source_id == ["last"]) or (source_name == ["last"]) or (delivered_date == ["last"]) or (order_number == ["last"]):
+            _order_number = self.order_by('-created').first().order_number
+            qs = add_filter(self, "order_number", _order_number)
+            logger.debug(f"SourceItemManager.order_list: _order_number = '{_order_number}'")
+        else:
+            qs = add_filter(self, "source_id", source_id)
+            qs = add_filter(qs, "source__name", source_name)
+            qs = add_filter(qs, "delivered_date", delivered_date)
+            qs = add_filter(qs, "order_number", order_number)
         qs = qs.annotate(
             order_id=functions.Concat(
                 models.F('delivered_date'), models.Value('|'), models.F('source'), models.Value('|'),
@@ -122,6 +128,7 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         return qs.values('source', 'source__name', 'delivered_date', 'order_number', 'order_id').annotate(
             sum_extended_cost=models.Sum('extended_cost'),
             count_line_item=models.Count('id'),
+            scanned_filenames=pg_agg.ArrayAgg(models.F('scanned_filename'), distinct=True, ordering=models.F('scanned_filename')),
         ).order_by('-delivered_date', 'source__name', 'order_number')
 
     def order_items(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
@@ -137,7 +144,7 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         return qs.order_by('-delivered_date', 'source__name', 'order_number', 'line_item_number')
 
 
-class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterModelMixin, sc_models.UUIDModel):
+class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
     wide_filter_fields = {
         'item_id': ['id'],
         'general': [
