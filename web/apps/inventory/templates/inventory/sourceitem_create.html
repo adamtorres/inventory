@@ -59,6 +59,10 @@
 .order-order-number {
     grid-column: order-order-number;
 }
+.duplicate-order-number::after {
+    content: "Order Number Already Exists";
+    color: red;
+}
 .order-po-text {
     grid-column: order-po-text;
 }
@@ -493,6 +497,7 @@ Log.
 <script src="{% static "js/csrf_cookie.js" %}"></script>
 <script src="{% static 'js/on_page_log.js' %}"></script>
 <script src="{% static 'js/add_new_form.js' %}"></script>
+<script src="{% static 'js/arbitrary_timer.js' %}"></script>
 <script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/autocomplete.js' %}"></script>  {# with bundle.js up top, gives getComputedStyle error.  w/o bundle.js anywhere, works. #}
 {#{{ line_item_formset.media.js }} getComputedStyle error #}
@@ -578,8 +583,48 @@ autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
 autocomplete_container_id = "line_item_list";
 // autocomplete_debug_log = true;
 autocomplete_extra_data_func = ac_extra_data;
+
+let order_api_url = "{% url "inventory:api_sourceitem_orders" %}";
+function check_for_existing_order(caller_obj) {
+    var caller = $(caller_obj);
+    let data_to_send = {
+        'source_id': $('#{{ order_form.source.id_for_label }}').val(),
+        'order_number': $('#{{ order_form.order_number.id_for_label }}').val()
+    };
+    if (data_to_send['order_number'] === '') {
+        // nothing to send.  Clear error if exists.
+        $(".order-order-number").removeClass("duplicate-order-number");
+        return;
+    }
+    let jqxhr = $.ajax({
+        url: order_api_url,
+        type: "get",
+        data: data_to_send,
+        caller_id: caller.prop('id'),
+    })
+    .done(function(data) {
+        // var d_caller = $(document.getElementById(this.caller_id));
+        let order_number_container = $(".order-order-number");
+        if (data.length >= 1){
+            order_number_container.addClass("duplicate-order-number");
+        } else {
+            order_number_container.removeClass("duplicate-order-number");
+        }
+    })
+    .fail(function() {
+        logit("check_for_existing_order: ajax fail");
+    })
+    .always(function() {
+        // logit("check_for_existing_order: ajax complete");
+    });
+
+
+}
+
 $( document ).ready(function() {
+    console.log("$( document ).ready(function() {");
     autocomplete_setup_events();
+    at_add_timer_with_events('existing_order', 750, check_for_existing_order, '.order-order-number');
 });
 </script>
 {# {{ line_item_formset.media.js }}  Uses the default value for autocomplete_url and no popup #}
