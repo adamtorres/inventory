@@ -118,13 +118,14 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         if items_to_update:
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
-    def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
+    def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None, general_search=None):
         source_id = sc_utils.reduce_list(source_id)
         source_name = sc_utils.reduce_list(source_name)
         delivered_date = sc_utils.reduce_list(delivered_date)
         order_number = sc_utils.reduce_list(order_number)
+        general_search = sc_utils.reduce_list(general_search)
         logger.debug(f"SourceItemManager.order_list: args = {source_id!r}, {source_name!r}, {delivered_date!r}, {order_number!r}")
-        if (source_id == ["last"]) or (source_name == ["last"]) or (delivered_date == ["last"]) or (order_number == ["last"]):
+        if (source_id == "last") or (source_name == "last") or (delivered_date == "last") or (order_number == "last"):
             _order_number = self.order_by('-created').first().order_number
             qs = add_filter(self, "order_number", _order_number)
             logger.debug(f"SourceItemManager.order_list: _order_number = '{_order_number}'")
@@ -133,6 +134,8 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             qs = add_filter(qs, "source__name", source_name)
             qs = add_filter(qs, "delivered_date", delivered_date)
             qs = add_filter(qs, "order_number", order_number)
+            if general_search:
+                qs = qs.filter(self.model.get_wide_filter(general_search, "general"))
         qs = qs.annotate(
             order_id=functions.Concat(
                 models.F('delivered_date'), models.Value('|'), models.F('source'), models.Value('|'),
@@ -144,7 +147,8 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             scanned_filenames=pg_agg.ArrayAgg(models.F('scanned_filename'), distinct=True, ordering=models.F('scanned_filename')),
         ).order_by('-delivered_date', 'source__name', 'order_number')
 
-    def order_items(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
+    def order_items(
+            self, source_id=None, source_name=None, delivered_date=None, order_number=None, general_search=None):
         qs = self
         if source_id:
             qs = qs.filter(source_id=source_id)
@@ -154,6 +158,8 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             qs = qs.filter(delivered_date=delivered_date)
         if order_number:
             qs = qs.filter(order_number=order_number)
+        if general_search:
+            qs = qs & self.model.get_wide_filter(general_search, "general")
         return qs.order_by('-delivered_date', 'source__name', 'order_number', 'line_item_number')
 
 

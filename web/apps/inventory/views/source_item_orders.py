@@ -10,7 +10,7 @@ class SourceItemOrdersView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pass_along = ["source_id", "source", "order_number", "delivered_date"]
+        pass_along = ["source_id", "source", "order_number", "delivered_date", "general_search"]
         for get_param in pass_along:
             if get_param in self.request.GET:
                 context[f"pass_in_{get_param.replace('-', '_')}"] = self.request.GET[get_param]

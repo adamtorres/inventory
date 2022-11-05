@@ -18,8 +18,11 @@ class APISourceItemOrdersView(views.APIView):
         source_names = request.GET.getlist('source')
         order_number = request.GET.getlist('order_number')
         delivered_date = request.GET.getlist('delivered_date')
+        general_search = request.GET.getlist('general_search')
         qs = inv_models.SourceItem.objects.order_list(
-            source_id=source_ids, source_name=source_names, delivered_date=delivered_date, order_number=order_number)
+            source_id=source_ids, source_name=source_names, delivered_date=delivered_date, order_number=order_number,
+            general_search=general_search
+        )
         data = inv_serializers.SourceItemOrderSerializer(qs, many=True).data
         return response.Response(data)
 

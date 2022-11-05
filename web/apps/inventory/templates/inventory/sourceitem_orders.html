@@ -65,6 +65,10 @@
                 <label class="d-block" for="filter-delivered-date">Delivered Date:</label>
                 <input type="text" id="filter-delivered-date" class="filter-input" value="{{ pass_in_delivered_date }}"/>
             </div>
+            <div class="col">
+                <label class="d-block" for="filter-general-search">General Search:</label>
+                <input type="text" id="filter-general-search" class="filter-input" value="{{ pass_in_general_search }}"/>
+            </div>
         </div>
     </div>
 
@@ -121,6 +125,7 @@ filter_input_empty_if_only = [];
 filter_input_fields = [
     {element: "#filter-order-number", ajax_var: "order_number"},
     {element: "#filter-delivered-date", ajax_var: "delivered_date"},
+    {element: "#filter-general-search", ajax_var: "general_search"},
     {element: "[name='filter-source']", ajax_var: "source_id"},
 ];
 $(".order-row").on("click", function() {
@@ -130,7 +135,7 @@ $(".order-row").on("click", function() {
 
 function load_from_url_search() {
     let search_fields_populated = false;
-    let search_fields = ["#filter-order-number", "#filter-delivered-date"];
+    let search_fields = ["#filter-order-number", "#filter-delivered-date", "#filter-general-search"];
     search_fields.forEach(search_field_name => {
         let search_field = $(search_field_name);
         if (search_field.val() !== "") {
@@ -142,7 +147,7 @@ function load_from_url_search() {
     }
 }
 function clear_form() {
-    let search_fields = ["#filter-order-number", "#filter-delivered-date"];
+    let search_fields = ["#filter-order-number", "#filter-delivered-date", "#filter-general-search"];
     search_fields.forEach(search_field_name => {
         $(search_field_name).val("");
     });
