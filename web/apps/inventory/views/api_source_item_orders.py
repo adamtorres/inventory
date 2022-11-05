@@ -11,7 +11,10 @@ logger = logging.getLogger(__name__)
 
 class APISourceItemOrdersView(views.APIView):
     def get(self, request, format=None):
+        logger.debug(f"APISourceItemOrdersView.get: GET = {request.GET}")
         source_ids = request.GET.getlist('source_id')
+        source_ids_alt = request.GET.getlist('source_id[]')
+        source_ids.extend(source_ids_alt)
         source_names = request.GET.getlist('source')
         order_number = request.GET.getlist('order_number')
         delivered_date = request.GET.getlist('delivered_date')

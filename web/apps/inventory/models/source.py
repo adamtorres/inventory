@@ -16,5 +16,8 @@ class Source(sc_models.UUIDModel):
 
     objects = SourceManager()
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name

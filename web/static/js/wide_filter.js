@@ -4,6 +4,7 @@ var filter_url = "set from page as it likely uses django template tags.";
 var filter_fields = ["list", "of", "fields", "to", "include", "in", "filtered", "results"];
 var remove_decimals = ["fields", "from", "which", "to", "remove", "decimals"];
 var money_fields = ["fields", "to", "fix", "to", "two", "decimal", "places"];
+var hide_parent_if_empty = [];  // Hides the parent tag if any of these fields are empty.
 var filter_input_fields = [
     {element: "#id-of-the-input-control", ajax_var: "name_of_the_var_when_ajax"},
     {element: "#second-id-of-the-input-control", ajax_var: "second_name_of_the_var_when_ajax"},
@@ -55,21 +56,25 @@ function new_item(data) {
         if (filter_fields.includes(key)) {
             // this is a field which should show up on the page.
             let record_value = data[key];
-            if (remove_decimals.includes(key)) {
-                // The data from the server includes decimal places when not needed.  This seems to work to only show
-                // decimal places when needed.
-                // It does cut the decimals to 2, though.
-                record_value = Math.round(record_value * 100) / 100;
-            }
-            if (money_fields.includes(key)) {
-                record_value = Number.parseFloat(record_value).toFixed(2);
-            }
-            if (is_date_value(record_value) && is_date_field(key)){
-                e.text(format_date_str(record_value));
-            } else {
+            if (e.data('format') === 'raw') {
                 e.text(record_value);
-                if (hide_parent_if_empty.includes(key) && (record_value === undefined || record_value === "")) {
-                    e.parent().addClass("d-none");
+            } else {
+                if (remove_decimals.includes(key)) {
+                    // The data from the server includes decimal places when not needed.  This seems to work to only show
+                    // decimal places when needed.
+                    // It does cut the decimals to 2, though.
+                    record_value = Math.round(record_value * 100) / 100;
+                }
+                if (money_fields.includes(key)) {
+                    record_value = Number.parseFloat(record_value).toFixed(2);
+                }
+                if (is_date_value(record_value) && is_date_field(key)){
+                    e.text(format_date_str(record_value));
+                } else {
+                    e.text(record_value);
+                    if (hide_parent_if_empty.includes(key) && (record_value === undefined || record_value === "")) {
+                        e.parent().addClass("d-none");
+                    }
                 }
             }
         } else {

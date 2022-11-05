@@ -10,14 +10,10 @@ class SourceItemOrdersView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        pass_along = ["source_id", "source", "order_number", "delivered_date"]
+        for get_param in pass_along:
+            if get_param in self.request.GET:
+                context[f"pass_in_{get_param.replace('-', '_')}"] = self.request.GET[get_param]
+
         context['sources'] = inv_models.Source.objects.active_sources()
-        # source_id = None
-        # source_name = self.request.GET.get('source')
-        # if utils.is_valid_uuid(source_name):
-        #     source_id = source_name
-        #     source_name = None
-        # delivered_date = self.request.GET.get('delivered_date')
-        # order_number = self.request.GET.get('order_number')
-        # context['orders'] = inv_models.SourceItem.objects.order_list(
-        #     source_id=source_id, source_name=source_name, delivered_date=delivered_date, order_number=order_number)
         return context

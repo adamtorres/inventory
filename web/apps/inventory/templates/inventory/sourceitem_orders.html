@@ -19,6 +19,11 @@
 {% endblock %}
 
 {% block content %}
+<a href="{% url "inventory:api_sourceitem_orders" %}">API Orders</a>
+    <div id="filter-controls">
+        <div class="row">
+            <div class="col-sm-2 btn btn-warning" id="clear_form"><span >Clear Form</span></div>
+        </div>
 <div class="accordion" id="filter-limits-parent">
     <div class="accordion-item">
         <h2 class="accordion-header" id="filter-limits-heading">
@@ -50,13 +55,32 @@
         </div>
     </div>
 </div>
+        <div class="row">
+            <div class="col">
+                <label class="d-block" for="filter-order-number">Order Number:</label>
+                <input type="text" id="filter-order-number" class="filter-input" value="{{ pass_in_order_number }}"/>
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-delivered-date">Delivered Date:</label>
+                <input type="text" id="filter-delivered-date" class="filter-input" value="{{ pass_in_delivered_date }}"/>
+            </div>
+        </div>
+    </div>
+
 <table style="display: none;" class="filtered-order-template-container">
-    <tr id="filtered-order-template" class="order-row" data-source-id="nope" data-delivered-date="nope" data-order-number="nope" data-order-url="nope">
-        <td><span data-field="id">__id__</span><span data-field="source_name">__source_name__</span></td>
-        <td><span data-field="delivered_date">__delivered_date__</span></td>
-        <td><span data-field="order_number">__order_number__</span></td>
-        <td>$<span data-field="sum_extended_cost">__sum_extended_cost__</span></td>
-        <td><span data-field="count_line_item">__count_line_item__</span></td>
+    <tr id="filtered-order-template" class="order-row filtered-item-top" data-source-id="nope" data-delivered-date="nope" data-order-number="nope" data-order-url="nope">
+        <td class="filtered-item-link">
+            <span data-field="id" style="display: none;">__id__</span>
+            <span data-field="source_name">__source_name__</span>
+        </td>
+        <td class="filtered-item-link">
+            <span data-field="delivered_date">__delivered_date__</span>
+            <span data-field="delivered_date" data-format="raw" style="display: none;">__delivered_date__</span>
+        </td>
+        <td class="filtered-item-link"><span data-field="order_number">__order_number__</span></td>
+        <td class="filtered-item-link">$<span data-field="sum_extended_cost">__sum_extended_cost__</span></td>
+        <td class="filtered-item-link"><span data-field="count_line_item">__count_line_item__</span></td>
+        <td class="filtered-item-link"><span data-field="scanned_filenames">__scanned_filenames__</span></td>
     </tr>
 </table>
 <table id="result-table">
@@ -67,39 +91,91 @@
     <td>Order Number</td>
     <td>Cost</td>
     <td>Items</td>
+    <td>Scanned Filenames</td>
 </tr>
 </thead>
 <tbody id="result-table-body">
-    {% for order in orders %}
-        <tr class="order-row" data-source-id="{{ order.source }}" data-delivered-date="{{ order.delivered_date|date:"Y-m-d" }}"
-            data-order-number="{{ order.order_number }}"
-            data-order-url="{% url "inventory:sourceitem_order_items" source=order.source delivered_date=order.delivered_date|date:"Y-m-d" order_number=order.order_number|default:"nope"|urlencode %}">
-            <td>{{ order.source__name }}</td>
-            <td>{{ order.delivered_date|date:"M j, Y" }}</td>
-            <td>{{ order.order_number }}</td>
-            <td>${{ order.sum_extended_cost|floatformat:2|intcomma }}</td>
-            <td>{{ order.count_line_item|intcomma }}</td>
-        </tr>
-    {% endfor %}
 </tbody>
 </table>
+<pre id="on-page-log">
+Log.
+</pre>
 {% endblock %}
 
 {% block body_scripts %}
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
 <script src="{% static 'js/wide_filter.js' %}"></script>
 <script type="application/javascript">
 filter_url = "{% url "inventory:api_sourceitem_orders" %}";
 filter_fields = [
-    "id",
+    "id", "source_name", "delivered_date", "order_number", "order_id", "sum_extended_cost", "count_line_item",
+    "scanned_filenames"
 ];
-remove_decimals = [];
+remove_decimals = ["count_line_item"];
 money_fields = ["sum_extended_cost"];
+filter_result_item_template_id = "filtered-order-template";
 filter_results_div_id = "result-table-body";
 filter_input_empty_if_only = [];
-
+filter_input_fields = [
+    {element: "#filter-order-number", ajax_var: "order_number"},
+    {element: "#filter-delivered-date", ajax_var: "delivered_date"},
+    {element: "[name='filter-source']", ajax_var: "source_id"},
+];
 $(".order-row").on("click", function() {
     let e = $(this);
     window.location.assign(e.attr('data-order-url'));
+});
+
+function load_from_url_search() {
+    let search_fields_populated = false;
+    let search_fields = ["#filter-order-number", "#filter-delivered-date"];
+    search_fields.forEach(search_field_name => {
+        let search_field = $(search_field_name);
+        if (search_field.val() !== "") {
+            search_fields_populated = true;
+        }
+    });
+    if (search_fields_populated) {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
+function clear_form() {
+    let search_fields = ["#filter-order-number", "#filter-delivered-date"];
+    search_fields.forEach(search_field_name => {
+        $(search_field_name).val("");
+    });
+    $("#filter-limits-collapsible").find('input[name="filter-source"]').each(function() {
+        $(this).prop("checked", false);
+    });
+    $(window).trigger(force_filter_refresh_event_name);
+}
+function new_filtered_order(e, new_filtered_order_row) {
+    let new_row = $(new_filtered_order_row);
+    let url_template = "{% url "inventory:sourceitem_order_items_with_date" source="__source__" order_number="__order_number__" delivered_date="__delivered_date__" %}";
+    let source_id = new_row.find('span[data-field="id"]').text();
+    let order_number = new_row.find('span[data-field="order_number"]').text();
+    let delivered_date = new_row.find('span[data-field="delivered_date"][data-format="raw"]').text();
+    let order_url = url_template.replace("__source__", source_id).replace("__order_number__", order_number).replace("__delivered_date__", delivered_date);
+    new_row.attr('data-order-url', order_url);
+}
+function setup_event_handlers() {
+    let w = $(window);
+    w.on(filter_requested_event_name, function() {
+        // filter sent to server, hide calculations as there's no longer a selected item.
+    });
+    w.on(filter_results_populated_event_name, function() {
+        // filter results arrived.  Still no selected item.
+    });
+    w.on(new_filtered_item_event_name, new_filtered_order);
+    w.on(item_selected_event_name, function(e, selected_row) {
+        window.location = $(selected_row).attr('data-order-url');
+    });
+    $("#clear_form").on("click", clear_form);
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+    load_from_url_search();
 });
 </script>
 {% endblock %}

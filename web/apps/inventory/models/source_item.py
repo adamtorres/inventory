@@ -8,7 +8,7 @@ from django.db.models import expressions, functions
 
 from .. import errors
 from ..common import use_type
-from scrap import models as sc_models
+from scrap import models as sc_models, utils as sc_utils
 from scrap.models import fields as sc_fields
 
 
@@ -19,16 +19,25 @@ def add_filter(qs, kwarg_name, value):
     kwarg_names = {
         'single': {
             'str': f"{kwarg_name}__iexact",
+            'uuid': kwarg_name,
             'other': kwarg_name,
         },
         'list': f"{kwarg_name}__in",
     }
-    value_type = 'str' if isinstance(value, str) else 'other'
-    if value:
-        if isinstance(value, list):
-            qs = qs.filter(**{kwarg_names['list']: value})
+    new_value = sc_utils.reduce_list(value)
+    if isinstance(new_value, list):
+        value_type = 'list'
+    elif sc_utils.is_valid_uuid(new_value):
+        value_type = 'uuid'
+    elif isinstance(new_value, str):
+        value_type = 'str'
+    else:
+        value_type = 'other'
+    if new_value:
+        if isinstance(new_value, list):
+            qs = qs.filter(**{kwarg_names['list']: new_value})
         else:
-            qs = qs.filter(**{kwarg_names['single'][value_type]: value})
+            qs = qs.filter(**{kwarg_names['single'][value_type]: new_value})
     return qs
 
 
@@ -110,6 +119,10 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
     def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None):
+        source_id = sc_utils.reduce_list(source_id)
+        source_name = sc_utils.reduce_list(source_name)
+        delivered_date = sc_utils.reduce_list(delivered_date)
+        order_number = sc_utils.reduce_list(order_number)
         logger.debug(f"SourceItemManager.order_list: args = {source_id!r}, {source_name!r}, {delivered_date!r}, {order_number!r}")
         if (source_id == ["last"]) or (source_name == ["last"]) or (delivered_date == ["last"]) or (order_number == ["last"]):
             _order_number = self.order_by('-created').first().order_number
