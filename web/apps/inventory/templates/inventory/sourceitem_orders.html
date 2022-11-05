@@ -15,6 +15,7 @@
 .choice-inline {
     display: inline-block;
 }
+
 </style>
 {% endblock %}
 
@@ -69,29 +70,29 @@
 
 <table style="display: none;" class="filtered-order-template-container">
     <tr id="filtered-order-template" class="order-row filtered-item-top" data-source-id="nope" data-delivered-date="nope" data-order-number="nope" data-order-url="nope">
-        <td class="filtered-item-link">
+        <td class="border filtered-item-link">
             <span data-field="id" style="display: none;">__id__</span>
             <span data-field="source_name">__source_name__</span>
         </td>
-        <td class="filtered-item-link">
+        <td class="border filtered-item-link date-cell">
             <span data-field="delivered_date">__delivered_date__</span>
             <span data-field="delivered_date" data-format="raw" style="display: none;">__delivered_date__</span>
         </td>
-        <td class="filtered-item-link"><span data-field="order_number">__order_number__</span></td>
-        <td class="filtered-item-link">$<span data-field="sum_extended_cost">__sum_extended_cost__</span></td>
-        <td class="filtered-item-link"><span data-field="count_line_item">__count_line_item__</span></td>
-        <td class="filtered-item-link"><span data-field="scanned_filenames">__scanned_filenames__</span></td>
+        <td class="border filtered-item-link"><span data-field="order_number">__order_number__</span></td>
+        <td class="border filtered-item-link right-align dollar-cell"><span data-field="sum_extended_cost">__sum_extended_cost__</span></td>
+        <td class="border filtered-item-link right-align"><span data-field="count_line_item">__count_line_item__</span></td>
+        <td class="border filtered-item-link"><span data-field="scanned_filenames">__scanned_filenames__</span></td>
     </tr>
 </table>
 <table id="result-table">
 <thead>
 <tr>
-    <td>Source</td>
-    <td>Delivered Date</td>
-    <td>Order Number</td>
-    <td>Cost</td>
-    <td>Items</td>
-    <td>Scanned Filenames</td>
+    <th>Source</th>
+    <th class="right-align">Delivered Date</th>
+    <th>Order Number</th>
+    <th class="right-align">Cost</th>
+    <th class="right-align">Items</th>
+    <th>Scanned Filenames</th>
 </tr>
 </thead>
 <tbody id="result-table-body">

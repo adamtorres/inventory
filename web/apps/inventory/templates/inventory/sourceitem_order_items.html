@@ -20,20 +20,26 @@
     <div>
     Total Cost: ${{ order.0.sum_extended_cost|floatformat:2|intcomma }}
     </div>
-<table>
+<table id="result-table">
 <thead>
 <tr>
-    <td>#</td>
-    <td>Item</td>
-    <td>Cost</td>
+    <th class="right-align">#</th>
+    <th class="">Item</th>
+    <th class="right-align">Pack Cost</th>
+    <th class="right-align">Qty</th>
+    <th class="right-align">Weight</th>
+    <th class="right-align">Cost</th>
 </tr>
 </thead>
 <tbody>
     {% for order_item in order_items %}
         <tr class="order-item-row">
-            <td>{{ order_item.line_item_number|intcomma }}</td>
-            <td>{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>
-            <td>${{ order_item.extended_cost|floatformat:2|intcomma }}</td>
+            <td class="border right-align">{{ order_item.line_item_number|intcomma }}</td>
+            <td class="border">{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>
+            <td class="border right-align dollar-cell">{{ order_item.pack_cost|floatformat:2|intcomma }}</td>
+            <td class="border right-align">{{ order_item.delivered_quantity|intcomma }}</td>
+            <td class="border right-align">{{ order_item.total_weight|default:""|floatformat:2|intcomma }}</td>
+            <td class="border right-align dollar-cell">{{ order_item.extended_cost|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
 </tbody>
