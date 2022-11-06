@@ -33,6 +33,11 @@
 </thead>
 <tbody>
     {% for order_item in order_items %}
+        {% ifchanged %}
+            <tr>
+                <td colspan="6" class="border">{{ order_item.source_category }}</td>
+            </tr>
+        {% endifchanged %}
         <tr class="order-item-row">
             <td class="border right-align">{{ order_item.line_item_number|intcomma }}</td>
             <td class="border">{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>

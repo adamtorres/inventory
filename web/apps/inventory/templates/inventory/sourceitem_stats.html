@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Source Items Stats{% endblock %}
 
@@ -9,10 +10,20 @@
 {% block content %}
 Stats:
 <ul>
-    {% for key, value in stats.items %}
-        <li>{{ key }}: {{ value }}</li>
-    {% endfor %}
+    <li>First delivered date: {{ stats.min_delivered_date|date:"M j, Y" }}</li>
+    <li>Last delivered date: {{ stats.max_delivered_date|date:"M j, Y" }}</li>
+    <li>Orders: {{ stats.count_order|intcomma }}</li>
+    <li>Line items: {{ stats.count_line_item|intcomma }}</li>
+    <li>Sum extended cost: ${{ stats.sum_extended_cost|floatformat:2|intcomma }}</li>
+    {% with 'min_delivered_date max_delivered_date count_order count_line_item sum_extended_cost' as specified_keys %}
+        {% for key, value in stats.items %}
+            {% if key not in specified_keys.split %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
 </ul>
+    {% lorem 3 w random %}
 {% endblock %}
 
 {% block body_scripts %}
