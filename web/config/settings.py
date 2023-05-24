@@ -178,6 +178,7 @@ SHELL_PLUS_IMPORTS = [
     # 'from some_app import some_module as renamed_module',
     # 'import some_app',
     'from inventory import models as inv_models',
+    'from inventory import reports as inv_reports',
     'from inventory import views as inv_views',
     'from market import models as mkt_models',
     'from conversion import models as con_models',

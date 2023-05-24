@@ -17,6 +17,8 @@ urlpatterns = [
     urls.path(
         "api/sourceitem/wide_filter/", i_views.APISourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
 
+    urls.path("reports/created_today/", i_views.ReportsCreatedTodayView.as_view(), name="reports_created_today"),
+
     urls.path("sourceitem/orders/", i_views.SourceItemOrdersView.as_view(), name="sourceitem_orders"),
     urls.path("sourceitem/order/<str:source>/<str:order_number>/<str:delivered_date>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items_with_date"),
     urls.path("sourceitem/order/<str:source>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items"),

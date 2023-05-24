@@ -2,6 +2,7 @@ from .api_source_item_autocomplete_search import APISourceItemAutocompleteSearch
 from .api_source_item_orders import APISourceItemOrdersView
 from .api_source_item_quantity_adjustment import APISourceItemQuantityAdjustmentView
 from .api_source_item_wide_filter import APISourceItemWideFilterView
+from .reports_created_today import ReportsCreatedTodayView
 from .source_item_create import SourceItemCreateView
 from .source_item_order_items import SourceItemOrderItemsView
 from .source_item_orders import SourceItemOrdersView
