@@ -162,6 +162,17 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             qs = qs & self.model.get_wide_filter(general_search, "general")
         return qs.order_by('-delivered_date', 'source__name', 'order_number', 'line_item_number')
 
+    def ordered_quantities(self, initial_qs=None):
+        if isinstance(initial_qs, models.Q):
+            qs = self.filter(initial_qs)
+        else:
+            qs = (initial_qs or self)
+        qs = qs.values('cryptic_name', 'unit_quantity', 'unit_size').annotate(
+            delivered_quantities=pg_agg.ArrayAgg('delivered_quantity', distinct=True, ordering=['delivered_quantity']),
+            pack_quantities=pg_agg.ArrayAgg('pack_quantity', distinct=True, ordering=['pack_quantity'])).order_by(
+            'cryptic_name', 'unit_quantity', 'unit_size')
+        return qs
+
 
 class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterModelMixin, sc_models.DatedModel):
     wide_filter_fields = {
