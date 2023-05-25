@@ -191,6 +191,12 @@ label {
         </div>
         <div class="row">
             <div class="col text-left">
+                <label for="calc-item-code">Item Code: </label>
+                <span id="calc-item-code">[item code]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
                 <label for="calc-item-name">Item: </label>
                 <span id="calc-item-name">[item name]</span>
             </div>
@@ -367,12 +373,14 @@ Log.
         </td>
 
         <td class="border d-none" data-field="source_category">__source_category__</td>
-        <td class="border d-none" data-field="item_code">__item_code__</td>
-        <td class="border d-none" data-field="extra_code">__extra_code__</td>
         <td class="border d-none" data-field="brand">__brand__</td>
         <td class="border">
             <div data-field="source_item_name"></div>
             <div data-field="common_name"></div>
+            <div>
+                <span><span data-field="item_code">__item_code__</span> :</span>
+                <span data-field="extra_code">__extra_code__</span>
+            </div>
         </td>
         <td class="border right-align" data-field="total_weight">__total_weight__</td>
         <td class="border right-align"><span data-field="delivered_quantity">__delivered_quantity__</span>x</td>
@@ -405,8 +413,6 @@ Log.
             <th class="border date-cell">Delivered Date</th>
             <th class="border">Source/Order/Line Item</th>
             <th class="border d-none">Source Category</th>
-            <th class="border d-none">Item Code</th>
-            <th class="border d-none">Extra Code</th>
             <th class="border d-none">Brand</th>
             <th class="border">Item Name</th>
             <th class="border right-align">Total Weight</th>
@@ -473,6 +479,7 @@ filter_input_empty_if_only = ['category', 'source'];
 filter_result_fields = [
     {element: "data-field='delivered_date'", destination_field_id: "calc-delivered-date"},
     {element: "data-field='order_number'", destination_field_id: "calc-order-number"},
+    {element: "data-field='item_code'", destination_field_id: "calc-item-code"},
     {element: "data-field='source_item_name'", destination_field_id: "calc-item-name"},
     {element: "data-field='common_name'", destination_field_id: "calc-common-item-name"},
     {element: "data-field='extra_notes'", destination_field_id: "calc-item-comment"},
