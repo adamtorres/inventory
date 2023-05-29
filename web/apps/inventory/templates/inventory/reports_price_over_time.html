@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Price Over Time{% endblock %}
+
+{% block content %}
+<div>
+    <span id="chart-title">Placeholder</span>
+    <canvas id="myChart"></canvas>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let chart_data_url = "{% url "inventory:api_sourceitem_chartdata" %}?format=json";
+
+function chart_data_received(data){
+    $("#chart-title").text(`Per Use Cost for: ${data['item_names']}`);
+    let point_background_colors = [];
+    // get reference to the canvas element.
+    const ctx = document.getElementById('myChart');
+    let my_chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data['delivered_date'],
+            datasets: [{
+                label: 'Per Use Cost',
+                data: data['per_use_cost'],
+                borderWidth: 1,
+                pointBackgroundColor: point_background_colors,
+                barBackgroundColor: point_background_colors,
+                pointBorderColor: point_background_colors,
+                barBorderColor: point_background_colors,
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        afterBody: function (context) {
+                            const lines = [];
+                            lines.push(`Source: ${data["source"][context[0].dataIndex]}`);
+                            lines.push(`Item: ${data["item_name"][context[0].dataIndex]}`);
+                            lines.push(`Pack cost: ${data["pack_cost"][context[0].dataIndex]}`);
+                            return lines
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+    for (let i = 0; i < my_chart.data.datasets[0].data.length; i++) {
+        if (data["source"][i] === "sysco") {
+            point_background_colors.push("#90cd8a");
+        } else {
+            point_background_colors.push("#f58368");
+        }
+    }
+    my_chart.update();
+}
+
+function get_chart_data() {
+    var jqxhr = $.ajax({
+        url: chart_data_url,
+        type: "get",
+        // data: values_to_send,
+        // traditional: true
+    })
+    .done(chart_data_received)
+    .fail(function() {
+        console.log("ajax fail");
+    })
+    .always(function() {
+    });
+}
+$( document ).ready(function() {
+    get_chart_data();
+});
+</script>
+{% endblock %}

@@ -207,7 +207,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         'order_number': ['order_number'],
         'item_code': ['item_code', 'extra_code'],
     }
-    wide_filter_fields_any = []
+    wide_filter_fields_any = ['source']
     autocomplete_filter_fields = [
         'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size',
         'order_number',
