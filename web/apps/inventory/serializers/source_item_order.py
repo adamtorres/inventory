@@ -8,6 +8,8 @@ class SourceItemOrderSerializer(serializers.Serializer):
     order_number = serializers.SerializerMethodField()
     order_id = serializers.SerializerMethodField()
     sum_extended_cost = serializers.SerializerMethodField()
+    sum_delivered_quantity = serializers.SerializerMethodField()
+    avg_per_delivered_quantity = serializers.SerializerMethodField()
     count_line_item = serializers.SerializerMethodField()
     scanned_filenames = serializers.SerializerMethodField()
 
@@ -16,6 +18,11 @@ class SourceItemOrderSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         raise NotImplementedError("Nope.  Not gonna do it.")
+
+    def get_avg_per_delivered_quantity(self, obj):
+        if obj['sum_delivered_quantity'] > 0:
+            return obj['sum_extended_cost'] / obj['sum_delivered_quantity']
+        return 0
 
     def get_id(self, obj):
         return obj['source']
@@ -34,7 +41,10 @@ class SourceItemOrderSerializer(serializers.Serializer):
 
     def get_scanned_filenames(self, obj):
         return obj['scanned_filenames']
-    
+
+    def get_sum_delivered_quantity(self, obj):
+        return obj['sum_delivered_quantity']
+
     def get_sum_extended_cost(self, obj):
         return obj['sum_extended_cost']
 

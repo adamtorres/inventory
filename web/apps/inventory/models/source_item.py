@@ -118,6 +118,23 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         if items_to_update:
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
+    def order_category_totals(
+            self, source_id=None, source_name=None, delivered_date=None, order_number=None, general_search=None):
+        qs = self.order_items(
+            source_id=source_id, source_name=source_name, delivered_date=delivered_date, order_number=order_number,
+            general_search=general_search)
+        qs = qs.annotate(
+            order_category_id=functions.Concat(
+                models.F('delivered_date'), models.Value('|'), models.F('source'), models.Value('|'),
+                models.F('order_number'), models.F('source_category'), output_field=models.CharField())
+        )
+        qs = qs.values('source', 'source__name', 'delivered_date', 'order_number', 'order_category_id', 'source_category')
+        return qs.annotate(
+            sum_extended_cost=models.Sum('extended_cost'),
+            count_line_item=models.Count('id'),
+            min_line_item_number=models.Min('line_item_number'),
+        ).order_by('-delivered_date', 'source__name', 'order_number', 'min_line_item_number')
+
     def order_list(self, source_id=None, source_name=None, delivered_date=None, order_number=None, general_search=None):
         source_id = sc_utils.reduce_list(source_id)
         source_name = sc_utils.reduce_list(source_name)
@@ -144,6 +161,7 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         return qs.values('source', 'source__name', 'delivered_date', 'order_number', 'order_id').annotate(
             sum_extended_cost=models.Sum('extended_cost'),
             count_line_item=models.Count('id'),
+            sum_delivered_quantity=models.Sum('delivered_quantity'),
             scanned_filenames=pg_agg.ArrayAgg(models.F('scanned_filename'), distinct=True, ordering=models.F('scanned_filename')),
         ).order_by('-delivered_date', 'source__name', 'order_number')
 
@@ -187,6 +205,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         'name': ['cryptic_name', 'verbose_name', 'common_name'],
         'comment': ['extra_notes'],
         'order_number': ['order_number'],
+        'item_code': ['item_code', 'extra_code'],
     }
     wide_filter_fields_any = []
     autocomplete_filter_fields = [

@@ -30,4 +30,8 @@ class SourceItemOrderItemsView(generic.TemplateView):
             source_id=source_id, source_name=source_name, delivered_date=delivered_date, order_number=order_number)
         context['order'] = inv_models.SourceItem.objects.order_list(
             source_id=source_id, source_name=source_name, delivered_date=delivered_date, order_number=order_number)
+        context['order_category_totals'] = {
+            obj['source_category']: obj['sum_extended_cost']
+            for obj in inv_models.SourceItem.objects.order_category_totals(
+                source_id=source_id, source_name=source_name, delivered_date=delivered_date, order_number=order_number)}
         return context

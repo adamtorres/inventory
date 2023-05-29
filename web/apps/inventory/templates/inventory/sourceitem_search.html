@@ -154,6 +154,10 @@ label {
                 <input type="text" id="filter-unit-size" class="filter-input" value="{{ pass_in_unit_size }}" />
             </div>
             <div class="col">
+                <label class="d-block" for="filter-item-code">Item code:</label>
+                <input type="text" id="filter-item-code" class="filter-input" value="{{ pass_in_item_code }}" />
+            </div>
+            <div class="col">
                 <label class="d-block" for="filter-item-name">Item name:</label>
                 <input type="text" id="filter-item-name" class="filter-input" value="{{ pass_in_item_name }}" />
             </div>
@@ -472,6 +476,8 @@ filter_input_fields = [
     {element: "#filter-quantity", ajax_var: "quantity"},
     {element: "#filter-unit-size", ajax_var: "unit_size"},
     {element: "#filter-item-name", ajax_var: "name"},
+    {element: "#filter-item-code", ajax_var: "item_code"},
+    // {element: "#filter-item-code", ajax_var: "extra_code"},  // Would like to do this in python.
     {element: "#filter-comment", ajax_var: "comment"},
     {element: "#filter-order-number", ajax_var: "order_number"},
 ];
@@ -508,7 +514,8 @@ function load_from_item_id() {
 function load_from_url_search() {
     let search_fields_populated = false;
     let search_fields = [
-        "#filter-order-number", "#filter-comment", "#filter-item-name", "#filter-unit-size", "#filter-quantity"];
+        "#filter-order-number", "#filter-comment", "#filter-item-code", "#filter-item-name", "#filter-unit-size",
+        "#filter-quantity"];
     search_fields.forEach(search_field_name => {
         let search_field = $(search_field_name);
         if (search_field.val() !== "") {
@@ -745,7 +752,9 @@ function prepare_remaining_quantity_controls(_selected_row) {
 }
 function link_to_search() {
     let args = {};
-    let tags_to_use = ['filter-quantity', 'filter-unit-size', 'filter-item-name', 'filter-comment', 'filter-order-number'];
+    let tags_to_use = [
+        'filter-quantity', 'filter-unit-size', 'filter-item-code', 'filter-item-name', 'filter-comment',
+        'filter-order-number'];
     $(".filter-input").each(function() {
         let tag = $(this);
         console.log(`'${tag.prop('id')}' == '${tag.val()}'`);
@@ -763,7 +772,8 @@ function link_to_search() {
 }
 function clear_form() {
     let search_fields = [
-        "#filter-order-number", "#filter-comment", "#filter-item-name", "#filter-unit-size", "#filter-quantity"];
+        "#filter-order-number", "#filter-comment", "#filter-item-code", "#filter-item-name", "#filter-unit-size",
+        "#filter-quantity"];
     search_fields.forEach(search_field_name => {
         $(search_field_name).val("");
     });

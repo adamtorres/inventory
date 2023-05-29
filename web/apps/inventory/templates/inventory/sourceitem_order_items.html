@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
 {% load humanize %}
+{% load dict_get %}
 
 {% block title %}Source Items Orders{% endblock %}
 
 {% block styles %}
+<style>
+.category-row td {
+    background-color: lightgrey;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -33,12 +39,17 @@
 </thead>
 <tbody>
     {% for order_item in order_items %}
-        {% ifchanged %}
-            <tr>
-                <td colspan="6" class="border">{{ order_item.source_category }}</td>
+        {% ifchanged order_item.source_category %}
+            <tr class="category-row">
+                <td colspan="5" class="border">
+                    <span>{{ order_item.source_category }}</span>
+                </td>
+                <td class="border right-align dollar-cell">
+                    <span>{{ order_category_totals|dict_get:order_item.source_category|floatformat:2|intcomma }}</span>
+                </td>
             </tr>
         {% endifchanged %}
-        <tr class="order-item-row">
+        <tr class="order-item-row" data-source-id="{{ order_item.source_id }}" data-item-code="{{ order_item.item_code }}">
             <td class="border right-align">{{ order_item.line_item_number|intcomma }}</td>
             <td class="border">{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>
             <td class="border right-align dollar-cell">{{ order_item.pack_cost|floatformat:2|intcomma }}</td>
@@ -56,9 +67,9 @@
 
 {% block body_scripts %}
 <script type="application/javascript">
-$(".order-row").on("click", function() {
+$(".order-item-row").on("click", function() {
     let e = $(this);
-    console.log(`source='${e.attr('data-source-id')}', delivered_date='${e.attr('data-delivered-date')}', order_number='${e.attr('data-order-number')}'`);
+    console.log(`source='${e.attr('data-source-id')}', item_code='${e.attr('data-item-code')}'`);
 
 });
 </script>
