@@ -8,5 +8,9 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <span>{{ on_page_title }}</span>
         </div>
+        <div>
+            <span class="btn btn-warning"><a href="{% url "inventory:sourceitem_create" %}" class="">Enter Invoice/Receipt</a></span>
+            <span class="btn btn-secondary"><a href="{% url "inventory:reports_created_today" %}" class="">Orders Created In Last 24hrs</a></span>
+        </div>
     </div>
 </nav>

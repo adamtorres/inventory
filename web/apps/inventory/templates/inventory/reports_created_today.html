@@ -20,7 +20,7 @@
 </thead>
 <tbody id="result-table-body">
 {% for thing in created_today %}
-    <tr>
+    <tr class="order-row" data-order-url="{% url "inventory:sourceitem_order_items" source=thing.source_id order_number=thing.order_number %}">
     <td class="border right-align">{{ thing.delivered_date }}</td>
     <td class="border">{{ thing.source_name }}</td>
     <td class="border">{{ thing.order_number }}</td>
@@ -33,4 +33,10 @@
 {% endblock %}
 
 {% block body_scripts %}
+<script type="application/javascript">
+$(".order-row").on("click", function() {
+    let e = $(this);
+    window.location = e.attr('data-order-url');
+});
+</script>
 {% endblock %}

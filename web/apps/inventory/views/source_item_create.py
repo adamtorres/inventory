@@ -14,6 +14,10 @@ class SourceItemCreateView(generic.FormView):
     form_class = inv_forms.SourceItemCreateLineItemModelFormSet
     prefix = "lineitemform"
 
+    # These fields are populated during form_valid to allow get_success_url to create the link to the newly saved order.
+    source_id = None
+    order_number = None
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["line_item_formset"] = context["form"]
@@ -24,11 +28,17 @@ class SourceItemCreateView(generic.FormView):
         return context
 
     def get_success_url(self):
-        return urls.reverse('inventory:sourceitem_search')
+        return urls.reverse('inventory:sourceitem_order_items', kwargs={
+            'source': self.source_id, 'order_number': self.order_number})
 
     def form_valid(self, form):
         instances = form.save(commit=False)
+        self.source_id = None
+        self.order_number = None
         for instance in instances:
+            if self.source_id is None:
+                self.source_id = instance.source.id
+                self.order_number = instance.order_number
             if (
                     instance.pack_cost and instance.pack_quantity and instance.delivered_quantity
                     and not instance.extended_cost):
