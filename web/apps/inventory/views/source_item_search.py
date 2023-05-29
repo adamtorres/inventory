@@ -10,9 +10,10 @@ class SourceItemSearchView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         pass_along = [
             "item-id", "pick-first", "pick-id", "quantity", "unit-size", "item-code", "item-name", "comment",
-            "order-number"]
+            "order-number", "source-id"]
         for get_param in pass_along:
             if get_param in self.request.GET:
+                # TODO: Handle multiple values in the case of selecting multiple sources.
                 context[f"pass_in_{get_param.replace('-', '_')}"] = self.request.GET[get_param]
 
         context['sources'] = inv_models.Source.objects.active_sources()

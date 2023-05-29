@@ -112,7 +112,7 @@ label {
                                 {% for source in sources %}
                                     <div class="choice-inline" style="margin-right: 2em;">
                                         <div class="choice-inline">
-                                            <input type="checkbox" name="filter-source" id="filter-source-{{ source.id }}" value="{{ source.id }}">
+                                            <input type="checkbox" name="filter-source" id="filter-source-{{ source.id }}" value="{{ source.id }}" {% if source.id|stringformat:"s" == pass_in_source_id %}checked="checked" {% endif %}>
                                         </div>
                                         <div class="choice-inline">
                                             <label for="filter-source-{{ source.id }}">{{ source.name|title }}</label>
@@ -512,6 +512,7 @@ function load_from_item_id() {
     }
 }
 function load_from_url_search() {
+    // Checks the filter input controls for values populated from the url.
     let search_fields_populated = false;
     let search_fields = [
         "#filter-order-number", "#filter-comment", "#filter-item-code", "#filter-item-name", "#filter-unit-size",

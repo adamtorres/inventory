@@ -198,7 +198,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         'general': [
             'cryptic_name', 'verbose_name', 'common_name', 'item_code', 'extra_notes', 'extra_code', 'unit_size',
             'order_number'],
-        'source': ['source__name'],
+        'source': ['source__name', 'source_id'],
         'category': ['source_category'],
         'quantity': ['delivered_quantity', 'pack_quantity', 'unit_quantity'],
         'unit_size': ['unit_size'],

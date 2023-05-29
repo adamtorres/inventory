@@ -49,13 +49,13 @@
                 </td>
             </tr>
         {% endifchanged %}
-        <tr class="order-item-row" data-source-id="{{ order_item.source_id }}" data-item-code="{{ order_item.item_code }}">
-            <td class="border right-align">{{ order_item.line_item_number|intcomma }}</td>
-            <td class="border">{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>
-            <td class="border right-align dollar-cell">{{ order_item.pack_cost|floatformat:2|intcomma }}</td>
-            <td class="border right-align">{{ order_item.delivered_quantity|intcomma }}</td>
-            <td class="border right-align">{{ order_item.total_weight|default:""|floatformat:2|intcomma }}</td>
-            <td class="border right-align dollar-cell">{{ order_item.extended_cost|floatformat:2|intcomma }}</td>
+        <tr class="order-item-row order-item-top" data-source-id="{{ order_item.source_id }}" data-item-code="{{ order_item.item_code }}" data-item-search-url="{% url "inventory:sourceitem_search" %}?source-id={{ order_item.source_id }}&item-code={{ order_item.item_code }}">
+            <td class="order-item-link border right-align">{{ order_item.line_item_number|intcomma }}</td>
+            <td class="order-item-link border">{{ order_item.verbose_name|default:order_item.cryptic_name }}</td>
+            <td class="order-item-link border right-align dollar-cell">{{ order_item.pack_cost|floatformat:2|intcomma }}</td>
+            <td class="order-item-link border right-align">{{ order_item.delivered_quantity|intcomma }}</td>
+            <td class="order-item-link border right-align">{{ order_item.total_weight|default:""|floatformat:2|intcomma }}</td>
+            <td class="order-item-link border right-align dollar-cell">{{ order_item.extended_cost|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
 </tbody>
@@ -70,7 +70,7 @@
 $(".order-item-row").on("click", function() {
     let e = $(this);
     console.log(`source='${e.attr('data-source-id')}', item_code='${e.attr('data-item-code')}'`);
-
+    window.location = e.attr('data-item-search-url');
 });
 </script>
 {% endblock %}
