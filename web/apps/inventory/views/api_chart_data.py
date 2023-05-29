@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.db import models
 from rest_framework import response, views
 
 from .. import models as inv_models, serializers as inv_serializers
@@ -13,18 +14,23 @@ class APIChartDataView(views.APIView):
 
     def get(self, request, format=None):
         # TODO: Consider custom renderer - https://www.django-rest-framework.org/api-guide/renderers/#custom-renderers
-        # qs = inv_models.SourceItem.objects.wide_filter([('item_code', ('2105773',)), ('name', ('egg', )), ('source', ('sysco',))])
+        qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg', ))])
         # qs = inv_models.SourceItem.objects.wide_filter([('item_code', ('4109518',)), ('name', ('beet', )), ('source', ('sysco',))])
         # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'white'))])
         # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'choc')), ('source', ('sysco', 'rsm'))])
         # qs = inv_models.SourceItem.objects.wide_filter([('name', ('string', 'cheese'))])
-        qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('50lb',)), ('name', ('all', 'flour'))])
+        # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('50lb',)), ('name', ('all', 'flour'))])
+        # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('1lb',)), ('name', ('butter', ))])
+        # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('1lb',)), ('name', ('margarine', ))])
+        # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('#10',)), ('name', ('corn', ))])
+        # qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('#10',)), ('name', ('green', 'bean'))])
 
-        qs = qs.exclude(delivered_quantity__lte=0)
+        qs = qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
         qs = qs.order_by().order_by('delivered_date', 'source_id', 'order_number', 'line_item_number')
         data = {
             'item_names': set(),
             'item_name': [], 'delivered_date': [], 'per_use_cost': [], 'initial_quantity': [], 'pack_cost': [],
+            # '': [],
             'source': [],
         }
         for si in qs:

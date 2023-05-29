@@ -47,6 +47,7 @@ function chart_data_received(data){
                             lines.push(`Source: ${data["source"][context[0].dataIndex]}`);
                             lines.push(`Item: ${data["item_name"][context[0].dataIndex]}`);
                             lines.push(`Pack cost: ${data["pack_cost"][context[0].dataIndex]}`);
+                            lines.push(`Quantity: ${data["initial_quantity"][context[0].dataIndex]}`);
                             return lines
                         }
                     }
@@ -54,7 +55,7 @@ function chart_data_received(data){
             },
             scales: {
                 y: {
-                    beginAtZero: false
+                    beginAtZero: true
                 }
             }
         }
@@ -86,5 +87,15 @@ function get_chart_data() {
 $( document ).ready(function() {
     get_chart_data();
 });
+function print_chart() {
+
+    var canvas = document.getElementById("myChart");
+    var win = window.open();
+    win.document.write($("#chart-title").text());
+    win.document.write("<br><img src='" + canvas.toDataURL() + "'/>");
+    // setTimeout(win.print, 50);
+
+    // win.location.reload();
+}
 </script>
 {% endblock %}
