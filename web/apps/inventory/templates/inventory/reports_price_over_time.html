@@ -4,6 +4,20 @@
 {% block title %}Price Over Time{% endblock %}
 
 {% block content %}
+    <label for="canned-report-select">Report: </label>
+    <select id="canned-report-select">
+        <option data-report-url="" value="">-- Please Select a Report --</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="eggs" %}?format=json" value="eggs">Eggs</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="beets" %}?format=json" value="beets">Pickled Beets</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="2milk" %}?format=json" value="2milk">2% Milk Cartons</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="chocmilk" %}?format=json" value="chocmilk">Chocolate Milk Cartons</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="stringcheese" %}?format=json" value="stringcheese">String Cheese</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="apflour" %}?format=json" value="apflour">All Purpose Flour</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="butter" %}?format=json" value="butter">Butter</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="margarine" %}?format=json" value="margarine">Margarine</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="corn" %}?format=json" value="corn">Corn</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="greenbeans" %}?format=json" value="greenbeans">Green Beans</option>
+    </select>
 <div>
     <span id="chart-title">Placeholder</span>
     <canvas id="myChart"></canvas>
@@ -14,14 +28,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let chart_data_url = "{% url "inventory:api_sourceitem_chartdata" %}?format=json";
+// let chart_data_url = "{% url "inventory:api_sourceitem_chartdata" report_name="chocmilk" %}?format=json";
+let global_chart = null;
 
 function chart_data_received(data){
     $("#chart-title").text(`Per Use Cost for: ${data['item_names']}`);
     let point_background_colors = [];
     // get reference to the canvas element.
     const ctx = document.getElementById('myChart');
-    let my_chart = new Chart(ctx, {
+    global_chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data['delivered_date'],
@@ -46,10 +61,14 @@ function chart_data_received(data){
                             const lines = [];
                             lines.push(`Source: ${data["source"][context[0].dataIndex]}`);
                             lines.push(`Item: ${data["item_name"][context[0].dataIndex]}`);
-                            lines.push(`Pack cost: ${data["pack_cost"][context[0].dataIndex]}`);
+                            lines.push(`Pack cost: $${data["pack_cost"][context[0].dataIndex]}`);
                             lines.push(`Quantity: ${data["initial_quantity"][context[0].dataIndex]}`);
                             return lines
+                        },
+                        label: function (context) {
+                            return `$${context.formattedValue}`;
                         }
+
                     }
                 }
             },
@@ -60,19 +79,27 @@ function chart_data_received(data){
             }
         }
     });
-    for (let i = 0; i < my_chart.data.datasets[0].data.length; i++) {
+    for (let i = 0; i < global_chart.data.datasets[0].data.length; i++) {
         if (data["source"][i] === "sysco") {
             point_background_colors.push("#90cd8a");
         } else {
             point_background_colors.push("#f58368");
         }
     }
-    my_chart.update();
+    global_chart.update();
 }
 
 function get_chart_data() {
-    var jqxhr = $.ajax({
-        url: chart_data_url,
+    let report_url = $("#canned-report-select").find(":selected").attr('data-report-url');
+    if (report_url === "") {
+        return;
+    }
+    // $("myChart").html("");
+    if (global_chart !== null) {
+        global_chart.destroy();
+    }
+    let jqxhr = $.ajax({
+        url: report_url,
         type: "get",
         // data: values_to_send,
         // traditional: true
@@ -85,7 +112,8 @@ function get_chart_data() {
     });
 }
 $( document ).ready(function() {
-    get_chart_data();
+    // get_chart_data();
+    $("#canned-report-select").on("change", get_chart_data)
 });
 function print_chart() {
 

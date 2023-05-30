@@ -16,7 +16,7 @@ urlpatterns = [
         "api/sourceitem/autocomplete/", i_views.APISourceItemAutocompleteSearchView.as_view(),
         name="api_sourceitem_autocomplete"),
 
-    urls.path("api/sourceitem/chartdata/", i_views.APIChartDataView.as_view(), name="api_sourceitem_chartdata"),
+    urls.path("api/sourceitem/chartdata/<str:report_name>/", i_views.APIChartDataView.as_view(), name="api_sourceitem_chartdata"),
 
     urls.path(
         "api/sourceitem/orders/", i_views.APISourceItemOrdersView.as_view(), name="api_sourceitem_orders"),
