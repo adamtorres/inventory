@@ -36,6 +36,7 @@ class APIChartDataView(views.APIView):
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('50lb',)), ('name', ('all', 'flour'))])
             case "butter":
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('1lb',)), ('name', ('butter', ))])
+                qs = qs.exclude(cryptic_name__icontains="margarine")
             case "margarine":
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('1lb',)), ('name', ('margarine', ))])
             case "corn":

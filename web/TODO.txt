@@ -1,0 +1,8 @@
+Pages:
+> Shows commonly used items.  Useful for the interim while still manually filling out usage forms.
+> Guesstimated prices for when a receipt is missing.  Usually milk gallons, tomato, lettuce, celery, etc.
+> Calculation bug in price-per-unit.  Search "clod" and compare 12/7($119.98) and 12/28($59.94).
+  > Might not be a bug as the invoice should've had delivered_quantity=2 for 12/7 which makes the numbers work.
+> Missed invoice 2022-08-11-sysco-485406667.jpg
+> Packaging report - set of saved queries which show the most recent pack price and per-use price for things like senior trays, paper bags, foam 8oz/12oz, etc.
+> String cheese pack/unit quantity missing.  Filled in 160 based on others but doesn't look right.  cryptic_name like '%cheese%string%' and delivered_date > current_date - '12 months'::interval

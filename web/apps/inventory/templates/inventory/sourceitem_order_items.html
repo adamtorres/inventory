@@ -35,6 +35,7 @@
     <th class="right-align">Qty</th>
     <th class="right-align">Weight</th>
     <th class="right-align">Cost</th>
+    <th class="">Notes</th>
 </tr>
 </thead>
 <tbody>
@@ -47,6 +48,7 @@
                 <td class="border right-align dollar-cell">
                     <span>{{ order_category_totals|dict_get:order_item.source_category|floatformat:2|intcomma }}</span>
                 </td>
+                <td></td>
             </tr>
         {% endifchanged %}
         <tr class="order-item-row order-item-top" data-source-id="{{ order_item.source_id }}" data-item-code="{{ order_item.item_code }}" data-item-search-url="{% url "inventory:sourceitem_search" %}?source-id={{ order_item.source_id }}&item-code={{ order_item.item_code }}">
@@ -56,6 +58,7 @@
             <td class="order-item-link border right-align">{{ order_item.delivered_quantity|intcomma }}</td>
             <td class="order-item-link border right-align">{{ order_item.total_weight|default:""|floatformat:2|intcomma }}</td>
             <td class="order-item-link border right-align dollar-cell">{{ order_item.extended_cost|floatformat:2|intcomma }}</td>
+            <td class="order-item-link border">{{ order_item.extra_notes }}</td>
         </tr>
     {% endfor %}
 </tbody>
