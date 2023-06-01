@@ -1,3 +1,4 @@
+import json
 from django_extensions.management.debug_cursor import monkey_patch_cursordebugwrapper
 
 from inventory import models as inv_models, reports as inv_reports
@@ -21,8 +22,12 @@ def graph_data():
     print(f"Last date: {last_date}")
 
 
-def run():
-    with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
-        # inv_reports.SourceItemNamesAndQuantities.get_groupings()
-        graph_data()
+def packaging_costs():
+    data = inv_reports.PackagingCosts.run()
+    print(json.dumps(data, indent=2, default=str, sort_keys=True))
 
+
+def run():
+    with monkey_patch_cursordebugwrapper(print_sql=False, confprefix="SHELL_PLUS", print_sql_location=False):
+        # inv_reports.SourceItemNamesAndQuantities.get_groupings()
+        packaging_costs()
