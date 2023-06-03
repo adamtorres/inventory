@@ -54,6 +54,9 @@
 </div>
     Total Material Cost: ${{ order.material_cost|floatformat:2|intcomma }}
 </div>
+<div>
+    <a href="{% url "market:order_printable_invoice" pk=order.pk %}">Printable Invoice</a>
+</div>
 </div>
 <div>
     <a href="{% url "market:order_list" %}">Back to list</a>

@@ -64,3 +64,8 @@ class OrderModifyByActionView(generic.View):
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
+
+class OrderPrintableInvoiceView(generic.DetailView):
+    template_name = "market/order_printable_invoice.html"
+    queryset = mkt_models.Order.objects.all()
