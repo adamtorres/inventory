@@ -5,3 +5,4 @@ Pages:
   > Might not be a bug as the invoice should've had delivered_quantity=2 for 12/7 which makes the numbers work.
 > Missed invoice 2022-08-11-sysco-485406667.jpg
 > String cheese pack/unit quantity missing.  Filled in 160 based on others but doesn't look right.  cryptic_name like '%cheese%string%' and delivered_date > current_date - '12 months'::interval
+> Market:Order - redo quantity such that a $/dz is specified and an arbitrary quantity entered.  Orders 27 and $5.50/dz = $12.375

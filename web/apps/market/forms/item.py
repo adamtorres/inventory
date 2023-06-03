@@ -11,6 +11,7 @@ class ItemForm(forms.ModelForm):
         (4, "4pk"),
         (6, "6pk"),
         (8, "8pk"),
+        (10, "10pk"),
         (12, "Dozen"),
     )
     name = forms.CharField()
