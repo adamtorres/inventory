@@ -8,24 +8,14 @@
 <style>
 .dates-container {
 }
-.dates-row:first-child {
-    border-top: black 1px solid;
-    border-left: black 1px solid;
-    border-right: black 1px solid;
-}
-.dates-row:last-child {
-    border-bottom: black 1px solid;
-    border-left: black 1px solid;
-    border-right: black 1px solid;
-}
 .dates-row {
     width: 40em;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-areas: "dates-cell-ordered dates-cell-made dates-cell-picked-up dates-cell-paid";
 }
-.dates-cell:not(:last-child) {
-    border-right: black 1px solid;
+.date-card {
+    border: black 1px solid;
 }
 .order-line-items {
     width: 40em;
@@ -43,66 +33,73 @@
 <div>
     Who: {{ order.who }}
 </div>
-<div class="dates-container">
 <div class="dates-row">
-<div class="dates-cell dates-cell-ordered">Ordered</div>
-<div class="dates-cell dates-cell-made">Made</div>
-<div class="dates-cell dates-cell-picked-up">Picked Up</div>
-<div class="dates-cell dates-cell-paid">Paid</div>
-</div>
-<div class="dates-row">
-<div class="dates-cell dates-cell-ordered">{{ order.date_ordered }}</div>
-<div class="dates-cell dates-cell-made">
-    {% if order.can_be_made %}
-        <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="modify-action" value="made">
-            <input class="btn btn-success" type="submit" value="Mark as Made" />
-        </form>
-    {% else %}
-        {{ order.date_made }}
-        {% if order.can_be_picked_up %}
-            <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="modify-action" value="unmake">
-                <input class="btn btn-danger" type="submit" value="Mark as NOT Made" />
-            </form>
-        {% endif %}
-    {% endif %}
-</div>
-<div class="dates-cell dates-cell-picked-up">
-    {% if order.can_be_picked_up %}
-        <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="modify-action" value="picked-up">
-            <input class="btn btn-success" type="submit" value="Mark as Picked Up" />
-        </form>
-    {% elif order.pickup_date %}
-        {{ order.pickup_date }}
-        <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="modify-action" value="not-picked-up">
-            <input class="btn btn-danger" type="submit" value="Mark as NOT Picked Up" />
-        </form>
-    {% endif %}
-</div>
-<div class="dates-cell dates-cell-paid">
-    {% if not order.is_paid %}
-        <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="modify-action" value="paid">
-            <input class="btn btn-success" type="submit" value="Mark as Paid" />
-        </form>
-    {% elif order.date_paid %}
-        {{ order.date_paid }}
-        <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="modify-action" value="not-paid">
-            <input class="btn btn-danger" type="submit" value="Mark as NOT Paid" />
-        </form>
-    {% endif %}
-</div>
-</div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-ordered">Ordered</div>
+        <div class="dates-cell dates-cell-ordered">{{ order.date_ordered }}</div>
+    </div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-made">Made</div>
+        <div class="dates-cell dates-cell-made">
+            {% if order.can_be_made %}
+                &nbsp;
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="made">
+                    <input class="btn btn-success" type="submit" value="Mark as Made" />
+                </form>
+            {% else %}
+                {{ order.date_made }}
+                {% if order.can_be_picked_up %}
+                    <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="modify-action" value="unmake">
+                        <input class="btn btn-danger" type="submit" value="Mark as NOT Made" />
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-picked-up">Picked Up</div>
+        <div class="dates-cell dates-cell-picked-up">
+            {% if order.can_be_picked_up %}
+                &nbsp;
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="picked-up">
+                    <input class="btn btn-success" type="submit" value="Mark as Picked Up" />
+                </form>
+            {% elif order.pickup_date %}
+                {{ order.pickup_date }}
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="not-picked-up">
+                    <input class="btn btn-danger" type="submit" value="Mark as NOT Picked Up" />
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-paid">Paid</div>
+        <div class="dates-cell dates-cell-paid">
+            {% if not order.is_paid %}
+                &nbsp;
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="paid">
+                    <input class="btn btn-success" type="submit" value="Mark as Paid" />
+                </form>
+            {% elif order.date_paid %}
+                {{ order.date_paid }}
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="not-paid">
+                    <input class="btn btn-danger" type="submit" value="Mark as NOT Paid" />
+                </form>
+            {% endif %}
+        </div>
+    </div>
 </div>
 <div class="order-line-items">
     <div class="order-line-items-header">
