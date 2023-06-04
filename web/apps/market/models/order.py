@@ -98,7 +98,10 @@ class Order(sc_models.UUIDModel):
         _state = ""
         if not self.date_made:
             _state = "Ordered"
-        if not self.pickup_date:
+        if not _state and not self.pickup_date:
             _state = "Made"
-        _state = "Completed"
+        if self.pickup_date and not self.date_paid:
+            _state = "Picked Up"
+        if self.pickup_date and self.date_paid:
+            _state = "Completed"
         return f"{_state}:{'' if self.date_paid else 'NOT'} Paid"

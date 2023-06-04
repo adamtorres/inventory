@@ -4,31 +4,54 @@
 {% block title %}Market : Order List{% endblock %}
 
 {% block styles %}
+<style>
+.orders-header {
+    font-weight: bold;
+    background-color: lightgrey;
+}
+.orders-header, .orders-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 0.5fr 0.5fr 0.5fr 2fr 2fr;
+    grid-template-areas: "order-state order-ordered-date order-made-date order-pickup-date order-paid-date order-who order-controls";
+}
+.order-cell {
+    border-bottom: black 1px solid;
+}
+.order-ordered-date {
+    text-align: right;
+}
+.order-made-date, .order-pickup-date, .order-paid-date {
+    text-align: center;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<table>
-<thead>
-<tr>
-    <th>State</th>
-    <th>Ordered</th>
-    <th>Made</th>
-    <th>Pickup</th>
-    <th>Paid</th>
-    <th>Who</th>
-</tr>
-</thead>
+<div class="orders-container">
+<div class="orders-header">
+    <div class="order-cell order-state">State</div>
+    <div class="order-cell order-ordered-date">Ordered</div>
+    <div class="order-cell order-made-date">Made</div>
+    <div class="order-cell order-pickup-date">Picked up</div>
+    <div class="order-cell order-paid-date">Paid</div>
+    <div class="order-cell order-who">Who</div>
+    <div class="order-cell order-controls"></div>
+</div>
 {% for order in order_list %}
-    <tr style="border: black solid 1px;" class="{% if order.can_be_made %} bg-success text-light {% elif order.can_be_picked_up %} bg-warning {% elif order.is_completed %} text-muted {% endif %}">
-        <td style="border-right: grey solid 1px;">{{ order.state }}</td>
-        <td style="border-right: grey solid 1px;">{{ order.date_ordered }}</td>
-        <td style="border-right: grey solid 1px;">{{ order.date_made|default_if_none:"" }}</td>
-        <td style="border-right: grey solid 1px;">{{ order.pickup_date|default_if_none:"" }}</td>
-        <td style="border-right: grey solid 1px;">{{ order.date_paid|default_if_none:"" }}</td>
-        <td><a href="{% url "market:order_detail" pk=order.pk %}">{{ order.who }}</a></td>
-    </tr>
-{% endfor %}
-</table>
+<div class="orders-row">
+    <div class="order-cell order-state">{{ order.state }}</div>
+    <div class="order-cell order-ordered-date">{{ order.date_ordered }}</div>
+    <div class="order-cell order-made-date">{% if order.date_made %}&check;{% endif %}</div>
+    <div class="order-cell order-pickup-date">{% if order.pickup_date %}&check;{% endif %}</div>
+    <div class="order-cell order-paid-date">{% if order.date_paid %}&check;{% endif %}</div>
+    <div class="order-cell order-who">{{ order.who }}</div>
+    <div class="order-cell order-controls">
+        <a class="btn btn-success" href="{% url "market:order_detail" pk=order.pk %}">View/Change Order</a>
+        <a class="btn btn-success" href="{% url "market:order_printable_invoice" pk=order.pk %}">Printable Invoice</a>
+    </div>
+
+</div>{% endfor %}
+</div>
 <div>
     {% if include_completed %}
     <a href="{% url "market:order_list" %}">Hide Completed Orders</a>
