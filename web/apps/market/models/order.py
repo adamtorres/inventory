@@ -10,6 +10,10 @@ def today():
     return timezone.localdate(timezone.now())
 
 
+def now():
+    return timezone.localtime(timezone.now())
+
+
 class OrderManager(models.Manager):
     def incomplete(self):
         return self.exclude(pickup_date__isnull=False, date_paid__isnull=False)
@@ -17,6 +21,7 @@ class OrderManager(models.Manager):
 
 class Order(sc_models.UUIDModel):
     date_ordered = models.DateField(default=today)
+    time_ordered = models.TimeField(default=now)
     date_made = models.DateField(null=True, blank=True)
     pickup_date = models.DateField(null=True, blank=True)
     date_paid = models.DateField(null=True, blank=True)
@@ -27,7 +32,7 @@ class Order(sc_models.UUIDModel):
     objects = OrderManager()
 
     class Meta:
-        ordering = ['-date_ordered', 'who', 'id']
+        ordering = ['-date_ordered', '-time_ordered', 'who', 'id']
 
     def __str__(self):
         return f"{self.date_ordered} : {self.who} : {self.state()}"

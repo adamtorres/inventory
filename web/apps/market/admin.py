@@ -14,7 +14,7 @@ class OrderLineItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['who', 'sale_price', 'material_cost']}),
-        ('Date information', {'fields': ['date_ordered', 'date_made', 'pickup_date']}),
+        ('Date information', {'fields': ['date_ordered', 'time_ordered', 'date_made', 'pickup_date']}),
     ]
     inlines = [OrderLineItemInline]
     # list_display = ('question_text', 'pub_date', 'was_published_recently')
