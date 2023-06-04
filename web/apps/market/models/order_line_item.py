@@ -49,8 +49,14 @@ class OrderLineItem(sc_models.UUIDModel):
         if commit and needs_saved:
             self.save()
 
+    def item_name(self):
+        return f"{self.item or self.item_str}"
+
     def pack_quantity_str(self):
         return sc_utils.humanize_pack_quantity(self.pack_quantity)
+
+    def quantity_str(self):
+        return f"{sc_utils.reduce_quantity_by_pack(self.quantity, self.pack_quantity)}"
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.item:

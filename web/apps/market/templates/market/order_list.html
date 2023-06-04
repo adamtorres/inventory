@@ -14,6 +14,7 @@
     <th>Ordered</th>
     <th>Made</th>
     <th>Pickup</th>
+    <th>Paid</th>
     <th>Who</th>
 </tr>
 </thead>
@@ -23,6 +24,7 @@
         <td style="border-right: grey solid 1px;">{{ order.date_ordered }}</td>
         <td style="border-right: grey solid 1px;">{{ order.date_made|default_if_none:"" }}</td>
         <td style="border-right: grey solid 1px;">{{ order.pickup_date|default_if_none:"" }}</td>
+        <td style="border-right: grey solid 1px;">{{ order.date_paid|default_if_none:"" }}</td>
         <td><a href="{% url "market:order_detail" pk=order.pk %}">{{ order.who }}</a></td>
     </tr>
 {% endfor %}

@@ -12,13 +12,14 @@ def today():
 
 class OrderManager(models.Manager):
     def incomplete(self):
-        return self.exclude(pickup_date__isnull=False)
+        return self.exclude(pickup_date__isnull=False, date_paid__isnull=False)
 
 
 class Order(sc_models.UUIDModel):
     date_ordered = models.DateField(default=today)
     date_made = models.DateField(null=True, blank=True)
     pickup_date = models.DateField(null=True, blank=True)
+    date_paid = models.DateField(null=True, blank=True)
     who = sc_fields.CharField()
     sale_price = sc_fields.MoneyField(help_text="sale price for all items in the order")
     material_cost = sc_fields.MoneyField(help_text="cost of materials for all items in the order.")
@@ -47,14 +48,40 @@ class Order(sc_models.UUIDModel):
         return not self.date_made
 
     def can_be_picked_up(self):
-        return not self.pickup_date
+        return self.date_made and not self.pickup_date
+
+    def clear_order_made(self):
+        if self.date_made:
+            self.date_made = None
+            self.save()
+
+    def clear_order_paid(self):
+        if self.date_paid:
+            self.date_paid = None
+            self.save()
+
+    def clear_order_picked_up(self):
+        if self.pickup_date:
+            self.pickup_date = None
+            self.save()
 
     def is_completed(self):
-        return not self.can_be_picked_up()
+        return self.date_made and self.pickup_date and self.date_paid
+
+    def is_paid(self):
+        return bool(self.date_paid)
+
+    def is_picked_up(self):
+        return bool(self.pickup_date)
 
     def set_order_made(self):
         if not self.date_made:
             self.date_made = timezone.now()
+            self.save()
+
+    def set_order_paid(self):
+        if not self.date_paid:
+            self.date_paid = timezone.now()
             self.save()
 
     def set_order_picked_up(self):
@@ -63,8 +90,10 @@ class Order(sc_models.UUIDModel):
             self.save()
 
     def state(self):
+        _state = ""
         if not self.date_made:
-            return "Ordered"
+            _state = "Ordered"
         if not self.pickup_date:
-            return "Made"
-        return "Completed"
+            _state = "Made"
+        _state = "Completed"
+        return f"{_state}:{'' if self.date_paid else 'NOT'} Paid"
