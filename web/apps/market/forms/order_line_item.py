@@ -1,3 +1,5 @@
+import decimal
+
 from django import forms
 
 from scrap.forms import fields as sc_fields
@@ -9,15 +11,17 @@ class OrderLineItemForm(forms.ModelForm):
     line_item_position = forms.IntegerField()
     item = sc_fields.ComplicatedModelChoiceField(
         mkt_models.Item.objects.all(),
-        # additional_fields_for_options=['suggested_sale_price_per_pack']
-    )  # widget=sc_widgets.AutocompleteWidget
+    )
     quantity = forms.IntegerField()
+    pack_quantity = forms.IntegerField(initial=12)
     sale_price_per_pack = sc_fields.MoneyField()
     material_cost_per_pack = sc_fields.MoneyField()
 
     class Meta:
         model = mkt_models.OrderLineItem
-        fields = ['line_item_position', 'item',  'quantity',  'sale_price_per_pack', 'material_cost_per_pack']
+        fields = [
+            'line_item_position', 'item',  'quantity',  'pack_quantity', 'sale_price_per_pack',
+            'material_cost_per_pack']
 
     def clean_material_cost_per_pack(self):
         return self.cleaned_data['material_cost_per_pack'] or 0.0
@@ -32,7 +36,8 @@ class OrderLineItemForm(forms.ModelForm):
 
     def save(self, commit=True):
         # TODO: magic number 12 for material_cost_per_item to material_cost_per_pack
-        self.cleaned_data['material_cost_per_pack'] = self.cleaned_data['item'].material_cost_per_item * 12
+        self.cleaned_data['material_cost_per_pack'] = decimal.Decimal(
+                self.cleaned_data['item'].material_cost_per_item * self.cleaned_data['pack_quantity'])
         return super().save(commit=commit)
 
 

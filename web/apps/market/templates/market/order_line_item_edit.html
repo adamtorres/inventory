@@ -21,6 +21,7 @@
                 <th>{{ form.empty_form.line_item_position.label }}</th>
                 <th>{{ form.empty_form.item.label }}</th>
                 <th>{{ form.empty_form.quantity.label }}</th>
+                <th>{{ form.empty_form.pack_quantity.label }}</th>
                 <th>{{ form.empty_form.sale_price_per_pack.label }}</th>
             </tr>
         </thead>
@@ -47,7 +48,7 @@
 {% block body_scripts %}
 <script src="{% static 'js/add_new_form.js' %}"></script>
 <script type="text/javascript">
-function item_pack_selected(e) {
+function item_selected(e) {
     // this == the select tag.  Use 'option:selected' to find the selected option tag.
     let option_selected = $("option:selected", this);
     let suggested_sale_price_per_pack = option_selected.attr('suggested_sale_price_per_pack');
@@ -62,7 +63,7 @@ $( document ).ready(function() {
     formset_container_id = "formset-table-body";
     {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
     {#autocomplete_display_field = "name";#}
-    $(document).on('change', '#formset-table tbody tr select', item_pack_selected);
+    $(document).on('change', '#formset-table tbody tr select', item_selected);
 })
 </script>
 

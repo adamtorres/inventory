@@ -193,7 +193,7 @@
             <div class="iili-list-item {% if forloop.first %}first-row{% endif %}">
                 <div class="iili-list iili-date">&nbsp;</div>
                 <div class="iili-list iili-description">{{ order_line_item }}</div>
-                <div class="iili-list iili-balance dollar-cell">{{ order_line_item.sale_price_per_pack|floatformat:2|intcomma }}/dz</div>
+                <div class="iili-list iili-balance dollar-cell">{{ order_line_item.sale_price_per_pack|floatformat:2|intcomma }}/{{ order_line_item.pack_quantity_str }}</div>
                 <div class="iili-list iili-amount dollar-cell">{{ order_line_item.sale_price|floatformat:2|intcomma }}</div>
             </div>
         {% endfor %}

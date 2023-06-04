@@ -1,3 +1,4 @@
+import decimal
 from django.db import models
 from django.utils import timezone
 
@@ -35,8 +36,8 @@ class Order(sc_models.UUIDModel):
         sale_price = 0
         for line_item in self.line_items.all():
             line_item.calculate_totals()
-            material_cost += line_item.material_cost
-            sale_price += line_item.sale_price
+            material_cost += decimal.Decimal(line_item.material_cost)
+            sale_price += decimal.Decimal(line_item.sale_price)
         if (self.material_cost != material_cost) or (self.sale_price != sale_price):
             self.material_cost = material_cost
             self.sale_price = sale_price
