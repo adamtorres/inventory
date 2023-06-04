@@ -16,10 +16,3 @@ class Item(sc_models.UUIDModel):
 
     def __str__(self):
         return self.name
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        ret = super().save(
-            force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
-        for ip in self.item_packs.all():
-            ip.calculate_material_cost()
-        return ret

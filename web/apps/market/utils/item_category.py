@@ -19,6 +19,7 @@ suggested_prices = {
     ITEM_CATEGORY_COOKIE: {
         3: 1.75,
         6: 3,
+        10: 5,
         12: 6,
     },
     ITEM_CATEGORY_BREAD: {

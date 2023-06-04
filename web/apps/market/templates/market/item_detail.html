@@ -16,14 +16,6 @@
 <div>
     Material cost per item: {{ item.material_cost_per_item }}
 </div>
-<div>
-    Pack Sizes:
-    <ul>
-        {% for item_pack in item.item_packs.all %}
-            <li>{{ item_pack }}</li>
-        {% endfor %}
-    </ul>
-</div>
 
 <div>
     Tags:

@@ -19,7 +19,7 @@
             <tr>
                 <th>{{ form.empty_form.DELETE.label }}</th>
                 <th>{{ form.empty_form.line_item_position.label }}</th>
-                <th>{{ form.empty_form.item_pack.label }}</th>
+                <th>{{ form.empty_form.item.label }}</th>
                 <th>{{ form.empty_form.quantity.label }}</th>
                 <th>{{ form.empty_form.sale_price_per_pack.label }}</th>
             </tr>
@@ -58,7 +58,7 @@ function item_pack_selected(e) {
 $( document ).ready(function() {
     {#autocomplete_url = "{% url 'inc_autocomplete_items' %}";#}
     form_name = "line_items";
-    after_add_focus_suffix = "-item_pack";
+    after_add_focus_suffix = "-item";
     formset_container_id = "formset-table-body";
     {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
     {#autocomplete_display_field = "name";#}

@@ -4,8 +4,9 @@ from scrap import models as sc_models
 from scrap.models import fields as sc_fields
 
 
-class OnSaleItemPack(sc_models.UUIDModel):
-    item_pack = models.ForeignKey("market.ItemPack", on_delete=models.CASCADE)
+class OnSaleItem(sc_models.UUIDModel):
+    item = models.ForeignKey("market.Item", on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=12)
     date_made = models.DateField()
     packs_made = models.IntegerField(default=0, help_text="how many packs put up for sale")
     date_frozen = models.DateField(null=True, blank=True)

@@ -7,9 +7,9 @@ from market import models as mkt_models
 class OrderLineItemForm(forms.ModelForm):
     template_name_table = "market/forms/order_line_item_form_table.html"
     line_item_position = forms.IntegerField()
-    item_pack = sc_fields.ComplicatedModelChoiceField(
-        mkt_models.ItemPack.objects.all(),
-        additional_fields_for_options=['suggested_sale_price_per_pack']
+    item = sc_fields.ComplicatedModelChoiceField(
+        mkt_models.Item.objects.all(),
+        # additional_fields_for_options=['suggested_sale_price_per_pack']
     )  # widget=sc_widgets.AutocompleteWidget
     quantity = forms.IntegerField()
     sale_price_per_pack = sc_fields.MoneyField()
@@ -17,7 +17,7 @@ class OrderLineItemForm(forms.ModelForm):
 
     class Meta:
         model = mkt_models.OrderLineItem
-        fields = ['line_item_position', 'item_pack',  'quantity',  'sale_price_per_pack', 'material_cost_per_pack']
+        fields = ['line_item_position', 'item',  'quantity',  'sale_price_per_pack', 'material_cost_per_pack']
 
     def clean_material_cost_per_pack(self):
         return self.cleaned_data['material_cost_per_pack'] or 0.0
@@ -31,7 +31,8 @@ class OrderLineItemForm(forms.ModelForm):
         return context
 
     def save(self, commit=True):
-        self.cleaned_data['material_cost_per_pack'] = self.cleaned_data['item_pack'].material_cost_per_pack
+        # TODO: magic number 12 for material_cost_per_item to material_cost_per_pack
+        self.cleaned_data['material_cost_per_pack'] = self.cleaned_data['item'].material_cost_per_item * 12
         return super().save(commit=commit)
 
 

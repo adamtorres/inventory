@@ -1,6 +1,8 @@
+import math
+
 from django.db import models
 
-from scrap import models as sc_models
+from scrap import models as sc_models, utils as sc_utils
 from scrap.models import fields as sc_fields
 
 
@@ -9,9 +11,9 @@ class OrderLineItem(sc_models.UUIDModel):
         "market.Order", on_delete=models.CASCADE, related_name="line_items", related_query_name="line_items")
     line_item_position = models.IntegerField(default=0)
 
-    item_pack = models.ForeignKey("market.ItemPack", on_delete=models.SET_NULL, null=True)
-    item_pack_str = sc_fields.CharField(
-        blank=True, null=True, help_text="Backup of str(item_pack) in case the item_pack is deleted.")
+    item = models.ForeignKey("market.Item", on_delete=models.SET_NULL, null=True)
+    item_str = sc_fields.CharField(
+        blank=True, null=True, help_text="Backup of str(item) in case the item is deleted.")
     quantity = models.IntegerField()
     sale_price_per_pack = sc_fields.MoneyField()
     sale_price = sc_fields.MoneyField()
@@ -22,17 +24,17 @@ class OrderLineItem(sc_models.UUIDModel):
         ordering = ['order', 'line_item_position']
 
     def __str__(self):
-        # TODO: save a local copy of item_pack str so it doesn't hit the db again and in case item_pack changes.
-        return f"{self.quantity}x {self.item_pack or self.item_pack_str}"
+        # TODO: save a local copy of item str so it doesn't hit the db again and in case item changes.
+        return f"{sc_utils.reduce_dozens(self.quantity)} {self.item or self.item_str}"
 
     def calculate_totals(self, commit=True):
-        if self.item_pack:
-            material_cost_per_pack = self.item_pack.material_cost_per_pack
+        if self.item:
+            material_cost_per_pack = self.item.material_cost_per_item
         else:
-            # The ItemPack was removed after this order was created.  Do not change the cost.
+            # The Item was removed after this order was created.  Do not change the cost.
             material_cost_per_pack = self.material_cost_per_pack
-        material_cost = material_cost_per_pack * self.quantity
-        sale_price = self.sale_price_per_pack * self.quantity
+        material_cost = float(material_cost_per_pack) * self.quantity
+        sale_price = float(self.sale_price_per_pack) * (self.quantity / 12)
         needs_saved = False
         if self.material_cost_per_pack != material_cost_per_pack:
             self.material_cost_per_pack = material_cost_per_pack
@@ -48,11 +50,11 @@ class OrderLineItem(sc_models.UUIDModel):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
 
-        if self.item_pack:
-            item_pack_str = str(self.item_pack)
-            if self.item_pack_str != item_pack_str:
-                self.item_pack_str = item_pack_str
+        if self.item:
+            item_str = str(self.item)
+            if self.item_str != item_str:
+                self.item_str = item_str
                 if update_fields is not None:
-                    update_fields.add('item_pack_str')
+                    update_fields.add('item_str')
         return super().save(
             force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
