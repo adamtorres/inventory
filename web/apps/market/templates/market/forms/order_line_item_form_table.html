@@ -28,8 +28,16 @@
         {{ form.item }}
     </td>
     <td class="quantity_col">
-        {{ form.quantity.errors }}
-        {{ form.quantity }}
+        <div>
+            {{ form.quantity.errors }}
+            Singles
+            {{ form.quantity }}
+        </div>
+        <div>
+            {{ form.packs.errors }}
+            {{ form.packs.label }}
+            {{ form.packs }}
+        </div>
     </td>
     <td class="pack_quantity_col">
         {{ form.pack_quantity.errors }}
