@@ -81,5 +81,5 @@ class OrderModifyByActionView(generic.View):
 
 
 class OrderPrintableInvoiceView(generic.DetailView):
-    template_name = "market/order_printable_invoice.html"
+    template_name = "market/order_printable_invoice_redesign.html"
     queryset = mkt_models.Order.objects.all()

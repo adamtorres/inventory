@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Market : Order : Invoice{% endblock %}
+
+{% block styles %}
+<style>
+.invoice-page {
+    width: 100%;
+}
+@media only print {
+    @page {
+        size: portrait;
+    }
+    #main-content {
+        overflow: hidden;
+    }
+    .invoice-page {
+        font-size: 0.75rem;
+    }
+}
+.invoice {
+    width: 95%;
+    margin-left: 3%;
+    margin-right: 2%;
+}
+.invoice-header {
+    padding: 1em;
+}
+.invoice-blue-header {
+    color: cornflowerblue;
+    text-transform: capitalize;
+    font-size: 2em;
+    font-weight: bold;
+}
+.invoice-header-details {
+    color: black;
+    font-size: 1em;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--column-width-min), var(--column-width-max)));
+    grid-template-areas: "left-block right-block";
+}
+.invoice-header-details .left-block {
+
+}
+.invoice-header-details .right-block {
+
+}
+.invoice-item-list {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr 1fr;
+    grid-template-areas: "iil-date-col iil-description-col iil-balance-col iil-amount-col";
+}
+.invoice-item-list-header {
+    background-color: lightblue;
+    color: dodgerblue;
+    font-weight: bold;
+}
+.iilh-header {
+    border: cornflowerblue 1px solid;
+    background-color: lightblue;
+    color: dodgerblue;
+    font-weight: bold;
+    padding: 0.5em;
+}
+.invoice-item-list-header :first-child {
+    padding-top: 0.5em;
+}
+.iil-body {
+    height: 25em;
+    border-left: cornflowerblue 1px solid;
+    border-right: cornflowerblue 1px solid;
+}
+.iili-list {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    padding-top: 0.25em;
+}
+.iili-thank-you {
+    height: 50%;
+    align-items: center;
+    display: flex;
+}
+.invoice-item-list-items .iili-list {
+    border-left: cornflowerblue 1px solid;
+    border-right: cornflowerblue 1px solid;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+.invoice-item-list-items .first-row .iili-list {
+    padding-top: 0.5em;
+}
+.iili-amount {
+    text-align: right;
+}
+.invoice-item-list-totals-header, .invoice-item-list-totals {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-areas: "iilh-current iilh-past-due-1-30-days iilh-past-due-31-60-days iilh-past-due-61-90-days iilh-past-due-91-plus-days iilh-amount-due";
+}
+.invoice-item-list-totals-header {
+    background-color: lightblue;
+    color: dodgerblue;
+    font-weight: bold;
+}
+.invoice-item-list-totals-header .iilh-header, .invoice-item-list-totals .iilh-header {
+    border: cornflowerblue 1px solid;
+    padding: 0.5em;
+}
+.invoice-item-list-totals .iili-list {
+    border-left: cornflowerblue 1px solid;
+    border-right: cornflowerblue 1px solid;
+    padding: 0.5em;
+}
+.invoice-item-list-totals {
+    border-bottom: cornflowerblue 1px solid;
+}
+
+.invoice-remittance {
+    color: black;
+    font-size: 1em;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas: "left-block right-block";
+    align-items: stretch;
+}
+.invoice-remittance .left-block div {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.invoice-remittance .invoice-remittance-header {
+    background-color: lightblue;
+    color: dodgerblue;
+    font-weight: bold;
+    border: cornflowerblue 1px solid;
+    padding: 0.5em;
+}
+.remittance-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas: "left-block right-block";
+}
+.remittance-row div {
+    border: cornflowerblue 1px solid;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+
+}
+.invoice-footer {
+    text-align: center;
+    padding-top: 2em;
+}
+.invoice-footer-thanks {
+    color: blue;
+}
+@media only print {
+    .noprint {
+        display: none;
+    }
+    .invoice-footer {
+        {# TODO: android printing puts the footer on page 2. #}
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice">
+<div class="invoice-page">
+    <div class="invoice-header">
+    <span class="invoice-blue-header">STATEMENT</span>
+    <div class="invoice-header-details">
+        <div class="left-block">
+            <div>Date {{ order.pickup_date|default_if_none:order.date_made|default_if_none:order.date_ordered }}</div>
+            <div>Statement # 001</div>
+            <div>Bear Lake Senior Center/</div>
+            <div>Community Center</div>
+            <div>115 S. 4<sup>th</sup> St.</div>
+            <div>Montpelier, ID 83254</div>
+            <div>&nbsp;</div>
+            <div>208-847-3141</div>
+            <div>seniorcenterbearlake@gmail.com</div>
+            <div>Thank you!</div>
+        </div>
+        <div class="right-block">
+            BILL TO: {{ order.who }}
+        </div>
+    </div>
+    </div>
+    <div class="invoice-body">
+    <div class="invoice-item-list">
+        <div class="iil-date-col">
+            <div class="iilh-header iilh-date">DATE</div>
+            <div class="iil-body invoice-item-list-items-dates {% if forloop.first %}first-row{% endif %}">
+                {% for order_line_item in order.line_items.all %}
+                    <div class="iili-list iili-date">&nbsp;</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="iil-description-col">
+            <div class="iilh-header iilh-description">DESCRIPTION</div>
+            <div class="iil-body invoice-item-list-items-descriptions {% if forloop.first %}first-row{% endif %}">
+                {% for order_line_item in order.line_items.all %}
+                    <div class="iili-list iili-description">{{ order_line_item }}</div>
+                {% endfor %}
+                <div class="iili-list iili-thank-you">
+                    Thank you for supporting the Bear Lake Senior Center
+                </div>
+            </div>
+        </div>
+        <div class="iil-balance-col">
+            <div class="iilh-header iilh-balance">BALANCE</div>
+            <div class="iil-body invoice-item-list-items-balances {% if forloop.first %}first-row{% endif %}">
+                {% for order_line_item in order.line_items.all %}
+                    <div class="iili-list iili-description">{{ order_line_item.sale_price_per_pack|floatformat:2|intcomma }}/{{ order_line_item.pack_quantity_str }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="iil-amount-col">
+            <div class="iilh-header iilh-amount">AMOUNT</div>
+            <div class="iil-body invoice-item-list-items-amounts {% if forloop.first %}first-row{% endif %}">
+                {% for order_line_item in order.line_items.all %}
+                    <div class="iili-list iili-amount">{{ order_line_item.sale_price|floatformat:2|intcomma }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="invoice-item-list-totals-header">
+        <div class="iilh-header iilh-current">CURRENT</div>
+        <div class="iilh-header iilh-past-due-1-30-days">1-30 DAYS PAST DUE</div>
+        <div class="iilh-header iilh-past-due-31-60-days">31-60 DAYS PAST DUE</div>
+        <div class="iilh-header iilh-past-due-61-90-days">61-90 DAYS PAST DUE</div>
+        <div class="iilh-header iilh-past-due-91-plus-days">OVER 90 DAYS PAST DUE</div>
+        <div class="iilh-header iilh-amount-due">AMOUNT DUE</div>
+    </div>
+    <div class="invoice-item-list-totals">
+        <div class="iili-list iili-current">&nbsp;</div>
+        <div class="iili-list iili-past-due-1-30-days">&nbsp;</div>
+        <div class="iili-list iili-past-due-31-60-days">&nbsp;</div>
+        <div class="iili-list iili-past-due-61-90-days">&nbsp;</div>
+        <div class="iili-list iili-past-due-91-plus-days">&nbsp;</div>
+        <div class="iili-list iili-amount-due dollar-cell right-align">{{ order.sale_price|floatformat:2|intcomma }}</div>
+    </div>
+    <div class="invoice-remittance">
+        <div class="left-block">
+            <div>Thank you for your payment.</div>
+        </div>
+        <div class="right-block">
+            <div class="">
+                <div class="invoice-remittance-header">REMITTANCE</div>
+                <div class="remittance-row">
+                    <div class="left-block">Statement #</div>
+                    <div class="right-block">&nbsp;</div>
+                </div>
+                <div class="remittance-row">
+                    <div class="left-block">Check #</div>
+                    <div class="right-block">&nbsp;</div>
+                </div>
+                <div class="remittance-row">
+                    <div class="left-block">Amount</div>
+                    <div class="right-block">&nbsp;</div>
+                </div>
+                <div class="remittance-row">
+                    <div class="left-block">Amount Enclosed</div>
+                    <div class="right-block">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="invoice-footer">
+        <div class="">Make all checks payable to Bear Lake Senior Center</div>
+        <div class="invoice-footer-thanks">Thank you for your business!</div>
+        <div class="">Tweaked design</div>
+    </div>
+</div>
+<div class="noprint">
+    <a href="{% url "market:order_list" %}">Back to list</a>
+</div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

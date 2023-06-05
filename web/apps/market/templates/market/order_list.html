@@ -11,8 +11,8 @@
 }
 .orders-header, .orders-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 0.5fr 0.5fr 0.5fr 2fr 2fr;
-    grid-template-areas: "order-state order-ordered-date order-made-date order-pickup-date order-paid-date order-who order-controls";
+    grid-template-columns: 0.5fr 0.5fr 0.5fr 0.5fr 2fr 2fr;
+    grid-template-areas: "order-ordered-date order-made-date order-pickup-date order-paid-date order-who order-controls";
 }
 .order-cell {
     border-bottom: black 1px solid;
@@ -29,7 +29,7 @@
 {% block content %}
 <div class="orders-container">
 <div class="orders-header">
-    <div class="order-cell order-state">State</div>
+{#    <div class="order-cell order-state">State</div>#}
     <div class="order-cell order-ordered-date">Ordered</div>
     <div class="order-cell order-made-date">Made</div>
     <div class="order-cell order-pickup-date">Picked up</div>
@@ -39,8 +39,8 @@
 </div>
 {% for order in order_list %}
 <div class="orders-row">
-    <div class="order-cell order-state">{{ order.state }}</div>
-    <div class="order-cell order-ordered-date">{{ order.date_ordered }}</div>
+{#    <div class="order-cell order-state">{{ order.state }}</div>#}
+    <div class="order-cell order-ordered-date">{{ order.date_ordered|date:"n/j/y" }}</div>
     <div class="order-cell order-made-date">{% if order.date_made %}&check;{% endif %}</div>
     <div class="order-cell order-pickup-date">{% if order.pickup_date %}&check;{% endif %}</div>
     <div class="order-cell order-paid-date">{% if order.date_paid %}&check;{% endif %}</div>
