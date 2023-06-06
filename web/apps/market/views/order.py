@@ -17,6 +17,11 @@ class OrderCreateView(generic.CreateView):
         'who',
         # 'sale_price',
         # 'material_cost',
+        'expected_date',
+        'expected_time',
+        'who_is_picking_up',
+        'reason_for_order',
+        'contact_number',
     ]
 
     def get_success_url(self):

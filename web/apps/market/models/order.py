@@ -28,7 +28,12 @@ class Order(sc_models.UUIDModel):
     who = sc_fields.CharField()
     sale_price = sc_fields.MoneyField(help_text="sale price for all items in the order")
     material_cost = sc_fields.MoneyField(help_text="cost of materials for all items in the order.")
-
+    expected_date = models.DateField(null=True, blank=True)
+    expected_time = models.TimeField(null=True, blank=True)  # TODO: Or should this be 'morning', 'afternoon'?
+    who_is_picking_up = sc_fields.CharField(help_text="If different than 'who'")
+    reason_for_order = sc_fields.CharField(help_text="Because people keep asking me.")
+    how_paid = sc_fields.CharField(help_text="card/cash/gift certificate.  Is this even needed?")
+    contact_number = sc_fields.CharField(help_text="In case there is an issue and/or pickup is delayed")
     objects = OrderManager()
 
     class Meta:

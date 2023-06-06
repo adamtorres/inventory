@@ -33,6 +33,11 @@
 <div>
     Who: {{ order.who }}
 </div>
+<div>Expected Date: {{ order.expected_date }}</div>
+<div>Expected Time: {{ order.expected_time|default_if_none:"" }}</div>
+<div>Picked up by: {{ order.who_is_picking_up }}</div>
+<div>Reason for Order: {{ order.reason_for_order }}</div>
+<div>Contact Number: {{ order.contact_number }}</div>
 <div class="dates-row">
     <div class="date-card">
         <div class="dates-cell dates-cell-ordered">Ordered</div>

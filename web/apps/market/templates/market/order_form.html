@@ -10,11 +10,11 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Save">
+    <input class="btn btn-primary" type="submit" value="Save">
 </form>
 
 <div>
-    <a href="{% url "market:order_list" %}">Back to list</a>
+    <a class="btn btn-secondary" href="{% url "market:order_list" %}">Back to list</a>
 </div>
 {% endblock %}
 

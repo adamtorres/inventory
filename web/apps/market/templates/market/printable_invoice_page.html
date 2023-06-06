@@ -1,0 +1,116 @@
+{% load humanize %}
+{% load static %}
+
+<div class="invoice-header">
+<span class="invoice-blue-header">STATEMENT{% if copy == "office" %} - OFFICE COPY{% endif %}</span>
+<div class="invoice-header-details">
+    <div class="left-block">
+        <div>Date {{ order.pickup_date|default_if_none:order.date_made|default_if_none:order.date_ordered }}</div>
+        <div>Statement # 001</div>
+        <div>Bear Lake Senior Center/</div>
+        <div>Community Center</div>
+        <div>115 S. 4<sup>th</sup> St.</div>
+        <div>Montpelier, ID 83254</div>
+        <div>&nbsp;</div>
+        <div>208-847-3141</div>
+        <div>seniorcenterbearlake@gmail.com</div>
+        <div>Thank you!</div>
+    </div>
+    <div class="right-block">
+        <div>{% if copy == "customer" %}BILL TO{% else %}Placed by{% endif %}: {{ order.who }}</div>
+        {% if copy == "office" %}
+            <div>Who is picking up: {{ order.who_is_picking_up }}</div>
+            <div>Reason for order: {{ order.reason_for_order }}</div>
+            <div>How paid: {{ order.how_paid }}</div>
+            <div>Contact number: {{ order.contact_number }}</div>
+        {% endif %}
+    </div>
+</div>
+</div>
+<div class="invoice-body">
+<div class="invoice-item-list">
+    <div class="iil-date-col">
+        <div class="iilh-header iilh-date">DATE</div>
+        <div class="iil-body invoice-item-list-items-dates {% if forloop.first %}first-row{% endif %}">
+            {% for order_line_item in order.line_items.all %}
+                <div class="iili-list iili-date">&nbsp;</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="iil-description-col">
+        <div class="iilh-header iilh-description">DESCRIPTION</div>
+        <div class="iil-body invoice-item-list-items-descriptions {% if forloop.first %}first-row{% endif %}">
+            {% for order_line_item in order.line_items.all %}
+                <div class="iili-list iili-description">{{ order_line_item }}</div>
+            {% endfor %}
+            <div class="iili-list iili-thank-you">
+                Thank you for supporting the Bear Lake Senior Center
+            </div>
+        </div>
+    </div>
+    <div class="iil-balance-col">
+        <div class="iilh-header iilh-balance">BALANCE</div>
+        <div class="iil-body invoice-item-list-items-balances {% if forloop.first %}first-row{% endif %}">
+            {% for order_line_item in order.line_items.all %}
+                <div class="iili-list iili-description">{{ order_line_item.sale_price_per_pack|floatformat:2|intcomma }}/{{ order_line_item.pack_quantity_str }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="iil-amount-col">
+        <div class="iilh-header iilh-amount">AMOUNT</div>
+        <div class="iil-body invoice-item-list-items-amounts {% if forloop.first %}first-row{% endif %}">
+            {% for order_line_item in order.line_items.all %}
+                <div class="iili-list iili-amount">{{ order_line_item.sale_price|floatformat:2|intcomma }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="invoice-item-list-totals-header">
+    <div class="iilh-header iilh-current">CURRENT</div>
+    <div class="iilh-header iilh-past-due-1-30-days">1-30 DAYS PAST DUE</div>
+    <div class="iilh-header iilh-past-due-31-60-days">31-60 DAYS PAST DUE</div>
+    <div class="iilh-header iilh-past-due-61-90-days">61-90 DAYS PAST DUE</div>
+    <div class="iilh-header iilh-past-due-91-plus-days">OVER 90 DAYS PAST DUE</div>
+    <div class="iilh-header iilh-amount-due">AMOUNT DUE</div>
+</div>
+<div class="invoice-item-list-totals">
+    <div class="iili-list iili-current">&nbsp;</div>
+    <div class="iili-list iili-past-due-1-30-days">&nbsp;</div>
+    <div class="iili-list iili-past-due-31-60-days">&nbsp;</div>
+    <div class="iili-list iili-past-due-61-90-days">&nbsp;</div>
+    <div class="iili-list iili-past-due-91-plus-days">&nbsp;</div>
+    <div class="iili-list iili-amount-due dollar-cell right-align">{{ order.sale_price|floatformat:2|intcomma }}</div>
+</div>
+<div class="invoice-remittance">
+    <div class="left-block">
+        <div>Thank you for your payment.</div>
+    </div>
+    <div class="right-block">
+        <div class="">
+            <div class="invoice-remittance-header">REMITTANCE</div>
+            <div class="remittance-row">
+                <div class="left-block">Statement #</div>
+                <div class="right-block">&nbsp;</div>
+            </div>
+            <div class="remittance-row">
+                <div class="left-block">Check #</div>
+                <div class="right-block">&nbsp;</div>
+            </div>
+            <div class="remittance-row">
+                <div class="left-block">Amount</div>
+                <div class="right-block">&nbsp;</div>
+            </div>
+            <div class="remittance-row">
+                <div class="left-block">Amount Enclosed</div>
+                <div class="right-block">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="invoice-footer">
+    <div class="">Make all checks payable to Bear Lake Senior Center</div>
+    <div class="invoice-footer-thanks">Thank you for your business!</div>
+    <div class="">Tweaked design</div>
+</div>

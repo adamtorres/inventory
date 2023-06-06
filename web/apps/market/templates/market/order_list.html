@@ -54,13 +54,13 @@
 </div>
 <div>
     {% if include_completed %}
-    <a href="{% url "market:order_list" %}">Hide Completed Orders</a>
+    <a class="btn btn-warning" href="{% url "market:order_list" %}">Hide Completed Orders</a>
     {% else %}
-    <a href="{% url "market:order_list" %}?completed=true">Show Completed Orders</a>
+    <a class="btn btn-warning" href="{% url "market:order_list" %}?completed=true">Show Completed Orders</a>
     {% endif %}
 </div>
 <div>
-    <a href="{% url "market:order_create" %}">Add Order</a>
+    <a class="btn btn-secondary" href="{% url "market:order_create" %}">Add Order</a>
 </div>
 {% endblock %}
 
