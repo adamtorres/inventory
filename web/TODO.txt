@@ -6,3 +6,10 @@ Pages:
 > Missed invoice 2022-08-11-sysco-485406667.jpg
 > String cheese pack/unit quantity missing.  Filled in 160 based on others but doesn't look right.  cryptic_name like '%cheese%string%' and delivered_date > current_date - '12 months'::interval
 > Market:Order - redo quantity such that a $/dz is specified and an arbitrary quantity entered.  Orders 27 and $5.50/dz = $12.375
+> Add recipe with linked ingredients.
+  > Need placeholder ingredients for ones which do not yet exist.
+  > Price the ingredients for the quantity used.
+    > Need conversions like in the average measure report from the site combined with the "Latest Pricing" sheet
+    > Would it be helpful to have the price of an order?  As in, full package price for if none of the ingredient is on hand?
+!> Ability to export/import without duplicating data
+  > So I can do some kind of backup and keep home and center in sync.
