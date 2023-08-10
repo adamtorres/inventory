@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Recipe : New Recipe{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+</form>
+
+{% if recipe.id %}
+<div>
+    <a href="{% url "recipe:recipe_detail" pk=recipe.id %}">Cancel</a>
+</div>
+{% endif %}
+<div>
+    <a href="{% url "recipe:recipe_list" %}">Back to list</a>
+</div>
+
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'inventory.apps.InventoryConfig',
     'market.apps.MarketConfig',
     'conversion.apps.ConversionConfig',
+    'recipe.apps.RecipeConfig',
 ]
 
 MIDDLEWARE = [

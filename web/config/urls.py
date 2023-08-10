@@ -32,6 +32,7 @@ urlpatterns = [
     path('inventory/', urls.include('inventory.urls', namespace="inventory")),
     path('market/', urls.include('market.urls', namespace="market")),
     path('conversion/', urls.include('conversion.urls', namespace="conversion")),
+    path('recipe/', urls.include('recipe.urls', namespace="recipe")),
 
     path('', generic.RedirectView.as_view(
         pattern_name="inventory:sourceitem_search", permanent=False), name="homepage"),
