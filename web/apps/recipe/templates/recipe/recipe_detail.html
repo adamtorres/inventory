@@ -4,6 +4,12 @@
 {% block title %}Recipe : {{ recipe.name }}{% endblock %}
 
 {% block styles %}
+<style href="{% static "css/font-awesome.css" %}"></style>
+<style>
+.pinned_comment {
+
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -14,7 +20,16 @@
 <div>Acceptance Rating: {{ recipe.star_acceptance }}</div>
 <div>Effort Rating: {{ recipe.star_effort }}</div>
 <div>Common Multipliers: {{ recipe.common_multipliers }}</div>
-
+<div>
+<ul>
+{% for comment in recipe.pinned_comments %}
+    <li class="pinned_comment"><span class="fa fa-thumb-tack"></span> {{ comment.comment }}</li>
+{% endfor %}
+{% for comment in recipe.unpinned_comments %}
+    <li class="comment">{{ comment.comment }}</li>
+{% endfor %}
+</ul>
+</div>
 <div>
     <a href="{% url "recipe:recipe_update" pk=recipe.id %}">Edit Recipe</a>
 </div>

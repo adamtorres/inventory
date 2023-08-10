@@ -2,7 +2,7 @@
 from django.contrib.postgres import fields as pg_fields
 from django.db import models
 
-from scrap import models as sc_models
+from scrap import models as sc_models, utils as sc_utils
 from scrap.models import fields as sc_fields
 
 
@@ -18,5 +18,10 @@ class Recipe(sc_models.DatedModel):
     common_multipliers = pg_fields.ArrayField(models.IntegerField(), default=list, help_text="")
 
     def __str__(self):
-        description = self.description if len(self.description) < 47 else f"{self.description[:47]}..."
-        return f"{self.name}, {description}"
+        return f"{self.name}, {sc_utils.cutoff(self.description)}"
+
+    def pinned_comments(self):
+        return self.comments.filter(pinned=True).order_by('-created')
+
+    def unpinned_comments(self):
+        return self.comments.filter(pinned=False).order_by('-created')
