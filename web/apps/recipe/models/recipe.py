@@ -18,4 +18,5 @@ class Recipe(sc_models.DatedModel):
     common_multipliers = pg_fields.ArrayField(models.IntegerField(), default=list, help_text="")
 
     def __str__(self):
-        return f"Recipe({self.id})"
+        description = self.description if len(self.description) < 47 else f"{self.description[:47]}..."
+        return f"{self.name}, {description}"

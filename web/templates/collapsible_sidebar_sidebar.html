@@ -32,6 +32,12 @@
                 <li><a href="{% url "conversion:measure_list" %}" class="link-light rounded">Measures</a></li>
             </ul>
         </li>
+        <li class="">
+            <a href="#RecipeSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Recipes</a>
+            <ul class="collapse list-unstyled" id="RecipeSubmenu">
+                <li><a href="{% url "recipe:recipe_list" %}" class="link-light rounded">Recipes</a></li>
+            </ul>
+        </li>
     </ul>
 
     <ul class="list-unstyled CTAs">

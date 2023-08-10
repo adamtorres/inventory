@@ -23,6 +23,8 @@ class RecipeListView(generic.ListView):
 
 class RecipeUpdateView(generic.UpdateView):
     model = rcp_models.Recipe
+    fields = [
+        'name', 'source', 'description', 'reason_to_not_make', 'star_acceptance', 'star_effort', 'common_multipliers']
 
     def get_success_url(self):
         return urls.reverse('recipe:recipe_detail', args=(self.object.id,))
