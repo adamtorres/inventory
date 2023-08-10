@@ -33,6 +33,7 @@ class ItemListView(generic.ListView):
 
 class ItemUpdateView(generic.UpdateView):
     model = mkt_models.Item
+    fields = ['name', 'category', 'tags', 'material_cost_per_item']
 
     def form_valid(self, form):
         messages.success(self.request, f"Updated {self.object}.")
