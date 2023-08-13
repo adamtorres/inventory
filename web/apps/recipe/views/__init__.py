@@ -1,1 +1,1 @@
-from .recipe import RecipeCreateView, RecipeDetailView, RecipeListView, RecipeUpdateView
+from .recipe import RecipeCommentUpdateView, RecipeCreateView, RecipeDetailView, RecipeListView, RecipeUpdateView

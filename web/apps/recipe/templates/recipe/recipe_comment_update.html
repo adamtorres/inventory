@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Recipe : {{ recipe.name }} Comments{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.management_form }}
+    {{ form.non_form_errors }}
+    {% for hidden_field in form.hidden_fields %}
+        {{ hidden_field.errors }}
+    {% endfor %}
+    <table id="formset-table">
+        <thead>
+            <tr>
+                <th>{{ form.empty_form.DELETE.label }}</th>
+                <th>{{ form.empty_form.pinned.label }}</th>
+                <th>{{ form.empty_form.comment.label }}</th>
+            </tr>
+        </thead>
+        <tbody id="formset-table-body">
+        <tr class='form-row' id='empty-form' style="display:none;">
+            {{ form.empty_form.as_table }}
+        </tr>
+        {% for recipe_comment_form in form.forms %}
+            <tr>
+                {{ recipe_comment_form.as_table }}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new comment</a></div>
+    <input type="submit" value="Save">
+</form>
+
+<div>
+    <a class="btn btn-primary" href="{% url "recipe:recipe_detail" pk=object.pk %}">Cancel</a>
+</div>
+<div>
+    <a class="btn btn-danger" href="{% url "recipe:recipe_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static 'js/add_new_form.js' %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    {#autocomplete_url = "{% url 'inc_autocomplete_items' %}";#}
+    form_name = "recipe_comments";
+    after_add_focus_suffix = "-comment";
+    formset_container_id = "formset-table-body";
+    {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
+    {#autocomplete_display_field = "name";#}
+})
+</script>
+
+{% endblock %}

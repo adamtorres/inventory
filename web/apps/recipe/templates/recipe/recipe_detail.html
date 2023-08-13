@@ -21,20 +21,21 @@
 <div>Effort Rating: {{ recipe.star_effort }}</div>
 <div>Common Multipliers: {{ recipe.common_multipliers }}</div>
 <div>
-<ul>
-{% for comment in recipe.pinned_comments %}
-    <li class="pinned_comment"><span class="fa fa-thumb-tack"></span> {{ comment.comment }}</li>
-{% endfor %}
-{% for comment in recipe.unpinned_comments %}
-    <li class="comment">{{ comment.comment }}</li>
-{% endfor %}
-</ul>
+    <ul>
+    {% for comment in recipe.pinned_comments %}
+        <li class="pinned_comment"><span class="fa fa-thumb-tack"></span> {{ comment.comment }}</li>
+    {% endfor %}
+    {% for comment in recipe.unpinned_comments %}
+        <li class="comment">{{ comment.comment }}</li>
+    {% endfor %}
+    </ul>
+    <a class="btn btn-primary" href="{% url "recipe:recipe_comment_update" pk=recipe.pk %}">Add/Remove Comments</a>
 </div>
 <div>
-    <a href="{% url "recipe:recipe_update" pk=recipe.id %}">Edit Recipe</a>
+    <a class="btn btn-secondary" href="{% url "recipe:recipe_update" pk=recipe.id %}">Edit Recipe</a>
 </div>
 <div>
-    <a href="{% url "recipe:recipe_list" %}">Back to list</a>
+    <a class="btn btn-danger" href="{% url "recipe:recipe_list" %}">Back to list</a>
 </div>
 {% endblock %}
 

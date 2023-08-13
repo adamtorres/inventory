@@ -1,0 +1,28 @@
+{# Used by urls.reverse("recipe_comment_update") #}
+{# which points to RecipeCommentUpdateView #}
+{# which uses RecipeCommentFormSet #}
+{# which uses RecipeCommentForm #}
+{# which uses this file. #}
+{% if form.instance.id %}
+  <!-- existing item -->
+{% else %}
+  <!-- new item -->
+{% endif %}
+    <td class="delete_col">
+        {{ form.DELETE.errors }}
+        {{ form.DELETE }}
+        <span id="hidden-fields-{{ form.instance.id }}">
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field.errors }}
+                {{ hidden_field }}
+            {% endfor %}
+        </span>
+    </td>
+    <td class="pinned_col">
+        {{ form.pinned.errors }}
+        {{ form.pinned }}
+    </td>
+    <td class="comment_col">
+        {{ form.comment.errors }}
+        {{ form.comment }}
+    </td>

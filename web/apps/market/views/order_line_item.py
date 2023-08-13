@@ -1,5 +1,4 @@
-from django import urls
-from django import http
+from django import http, urls
 from django.views import generic
 
 from market import models as mkt_models, forms as mkt_forms
@@ -21,6 +20,7 @@ class OrderLineItemEditView(generic.detail.SingleObjectMixin, generic.FormView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        # TODO: Is this needed?  Or was this stubbed to add some logging?
         return super().get_context_data(**kwargs)
 
     def get_form(self, form_class=None):
