@@ -35,6 +35,7 @@
         <li class="">
             <a href="#RecipeSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Recipes</a>
             <ul class="collapse list-unstyled" id="RecipeSubmenu">
+                <li><a href="{% url "recipe:item_list" %}" class="link-light rounded">Items</a></li>
                 <li><a href="{% url "recipe:recipe_list" %}" class="link-light rounded">Recipes</a></li>
             </ul>
         </li>

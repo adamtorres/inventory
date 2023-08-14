@@ -9,7 +9,7 @@ from scrap.models import fields as sc_fields
 class RecipeStep(sc_models.DatedModel):
     recipe = models.ForeignKey(
         "recipe.Recipe", on_delete=models.CASCADE, related_name="steps", related_query_name="steps")
-    step_number = models.IntegerField(default=1)  # This is used for display so start at 1 instead of 0.
+    step_number = models.IntegerField(default=1)
     optional = models.BooleanField(default=False, null=False, help_text="Can this step be skipped?")
     text = sc_fields.CharField(max_length=2048)
 

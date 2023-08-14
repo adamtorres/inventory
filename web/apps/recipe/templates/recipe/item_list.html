@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Item : Item List{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<ul>
+{% for item in item_list %}
+    <li><a href="{% url "recipe:item_detail" pk=item.pk %}">{{ item.name }}</a></li>
+{% endfor %}
+</ul>
+<div>
+    <a class="btn btn-primary" href="{% url "recipe:item_create" %}">Add Item</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

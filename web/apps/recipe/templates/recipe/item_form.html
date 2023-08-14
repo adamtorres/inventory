@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Item : {% if item.id %}Editing {{ item.name }}{% else %}New Item{% endif %}{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn btn-success"  type="submit" value="Save">
+</form>
+
+{% if item.id %}
+<div>
+    <a class="btn btn-secondary" href="{% url "recipe:item_detail" pk=item.id %}">Cancel</a>
+</div>
+{% endif %}
+<div>
+    <a class="btn btn-danger" href="{% url "recipe:item_list" %}">Back to list</a>
+</div>
+
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Item : {{ item.name }}{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<div>Name: {{ item.name }}</div>
+<div>Likely Source: {{ item.likely_source }}</div>
+<div>Description: {{ item.description }}</div>
+<div>Likely Container: {{ item.likely_container }}</div>
+<hr />
+<div>
+    <a class="btn btn-secondary" href="{% url "recipe:item_update" pk=item.id %}">Edit Item</a>
+</div>
+<div>
+    <a class="btn btn-danger" href="{% url "recipe:item_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

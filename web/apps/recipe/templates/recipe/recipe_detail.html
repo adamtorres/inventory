@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Recipe : {{ recipe.name }}{% endblock %}
 
@@ -24,8 +25,17 @@
 <div>
 Ingredients:
     <ul>
-
+    {% for ingredient in recipe.ingredients.all %}
+        <li class="recipe_ingredient">
+            {% if ingredient.optional %}<span class="text-muted">(optional)</span>{% endif %}
+            {% if ingredient.metric_quantity %} {{ ingredient.metric_quantity|floatformat:-2|intcomma }} {{ ingredient.metric_unit }} {% endif %}
+            {% if ingredient.us_quantity %} {{ ingredient.us_quantity|floatformat:-2|intcomma }} {{ ingredient.us_unit }} {% endif %}
+            {{ ingredient.item }}
+            {% if ingredient.pre_preparation %}: {{ ingredient.pre_preparation }}{% endif %}
+        </li>
+    {% endfor %}
     </ul>
+    <a class="btn btn-primary" href="{% url "recipe:recipe_ingredient_update" pk=recipe.pk %}">Add/Remove Ingredients</a>
 </div>
 <hr />
 <div>
