@@ -16,6 +16,8 @@ class Recipe(sc_models.DatedModel):
     star_acceptance = models.IntegerField(null=True, help_text="How well did people like it?")
     star_effort = models.IntegerField(null=True, help_text="How much fun was it to make?")
     common_multipliers = pg_fields.ArrayField(models.IntegerField(), default=list, help_text="")
+    # TODO: Baking temp/time, pan placement (does this cookie spread?)
+    # TODO: category: cookie, bread, bar, fudge, cake, cupcake, unspecified dessert, entree, etc
 
     def __str__(self):
         return f"{self.name}, {sc_utils.cutoff(self.description)}"
