@@ -11,4 +11,5 @@ urlpatterns = [
     urls.path("recipe/new", r_views.RecipeCreateView.as_view(), name="recipe_create"),
     urls.path("recipe/<uuid:pk>/edit", r_views.RecipeUpdateView.as_view(), name="recipe_update"),
     urls.path("recipe/<uuid:pk>/comments", r_views.RecipeCommentUpdateView.as_view(), name="recipe_comment_update"),
+    urls.path("recipe/<uuid:pk>/steps", r_views.RecipeStepUpdateView.as_view(), name="recipe_step_update"),
 ]

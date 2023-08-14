@@ -22,6 +22,14 @@
 <div>Common Multipliers: {{ recipe.common_multipliers }}</div>
 <div>
     <ul>
+    {% for step in recipe.steps.all %}
+        <li class="recipe_step">{{ step.step_number }} {{ step.text }}</li>
+    {% endfor %}
+    </ul>
+    <a class="btn btn-primary" href="{% url "recipe:recipe_step_update" pk=recipe.pk %}">Add/Remove Steps</a>
+</div>
+<div>
+    <ul>
     {% for comment in recipe.pinned_comments %}
         <li class="pinned_comment"><span class="fa fa-thumb-tack"></span> {{ comment.comment }}</li>
     {% endfor %}
