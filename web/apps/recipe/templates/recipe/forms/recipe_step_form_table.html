@@ -16,11 +16,9 @@
                 {{ hidden_field.errors }}
                 {{ hidden_field }}
             {% endfor %}
+            {{ form.ORDER.errors }}
+            {{ form.ORDER.as_hidden }}
         </span>
-    </td>
-    <td class="ORDER_col">
-        {{ form.ORDER.errors }}
-        {{ form.ORDER }}
     </td>
     <td class="optional_col">
         {{ form.optional.errors }}

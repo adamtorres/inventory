@@ -3,6 +3,8 @@ import logging
 from django import http, urls
 from django.views import generic
 
+from scrap import utils as sc_utils
+
 from recipe import models as rcp_models, forms as rcp_forms
 
 
@@ -71,9 +73,10 @@ class RecipeStepUpdateView(generic.detail.SingleObjectMixin, generic.FormView):
     object = None
 
     def form_valid(self, form):
-        # TODO: Get ordering to work after steps can be added reliably
-        # for step_form in form.ordered_forms:
-        #     logger.debug(f"RecipeStepUpdateView.form_valid: {step_form}")
+        for i, step_form in enumerate(form.ordered_forms):
+            step_form.save(commit=False)
+            step_form.instance.step_number = i + 1
+            step_form.save()  # Thought the form.save would handle this but step_number wasn't being changed.
         form.save()
         # TODO: messages.add_message(blah)
         return http.HttpResponseRedirect(self.get_success_url())

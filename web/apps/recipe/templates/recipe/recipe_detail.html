@@ -20,15 +20,26 @@
 <div>Acceptance Rating: {{ recipe.star_acceptance }}</div>
 <div>Effort Rating: {{ recipe.star_effort }}</div>
 <div>Common Multipliers: {{ recipe.common_multipliers }}</div>
+<hr />
 <div>
+Ingredients:
+    <ul>
+
+    </ul>
+</div>
+<hr />
+<div>
+Steps:
     <ul>
     {% for step in recipe.steps.all %}
-        <li class="recipe_step">{{ step.step_number }} {{ step.text }}</li>
+        <li class="recipe_step">{{ step.text }}</li>
     {% endfor %}
     </ul>
     <a class="btn btn-primary" href="{% url "recipe:recipe_step_update" pk=recipe.pk %}">Add/Remove Steps</a>
 </div>
+<hr />
 <div>
+Comments:
     <ul>
     {% for comment in recipe.pinned_comments %}
         <li class="pinned_comment"><span class="fa fa-thumb-tack"></span> {{ comment.comment }}</li>
@@ -39,6 +50,7 @@
     </ul>
     <a class="btn btn-primary" href="{% url "recipe:recipe_comment_update" pk=recipe.pk %}">Add/Remove Comments</a>
 </div>
+<hr />
 <div>
     <a class="btn btn-secondary" href="{% url "recipe:recipe_update" pk=recipe.id %}">Edit Recipe</a>
 </div>
