@@ -12,5 +12,8 @@ class RecipeComment(sc_models.DatedModel):
     comment = sc_fields.CharField(max_length=2048)
     pinned = models.BooleanField(default=False, help_text="Pinned comments will appear at the top of the list.")
 
+    class Meta:
+        ordering = ["recipe", "-pinned", "-created"]
+
     def __str__(self):
         return f"{self.modified}: {sc_utils.cutoff(self.comment)}"

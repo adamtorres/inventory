@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Recipe : {{ recipe.name }}{% endblock %}
+{% block title %}Recipe : Delete {{ recipe.name }}?{% endblock %}
 
 {% block styles %}
 <style href="{% static "css/font-awesome.css" %}"></style>
@@ -14,6 +14,13 @@
 {% endblock %}
 
 {% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn btn-success"  type="submit" value="Delete?">
+</form>
+
+
 <div>Name: {{ recipe.name }}</div>
 <div>Source: {{ recipe.source }}</div>
 <div>Description: {{ recipe.description }}</div>
@@ -35,7 +42,6 @@ Ingredients:
         </li>
     {% endfor %}
     </ul>
-    <a class="btn btn-primary" href="{% url "recipe:recipe_ingredient_update" pk=recipe.pk %}">Add/Remove Ingredients</a>
 </div>
 <hr />
 <div>
@@ -45,7 +51,6 @@ Steps:
         <li class="recipe_step">{{ step.text }}</li>
     {% endfor %}
     </ul>
-    <a class="btn btn-primary" href="{% url "recipe:recipe_step_update" pk=recipe.pk %}">Add/Remove Steps</a>
 </div>
 <hr />
 <div>
@@ -58,17 +63,11 @@ Comments:
         <li class="comment">{{ comment.comment }}</li>
     {% endfor %}
     </ul>
-    <a class="btn btn-primary" href="{% url "recipe:recipe_comment_update" pk=recipe.pk %}">Add/Remove Comments</a>
 </div>
 <hr />
+
 <div>
-    <a class="btn btn-success" href="{% url "recipe:recipe_clone" pk=recipe.id %}">Clone Recipe</a>
-</div>
-<div>
-    <a class="btn btn-secondary" href="{% url "recipe:recipe_update" pk=recipe.id %}">Edit Recipe</a>
-</div>
-<div>
-    <a class="btn btn-dark" href="{% url "recipe:recipe_delete" pk=recipe.id %}">Delete Recipe</a>
+    <a class="btn btn-secondary" href="{% url "recipe:recipe_detail" pk=recipe.id %}">Cancel</a>
 </div>
 <div>
     <a class="btn btn-danger" href="{% url "recipe:recipe_list" %}">Back to list</a>
