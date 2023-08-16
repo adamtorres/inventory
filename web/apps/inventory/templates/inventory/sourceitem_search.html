@@ -89,7 +89,7 @@ label {
 
 {% block content %}
 <div class="container-fluid" id="lookup-content">
-    <div id="filter-controls">
+<div id="filter-controls">
         <div class="row">
             <div class="col-sm-2 btn btn-warning" id="clear_form"><span >Clear Form</span></div>
         </div>
@@ -173,6 +173,15 @@ label {
             <input type="hidden" id="filter-pick-first" class="filter-input" value="{{ pass_in_pick_first }}" />
         </div>
     </div>
+<div>
+<button class="test-btn">Test values</button>
+<form action="{% url "inventory:sourceitem_save_search" %}" method="get" id="save_search_form">
+    {% csrf_token %}
+<div id="save-search-fields"></div>
+<input id="save-search-btn" type="submit" value="Save Search" />
+</form>
+
+</div>
 </div>
 <div id="calculation-div">
     <h5>
@@ -741,6 +750,24 @@ function setup_event_handlers() {
     });
     $("#clear_form").on("click", clear_form);
     $("#calc-adjust-selected-item-inventory-quantity").on("click", adjust_selected_item_inventory_quantity);
+
+    $('.test-btn').on('click', function() {
+        $("#filter-quantity").val(42);
+        $("#filter-unit-size").val("unit-size value");
+        $("#filter-item-name").val("item-name value");
+        $("#filter-item-code").val("item-code value");
+        $("#filter-comment").val("comment value");
+        $("#filter-order-number").val("order-number value");
+    });
+
+    $('#save_search_form').on('submit', function() {
+        let values = get_values_to_save($('#save_search_form'));
+        if (values["empty"]) {
+            // Should refuse to save an empty search
+            return false;
+        }
+        {#return false;#}
+    });
 }
 function prepare_remaining_quantity_controls(_selected_row) {
     let nbr_ctrl = $("#calc-selected-item-inventory-adjustment");

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Save Search{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+    <hr />
+    <h3>GET fields</h3>
+    <ul>
+    {% for key, value in GET.items %}
+        <li>{{ key }}: {{ value }}</li>
+    {% endfor %}
+    </ul>
+    <hr />
+    <h3>POST fields</h3>
+    <ul>
+    {% for key, value in POST.items %}
+        <li>{{ key }}: {{ value }}</li>
+    {% endfor %}
+    </ul>
+    <hr />
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -34,6 +34,7 @@ urlpatterns = [
     urls.path("sourceitem/order/<str:source>/<str:order_number>/<str:delivered_date>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items_with_date"),
     urls.path("sourceitem/order/<str:source>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items"),
     urls.path("sourceitem/search/", i_views.SourceItemSearchView.as_view(), name="sourceitem_search"),
+    urls.path("sourceitem/search/save", i_views.SourceItemSaveSearchView.as_view(), name="sourceitem_save_search"),
     urls.path("sourceitem/stats/", i_views.SourceItemStatsView.as_view(), name="sourceitem_stats"),
     urls.path("sourceitem/create/", i_views.SourceItemCreateView.as_view(), name="sourceitem_create"),
 ]

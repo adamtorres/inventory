@@ -90,6 +90,64 @@ function new_item(data) {
     $(window).trigger(new_filtered_item_event_name, item_clone);
     return item_clone;
 }
+function get_values_to_save(save_search_form) {
+    /* Takes the values of the fields get_values_to_send would use and returns them in an object. */
+    let values_to_send = {
+        empty: true,
+        "wide_filter_fields": []
+    };
+    let save_search_fields_container = $(save_search_form.find("#save-search-fields")[0]);
+    console.log(save_search_fields_container);
+    save_search_fields_container.empty();
+    // filter_input_fields is a list of dict: {element: "#filter-item-id", ajax_var: "item_id"},
+    filter_input_fields.forEach(tag => {
+        let tag_obj = $(tag['element']);
+        if (tag_obj.length === 1) {
+            // Text boxes only?
+            values_to_send[tag["element"]] = tag_obj.val().trim();
+            values_to_send["wide_filter_fields"].push(tag['ajax_var']);
+            if (values_to_send[tag["element"]] !== "") {
+                values_to_send['empty'] = false;
+            }
+            // Create a hidden field in the save form so the POST can get its value.
+            // brittle at the moment as it depends on text fields being identified by id.
+            $("<input type='hidden' value='' />")
+              .attr("id", `save-${tag['element'].replace('#', '')}`)
+              .attr("name", `save-${tag['element'].replace('#', '')}`)
+              .prependTo(save_search_fields_container)
+              .val(tag_obj.val().trim());
+        } else if (tag_obj.length > 1) {
+            // TODO: Work out how to create hidden checkboxes/etc.  Not currently saving them so not a priority.
+            // // checkboxes, radio buttons, maybe select?
+            // $.each(tag_obj, function(index) {
+            //     let obj = $(this);
+            //     if (obj.is("input[type='checkbox']")) {
+            //         if (!(tag['element'] in values_to_send)) {
+            //             values_to_send[tag['element']] = [];
+            //         }
+            //         if (obj.is(":checked")) {
+            //             values_to_send[tag['element']].push(obj.val().trim());
+            //         }
+            //     } else {
+            //         values_to_send[tag['element']] = obj.val().trim();
+            //     }
+            //
+            //     if (!values_to_send["wide_filter_fields"].includes(tag['ajax_var'])) {
+            //         values_to_send["wide_filter_fields"].push(tag['ajax_var']);
+            //     }
+            //     if (!filter_input_empty_if_only.includes(tag['ajax_var'])){
+            //         if ((typeof(values_to_send[tag['element']]) === typeof("string")) && (values_to_send[tag['element']] !== "")) {
+            //             values_to_send['empty'] = false;
+            //         } else if ((typeof(values_to_send[tag['element']]) === typeof(['an', 'array'])) && (values_to_send[tag['element']].length !== 0)) {
+            //             values_to_send['empty'] = false;
+            //         }
+            //     }
+            // });
+        }
+    });
+    return values_to_send;
+}
+
 function get_values_to_send() {
     let values_to_send = {
         empty: true,

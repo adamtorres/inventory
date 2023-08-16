@@ -3,6 +3,24 @@ from django.views import generic
 from inventory import models as inv_models
 
 
+class SourceItemSaveSearchView(generic.TemplateView):
+    template_name = "inventory/sourceitem_save_search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["POST"] = self.request.POST
+        context["GET"] = self.request.GET
+        return context
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+
 class SourceItemSearchView(generic.TemplateView):
     template_name = "inventory/sourceitem_search.html"
 
