@@ -1,6 +1,11 @@
+import logging
+
 from django.views import generic
 
 from inventory import models as inv_models
+
+
+logger = logging.getLogger(__name__)
 
 
 class SourceItemSaveSearchView(generic.TemplateView):
@@ -14,6 +19,17 @@ class SourceItemSaveSearchView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+
+        search_criteria_to_save = {}
+        for k in request.POST.keys():
+            if k.startswith("save-") and request.POST[k]:
+                search_criteria_to_save[k] = request.POST[k]
+        if search_criteria_to_save:
+            obj = inv_models.SearchCriteria.objects.create(
+                name=request.POST["search-criteria-name"], description=request.POST["search-criteria-description"],
+                criteria=search_criteria_to_save
+            )
+            context["search_criteria"] = obj
         return self.render_to_response(context)
 
     def get(self, request, *args, **kwargs):
@@ -36,4 +52,5 @@ class SourceItemSearchView(generic.TemplateView):
 
         context['sources'] = inv_models.Source.objects.active_sources()
         context['categories'] = inv_models.SourceItem.objects.source_categories()
+        context['saved_searches'] = inv_models.SearchCriteria.objects.all()
         return context

@@ -28,6 +28,7 @@ class SourceItemAdmin(admin.ModelAdmin):
 
 
 admin.site.register(inv_models.CommonName)
+admin.site.register(inv_models.SearchCriteria)
 admin.site.register(inv_models.Source)
 admin.site.register(inv_models.SourceItem, SourceItemAdmin)
 admin.site.register(inv_models.UseTypeOverride)

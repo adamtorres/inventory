@@ -42,3 +42,11 @@ from scrap.models import fields as sc_fields
 class SearchCriteria(sc_models.DatedModel):
     name = sc_fields.CharField(help_text="hopefully unique name of this search")
     description = sc_fields.CharField(help_text="")
+    # Should the fields and values be stored in a single field?  Parallel arrays?  json object?
+    criteria = models.JSONField(default=dict)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name}"
