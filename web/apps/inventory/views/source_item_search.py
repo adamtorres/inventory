@@ -23,7 +23,7 @@ class SourceItemSaveSearchView(generic.TemplateView):
         search_criteria_to_save = {}
         for k in request.POST.keys():
             if k.startswith("save-") and request.POST[k]:
-                search_criteria_to_save[k] = request.POST[k]
+                search_criteria_to_save[k[5:]] = request.POST[k]
         if search_criteria_to_save:
             obj = inv_models.SearchCriteria.objects.create(
                 name=request.POST["search-criteria-name"], description=request.POST["search-criteria-description"],
