@@ -77,7 +77,7 @@ class SearchCriteria(sc_models.DatedModel):
         for crit, value in self.criteria.items():
             logger.debug(f"SearchCriteria.search: crit={crit!r}, value={value!r}")
             ajax_var = self.form_field_to_ajax_var(crit[5:] if crit.startswith("save-") else crit)
-            vts.append((ajax_var, (value,)))
+            vts.append((ajax_var, value))
         qs = SourceItem.objects.wide_filter(vts)
         qs = qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
         qs = qs.order_by().order_by('delivered_date', 'source_id', 'order_number', 'line_item_number')
