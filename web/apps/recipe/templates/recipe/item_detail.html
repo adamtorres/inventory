@@ -11,6 +11,8 @@
 <div>Likely Source: {{ item.likely_source }}</div>
 <div>Description: {{ item.description }}</div>
 <div>Likely Container: {{ item.likely_container }}</div>
+<div>Saved Search: {{ item.saved_search.name }}</div>
+{# TODO: button to see current price? #}
 <hr />
 <div>
     <a class="btn btn-secondary" href="{% url "recipe:item_update" pk=item.id %}">Edit Item</a>

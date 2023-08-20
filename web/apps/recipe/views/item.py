@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class ItemCreateView(generic.CreateView):
     model = rcp_models.Item
-    fields = ['name', 'likely_source', 'description', 'likely_container']
+    fields = ['name', 'likely_source', 'description', 'likely_container', 'saved_search']
 
     def get_success_url(self):
         return urls.reverse('recipe:item_detail', args=(self.object.id,))
@@ -27,7 +27,7 @@ class ItemListView(generic.ListView):
 
 class ItemUpdateView(generic.UpdateView):
     model = rcp_models.Item
-    fields = ['name', 'likely_source', 'description', 'likely_container']
+    fields = ['name', 'likely_source', 'description', 'likely_container', 'saved_search']
 
     def get_success_url(self):
         return urls.reverse('recipe:item_detail', args=(self.object.id,))
