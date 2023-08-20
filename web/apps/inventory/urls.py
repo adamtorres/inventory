@@ -12,6 +12,8 @@ app_name = "inventory"
 # api_chart_urls = rf_urls.format_suffix_patterns(api_chart_urls, allowed=['api', 'chartjs'])
 
 urlpatterns = [
+    urls.path("api/saved_search/<uuid:pk>", i_views.APISavedSearchView.as_view(), name="saved_search"),
+
     urls.path(
         "api/sourceitem/autocomplete/", i_views.APISourceItemAutocompleteSearchView.as_view(),
         name="api_sourceitem_autocomplete"),

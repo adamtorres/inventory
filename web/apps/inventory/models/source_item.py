@@ -329,6 +329,25 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         logger.info(f"adjust_quantity|{json.dumps(log_data, sort_keys=True, default=str)}")
         return self.remaining_quantity
 
+    def calculated_pack_cost(self, round_places=-1):
+        """
+        :param round_places: If negative, do not round.  If 0 or positive, round to specified places.
+        :return:
+        """
+        unrounded_pack_cost = self.extended_cost / self.delivered_quantity
+        if round_places < 0:
+            return unrounded_pack_cost
+        return round(unrounded_pack_cost, round_places)
+
+    @property
+    def name(self):
+        """
+        returns the name of the item preferring the more human-readable one and falling back to whatever garbage is on
+        the invoice/receipt.
+        :return:
+        """
+        return self.common_name or self.verbose_name or self.cryptic_name
+
     def use_by_count(self):
         return self.use_type == use_type.BY_COUNT
 
@@ -346,10 +365,17 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         if self.use_by_count():
             return self.delivered_quantity * self.pack_quantity * self.unit_quantity
 
-    def per_use_cost(self):
+    def per_use_cost(self, round_places=-1):
+        """
+        :param round_places: If negative, do not round.  If 0 or positive, round to specified places.
+        :return:
+        """
         if self.initial_quantity() == 0:
             return 0
-        return self.extended_cost / self.initial_quantity()
+        unrounded_per_use_cost = self.extended_cost / self.initial_quantity()
+        if round_places < 0:
+            return unrounded_per_use_cost
+        return round(unrounded_per_use_cost, round_places)
 
     def related_label(self):
         # Used by grappelli autocomplete

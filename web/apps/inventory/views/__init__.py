@@ -1,4 +1,5 @@
 from .api_chart_data import APIChartDataView
+from .api_saved_search import APISavedSearchView
 from .api_source_item_autocomplete_search import APISourceItemAutocompleteSearchView
 from .api_source_item_orders import APISourceItemOrdersView
 from .api_source_item_quantity_adjustment import APISourceItemQuantityAdjustmentView
