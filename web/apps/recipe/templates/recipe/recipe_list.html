@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Recipe : Recipe List{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<ul>
+{% for recipe in recipe_list %}
+    <li><a href="{% url "recipe:recipe_detail" pk=recipe.pk %}">{{ recipe.name }}</a></li>
+{% endfor %}
+</ul>
+<div>
+    <a class="btn btn-primary" href="{% url "recipe:recipe_create" %}">Add Recipe</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -1,0 +1,54 @@
+.conversions {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+.conversion {
+    display: grid;
+    grid-template-columns: repeat(8, 0.75fr);
+    grid-template-areas:
+        "con-item con-item con-item con-item con-item con-item con-from-unit con-to-unit"
+        ". . . . con-min con-avg con-max con-count";
+    border-bottom: black solid 1px;
+}
+.conversion-item {
+    grid-column: con-item;
+}
+.conversion-from-unit {
+    grid-column: con-from-unit;
+}
+.conversion-to-unit {
+    grid-column: con-to-unit;
+}
+.conversion-min {
+    grid-column: con-min;
+}
+.conversion-avg {
+    grid-column: con-avg;
+}
+.conversion-max {
+    grid-column: con-max;
+}
+.conversion-count {
+    grid-column: con-count;
+}
+.conversion-first-date {
+    grid-column: con-first-date;
+    display: none;
+}
+.conversion-last-date {
+    grid-column: con-last-date;
+    display: none;
+}
+@media only screen and (min-width: 1000px) {
+    .conversion {
+        grid-template-columns: 2fr repeat(6, 0.75fr);
+        grid-template-areas:
+            "con-item con-from-unit con-to-unit con-min con-avg con-max con-count";
+    }
+    .conversion-first-date {
+        /*display: block;*/
+    }
+    .conversion-last-date {
+        /*display: block;*/
+    }
+}

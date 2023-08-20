@@ -1,0 +1,631 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Create Source Items{% endblock %}
+
+{% block styles %}
+{{ line_item_formset.media.css }}
+<style>
+* {
+    box-sizing: border-box;
+}
+.non_form_errors, .non_field_errors {
+    border: black solid 1px;
+}
+.order-section {
+}
+.order-table {
+    /* TODO: Should this just be a flex as I don't really care about field placement? */
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "order-delivered-date"
+        "order-source"
+        "order-customer-number"
+        "order-order-number"
+        "order-po-text";
+    display: grid;
+}
+@media only screen and (min-width: 500px){
+    .order-table {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-areas:
+            "order-delivered-date order-source ."
+            "order-customer-number order-order-number order-po-text";
+    }
+}
+@media only screen and (min-width: 1000px){
+    .order-table {
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-areas:
+            "order-delivered-date order-source order-customer-number order-order-number order-po-text";
+    }
+}
+
+.order-header {
+    font-weight: bold;
+    background-color: lightgrey;
+    width: 100%;
+}
+.order-delivered-date {
+    grid-column: order-delivered-date;
+}
+.order-source {
+    grid-column: order-source;
+}
+.order-customer-number {
+    grid-column: order-customer-number;
+}
+.order-order-number {
+    grid-column: order-order-number;
+}
+.duplicate-order-number::after {
+    content: "Order Number Already Exists";
+    color: red;
+}
+.order-po-text {
+    grid-column: order-po-text;
+}
+input, select {
+    width: 100%;
+}
+
+ol.collection {
+    margin: 0px;
+    padding: 0px;
+}
+.sticky {
+    /* Used on a div containing a single-element ol which has the header.
+    Makes the header stick to the visible window */
+    top: 0px;
+    position: sticky;
+    z-index: 1;
+}
+li {
+    list-style: none;
+}
+.line-items-section {
+    position: fixed;
+}
+.empty-form div {
+    /* this is on the li but didn't work without specifying the div */
+    display: none;
+}
+.hidden-fields {
+    display: none;
+}
+/* 2 Column Card Layout */
+@media screen and (max-width: 736px) {
+    .collection-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 20px;
+    }
+    .item {
+        border: 1px solid gray;
+        border-radius: 2px;
+        padding: 10px;
+    }
+    .collection-header>li {
+        display: none;
+    }
+    .attribute::before {
+        content: attr(data-name);
+    }
+    /* Attribute name for first column, and attribute value for second column. */
+    .attribute {
+        display: grid;
+        grid-template-columns: minmax(9em, 30%) 1fr;
+    }
+}
+
+/* 1 Column Card Layout */
+@media screen and (max-width:580px) {
+    .collection-container {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (min-width: 737px) {
+    /* The maximum column width, that can wrap */
+    .item-container {
+        display: grid;
+        grid-template-columns: 2em 4em 1fr 1fr 1fr 1fr 1fr;
+    }
+    .attribute-container {
+        display: grid;
+        /* Attempted to customize the max but doesn't look like it did anything. */
+        grid-template-columns: repeat(auto-fit, minmax(var(--column-width-min), var(--column-width-max)));
+    }
+    .collection {
+        border-top: 1px solid gray;
+    }
+    .collection-header{
+        display: block;
+    }
+    .collection-header>.item-container {
+        background-color: blanchedalmond;
+    }
+
+    /* In order to maximize row lines, only display one line for a cell */
+    .attribute {
+        border-right: 1px solid gray;
+        border-bottom: 1px solid gray;
+        padding: 2px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .with-autocomplete {
+        overflow: visible;
+    }
+    .attribute-header {
+        overflow: unset;
+        white-space: unset;
+        text-overflow: unset;
+    }
+    .item:hover {
+        background-color: rgb(200, 227, 252);
+    }
+    .item-information {
+        /* Contains category, codes, and names */
+        --column-width-min: 20em;
+        --column-width-max: 2fr;
+    }
+    .pack-quantities {
+        /* pack and unit quantities and unit size */
+        --column-width-min: 5em;
+        --column-width-max: 1fr;
+    }
+    .weights {
+        /* total and individual weights */
+        --column-width-min: 5em;
+        --column-width-max: 1fr;
+    }
+    .order-quantity-and-cost {
+        /* pack and extended costs and delivered quantity */
+        --column-width-min: 5em;
+        --column-width-max: 1fr;
+    }
+    .additional-info {
+        /* extra notes and scanned filename (if available) */
+        --column-width-min: 20em;
+        --column-width-max: 2fr;
+    }
+
+}
+
+</style>
+{% endblock %}
+
+{% block head_scripts %}
+{#{{ line_item_formset.media.js }}  Gives the getComputedStyle error#}
+{#<script src="{% static "3rdparty/bootstrap-5.1.3-dist/js/bootstrap.bundle.js" %}"></script>#}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="create-content">
+<pre id="on-page-log">
+Log.
+</pre>
+<hr />
+<span class="test-btn">Populate Test Data</span>
+<hr />
+<form method="post" id="sourceitem-create-form">
+    {% csrf_token %}
+<section class="order-section">
+    <div class="order-table">
+        <div class="order-delivered-date">
+            <div class="order-header">{{ order_form.delivered_date.label }}</div>
+            {{ order_form.delivered_date }}
+            <span class="delivered-today-btn">Today</span>
+        </div>
+        <div class="order-source">
+            <div class="order-header">{{ order_form.source.label }}</div>
+            {{ order_form.source }}
+        </div>
+        <div class="order-customer-number">
+            <div class="order-header">{{ order_form.customer_number.label }}</div>
+            {{ order_form.customer_number }}
+        </div>
+        <div class="order-order-number">
+            <div class="order-header">{{ order_form.order_number.label }}</div>
+            {{ order_form.order_number }}
+        </div>
+        <div class="order-po-text">
+            <div class="order-header">{{ order_form.po_text.label }}</div>
+            {{ order_form.po_text }}
+        </div>
+    </div>
+</section>
+<hr />
+<section class="line-items-section">
+    <p>Need a non-model-driven formset for these.</p>
+    <p>Needs to have +/- and reorder controls.</p>
+    {{ line_item_formset.management_form }}
+    <div class="non_form_errors">
+    {{ line_item_formset.non_form_errors }}
+    </div>
+    <div class="non_field_errors">
+    {{ line_item_formset.non_field_errors }}
+    </div>
+    <div class="sticky">
+        <ol class="collection collection-container collection-header">
+    <li class="header item-container">
+        <div class="attribute" data-comment="select box?"></div>
+        <div class="attribute" data-name="Line Item Number" data-field="line_item_number">#</div>
+        <div class="attribute-container item-information">
+            <div class="attribute attribute-header" data-name="Source Category" data-field="source_category">Source Category</div>
+            <div class="attribute attribute-header" data-name="Item Code" data-field="item_code">Item Code</div>
+            <div class="attribute attribute-header" data-name="Extra Code" data-field="extra_code">Extra Code</div>
+            <div class="attribute attribute-header" data-name="Cryptic Name" data-field="cryptic_name">Cryptic Name</div>
+            <div class="attribute attribute-header" data-name="Verbose Name" data-field="verbose_name">Verbose Name</div>
+            <div class="attribute attribute-header" data-name="Common Name" data-field="common_name">Common Name</div>
+        </div>
+        <div class="attribute-container pack-quantities">
+            <div class="attribute attribute-header" data-name="Pack Quantity" data-field="pack_quantity">Pack Quantity</div>
+            <div class="attribute attribute-header" data-name="Unit Quantity" data-field="unit_quantity">Unit Quantity</div>
+            <div class="attribute attribute-header" data-name="Unit Size" data-field="unit_size">Unit Size</div>
+        </div>
+        <div class="attribute-container weights">
+            <div class="attribute attribute-header" data-name="Total Weight" data-field="total_weight">Total Weight</div>
+            <div class="attribute attribute-header" data-name="Individual Weights" data-field="individual_weights">Individual Weights</div>
+        </div>
+        <div class="attribute-container order-quantity-and-cost">
+            <div class="attribute attribute-header" data-name="Delivered Quantity" data-field="delivered_quantity">Delivered Quantity</div>
+            <div class="attribute attribute-header" data-name="Pack Cost" data-field="pack_cost">Pack Cost</div>
+            <div class="attribute attribute-header" data-name="Extended Cost" data-field="extended_cost">Extended Cost</div>
+        </div>
+        <div class="attribute-container additional-info">
+            <div class="attribute attribute-header" data-name="Extra Notes" data-field="extra_notes">Extra Notes</div>
+            <div class="attribute attribute-header" data-name="Scanned Filename" data-field="scanned_filename">Scanned Filename</div>
+        </div>
+    </li>
+</ol>
+    </div>
+{% include "inventory/autocomplete_source_item_template.html" %}
+<ol class="collection collection-container" id="line_item_list">
+    <li class="item item-container empty-form" id="empty-form" data-form-number="">
+        <div class="hidden-fields">
+            {{ line_item_formset.empty_form.delivered_date|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.source|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.customer_number|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.order_number|set_data:"copy:yup" }}
+            {{ line_item_formset.empty_form.po_text|set_data:"copy:yup" }}
+        </div>
+        <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
+        <div class="attribute" data-name="Line Item Number" data-field="line_item_number">
+            {{ line_item_formset.empty_form.line_item_number.errors }}
+            {{ line_item_formset.empty_form.line_item_number }}
+        </div>
+        <div class="attribute-container item-information">
+            <div class="attribute with-autocomplete" data-name="Source Category" data-field="source_category">
+                {{ line_item_formset.empty_form.source_category.errors }}
+                {{ line_item_formset.empty_form.source_category|attr:"placeholder:category from source" }}
+            </div>
+            <div class="attribute" data-name="Item Code" data-field="item_code">
+                {{ line_item_formset.empty_form.item_code.errors }}
+                {{ line_item_formset.empty_form.item_code|attr:"placeholder:item code" }}
+            </div>
+            <div class="attribute" data-name="Extra Code" data-field="extra_code">
+                {{ line_item_formset.empty_form.extra_code.errors }}
+                {{ line_item_formset.empty_form.extra_code|attr:"placeholder:extra code" }}
+            </div>
+            <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
+                {{ line_item_formset.empty_form.cryptic_name.errors }}
+                {{ line_item_formset.empty_form.cryptic_name|attr:"placeholder:name as appears on invoice/receipt" }}
+            </div>
+            <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
+                {{ line_item_formset.empty_form.verbose_name.errors }}
+                {{ line_item_formset.empty_form.verbose_name|attr:"placeholder:cleaned up cryptic name" }}
+            </div>
+            <div class="attribute" data-name="Common Name" data-field="common_name">
+                {{ line_item_formset.empty_form.common_name.errors }}
+                {{ line_item_formset.empty_form.common_name|attr:"placeholder:a more human-readable name" }}
+            </div>
+        </div>
+        <div class="attribute-container pack-quantities">
+            <div class="attribute" data-name="Pack Quantity" data-field="pack_quantity">
+                {{ line_item_formset.empty_form.pack_quantity.errors }}
+                {{ line_item_formset.empty_form.pack_quantity }}
+            </div>
+            <div class="attribute" data-name="Unit Quantity" data-field="unit_quantity">
+                {{ line_item_formset.empty_form.unit_quantity.errors }}
+                {{ line_item_formset.empty_form.unit_quantity }}
+            </div>
+            <div class="attribute" data-name="Unit Size" data-field="unit_size">
+                {{ line_item_formset.empty_form.unit_size.errors }}
+                {{ line_item_formset.empty_form.unit_size }}
+            </div>
+        </div>
+        <div class="attribute-container weights">
+            <div class="attribute" data-name="Total Weight" data-field="total_weight">
+                {{ line_item_formset.empty_form.total_weight.errors }}
+                {{ line_item_formset.empty_form.total_weight }}
+            </div>
+            <div class="attribute" data-name="Individual Weights" data-field="individual_weights">
+                {{ line_item_formset.empty_form.individual_weights.errors }}
+                {{ line_item_formset.empty_form.individual_weights }}
+            </div>
+        </div>
+        <div class="attribute-container order-quantity-and-cost">
+            <div class="attribute" data-name="Delivered Quantity" data-field="delivered_quantity">
+                {{ line_item_formset.empty_form.delivered_quantity.errors }}
+                {{ line_item_formset.empty_form.delivered_quantity }}
+            </div>
+            <div class="attribute" data-name="Pack Cost" data-field="pack_cost">
+                {{ line_item_formset.empty_form.pack_cost.errors }}
+                {{ line_item_formset.empty_form.pack_cost }}
+            </div>
+            <div class="attribute" data-name="Extended Cost" data-field="extended_cost">
+                {{ line_item_formset.empty_form.extended_cost.errors }}
+                {{ line_item_formset.empty_form.extended_cost }}
+            </div>
+        </div>
+        <div class="attribute-container additional-info">
+            <div class="attribute" data-name="Extra Notes" data-field="extra_notes">
+                {{ line_item_formset.empty_form.extra_notes.errors }}
+                {{ line_item_formset.empty_form.extra_notes|attr:"placeholder:extra notes" }}
+            </div>
+            <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename">
+                {{ line_item_formset.empty_form.scanned_filename.errors }}
+                {{ line_item_formset.empty_form.scanned_filename|attr:"placeholder:scanned filename" }}
+            </div>
+        </div>
+    </li>
+    {% for line_item_form in line_item_formset.forms %}
+        {% if line_item_form.non_form_errors or line_item_form.non_field_errors %}
+        <li>
+            <div class="non_form_errors">
+            {{ line_item_form.non_form_errors }}
+            </div>
+            <div class="non_field_errors">
+            {{ line_item_form.non_field_errors }}
+            </div>
+        </li>
+        {% endif %}
+        <li class="item item-container" data-form-number="{{ forloop.counter0 }}">
+
+            <div class="hidden-fields">
+                <span id="hidden-fields-{{ line_item_form.instance.id }}">
+                    {% for hidden_field in line_item_form.hidden_fields %}
+                        {{ hidden_field.errors }}
+                        {{ hidden_field }}
+                    {% endfor %}
+                </span>
+                {{ line_item_form.delivered_date|set_data:"copy:yup" }}
+                {{ line_item_form.source|set_data:"copy:yup" }}
+                {{ line_item_form.customer_number|set_data:"copy:yup" }}
+                {{ line_item_form.order_number|set_data:"copy:yup" }}
+                {{ line_item_form.po_text|set_data:"copy:yup" }}
+            </div>
+            <div class="attribute" data-comment="select box?"><input type="checkbox" name="" id=""></div>
+            <div class="attribute" data-name="Line Item Number" data-field="line_item_number">
+                {{ line_item_form.line_item_number.errors }}
+                {{ line_item_form.line_item_number }}
+            </div>
+            <div class="attribute-container item-information">
+                <div class="attribute with-autocomplete" data-name="Source Category" data-field="source_category">
+                    {{ line_item_form.source_category.errors }}
+                    {{ line_item_form.source_category }}
+                </div>
+                <div class="attribute" data-name="Item Code" data-field="item_code">
+                    {{ line_item_form.item_code.errors }}
+                    {{ line_item_form.item_code }}
+                </div>
+                <div class="attribute" data-name="Extra Code" data-field="extra_code">
+                    {{ line_item_form.extra_code.errors }}
+                    {{ line_item_form.extra_code }}
+                </div>
+                <div class="attribute" data-name="Cryptic Name" data-field="cryptic_name">
+                    {{ line_item_form.cryptic_name.errors }}
+                    {{ line_item_form.cryptic_name }}
+                </div>
+                <div class="attribute" data-name="Verbose Name" data-field="verbose_name">
+                    {{ line_item_form.verbose_name.errors }}
+                    {{ line_item_form.verbose_name }}
+                </div>
+                <div class="attribute" data-name="Common Name" data-field="common_name">
+                    {{ line_item_form.common_name.errors }}
+                    {{ line_item_form.common_name }}
+                </div>
+            </div>
+            <div class="attribute-container pack-quantities">
+                <div class="attribute" data-name="Pack Quantity" data-field="pack_quantity">
+                    {{ line_item_form.pack_quantity.errors }}
+                    {{ line_item_form.pack_quantity }}
+                </div>
+                <div class="attribute" data-name="Unit Quantity" data-field="unit_quantity">
+                    {{ line_item_form.unit_quantity.errors }}
+                    {{ line_item_form.unit_quantity }}
+                </div>
+                <div class="attribute" data-name="Unit Size" data-field="unit_size">
+                    {{ line_item_form.unit_size.errors }}
+                    {{ line_item_form.unit_size }}
+                </div>
+            </div>
+            <div class="attribute-container weights">
+                <div class="attribute" data-name="Total Weight" data-field="total_weight">
+                    {{ line_item_form.total_weight.errors }}
+                    {{ line_item_form.total_weight }}
+                </div>
+                <div class="attribute" data-name="Individual Weights" data-field="individual_weights">
+                    {{ line_item_form.individual_weights.errors }}
+                    {{ line_item_form.individual_weights }}
+                </div>
+            </div>
+            <div class="attribute-container order-quantity-and-cost">
+                <div class="attribute" data-name="Delivered Quantity" data-field="delivered_quantity">
+                    {{ line_item_form.delivered_quantity.errors }}
+                    {{ line_item_form.delivered_quantity }}
+                </div>
+                <div class="attribute" data-name="Pack Cost" data-field="pack_cost">
+                    {{ line_item_form.pack_cost.errors }}
+                    {{ line_item_form.pack_cost }}
+                </div>
+                <div class="attribute" data-name="Extended Cost" data-field="extended_cost">
+                    {{ line_item_form.extended_cost.errors }}
+                    {{ line_item_form.extended_cost }}
+                </div>
+            </div>
+            <div class="attribute-container additional-info">
+                <div class="attribute" data-name="Extra Notes" data-field="extra_notes">
+                    {{ line_item_form.extra_notes.errors }}
+                    {{ line_item_form.extra_notes }}
+                </div>
+                <div class="attribute" data-name="Scanned Filename" data-field="scanned_filename">
+                    {{ line_item_form.scanned_filename.errors }}
+                    {{ line_item_form.scanned_filename }}
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+</ol>
+<div class=""><a class='add-new-form' href='#'>+ Add new item</a></div>
+<input type="submit" name="save" value="Save">
+</section>
+</form>
+
+</div>
+{# Cannot put anything after the line items because of fixed position.  Need to clean up the html/css. #}
+
+{% endblock %}
+
+{% block body_scripts %}
+{#{{ line_item_formset.media.js }} getComputedStyle error #}
+<script src="{% static "js/csrf_cookie.js" %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/add_new_form.js' %}"></script>
+<script src="{% static 'js/arbitrary_timer.js' %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/autocomplete.js' %}"></script>  {# with bundle.js up top, gives getComputedStyle error.  w/o bundle.js anywhere, works. #}
+{#{{ line_item_formset.media.js }} getComputedStyle error #}
+<script type="application/javascript">
+form_name = 'lineitemform';
+line_item_position_id = 'line_item_number';
+formset_container_id = 'line_item_list';
+after_add_focus_suffix = '-source_category-text';
+copy_from_previous = ['scanned_filename'];
+
+function update_hidden_fields() {
+    let order_section = $("section.order-section");
+    console.log(``)
+    let formset_container = $(`#${formset_container_id}`);
+    formset_container.find("li:not(#empty-form)").each(function() {
+        let item_li = $(this);
+        let form_number = item_li.attr("data-form-number");
+        let form_prefix = `id_${form_name}-${form_number}-`;
+        console.log(`form_prefix = ${form_prefix}`);
+        item_li.find("[data-copy=yup]").each(function() {
+            let input_tag = $(this);
+            let base_tag_name = input_tag.attr('id').replace(form_prefix, "");
+            let order_tag = order_section.find(`#id_${base_tag_name}`);
+            console.log(`input_tag = ${input_tag.attr('id')}, change from '${input_tag.val()}' to '${order_tag.val()}'`);
+            input_tag.val(order_tag.val());
+        });
+    });
+}
+$('#sourceitem-create-form').on('submit', function() {
+    update_hidden_fields();
+    return true;
+});
+$('.delivered-today-btn').on('click', function() {
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let yyyy = today.getFullYear();
+    $('#id_delivered_date').val(yyyy + '-' + mm + '-' + dd);
+});
+$('.test-btn').on('click', function() {
+    // Populates the form enough for quick testing.
+    $('.delivered-today-btn').trigger('click');
+    // Did not work
+    // $("#id_source").val($("#id_source option:first").val());
+    $("#id_source")[0].selectedIndex = 2;
+    $('#id_customer_number').val("cust number");
+    $('#id_order_number').val("order number");
+    $('#id_po_text').val("po text");
+    $('.add-new-form').trigger('click');
+    $('#id_lineitemform-0-source_category-text').val("source_category-text");
+    $('#id_lineitemform-0-item_code').val("item_code");
+    $('#id_lineitemform-0-extra_code').val("extra_code");
+    $('#id_lineitemform-0-cryptic_name').val("cryptic_name");
+    $('#id_lineitemform-0-verbose_name').val("verbose_name");
+    $('#id_lineitemform-0-common_name').val("common_name");
+});
+function ac_extra_data() {
+    // Adds extra data to the autocomplete to help filter results.
+    // In this case, sends the source along so sysco products aren't suggested when entering a broulims receipt.
+    return {'source': $('#id_source').val()};
+}
+autocomplete_li_template_id = "autocomplete-source-item-template";
+autocomplete_url = "{% url "inventory:api_sourceitem_autocomplete" %}";
+autocomplete_fields = [
+    {# TODO: add brand? #}
+    "source_category", "source_name", "pack_quantity", "unit_quantity", "unit_size", "cryptic_name", "verbose_name",
+    "common_name", "item_code", "extra_code",
+];
+autocomplete_display_field = "cryptic_name";
+autocomplete_copy_values = {
+    {#"source_name": "",#}
+    "source_category": "source_category",
+    "item_code": "item_code",
+    "extra_code": "extra_code",
+    "cryptic_name": "cryptic_name",
+    "verbose_name": "verbose_name",
+    "common_name": "common_name",
+    "pack_quantity": "pack_quantity",
+    "unit_quantity": "unit_quantity",
+    "unit_size": "unit_size",
+};
+autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
+autocomplete_container_id = "line_item_list";
+// autocomplete_debug_log = true;
+autocomplete_extra_data_func = ac_extra_data;
+
+let order_api_url = "{% url "inventory:api_sourceitem_orders" %}";
+function check_for_existing_order(caller_obj) {
+    var caller = $(caller_obj);
+    let data_to_send = {
+        'source_id': $('#{{ order_form.source.id_for_label }}').val(),
+        'order_number': $('#{{ order_form.order_number.id_for_label }}').val()
+    };
+    if (data_to_send['order_number'] === '') {
+        // nothing to send.  Clear error if exists.
+        $(".order-order-number").removeClass("duplicate-order-number");
+        return;
+    }
+    let jqxhr = $.ajax({
+        url: order_api_url,
+        type: "get",
+        data: data_to_send,
+        caller_id: caller.prop('id'),
+    })
+    .done(function(data) {
+        // var d_caller = $(document.getElementById(this.caller_id));
+        let order_number_container = $(".order-order-number");
+        if (data.length >= 1){
+            order_number_container.addClass("duplicate-order-number");
+        } else {
+            order_number_container.removeClass("duplicate-order-number");
+        }
+    })
+    .fail(function() {
+        logit("check_for_existing_order: ajax fail");
+    })
+    .always(function() {
+        // logit("check_for_existing_order: ajax complete");
+    });
+
+
+}
+
+$( document ).ready(function() {
+    console.log("$( document ).ready(function() {");
+    autocomplete_setup_events();
+    at_add_timer_with_events('existing_order', 750, check_for_existing_order, '.order-order-number');
+});
+</script>
+{# {{ line_item_formset.media.js }}  Uses the default value for autocomplete_url and no popup #}
+{% endblock %}

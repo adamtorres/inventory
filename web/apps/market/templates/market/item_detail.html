@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market : Item{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<div>
+    Item: {{ item.name }}
+</div>
+<div>
+    Category: {{ item.category }}
+</div>
+<div>
+    Material cost per item: {{ item.material_cost_per_item }}
+</div>
+
+<div>
+    Tags:
+    <ul>
+        {% for tag in item.tags.all %}
+            <li>{{ tag }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <a href="{% url "market:item_update" pk=item.id %}">Edit Item</a>
+</div>
+<div>
+    <a href="{% url "market:item_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -1,0 +1,99 @@
+diff --git a/web/apps/inventory/templates/inventory/order_list.html b/web/apps/inventory/templates/inventory/order_list.html
+new file mode 100644
+index 0000000..c362dbc
+--- /dev/null
++++ b/web/apps/inventory/templates/inventory/order_list.html
+@@ -0,0 +1,29 @@
++{% extends "base.html" %}
++{% load static %}
++{% load humanize %}
++
++{% block title %}Orders{% endblock %}
++
++{% block styles %}
++<style>
++.choice-filter {
++
++}
++.choice-filter-comment {
++    color: lightgray;
++}
++.choice-inline {
++    display: inline-block;
++}
++
++</style>
++{% endblock %}
++
++{% block content %}
++Should the SourceItem Orders search page just be extended to have a date range?  That would negate
++    the need for a dedicated page that does close to the same function.
++{% endblock %}
++
++{% block body_scripts %}
++
++{% endblock %}
+\ No newline at end of file
+diff --git a/web/apps/inventory/urls.py b/web/apps/inventory/urls.py
+index 76c0551..39342ca 100644
+--- a/web/apps/inventory/urls.py
++++ b/web/apps/inventory/urls.py
+@@ -26,6 +26,8 @@ urlpatterns = [
+     urls.path(
+         "api/sourceitem/wide_filter/", i_views.APISourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
+ 
++    urls.path("orders/", i_views.OrderListView.as_view(), name="orders"),
++
+     urls.path("reports/created_today/", i_views.ReportsCreatedTodayView.as_view(), name="reports_created_today"),
+     urls.path("reports/packaging_costs/", i_views.ReportsPackagingCostsView.as_view(), name="reports_packaging_costs"),
+     urls.path("reports/price_over_time/", i_views.ReportsPriceOverTimeView.as_view(), name="reports_price_over_time"),
+diff --git a/web/apps/inventory/views/__init__.py b/web/apps/inventory/views/__init__.py
+index e78860f..5205124 100644
+--- a/web/apps/inventory/views/__init__.py
++++ b/web/apps/inventory/views/__init__.py
+@@ -3,6 +3,7 @@ from .api_source_item_autocomplete_search import APISourceItemAutocompleteSearch
+ from .api_source_item_orders import APISourceItemOrdersView
+ from .api_source_item_quantity_adjustment import APISourceItemQuantityAdjustmentView
+ from .api_source_item_wide_filter import APISourceItemWideFilterView
++from .order_list import OrderListView
+ from .reports_created_today import ReportsCreatedTodayView
+ from .reports_packaging_costs import ReportsPackagingCostsView
+ from .reports_price_over_time import ReportsPriceOverTimeView
+diff --git a/web/apps/inventory/views/order_list.py b/web/apps/inventory/views/order_list.py
+new file mode 100644
+index 0000000..0a20633
+--- /dev/null
++++ b/web/apps/inventory/views/order_list.py
+@@ -0,0 +1,20 @@
++from django.views import generic
++
++from scrap import utils
++
++from inventory import models as inv_models
++
++
++class OrderListView(generic.TemplateView):
++    template_name = "inventory/order_list.html"
++
++    def get_context_data(self, **kwargs):
++        context = super().get_context_data(**kwargs)
++        # pass_along = ["source_id", "source", ]
++        # for get_param in pass_along:
++        #     if get_param in self.request.GET:
++        #         context[f"pass_in_{get_param.replace('-', '_')}"] = self.request.GET[get_param]
++
++        context['orders'] = inv_models.SourceItem.objects.order_list()
++        # source, source__name, delivered_date, order_number, order_id(concatted key), sum_extended_cost, count_line_item
++        return context
+diff --git a/web/templates/collapsible_sidebar_sidebar.html b/web/templates/collapsible_sidebar_sidebar.html
+index 5a8c4ee..6b94460 100644
+--- a/web/templates/collapsible_sidebar_sidebar.html
++++ b/web/templates/collapsible_sidebar_sidebar.html
+@@ -16,6 +16,7 @@
+                 <li><a href="{% url "inventory:reports_created_today" %}" class="link-light rounded">Orders Created In Last 24hrs</a></li>
+                 <li><a href="{% url "inventory:reports_price_over_time" %}" class="link-light rounded">Price Over Time</a></li>
+                 <li><a href="{% url "inventory:reports_packaging_costs" %}" class="link-light rounded">Packaging Costs</a></li>
++                <li><a href="{% url "inventory:orders" %}" class="link-light rounded">Orders - stub</a></li>
+             </ul>
+         </li>
+         <li class="">

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Market : Order{% endblock %}
+
+{% block styles %}
+<style>
+.dates-container {
+}
+.dates-row {
+    width: 40em;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-areas: "dates-cell-ordered dates-cell-made dates-cell-picked-up dates-cell-paid";
+}
+.date-card {
+    border: black 1px solid;
+}
+.order-line-items {
+    width: 40em;
+}
+.order-line-items-header, .order-line-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+    grid-template-areas: "order-line-item-quantity order-line-item-description order-line-item-material-cost order-line-item-price-per-pack order-line-item-sale-price";
+
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    Who: {{ order.who }}
+</div>
+<div>Expected Date: {{ order.expected_date }}</div>
+<div>Expected Time: {{ order.expected_time|default_if_none:"" }}</div>
+<div>Picked up by: {{ order.who_is_picking_up }}</div>
+<div>Reason for Order: {{ order.reason_for_order }}</div>
+<div>Contact Number: {{ order.contact_number }}</div>
+<div class="dates-row">
+    <div class="date-card">
+        <div class="dates-cell dates-cell-ordered">Ordered</div>
+        <div class="dates-cell dates-cell-ordered">{{ order.date_ordered }}</div>
+    </div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-made">Made</div>
+        <div class="dates-cell dates-cell-made">
+            {% if order.can_be_made %}
+                &nbsp;
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="made">
+                    <input class="btn btn-success" type="submit" value="Mark as Made" />
+                </form>
+            {% else %}
+                {{ order.date_made }}
+                {% if order.can_be_picked_up %}
+                    <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="modify-action" value="unmake">
+                        <input class="btn btn-danger" type="submit" value="Mark as NOT Made" />
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-picked-up">Picked Up</div>
+        <div class="dates-cell dates-cell-picked-up">
+            {% if order.can_be_picked_up %}
+                &nbsp;
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="picked-up">
+                    <input class="btn btn-success" type="submit" value="Mark as Picked Up" />
+                </form>
+            {% elif order.pickup_date %}
+                {{ order.pickup_date }}
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="not-picked-up">
+                    <input class="btn btn-danger" type="submit" value="Mark as NOT Picked Up" />
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="date-card">
+        <div class="dates-cell dates-cell-paid">Paid</div>
+        <div class="dates-cell dates-cell-paid">
+            {% if not order.is_paid %}
+                &nbsp;
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="paid">
+                    <input class="btn btn-success" type="submit" value="Mark as Paid" />
+                </form>
+            {% elif order.date_paid %}
+                {{ order.date_paid }}
+                <form action="{% url "market:order_modify" pk=order.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="modify-action" value="not-paid">
+                    <input class="btn btn-danger" type="submit" value="Mark as NOT Paid" />
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<div class="order-line-items">
+    <div class="order-line-items-header">
+        <div class="order-line-item-cell order-line-item-quantity">Quantity</div>
+        <div class="order-line-item-cell order-line-item-description">Description</div>
+        <div class="order-line-item-cell order-line-item-material-cost right-align">Material Cost</div>
+        <div class="order-line-item-cell order-line-item-price-per-pack right-align">$/pack</div>
+        <div class="order-line-item-cell order-line-item-sale-price right-align">Sale Price</div>
+    </div>
+{% for order_line_item in order.line_items.all %}
+    <div class="order-line-item">
+        <div class="order-line-item-cell order-line-item-quantity">{{ order_line_item.quantity_str }}</div>
+        <div class="order-line-item-cell order-line-item-description">{{ order_line_item.item_name }}</div>
+        <div class="order-line-item-cell order-line-item-material-cost dollar-cell right-align">{{ order_line_item.material_cost|floatformat:2|intcomma }}</div>
+        <div class="order-line-item-cell order-line-item-price-per-pack dollar-cell right-align">{{ order_line_item.sale_price_per_pack|floatformat:2|intcomma }}/{{ order_line_item.pack_quantity_str }}</div>
+        <div class="order-line-item-cell order-line-item-sale-price dollar-cell right-align">{{ order_line_item.sale_price|floatformat:2|intcomma }}</div>
+    </div>
+{% endfor %}
+
+    <a class="btn btn-primary" href="{% url "market:order_line_item_edit" pk=order.pk %}">Add/Remove Line Items</a>
+<div>
+    Total Sale: ${{ order.sale_price|floatformat:2|intcomma }}
+<div>
+</div>
+    Total Material Cost: ${{ order.material_cost|floatformat:2|intcomma }}
+</div>
+<div>
+    <a class="btn btn-success" href="{% url "market:order_printable_invoice" pk=order.pk %}">Printable Invoice</a>
+</div>
+</div>
+<div>
+    <a class="btn btn-danger" href="{% url "market:order_list" %}">Back to list</a>
+</div>
+
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

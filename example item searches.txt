@@ -1,0 +1,42 @@
+5x 27pk of milk where unit_size is 8oz
+http://localhost:8000/inventory/sourceitem/search/?unit-size=8oz&quantity=27&item-name=milk&pick-first=yup
+
+5x 36pk of 1lb butter
+http://localhost:8000/inventory/sourceitem/search/?unit-size=1lb&item-name=butter&pick-first=yup
+
+2x 12pk of pasta where unit_size is 1lb.
+http://localhost:8000/inventory/sourceitem/search/?item-name=labella+pasta&pick-first=yup
+
+3x 50lb bags of flour - unit size is "50lb", pack_quantity is 1.
+http://localhost:8000/inventory/sourceitem/search/?item-name=all+purp+flour&pick-first=yup
+
+Single 600pk of margarine
+http://localhost:8000/inventory/sourceitem/search/?item-name=margarine+cup&pick-first=yup
+
+Single 750pk of butter
+http://localhost:8000/inventory/sourceitem/search/?item-name=butter+cup&pick-first=yup
+
+2x 12pks of soda
+http://localhost:8000/inventory/sourceitem/search/?item-name=pepsi&pick-first=yup
+
+1x 4pk of beef bottom round which has a total weight
+http://localhost:8000/inventory/sourceitem/search/?item-name=beef+round&order-number=385979225&pick-first=yup
+
+1x 30dz eggs
+http://localhost:8000/inventory/sourceitem/search/?item-name=egg+shell&order-number=485212206&pick-first=yup
+
+3x 6pk #10 cans of green beans
+http://localhost:8000/inventory/sourceitem/search/?item-name=bean+green&order-number=485292245&pick-first=yup
+
+Egg noodles
+http://localhost:8000/inventory/sourceitem/search/?item-name=egg+noo
+
+Search "arsl conc" and select a specific one which is not the first or last.  ID specific so won't survive a data reload.  Hash date/source/order_number/line_item_number/item_code?
+http://localhost:8000/inventory/sourceitem/search/?item-name=arsl+conc&pick-id=dcccd754-5a7b-4f2c-bdbf-0e80ed81cec6
+
+SELECT DISTINCT
+    cryptic_name, delivered_quantity, pack_quantity, unit_quantity, unit_size, remaining_quantity, use_type
+FROM inventory_sourceitem
+WHERE cryptic_name LIKE '%beef%'
+ORDER BY cryptic_name, unit_size, pack_quantity;
+

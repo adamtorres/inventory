@@ -1,0 +1,45 @@
+/*
+ *Add default styling for messages.
+ */
+.message-container {
+    position: fixed;
+    top: 5em;
+    width: 60%;
+    height: fit-content;
+    z-index: 1000;
+
+    /* pass click events through to anything behind the container */
+    pointer-events: none;
+
+    /* Horizontally center the container */
+    left: 50%;
+    transform: translateX(-50%);
+}
+.message {
+    border-radius: 10px;
+    box-shadow: 3px 3px 4px 0 rgba(50, 50, 50, 0.75);
+    color: purple;
+    font-weight: bold;
+    font-size: 150%;
+    padding-bottom: 0.4em;
+    padding-top: 1.3em;
+    text-align: center;
+    width: 100%;
+    height: fit-content;
+    background-color: goldenrod;
+    display: none;
+}
+
+/*
+ * Give the various message types the correct colors
+ */
+.message-list {
+    list-style-type: none;
+}
+.message-list.success {
+    background-color: green;
+}
+
+.message-list.error {
+    background-color: red;
+}

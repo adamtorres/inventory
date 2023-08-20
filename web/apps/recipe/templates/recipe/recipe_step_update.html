@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Recipe : {{ recipe.name }} Steps{% endblock %}
+
+{% block styles %}
+<!-- <style href="{% static '3rdparty/jquery-ui-1.13.2/css/jquery-ui.min.css' %}"></style> -->
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.management_form }}
+    {{ form.non_form_errors }}
+    {% for hidden_field in form.hidden_fields %}
+        {{ hidden_field.errors }}
+    {% endfor %}
+    <table id="formset-table">
+        <thead>
+            <tr>
+                <th>{{ form.empty_form.DELETE.label }}</th>
+                <th>{{ form.empty_form.optional.label }}</th>
+                <th>{{ form.empty_form.text.label }}</th>
+            </tr>
+        </thead>
+        <tbody id="formset-table-body">
+        <tr class='form-row' id='empty-form' style="display:none;">
+            {{ form.empty_form.as_table }}
+        </tr>
+        {% for recipe_step_form in form.forms %}
+            <tr>
+                {{ recipe_step_form.as_table }}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="col w-25 text-center"><a class='btn btn-info add-new-form w-75' href='#'>+ Add new step</a></div>
+    <input class="btn btn-secondary" type="submit" value="Save">
+</form>
+
+<div>
+    <a class="btn btn-primary" href="{% url "recipe:recipe_detail" pk=object.pk %}">Cancel</a>
+</div>
+<div>
+    <a class="btn btn-danger" href="{% url "recipe:recipe_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static '3rdparty/jquery-ui-1.13.2/js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/add_new_form.js' %}"></script>
+<script type="text/javascript">
+$( document ).ready(function() {
+    {#autocomplete_url = "{% url 'inc_autocomplete_items' %}";#}
+    form_name = "steps";
+    after_add_focus_suffix = "-text";
+    formset_container_id = "formset-table-body";
+    {#autocomplete_fields = ["identifier", "name", "pack_quantity", "unit_size"];#}
+    {#autocomplete_display_field = "name";#}
+    $('#formset-table-body').sortable({
+        axis: 'y',
+        placeholder: 'ui-state-highlight',
+        forcePlaceholderSize: 'true',
+        items: '> tr:not(.hidden)',
+        stop: function(event, ui) {
+            // Renumbers the ORDER field which marks the step as 'changed' which causes Django to save the step.
+            $(`#${formset_container_id}`).find("input[name$=ORDER]").each(function(i) {
+                // gets the text as of dropping.  Means it will only set the order if the new item already has content.
+                let text_val = $(this).parent().parent().siblings("td[class=text_col]").find("input[name$=text]").val();
+                let id_val = $(this).siblings("input[name$=-id]").val();
+                if (id_val !== "" || text_val !== "") {
+                    // Exclude the "extra" step(s) django added.
+                    $(this).val(i + 1);
+                }
+            });
+        }
+    });
+})
+</script>
+
+{% endblock %}

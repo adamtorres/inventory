@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Packaging Costs{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table id="result-table">
+<thead>
+<tr>
+    <th>Product</th>
+    <th>Description</th>
+    <th class="right-align">Last Ordered</th>
+    <th class="right-align">Pack Qty</th>
+    <th class="right-align">Pack Cost</th>
+    <th class="right-align">Per Item</th>
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for thing in packaging_costs %}
+    <tr>
+    <td class="border">{{ thing.name }}</td>
+    <td class="border">{{ thing.description }}</td>
+    <td class="border right-align">{{ thing.last_order_date }}</td>
+    <td class="border right-align">{{ thing.quantity|intcomma }}</td>
+    <td class="border right-align dollar-cell">{{ thing.pack_cost|floatformat:2|intcomma }}</td>
+    <td class="border right-align dollar-cell">{{ thing.per_use_cost|floatformat:4|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

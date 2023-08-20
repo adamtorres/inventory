@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Save Search{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+    <hr />
+    <form method="post" id="search-critera-form">
+        {% csrf_token %}
+        <h3>Describe this search</h3>
+        <div>
+            <label for="search-criteria-name">Name: </label>
+            <input type="text" value="" placeholder="try to be unique" id="search-criteria-name" name="search-criteria-name" />
+        </div>
+        <div>
+            <label for="search-criteria-description">Description: </label>
+            <input type="text" value="" id="search-criteria-description" name="search-criteria-description" />
+        </div>
+        <h3>Criteria to save</h3>
+        <ul>
+        {% for key, value in GET.items %}
+            {% if key|slice:5 == "save-" %}
+            <li>
+                {{ key }}: {{ value }}
+                <input type="hidden" value="{{ value|escape }}" id="{{ key }}" name="{{ key }}" />
+            </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <input type="submit" value="Save Criteria">
+    </form>
+    <hr />
+    <h3>POST fields</h3>
+    <ul>
+    {% for key, value in POST.items %}
+        <li>
+            {{ key }}: {{ value }}
+        </li>
+    {% endfor %}
+    </ul>
+    <div>
+    Name: {{ search_criteria.name }}
+    </div>
+    <div>
+    Description: {{ search_criteria.description }}
+    </div>
+    <div>
+    criteria: {{ search_criteria.criteria }}
+    </div>
+    <hr />
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -1,0 +1,53 @@
+<nav id="sidebar" class="active no-print">
+    <div class="sidebar-header">
+        <h3>Bear Lake Senior Citizen Center Inventory</h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <p><a href="{% url "homepage" %}" class="link-light rounded">Home</a></p>
+        <li class="active">
+            {# TODO: Would be nice to have a way for only these links to cause the sidebar to start open on the next page. #}
+            <a href="#SourceItemSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Source Items</a>
+            <ul class="collapse list-unstyled" id="SourceItemSubmenu">
+                <li><a href="{% url "inventory:sourceitem_create" %}" class="link-light rounded">Enter Invoice/Receipt</a></li>
+                <li><a href="{% url "inventory:sourceitem_orders" %}" class="link-light rounded">Orders</a></li>
+                <li><a href="{% url "inventory:sourceitem_search" %}" class="link-light rounded">Search</a></li>
+                <li><a href="{% url "inventory:sourceitem_stats" %}" class="link-light rounded">Random Stats</a></li>
+                <li><a href="{% url "inventory:reports_created_today" %}" class="link-light rounded">Orders Created In Last 24hrs</a></li>
+                <li><a href="{% url "inventory:reports_price_over_time" %}" class="link-light rounded">Price Over Time</a></li>
+                <li><a href="{% url "inventory:reports_packaging_costs" %}" class="link-light rounded">Packaging Costs</a></li>
+            </ul>
+        </li>
+        <li class="">
+            <a href="#MarketSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Market</a>
+            <ul class="collapse list-unstyled" id="MarketSubmenu">
+                <li><a href="{% url "market:item_list" %}" class="link-light rounded">Items</a></li>
+                <li><a href="{% url "market:order_list" %}" class="link-light rounded">Orders</a></li>
+            </ul>
+        </li>
+        <li class="">
+            <a href="#ConversionSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Conversion</a>
+            <ul class="collapse list-unstyled" id="ConversionSubmenu">
+                <li><a href="{% url "conversion:average_report" %}" class="link-light rounded">Average Measures</a></li>
+                <li><a href="{% url "conversion:measure_list" %}" class="link-light rounded">Measures</a></li>
+            </ul>
+        </li>
+        <li class="">
+            <a href="#RecipeSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Recipes</a>
+            <ul class="collapse list-unstyled" id="RecipeSubmenu">
+                <li><a href="{% url "recipe:item_list" %}" class="link-light rounded">Items</a></li>
+                <li><a href="{% url "recipe:recipe_list" %}" class="link-light rounded">Recipes</a></li>
+                <li><a href="{% url "recipe:recipe_template_list" %}" class="link-light rounded">Recipe Templates</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="list-unstyled CTAs">
+        <li>
+            <a href="#" class="download">Some other link</a>
+        </li>
+        <li>
+            <a href="#" class="article">Some link</a>
+        </li>
+    </ul>
+</nav>

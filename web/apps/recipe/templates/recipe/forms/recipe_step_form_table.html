@@ -1,0 +1,30 @@
+{# Used by urls.reverse("recipe_step_update") #}
+{# which points to RecipeStepUpdateView #}
+{# which uses RecipeStepFormSet #}
+{# which uses RecipeStepForm #}
+{# which uses this file. #}
+{% if form.instance.id %}
+  <!-- existing item -->
+{% else %}
+  <!-- new item -->
+{% endif %}
+    <td class="delete_col">
+        {{ form.DELETE.errors }}
+        {{ form.DELETE }}
+        <span id="hidden-fields-{{ form.instance.id }}">
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field.errors }}
+                {{ hidden_field }}
+            {% endfor %}
+            {{ form.ORDER.errors }}
+            {{ form.ORDER.as_hidden }}
+        </span>
+    </td>
+    <td class="optional_col">
+        {{ form.optional.errors }}
+        {{ form.optional }}
+    </td>
+    <td class="text_col">
+        {{ form.text.errors }}
+        {{ form.text }}
+    </td>

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Recipe : Delete {{ recipe.name }}?{% endblock %}
+
+{% block styles %}
+<style href="{% static "css/font-awesome.css" %}"></style>
+<style>
+.pinned_comment {
+
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn btn-success"  type="submit" value="Delete?">
+</form>
+
+
+<div>Name: {{ recipe.name }}</div>
+<div>Source: {{ recipe.source }}</div>
+<div>Description: {{ recipe.description }}</div>
+<div>Reason to not make: {{ recipe.reason_to_not_make }}</div>
+<div>Acceptance Rating: {{ recipe.star_acceptance }}</div>
+<div>Effort Rating: {{ recipe.star_effort }}</div>
+<div>Common Multipliers: {{ recipe.common_multipliers }}</div>
+<hr />
+<div>
+Ingredients:
+    <ul>
+    {% for ingredient in recipe.ingredients.all %}
+        <li class="recipe_ingredient">
+            {% if ingredient.optional %}<span class="text-muted">(optional)</span>{% endif %}
+            {% if ingredient.metric_quantity %} {{ ingredient.metric_quantity|floatformat:-2|intcomma }} {{ ingredient.metric_unit }} {% endif %}
+            {% if ingredient.us_quantity %} {{ ingredient.us_quantity|floatformat:-2|intcomma }} {{ ingredient.us_unit }} {% endif %}
+            {{ ingredient.item }}
+            {% if ingredient.pre_preparation %}: {{ ingredient.pre_preparation }}{% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+<hr />
+<div>
+Steps:
+    <ul>
+    {% for step in recipe.steps.all %}
+        <li class="recipe_step">{{ step.text }}</li>
+    {% endfor %}
+    </ul>
+</div>
+<hr />
+<div>
+Comments:
+    <ul>
+    {% for comment in recipe.pinned_comments %}
+        <li class="pinned_comment"><span class="fa fa-thumb-tack"></span> {{ comment.comment }}</li>
+    {% endfor %}
+    {% for comment in recipe.unpinned_comments %}
+        <li class="comment">{{ comment.comment }}</li>
+    {% endfor %}
+    </ul>
+</div>
+<hr />
+
+<div>
+    <a class="btn btn-secondary" href="{% url "recipe:recipe_detail" pk=recipe.id %}">Cancel</a>
+</div>
+<div>
+    <a class="btn btn-danger" href="{% url "recipe:recipe_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

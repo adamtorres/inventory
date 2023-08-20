@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Conversions{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static "conversion/css/conversion-grid.css" %}">
+<style>
+.header {
+    font-weight: bold;
+    background-color: lightgrey;
+}
+#hidden-table-container {
+    display: none;
+}
+table {
+    border: black solid 1px;
+    width: 100%;
+}
+th {
+    border: black solid 1px;
+    background-color: lightgrey;
+}
+td {
+    border: black solid 1px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<ul>
+    <li><a href="{% url "conversion:measure_create" %}">Add Measure</a></li>
+    <li><span id="copy-table-btn">Copy to clipboard</span></li>
+</ul>
+
+<div class="conversions">
+    <div class="conversion header">
+        <div class="conversion-item">Item</div>
+        <div class="conversion-from-unit">From</div>
+        <div class="conversion-to-unit">To</div>
+        <div class="conversion-min">Min</div>
+        <div class="conversion-avg">Avg</div>
+        <div class="conversion-max">Max</div>
+        <div class="conversion-count">Count</div>
+        <div class="conversion-first-date">First Date</div>
+        <div class="conversion-last-date">Last Date</div>
+    </div>
+{% for conversion in conversions %}
+    <div class="conversion">
+        <div class="conversion-item">{{ conversion.item_name|title }}</div>
+        <div class="conversion-from-unit">{{ conversion.measuring_unit }}</div>
+        <div class="conversion-to-unit">{{ conversion.converted_unit }}</div>
+        <div class="conversion-min">{{ conversion.min|floatformat:2|intcomma }}</div>
+        <div class="conversion-avg">{{ conversion.avg|floatformat:2|intcomma }}</div>
+        <div class="conversion-max">{{ conversion.max|floatformat:2|intcomma }}</div>
+        <div class="conversion-count">{{ conversion.count|intcomma }}</div>
+        <div class="conversion-first-date">{{ conversion.first_date|date:"M j, Y" }}</div>
+        <div class="conversion-last-date">{{ conversion.last_date|date:"M j, Y" }}</div>
+    </div>
+{% endfor %}
+</div>
+
+<div id="hidden-table-container">
+<table id="hidden-table">
+<thead>
+<tr>
+    <th>Item</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Min</th>
+    <th>Avg</th>
+    <th>Max</th>
+    <th>Count</th>
+    <th>First Date</th>
+    <th>Last Date</th>
+</tr>
+</thead>
+<tbody>
+{% for conversion in conversions %}
+    <tr>
+        <td>{{ conversion.item_name|title }}</td>
+        <td>{{ conversion.measuring_unit }}</td>
+        <td>{{ conversion.converted_unit }}</td>
+        <td>{{ conversion.min|floatformat:2|intcomma }}</td>
+        <td>{{ conversion.avg|floatformat:2|intcomma }}</td>
+        <td>{{ conversion.max|floatformat:2|intcomma }}</td>
+        <td>{{ conversion.count|intcomma }}</td>
+        <td>{{ conversion.first_date|date:"M j, Y" }}</td>
+        <td>{{ conversion.last_date|date:"M j, Y" }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="application/javascript">
+$("#copy-table-btn").on("click", function() {
+    // let html_to_copy = $("#hidden-table").html();
+    let html_to_copy = document.getElementById("hidden-table-container").innerHTML;
+    const blobInput = new Blob([html_to_copy], { type: 'text/html' });
+    navigator.clipboard.write([new ClipboardItem({ 'text/html': blobInput })]);
+});
+
+</script>
+{% endblock %}

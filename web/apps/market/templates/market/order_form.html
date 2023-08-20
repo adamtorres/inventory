@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market : New Order{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn btn-primary" type="submit" value="Save">
+</form>
+
+<div>
+    <a class="btn btn-secondary" href="{% url "market:order_list" %}">Back to list</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

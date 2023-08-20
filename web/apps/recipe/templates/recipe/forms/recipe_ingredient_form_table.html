@@ -1,0 +1,50 @@
+{# Used by urls.reverse("recipe_ingredient_update") #}
+{# which points to RecipeIngredientUpdateView #}
+{# which uses RecipeIngredientFormSet #}
+{# which uses RecipeIngredientForm #}
+{# which uses this file. #}
+{% if form.instance.id %}
+  <!-- existing item -->
+{% else %}
+  <!-- new item -->
+{% endif %}
+    <td class="delete_col">
+        {{ form.DELETE.errors }}
+        {{ form.DELETE }}
+        <span id="hidden-fields-{{ form.instance.id }}">
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field.errors }}
+                {{ hidden_field }}
+            {% endfor %}
+            {{ form.ORDER.errors }}
+            {{ form.ORDER.as_hidden }}
+        </span>
+    </td>
+    <td class="optional_col">
+        {{ form.optional.errors }}
+        {{ form.optional }}
+    </td>
+    <td class="item_col">
+        {{ form.item.errors }}
+        {{ form.item }}
+    </td>
+    <td class="us_quantity_col">
+        {{ form.us_quantity.errors }}
+        {{ form.us_quantity }}
+    </td>
+    <td class="us_unit_col">
+        {{ form.us_unit.errors }}
+        {{ form.us_unit }}
+    </td>
+    <td class="metric_quantity_col">
+        {{ form.metric_quantity.errors }}
+        {{ form.metric_quantity }}
+    </td>
+    <td class="metric_unit_col">
+        {{ form.metric_unit.errors }}
+        {{ form.metric_unit }}
+    </td>
+    <td class="pre_preparation_col">
+        {{ form.pre_preparation.errors }}
+        {{ form.pre_preparation }}
+    </td>

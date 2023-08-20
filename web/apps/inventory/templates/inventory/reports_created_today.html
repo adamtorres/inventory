@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Orders created in last 24 hours{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table id="result-table">
+<thead>
+<tr>
+    <th class="right-align">Delivered Date</th>
+    <th>Source</th>
+    <th>Order Number</th>
+    <th class="right-align">Items</th>
+    <th class="right-align">Cost</th>
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for thing in created_today %}
+    <tr class="order-row" data-order-url="{% url "inventory:sourceitem_order_items" source=thing.source_id order_number=thing.order_number %}">
+    <td class="border right-align">{{ thing.delivered_date }}</td>
+    <td class="border">{{ thing.source_name }}</td>
+    <td class="border">{{ thing.order_number }}</td>
+    <td class="border right-align">{{ thing.line_items|intcomma }}</td>
+    <td class="border right-align dollar-cell">{{ thing.total_cost|floatformat:2|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="application/javascript">
+$(".order-row").on("click", function() {
+    let e = $(this);
+    window.location = e.attr('data-order-url');
+});
+</script>
+{% endblock %}

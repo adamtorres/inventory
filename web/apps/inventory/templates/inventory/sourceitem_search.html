@@ -1,0 +1,875 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search Source Items{% endblock %}
+
+{% block styles %}
+<style>
+.choice-filter {
+
+}
+.choice-filter-comment {
+    color: lightgray;
+}
+.choice-inline {
+    display: inline-block;
+}
+
+#calculation-div {
+    border: green solid 2px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+#calculation-div .col-sm-1 input {
+    width: 100%;
+}
+label {
+    font-weight: bold;
+}
+.selected-item-text-row .col {
+    border: grey solid 1px;
+    text-align: left;
+}
+.selected-item-row .col {
+    border: grey solid 1px;
+    text-align: right;
+}
+.per_unit_cell {
+    display: inline-block;
+    border: grey solid 1px;
+    justify-content: space-between !important;
+    min-width: 10em;
+}
+.per_unit_cell * {
+    display: inline-block;
+    text-align: right;
+    padding-right: 0.5em;
+}
+.per_unit_cell *[data-field="units"] {
+    width: 4em;
+}
+.per_unit_cell *[data-field="cost_for_the_units"] {
+    width: 6em;
+}
+.per_unit_cell *[data-field="packs"] {
+    width: 4em;
+}
+.per_unit_cell *[data-field="cost_for_the_packs"] {
+    width: 6em;
+}
+.per_unit_cell:first-child {
+
+}
+.per_unit_cell:last-child {
+
+}
+#calculated-per-pack-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
+#calculated-per-unit-prices {
+    flex-wrap: wrap;
+    width: 100%;
+}
+.filtered-item-link {
+    cursor: pointer;
+}
+
+.button {
+    padding: 0.5em;
+    border-radius: 10px;
+}
+.no-remaining-quantity td {
+    background-color: lightgrey;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+<div id="filter-controls">
+        <div class="row">
+            <span class="col-sm-2 btn btn-warning" id="clear_form">Clear Form</span>
+            <span>
+                <label for="saved-searches-select">Select a saved search: </label>
+                <select id="saved-searches-select">
+                    <option value="">---</option>
+                {% for saved_search in saved_searches %}
+                    <option value="{{ saved_search.id }}">{{ saved_search.name }}</option>
+                {% endfor %}
+                </select>
+                <span id="saved-searches-status"></span>
+            </span>
+        </div>
+        <div class="accordion" id="filter-limits-parent">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="filter-limits-heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter-limits-collapsible" aria-expanded="false" aria-controls="filter-limits-collapsible">
+                        Limit by Source or Category
+                    </button>
+                </h2>
+                <div id="filter-limits-collapsible" class="accordion-collapse collapse" aria-labelledby="filter-limits-heading" data-bs-parent="#filter-limits-parent">
+                    <div class="accordion-body">
+                        <div>
+                            <div>
+                                <span class="choice-filter">Limit to selected source(s) </span>
+                                <span class="choice-filter-comment">or select none for no filter</span>
+                            </div>
+                            <div class="choice-inline">
+                                {% for source in sources %}
+                                    <div class="choice-inline" style="margin-right: 2em;">
+                                        <div class="choice-inline">
+                                            <input type="checkbox" name="filter-source" id="filter-source-{{ source.id }}" value="{{ source.id }}" {% if source.id|stringformat:"s" == pass_in_source_id %}checked="checked" {% endif %}>
+                                        </div>
+                                        <div class="choice-inline">
+                                            <label for="filter-source-{{ source.id }}">{{ source.name|title }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr />
+                        <div>
+                            <div>
+                                <span class="choice-filter">Limit to selected category(ies) </span>
+                                <span class="choice-filter-comment">or select none for no filter</span>
+                            </div>
+                            <div class="choice-inline">
+                                {% for category in categories %}
+                                    <div class="choice-inline" style="margin-right: 2em;">
+                                        <div class="choice-inline">
+                                            <input type="checkbox" name="filter-category" id="filter-category-{{ category.row_number }}" value="{{ category.row_number }}">
+                                        </div>
+                                        <div class="choice-inline">
+                                            <label for="filter-category-{{ category.row_number }}">{{ category.source_category|title }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label class="d-block" for="filter-quantity">Quantity:</label>
+                <input type="text" id="filter-quantity" class="filter-input" value="{{ pass_in_quantity }}"/>
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-unit-size">Unit size:</label>
+                <input type="text" id="filter-unit-size" class="filter-input" value="{{ pass_in_unit_size }}" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-item-code">Item code:</label>
+                <input type="text" id="filter-item-code" class="filter-input" value="{{ pass_in_item_code }}" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-item-name">Item name:</label>
+                <input type="text" id="filter-item-name" class="filter-input" value="{{ pass_in_item_name }}" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-comment">Comment:</label>
+                <input type="text" id="filter-comment" class="filter-input" value="{{ pass_in_comment }}" />
+            </div>
+            <div class="col">
+                <label class="d-block" for="filter-order-number">Order Number:</label>
+                <input type="text" id="filter-order-number" class="filter-input" value="{{ pass_in_order_number }}" />
+            </div>
+            <input type="hidden" id="filter-item-id" class="filter-input" value="{{ pass_in_item_id }}" />
+            <input type="hidden" id="filter-pick-id" class="filter-input" value="{{ pass_in_pick_id }}" />
+            <input type="hidden" id="filter-pick-first" class="filter-input" value="{{ pass_in_pick_first }}" />
+        </div>
+    </div>
+<div>
+<button class="test-btn">Test values</button>
+<form action="{% url "inventory:sourceitem_save_search" %}" method="get" id="save_search_form">
+    {% csrf_token %}
+<div id="save-search-fields"></div>
+<input id="save-search-btn" type="submit" value="Save Search" />
+</form>
+
+</div>
+</div>
+<div id="calculation-div">
+    <h5>
+        Selected item
+    </h5>
+    <input type="hidden" name="calc-item-id" id="calc-item-id" />
+    <div class="row selected-item-text-row">
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-name">Delivered date:</label>
+                <span id="calc-delivered-date">[delivered_date]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-name">Order number:</label>
+                <span id="calc-order-number">[order_number]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-code">Item Code: </label>
+                <span id="calc-item-code">[item code]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-name">Item: </label>
+                <span id="calc-item-name">[item name]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-common-item-name">Common Item Name: </label>
+                <span id="calc-common-item-name">[common item name]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-item-comment">Line Item Comment: </label>
+                <span id="calc-item-comment">[comment on the line item]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label for="calc-rawitem-comment">Item Comment: </label>
+                <span id="calc-rawitem-comment">[comment on the item itself]</span>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <label for="calc-remaining-quantity">Remaining Quantity: </label>
+            <span id="calc-remaining-quantity">[remaining quantity]</span>
+        </div>
+        <div class="col">
+            <span>Used how: </span>
+            <span id="calc-use-type-str">[use type str]</span>
+            <span class="d-none" id="calc-use-type">[use type]</span>
+        </div>
+        <div class="col">
+            <label for="calc-selected-item-inventory-adjustment">Use: </label>
+            <input type="number" id="calc-selected-item-inventory-adjustment" max="" value="0">
+        </div>
+        <div class="col">
+            <span type="button" class="button btn-success" id="calc-adjust-selected-item-inventory-quantity">Adjust Remaining Quantity</span>
+        </div>
+    </div>
+    <hr />
+    <div class="row row-cols-5 selected-item-row">
+        <div class="col col-sm-1">
+            <label for="calc-quantity">Delivered Quantity</label>
+        </div>
+        <div class="col col-sm-1">
+            <label for="calc-pack-quantity">Pack Quantity</label>
+        </div>
+        <div class="col col-sm-1">
+            <label for="calc-unit-size">Unit Size</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-price">Price</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-pack-price" id="calc-pack-price-label">Pack Price</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-unit-price" id="calc-unit-price-label">Unit Price</label>
+        </div>
+        <div class="col col-sm-2">
+            <label for="calc-count-price" id="calc-unit-price-label"><span style="text-transform: capitalize;" data-term="calc-unit-size-term">Count</span> Price</label>
+        </div>
+    </div>
+    <div class="row row-cols-5 selected-item-row">
+        <div class="col col-sm-1">
+            <span id="calc-quantity"></span>
+        </div>
+        <div class="col col-sm-1">
+            <span id="calc-pack-quantity"></span>
+        </div>
+        <div class="col col-sm-1">
+            <span id="calc-unit-size"></span>
+            <span id="calc-unit-quantity" class="d-none"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-price" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-pack-price" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-unit-price" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-2">
+            <span id="calc-count-price" class="dollar-cell"></span>
+        </div>
+    </div>
+    <hr />
+    <div id="calc-weight-specific-cells" class="d-none selected-item-row">
+        <div class="row row-cols-3">
+            <div class="col col-sm-1">
+                <label for="calc-weight">Weight</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-avg-pack-weight">Avg Pack Weight</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-avg-unit-weight">Avg Unit Weight</label>
+            </div>
+            <div class="col col-sm-1">
+                <label for="calc-price-per-weight">Price per unit of weight</label>
+            </div>
+        </div>
+        <div class="row row-cols-3 selected-item-row">
+            <div class="col col-sm-1">
+                <span id="calc-weight"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-avg-pack-weight"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-avg-unit-weight"></span>
+            </div>
+            <div class="col col-sm-1">
+                <span id="calc-price-per-weight" class="dollar-cell"></span>
+            </div>
+        </div>
+    <hr />
+    </div>
+    <div class="row">
+        <div class="col" id="calculated-results">
+            <div id="calculated-per-pack-prices-container">
+                <h5>
+                    Total price for a given number of packs (should match the delivered quantity)
+                </h5>
+                <div class="d-none">
+                    <div class="per_unit_cell" id="per_pack_row_template">
+                        <div class="" data-field="packs">__packs__</div>
+                        <div class="" data-field="cost_for_the_packs">__cost_for_the_packs__</div>
+                    </div>
+                </div>
+                <div class="" id="calculated-per-pack-prices">
+
+                </div>
+            </div>
+
+            <h5>
+                Total price for a given number of units within a pack - if a single pack has 2 units, multiply that by delivered quantity.
+            </h5>
+            <div class="d-none">
+                <div class="per_unit_cell" id="per_unit_row_template">
+                    <div class="" data-field="units">__units__</div>
+                    <div class="" data-field="cost_for_the_units">__cost_for_the_units__</div>
+                </div>
+            </div>
+            <div class="" id="calculated-per-unit-prices">
+
+            </div>
+
+            <div class="d-none" id="calculated-per-count-prices-container">
+                <h5>Total price for a given <span data-term="calc-unit-size-term">count</span> (ex: eggs come in dozens, this would show a per egg price)</h5>
+                <div class="" id="calculated-per-count-prices">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<pre id="on-page-log">
+Log.
+</pre>
+<table style="display: none;" class="filtered-item-template-container">
+    <tr class="filtered-item-top" data-id="nope" data-parent-id="nope" id="filtered-item-template">
+        <td class="border date-cell filtered-item-link" data-field="delivered_date">__delivered_date__</td>
+        <td class="border">
+            <span class="d-none" data-field="id">__id__</span>
+            <span data-field="source_name">__source_name__</span> :
+            <span><span data-field="order_number">__order_number__</span> :</span>
+            <span><span data-field="po_text">__po_text__</span> : </span>
+            <span data-field="line_item_number">__line_item_number__</span>
+        </td>
+
+        <td class="border d-none" data-field="source_category">__source_category__</td>
+        <td class="border d-none" data-field="brand">__brand__</td>
+        <td class="border">
+            <div data-field="source_item_name"></div>
+            <div data-field="common_name"></div>
+            <div>
+                <span><span data-field="item_code">__item_code__</span> :</span>
+                <span data-field="extra_code">__extra_code__</span>
+            </div>
+        </td>
+        <td class="border right-align" data-field="total_weight">__total_weight__</td>
+        <td class="border right-align"><span data-field="delivered_quantity">__delivered_quantity__</span>x</td>
+        <td class="border">
+            <div>
+                <span data-field="pack_quantity">__pack_quantity__</span>pk
+                <span data-field="unit_size">__unit_size__</span>
+                <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
+            </div>
+            <div>
+                <span class="d-none" data-field="use_type">__use_type__</span>
+                <span class="d-none" data-field="use_type_str">__use_type_str__</span>
+            </div>
+        </td>
+        <td class="border right-align" data-field="remaining_quantity">__remaining_quantity__</td>
+        <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
+        <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
+        <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
+        <td class="border right-align dollar-cell" data-field="per_use_cost">__per_use_cost__</td>
+        <td class="border right-align dollar-cell" data-field="remaining_cost">__remaining_cost__</td>
+        <td class="border d-none">
+            <div data-field="extra_notes">__extra_notes__</div>
+            <div data-field="scanned_filename">__scanned_filename__</div>
+        </td>
+    </tr>
+</table>
+<table id="result-table">
+    <thead>
+        <tr>
+            <th class="border date-cell">Delivered Date</th>
+            <th class="border">Source/Order/Line Item</th>
+            <th class="border d-none">Source Category</th>
+            <th class="border d-none">Brand</th>
+            <th class="border">Item Name</th>
+            <th class="border right-align">Total Weight</th>
+            <th class="border right-align">Qty</th>
+            <th class="border">Pack/Unit Details</th>
+            <th class="border">Remaining Qty</th>
+            <th class="border right-align">Pack Cost</th>
+            <th class="border right-align d-none">Individual Weights</th>
+            <th class="border right-align">Extended Cost</th>
+            <th class="border right-align">Per Use Cost</th>
+            <th class="border right-align">Remaining Cost</th>
+            <th class="border d-none">Notes/Scanned Filename</th>
+        </tr>
+    </thead>
+    <tbody id="result-table-body">
+    </tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static "js/csrf_cookie.js" %}"></script>
+<script src="{% static "js/layout.js" %}"></script>
+<script src="{% static 'js/date_str.js' %}"></script>
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script src="{% static 'js/wide_filter.js' %}"></script>
+<script src="{% static 'js/highlight-row.js' %}"></script>
+<script type="application/javascript">
+filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
+filter_fields = [
+    "id",
+    "delivered_date",
+    {#"source",#}
+    "source_name",
+    "brand",
+    "order_number",
+    "po_text",
+    "line_item_number",
+    "source_category",
+    "source_item_name", "common_name",
+    "item_code", "delivered_quantity",
+    "pack_cost", "pack_quantity",
+    "unit_quantity", "unit_size",
+    "extended_cost", "total_weight", "individual_weights",
+    "extra_notes", "extra_code", "scanned_filename",
+    "remaining_quantity", "remaining_cost", "per_use_cost",
+    "use_type", "use_type_str",
+];
+remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
+money_fields = ["extended_cost", "remaining_cost", "per_use_cost"];
+hide_parent_if_empty = ["order_number", "po_text"];
+filter_results_div_id = "result-table-body";
+highlight_container_id = filter_results_div_id;
+filter_input_fields = [
+    {element: "#filter-item-id", ajax_var: "item_id"},
+    {element: "[name='filter-source']", ajax_var: "source"},
+    {element: "[name='filter-category']", ajax_var: "category"},
+    {element: "#filter-quantity", ajax_var: "quantity"},
+    {element: "#filter-unit-size", ajax_var: "unit_size"},
+    {element: "#filter-item-name", ajax_var: "name"},
+    {element: "#filter-item-code", ajax_var: "item_code"},
+    // {element: "#filter-item-code", ajax_var: "extra_code"},  // Would like to do this in python.
+    {element: "#filter-comment", ajax_var: "comment"},
+    {element: "#filter-order-number", ajax_var: "order_number"},
+];
+filter_input_empty_if_only = ['category', 'source'];
+filter_result_fields = [
+    {element: "data-field='delivered_date'", destination_field_id: "calc-delivered-date"},
+    {element: "data-field='order_number'", destination_field_id: "calc-order-number"},
+    {element: "data-field='item_code'", destination_field_id: "calc-item-code"},
+    {element: "data-field='source_item_name'", destination_field_id: "calc-item-name"},
+    {element: "data-field='common_name'", destination_field_id: "calc-common-item-name"},
+    {element: "data-field='extra_notes'", destination_field_id: "calc-item-comment"},
+    {element: "data-field='delivered_quantity'", destination_field_id: "calc-quantity"},
+    {element: "data-field='pack_quantity'", destination_field_id: "calc-pack-quantity"},
+    {element: "data-field='unit_size'", destination_field_id: "calc-unit-size"},
+    {element: "data-field='unit_quantity'", destination_field_id: "calc-unit-quantity"},
+    {element: "data-field='extended_cost'", destination_field_id: "calc-price"},
+    {element: "data-field='pack_cost'", destination_field_id: "calc-pack-price"},
+    {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
+    {element: "data-field='remaining_quantity'", destination_field_id: "calc-remaining-quantity"},
+    {element: "data-field='id'", destination_field_id: "calc-item-id"},
+    {element: "data-field='use_type'", destination_field_id: "calc-use-type"},
+    {element: "data-field='use_type_str'", destination_field_id: "calc-use-type-str"},
+];
+
+function round(v) {
+    return Math.round(v * 100) / 100;
+}
+function load_from_item_id() {
+    let item_id_tag = $("#filter-item-id");
+    if (item_id_tag.val() !== "") {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
+function load_from_url_search() {
+    // Checks the filter input controls for values populated from the url.
+    let search_fields_populated = false;
+    let search_fields = [
+        "#filter-order-number", "#filter-comment", "#filter-item-code", "#filter-item-name", "#filter-unit-size",
+        "#filter-quantity"];
+    search_fields.forEach(search_field_name => {
+        let search_field = $(search_field_name);
+        if (search_field.val() !== "") {
+            search_fields_populated = true;
+        }
+    });
+    if (search_fields_populated) {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
+function update_calculations() {
+    let weight = parseFloat($("#calc-weight").text());
+    let pack_quantity = parseFloat($("#calc-pack-quantity").text());
+    let quantity = parseFloat($("#calc-quantity").text());
+    let unit_quantity = parseInt($("#calc-unit-quantity").text());
+    let pack_price = parseFloat($("#calc-pack-price").text());
+    let total_price = parseFloat($("#calc-price").text());
+    let pack_price_per_weight = 0;
+    let price_per_unit = total_price / quantity / pack_quantity;
+    $("#calc-unit-price").text(round(price_per_unit).toFixed(2));
+    let price_per_count = price_per_unit / unit_quantity;
+    $("#calc-count-price").text(round(price_per_count).toFixed(2));
+
+    pack_price = round(price_per_unit * pack_quantity);  // NOTE: tax got included by using extended_price
+    $("#calc-pack-price").text(round(pack_price).toFixed(2));
+
+    if (weight > 0) {
+        pack_price_per_weight = pack_price;
+        $("#calc-price-per-weight").text(round(pack_price_per_weight).toFixed(2))
+        let avg_pack_weight = weight / quantity;
+        let avg_unit_weight = weight / quantity / pack_quantity;
+        $("#calc-avg-pack-weight").text(round(avg_pack_weight));
+        $("#calc-avg-unit-weight").text(round(avg_unit_weight));
+        $("#calc-weight-specific-cells").removeClass("d-none");
+    } else {
+        $("#calc-weight-specific-cells").addClass("d-none");
+    }
+    let total_units = pack_quantity * quantity;
+    let row_template = $(`#per_unit_row_template`);
+    let per_unit_table = $(`#calculated-per-unit-prices`);
+    per_unit_table.empty();
+    for(let i = 0; i < total_units; i++) {
+        let item_clone = row_template.clone();
+        item_clone.attr('id', null);
+        item_clone.find('[data-field]').each(function() {
+            let e = $(this);
+            let key = e.data('field');
+            if (key === "units") {
+                e.text(round(i+1));
+            }
+            if (key === "cost_for_the_units") {
+                e.html("<span class='dollar-cell'>" + round(price_per_unit * (i+1)).toFixed(2) + "</span>");
+            }
+        });
+        // item_clone.removeClass("hidden");
+        per_unit_table.append(item_clone);
+    }
+    let per_count_table = $(`#calculated-per-count-prices`);
+    per_count_table.empty();
+    if (unit_quantity > 1) {
+        $("#calculated-per-count-prices-container").removeClass("d-none");
+        let unit_size = $("#calc-unit-size").text();
+        let unit_grouping = 0;
+        if (unit_size.endsWith("dz")) {
+            unit_grouping = 12;
+        }
+
+        $('span[data-term="calc-unit-size-term"]').each(function(index) {
+            if (unit_size.endsWith("lb")) {
+                $(this).text("pound");
+            } else {
+                $(this).text("count");
+            }
+        })
+
+        for(let i = 0; i < unit_quantity; i++) {
+            if (unit_grouping > 0) {
+                if (i % unit_grouping === 0) {
+                    per_count_table.append(`<div>${(i / unit_grouping) + 1} group of ${unit_grouping}</div>`);
+                }
+            }
+            let item_clone = row_template.clone();
+            item_clone.attr('id', null);
+            item_clone.find('[data-field]').each(function() {
+                let e = $(this);
+                let key = e.data('field');
+                if (key === "units") {
+                    e.text(round(i+1));
+                }
+                if (key === "cost_for_the_units") {
+                    e.html("<span class='dollar-cell'>" + round(price_per_count * (i+1)).toFixed(2) + "</span>");
+                }
+            });
+            // item_clone.removeClass("hidden");
+            per_count_table.append(item_clone);
+        }
+    } else {
+        $("#calculated-per-count-prices-container").addClass("d-none");
+    }
+
+    if (quantity > 1) {
+        $("#calculated-per-pack-prices-container").removeClass("d-none");
+        let row_template = $(`#per_pack_row_template`);
+        let per_pack_table = $(`#calculated-per-pack-prices`);
+        per_pack_table.empty();
+        for(let i = 0; i < quantity; i++) {
+            let item_clone = row_template.clone();
+            item_clone.attr('id', null);
+            item_clone.find('[data-field]').each(function() {
+                let e = $(this);
+                let key = e.data('field');
+                if (key === "packs") {
+                    e.text(round(i+1));
+                }
+                if (key === "cost_for_the_packs") {
+                    e.html("<span class='dollar-cell'>" + round(pack_price * (i+1)).toFixed(2) + "</span>");
+                }
+            });
+            per_pack_table.append(item_clone);
+
+        }
+    } else {
+        $("#calculated-per-pack-prices-container").addClass("d-none");
+    }
+    $("#calculation-div").removeClass("d-none");
+}
+function adjust_selected_item_inventory_quantity() {
+    let item_id = $("#calc-item-id").val();
+    let use_quantity = $("#calc-selected-item-inventory-adjustment").val();
+    let remaining_quantity = $("#calc-remaining-quantity").text();
+    let use_type = $("#calc-use-type").text();
+    logit(`Adjusting ${item_id} from ${remaining_quantity} by ${use_quantity}.`);
+    // Should prevent further changes while waiting for this change.  Do not want multiple usages to be sent.
+    // Though, sending the remaining with the request would allow the SQL to only update if the remaining matches.
+    // First would work but subsequent would fail.
+    let values_to_send = {
+        "item_id": item_id,
+        "remaining_quantity": remaining_quantity,
+        "use_quantity": use_quantity,
+        "use_type": use_type,
+    };
+    let headers = {};
+    headers['X-CSRFToken'] = csrftoken;
+    var jqxhr = $.ajax({
+        url: "{% url "inventory:api_sourceitem_quantity_adjustment" %}",
+        type: "put",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(values_to_send),
+        headers: headers,
+        // traditional: true
+    })
+    .done(function(e) {
+        console.log(`adjusted quantity of '${e.adjustment}' from '${e.previous}' to '${e.new}'.`);
+        // After the item is adjusted, need to reload the table.
+        $("#filter-pick-id").val(item_id);
+        $(window).trigger(force_filter_refresh_event_name);
+        $("#calc-selected-item-inventory-adjustment").val("0");
+        if ('msg' in e) {
+            showPopupMessage(e.msg);
+        }
+    })
+    .fail(function() {
+        logit("ajax fail");
+    })
+    .always(function() {
+        logit("ajax always");
+    });
+}
+function new_filtered_item(e, new_filtered_item_row) {
+    let new_row = $(new_filtered_item_row);
+    let remaining_quantity = parseInt(new_row.find('[data-field="remaining_quantity"]').text());
+    if (remaining_quantity === 0) {
+        new_row.addClass('no-remaining-quantity');
+        new_row.addClass('text-muted');
+    }
+}
+function retrieve_saved_search_critera(saved_search_id) {
+    // logit("timer_elapsed_func()");
+    let values_to_send = {"saved_search_id": saved_search_id};
+    let api_url_template = "{% url "inventory:saved_search" pk="00000000-0000-0000-0000-000000000000" %}";
+    $("#saved-searches-status").text("Loading saved search...");
+    var jqxhr = $.ajax({
+        url: api_url_template.replace("00000000-0000-0000-0000-000000000000", saved_search_id),
+        type: "get",
+        data: values_to_send,
+        // traditional: true
+    })
+    .done(load_from_saved_search)
+    .fail(function() {
+        $("#saved-searches-status").text("Loading saved search failed.");
+    })
+    .always(function() {
+
+    });
+}
+function load_from_saved_search(data){
+    $("#saved-searches-status").text("");
+    clear_form();
+    let search_fields_populated = false;
+    $.each(data, function(key, value){
+        $(`#${key}`).val(value);
+        if (value !== "") {
+            search_fields_populated = true;
+        }
+    });
+    if (search_fields_populated) {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
+function setup_event_handlers() {
+    let w = $(window);
+    let d = $(document);
+    w.on("resize", {"content_id": "lookup-content"}, resize_content);
+    d.on("resize", {"content_id": "lookup-content"}, resize_content);
+    w.trigger("resize");
+
+    w.on(filter_requested_event_name, function() {
+        // filter sent to server, hide calculations as there's no longer a selected item.
+        $("#calculation-div").addClass("d-none");
+    });
+    w.on(filter_results_populated_event_name, function() {
+        // filter results arrived.  Still no selected item.
+        $("#calculation-div").addClass("d-none");
+        let item_id_tag = $("#filter-item-id");
+        let pick_id_tag = $("#filter-pick-id");
+        let pick_first_tag = $("#filter-pick-first");
+        if ((item_id_tag.val() !== "") || (pick_first_tag.val() !== "")) {
+            // TODO: Might need to change this if the link goes back to the row instead of a cell.
+            let item_row = $(`#${filter_results_div_id} tr:first`);
+            highlight_row(item_row);
+            item_row.find(".filtered-item-link").trigger("click");
+            item_id_tag.val("");
+            pick_first_tag.val("");
+        }
+        if (pick_id_tag.val() !== "") {
+            let result_table = $(`#${filter_results_div_id}`);
+            result_table.find(".filtered-item-top").each(function() {
+                let row = $(this);
+                if (pick_id_tag.val() === row.data('id')) {
+                    // Found the item.  trigger the click event.
+                    row.find(".filtered-item-link").trigger("click");
+                    pick_id_tag.val("");
+                }
+            });
+        }
+    });
+    w.on(new_filtered_item_event_name, new_filtered_item);
+    w.on(item_selected_event_name, function(e, selected_row) {
+        // Now that there's a selected item, update the calculations.  This also unhides the section.
+        update_calculations();
+
+        highlight_row(selected_row);
+        prepare_remaining_quantity_controls(selected_row);
+
+        $('html, body').stop().animate({'scrollTop':$('#calculation-div').offset().top}, 100);
+    });
+    $("#clear_form").on("click", clear_form);
+    $("#calc-adjust-selected-item-inventory-quantity").on("click", adjust_selected_item_inventory_quantity);
+
+    $('.test-btn').on('click', function() {
+        $("#filter-quantity").val(42);
+        $("#filter-unit-size").val("unit-size value");
+        $("#filter-item-name").val("item-name value");
+        $("#filter-item-code").val("item-code value");
+        $("#filter-comment").val("comment value");
+        $("#filter-order-number").val("order-number value");
+    });
+
+    $('#save_search_form').on('submit', function() {
+        let values = get_values_to_save($('#save_search_form'));
+        if (values["empty"]) {
+            // Should refuse to save an empty search
+            return false;
+        }
+        {#return false;#}
+    });
+    $('#saved-searches-select').on('change', function() {
+        let selected_item = $('#saved-searches-select').find(":selected");
+        if (selected_item.val() !== "") {
+            retrieve_saved_search_critera(selected_item.val());
+        }
+    });
+}
+function prepare_remaining_quantity_controls(_selected_row) {
+    let nbr_ctrl = $("#calc-selected-item-inventory-adjustment");
+    let selected_row = $(_selected_row);
+    let item_id = selected_row.data('id');
+    console.log(item_id);
+    let remaining_quantity = selected_row.find('[data-field="remaining_quantity"]').text();
+    nbr_ctrl.attr("max", remaining_quantity);
+}
+function link_to_search() {
+    let args = {};
+    let tags_to_use = [
+        'filter-quantity', 'filter-unit-size', 'filter-item-code', 'filter-item-name', 'filter-comment',
+        'filter-order-number'];
+    $(".filter-input").each(function() {
+        let tag = $(this);
+        console.log(`'${tag.prop('id')}' == '${tag.val()}'`);
+        if (tags_to_use.includes(tag.prop('id'))) {
+            let url_arg_name = tag.prop('id').replace("filter-", "");
+            args[url_arg_name] = tag.val();
+        }
+    });
+    // TODO: Need the source and category filters and need to add pick-id or pick-first.
+    let selected_row = get_highlighted_row();
+    args['pick-id'] = selected_row.data('id');
+    let url_string = $.param(args);
+    console.log(url_string);
+    return url_string;
+}
+function clear_form() {
+    let search_fields = [
+        "#filter-order-number", "#filter-comment", "#filter-item-code", "#filter-item-name", "#filter-unit-size",
+        "#filter-quantity"];
+    search_fields.forEach(search_field_name => {
+        $(search_field_name).val("");
+    });
+    $("#filter-limits-collapsible").find('input[name="filter-source"]').each(function() {
+        $(this).prop("checked", false);
+    });
+    $("#filter-limits-collapsible").find('input[name="filter-category"]').each(function() {
+        $(this).prop("checked", false);
+    });
+    $(window).trigger(force_filter_refresh_event_name);
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+
+    // Hide the calculations by default as there's no selected item on page load.
+    $("#calculation-div").addClass("d-none");
+
+    load_from_item_id();
+    load_from_url_search();
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+# The webserver
+# TODO: Pinned to 4.0.6 because django-extensions uses 'requires_system_checks=False'
+#  which Django 4.1 doesn't like.
+Django==4.0.6
+
+# Provides runserver_plus and shell_plus
+django-extensions
+
+# Connects to Postgresql
+# Using psycopg2-binary causes the following error:
+# django.db.utils.OperationalError: SCRAM authentication requires libpq version 10 or above
+# This appears to be a problem for ARM as the v3 code on osx is using the binary.
+psycopg2-binary
+
+# Reads .env files
+django-dotenv
+
+# used to localize times
+pytz
+
+# Used by runserver_plus
+Werkzeug
+
+# Converts between units like cups/quarts/milliliters.  This is my fork which adds volume.
+# git+https://github.com/adamtorres/unit-convert@master#egg=unit-convert
+
+# provides a fancier django admin interface.  Using it because it promised to handle GenericForeignKey nicely.
+django-grappelli
+
+# Trying to add colors to print-sql output
+pygments
+
+# to parse dates from invoice files
+python-dateutil
+
+# mainly for the serializer but now for APIView
+djangorestframework
+
+# allow Django messages to work with djangorestframework
+drf-messages
+
+# for if/when more user-driven filtering is desired.
+django-filter
+
+# for making calls to the api from within code
+requests
+
+# Allows modifying form elements within the template.  Keeps presentation code out of python.
+django-widget-tweaks
+
+-e ../../v6/django-scrap

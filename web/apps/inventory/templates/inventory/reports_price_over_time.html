@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Price Over Time{% endblock %}
+
+{% block content %}
+    <label for="canned-report-select">Report: </label>
+    <select id="canned-report-select">
+        <option data-report-url="" value="">-- Please Select a Report --</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="eggs" %}?format=json" value="eggs">Eggs</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="beets" %}?format=json" value="beets">Pickled Beets</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="2milk" %}?format=json" value="2milk">2% Milk Cartons</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="chocmilk" %}?format=json" value="chocmilk">Chocolate Milk Cartons</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="stringcheese" %}?format=json" value="stringcheese">String Cheese</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="apflour" %}?format=json" value="apflour">All Purpose Flour</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="butter" %}?format=json" value="butter">Butter</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="margarine" %}?format=json" value="margarine">Margarine</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="corn" %}?format=json" value="corn">Corn</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="greenbeans" %}?format=json" value="greenbeans">Green Beans</option>
+    </select>
+<div>
+    <span id="chart-title">Placeholder</span>
+    <canvas id="myChart"></canvas>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// let chart_data_url = "{% url "inventory:api_sourceitem_chartdata" report_name="chocmilk" %}?format=json";
+let global_chart = null;
+
+function chart_data_received(data){
+    $("#chart-title").text(`Per Use Cost for: ${data['item_names']}`);
+    let point_background_colors = [];
+    // get reference to the canvas element.
+    const ctx = document.getElementById('myChart');
+    global_chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data['delivered_date'],
+            datasets: [{
+                label: 'Per Use Cost',
+                data: data['per_use_cost'],
+                borderWidth: 1,
+                pointBackgroundColor: point_background_colors,
+                barBackgroundColor: point_background_colors,
+                pointBorderColor: point_background_colors,
+                barBorderColor: point_background_colors,
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        afterBody: function (context) {
+                            const lines = [];
+                            lines.push(`Source: ${data["source"][context[0].dataIndex]}`);
+                            lines.push(`Item: ${data["item_name"][context[0].dataIndex]}`);
+                            lines.push(`Pack cost: $${data["pack_cost"][context[0].dataIndex]}`);
+                            lines.push(`Quantity: ${data["initial_quantity"][context[0].dataIndex]}`);
+                            return lines
+                        },
+                        label: function (context) {
+                            return `$${context.formattedValue}`;
+                        }
+
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    for (let i = 0; i < global_chart.data.datasets[0].data.length; i++) {
+        if (data["source"][i] === "sysco") {
+            point_background_colors.push("#90cd8a");
+        } else {
+            point_background_colors.push("#f58368");
+        }
+    }
+    global_chart.update();
+}
+
+function get_chart_data() {
+    let report_url = $("#canned-report-select").find(":selected").attr('data-report-url');
+    if (report_url === "") {
+        return;
+    }
+    // $("myChart").html("");
+    if (global_chart !== null) {
+        global_chart.destroy();
+    }
+    let jqxhr = $.ajax({
+        url: report_url,
+        type: "get",
+        // data: values_to_send,
+        // traditional: true
+    })
+    .done(chart_data_received)
+    .fail(function() {
+        console.log("ajax fail");
+    })
+    .always(function() {
+    });
+}
+$( document ).ready(function() {
+    // get_chart_data();
+    $("#canned-report-select").on("change", get_chart_data)
+});
+function print_chart() {
+
+    var canvas = document.getElementById("myChart");
+    var win = window.open();
+    win.document.write($("#chart-title").text());
+    win.document.write("<br><img src='" + canvas.toDataURL() + "'/>");
+    // setTimeout(win.print, 50);
+
+    // win.location.reload();
+}
+</script>
+{% endblock %}
