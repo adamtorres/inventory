@@ -100,6 +100,7 @@ label {
                     <option value="{{ saved_search.id }}">{{ saved_search.name }}</option>
                 {% endfor %}
                 </select>
+                <span id="saved-searches-status"></span>
             </span>
         </div>
         <div class="accordion" id="filter-limits-parent">
@@ -710,6 +711,39 @@ function new_filtered_item(e, new_filtered_item_row) {
         new_row.addClass('text-muted');
     }
 }
+function retrieve_saved_search_critera(saved_search_id) {
+    // logit("timer_elapsed_func()");
+    let values_to_send = {"saved_search_id": saved_search_id};
+    let api_url_template = "{% url "inventory:saved_search" pk="00000000-0000-0000-0000-000000000000" %}";
+    $("#saved-searches-status").text("Loading saved search...");
+    var jqxhr = $.ajax({
+        url: api_url_template.replace("00000000-0000-0000-0000-000000000000", saved_search_id),
+        type: "get",
+        data: values_to_send,
+        // traditional: true
+    })
+    .done(load_from_saved_search)
+    .fail(function() {
+        $("#saved-searches-status").text("Loading saved search failed.");
+    })
+    .always(function() {
+
+    });
+}
+function load_from_saved_search(data){
+    $("#saved-searches-status").text("");
+    clear_form();
+    let search_fields_populated = false;
+    $.each(data, function(key, value){
+        $(`#${key}`).val(value);
+        if (value !== "") {
+            search_fields_populated = true;
+        }
+    });
+    if (search_fields_populated) {
+        $(window).trigger(force_filter_refresh_event_name);
+    }
+}
 function setup_event_handlers() {
     let w = $(window);
     let d = $(document);
@@ -781,8 +815,9 @@ function setup_event_handlers() {
         let selected_item = $('#saved-searches-select').find(":selected");
         console.log(`selected item value "${selected_item.val()}"`);
         console.log(`selected item text "${selected_item.text()}"`);
-        // if .val() != "", GET to an api to get the criteria, populate the form fields, run the search.
-        // if .val() == "", clear the fields?  or do nothing?
+        if (selected_item.val() !== "") {
+            retrieve_saved_search_critera(selected_item.val());
+        }
     });
 }
 function prepare_remaining_quantity_controls(_selected_row) {
