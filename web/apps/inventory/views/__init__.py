@@ -8,6 +8,7 @@ from .reports_created_today import ReportsCreatedTodayView
 from .reports_packaging_costs import ReportsPackagingCostsView
 from .reports_price_over_time import ReportsPriceOverTimeView
 from .source_item_create import SourceItemCreateView
+from .source_item_math_check import SourceItemMathCheckView
 from .source_item_order_items import SourceItemOrderItemsView
 from .source_item_orders import SourceItemOrdersView
 from .source_item_search import SourceItemSaveSearchView, SourceItemSearchView

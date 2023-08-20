@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search Source Items{% endblock %}
+
+{% block styles %}
+<style>
+.field {
+    border: black 1px solid;
+    display: inline-block;
+}
+.hidden {
+    /* Needs to be declared after .field as that class would clobber this one's display setting. */
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="lookup-content">
+            <span>
+                <label for="saved-searches-select">Select a saved search: </label>
+                <select id="saved-searches-select">
+                    <option value="">---</option>
+                {% for saved_search in saved_searches %}
+                    <option value="{{ saved_search.id }}">{{ saved_search.name }}</option>
+                {% endfor %}
+                </select>
+                <span id="saved-searches-status"></span>
+            </span>
+</div>
+<pre id="on-page-log">
+Log.
+</pre>
+    <div id="item-template" class="hidden">
+        <div class="field" data-field="delivered_date">__delivered_date__</div>
+        <div class="field" data-hidden="true" data-field="source">__source__</div>
+        <div class="field" data-field="source_name">__source_name__</div>
+        <div class="field" data-hidden="true" data-field="brand">__brand__</div>
+        <div class="field" data-hidden="true" data-field="order_number">__order_number__</div>
+        <div class="field" data-hidden="true" data-field="po_text">__po_text__</div>
+        <div class="field" data-hidden="true" data-field="line_item_number">__line_item_number__</div>
+        <div class="field" data-hidden="true" data-field="source_category">__source_category__</div>
+        <div class="field" data-field="source_item_name">__source_item_name__</div>
+        <div class="field" data-field="common_name">__common_name__</div>
+        <div class="field" data-hidden="true" data-field="item_code">__item_code__</div>
+        <div class="field" data-field="delivered_quantity">__delivered_quantity__</div>
+        <div class="field" data-field="pack_cost">__pack_cost__</div>
+        <div class="field" data-field="pack_quantity">__pack_quantity__</div>
+        <div class="field" data-field="unit_quantity">__unit_quantity__</div>
+        <div class="field" data-field="unit_size">__unit_size__</div>
+        <div class="field" data-field="extended_cost">__extended_cost__</div>
+        <div class="field" data-field="total_weight">__total_weight__</div>
+        <div class="field" data-field="individual_weights">__individual_weights__</div>
+        <div class="field" data-hidden="true" data-field="extra_notes">__extra_notes__</div>
+        <div class="field" data-hidden="true" data-field="extra_code">__extra_code__</div>
+        <div class="field" data-hidden="true" data-field="scanned_filename">__scanned_filename__</div>
+        <div class="field" data-field="remaining_quantity">__remaining_quantity__</div>
+        <div class="field" data-field="remaining_cost">__remaining_cost__</div>
+        <div class="field" data-field="per_use_cost">__per_use_cost__</div>
+        <div class="field" data-field="use_type">__use_type__</div>
+        <div class="field" data-field="use_type_str">__use_type_str__</div>
+    </div>
+    <div id="item-container">
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="{% static 'js/on_page_log.js' %}"></script>
+<script>
+filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
+function retrieve_saved_search_critera(saved_search_id) {
+    // logit("timer_elapsed_func()");
+    let values_to_send = {"saved_search_id": saved_search_id};
+    let api_url_template = "{% url "inventory:saved_search" pk="00000000-0000-0000-0000-000000000000" %}";
+    $("#saved-searches-status").text("Loading saved search...");
+    $.ajax({
+        url: api_url_template.replace("00000000-0000-0000-0000-000000000000", saved_search_id),
+        type: "get",
+        data: values_to_send,
+        // traditional: true
+    })
+    .done(run_search)
+    .fail(function() {
+        $("#saved-searches-status").text("Loading saved search failed.");
+    })
+    .always(function() {
+
+    });
+}
+function form_id_to_ajax_var(form_id) {
+    // The form ids came from the search form and the ajax vars don't 100% match form ids.
+    filter_input_fields = [
+        {element: "#filter-item-id", ajax_var: "item_id"},
+        {element: "[name='filter-source']", ajax_var: "source"},
+        {element: "[name='filter-category']", ajax_var: "category"},
+        {element: "#filter-quantity", ajax_var: "quantity"},
+        {element: "#filter-unit-size", ajax_var: "unit_size"},
+        {element: "#filter-item-name", ajax_var: "name"},
+        {element: "#filter-item-code", ajax_var: "item_code"},
+        // {element: "#filter-item-code", ajax_var: "extra_code"},  // Would like to do this in python.
+        {element: "#filter-comment", ajax_var: "comment"},
+        {element: "#filter-order-number", ajax_var: "order_number"},
+    ];
+    let found_ajax_var = null;
+    $.each(filter_input_fields, function(name_pair_idx) {
+        let name_pair = filter_input_fields[name_pair_idx];
+        if (name_pair["element"] === `#${form_id}`) {
+            found_ajax_var = name_pair["ajax_var"];
+            // tried returning here but the loop continued anyway and returned the 'not found' result.
+        }
+    })
+    return found_ajax_var;
+}
+function get_values_to_send(data)
+ {
+    let values_to_send = {
+        empty: true,
+        "wide_filter_fields": []
+    };
+    $.each(data, function(key, value){
+        let ajax_var = form_id_to_ajax_var(key);
+        values_to_send[ajax_var] = value;
+        values_to_send["wide_filter_fields"].push(ajax_var);
+        if (values_to_send[ajax_var] !== "") {
+            values_to_send['empty'] = false;
+        }
+    });
+    return values_to_send;
+}
+function run_search(data) {
+    // logit("timer_elapsed_func()");
+    let values_to_send = get_values_to_send(data);
+    let filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
+    if (values_to_send['empty']) {
+        // don't want to send empty requests.
+        return;
+    }
+    $.ajax({
+        url: filter_url,
+        type: "get",
+        data: values_to_send,
+        // traditional: true
+    })
+    .done(populate_results)
+    .fail(function() {
+        $("#saved-searches-status").text("Loading saved search failed.");
+    })
+    .always(function() {
+
+    });
+}
+function populate_results(data) {
+    let count = 0;
+    let item_container = $("#item-container");
+    item_container.empty();
+    $.each(data, function(index){
+        item_container.append(create_new_item(this));
+        count++;
+    });
+    console.log(`got ${count} items.`);
+    $("#saved-searches-status").text("");
+}
+function create_new_item(data) {
+    let item_clone = $("#item-template").clone();
+    item_clone.attr('id', null);
+    item_clone.attr("data-id", data['id']);
+    item_clone.find('[data-field]').each(function() {
+        let e = $(this);
+        let key = e.data('field');
+        if (key === undefined) {
+            // The template should have names on each div so this is an error.  Probably shouldn't hide it.
+            return true;
+        }
+        let record_value = data[key];
+        e.html(`${record_value}&nbsp;`);
+        if (e.data('hidden') === true) {
+            e.addClass("hidden");
+        }
+    });
+    item_clone.removeClass("hidden");
+    return item_clone;
+}
+function setup_event_handlers() {
+    $('#saved-searches-select').on('change', function() {
+        let selected_item = $('#saved-searches-select').find(":selected");
+        if (selected_item.val() !== "") {
+            retrieve_saved_search_critera(selected_item.val());
+        }
+    });
+}
+$(document).ready(function() {
+    setup_event_handlers();
+});
+</script>
+{% endblock %}

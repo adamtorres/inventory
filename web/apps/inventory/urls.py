@@ -32,6 +32,7 @@ urlpatterns = [
     urls.path("reports/packaging_costs/", i_views.ReportsPackagingCostsView.as_view(), name="reports_packaging_costs"),
     urls.path("reports/price_over_time/", i_views.ReportsPriceOverTimeView.as_view(), name="reports_price_over_time"),
 
+    urls.path("sourceitem/mathcheck/", i_views.SourceItemMathCheckView.as_view(), name="sourceitem_mathcheck"),
     urls.path("sourceitem/orders/", i_views.SourceItemOrdersView.as_view(), name="sourceitem_orders"),
     urls.path("sourceitem/order/<str:source>/<str:order_number>/<str:delivered_date>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items_with_date"),
     urls.path("sourceitem/order/<str:source>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items"),

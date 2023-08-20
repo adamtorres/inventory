@@ -813,8 +813,6 @@ function setup_event_handlers() {
     });
     $('#saved-searches-select').on('change', function() {
         let selected_item = $('#saved-searches-select').find(":selected");
-        console.log(`selected item value "${selected_item.val()}"`);
-        console.log(`selected item text "${selected_item.text()}"`);
         if (selected_item.val() !== "") {
             retrieve_saved_search_critera(selected_item.val());
         }

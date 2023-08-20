@@ -365,6 +365,15 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         if self.use_by_count():
             return self.delivered_quantity * self.pack_quantity * self.unit_quantity
 
+    def per_pound_cost(self, rounded_places=-1):
+        if self.delivered_quantity == 0:
+            return 0
+        if self.unit_size.endswith(["lb", "#"]):
+            # some items use pack_cost as a per pound cost.  For those, we could use that number blindly.
+            # or, we could ignore the given pack_cost and calculate it so no conditional logic need done.
+            pack_cost = self.extended_cost / self.delivered_quantity
+            pack_cost / self.pack_quantity
+
     def per_use_cost(self, round_places=-1):
         """
         :param round_places: If negative, do not round.  If 0 or positive, round to specified places.
