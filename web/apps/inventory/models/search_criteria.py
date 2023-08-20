@@ -75,7 +75,6 @@ class SearchCriteria(sc_models.DatedModel):
         from . import SourceItem
         vts = []
         for crit, value in self.criteria.items():
-            logger.debug(f"SearchCriteria.search: crit={crit!r}, value={value!r}")
             ajax_var = self.form_field_to_ajax_var(crit[5:] if crit.startswith("save-") else crit)
             vts.append((ajax_var, value))
         qs = SourceItem.objects.wide_filter(vts)
