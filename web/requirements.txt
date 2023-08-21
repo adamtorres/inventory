@@ -48,4 +48,4 @@ requests
 # Allows modifying form elements within the template.  Keeps presentation code out of python.
 django-widget-tweaks
 
--e ../../v6/django-scrap
+-e ../../django-scrap

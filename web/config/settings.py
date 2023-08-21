@@ -106,6 +106,7 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT'),
+        'TIME_ZONE': os.environ.get('TIME_ZONE'),
     }
 }
 
@@ -156,7 +157,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'US/Mountain'
+TIME_ZONE = os.environ.get('TIME_ZONE')
 
 USE_I18N = True
 
