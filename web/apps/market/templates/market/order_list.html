@@ -43,14 +43,18 @@
     <div class="order-cell order-ordered-date">{{ order.date_ordered|date:"n/j/y" }}</div>
     <div class="order-cell order-made-date">{% if order.date_made %}&check;{% endif %}</div>
     <div class="order-cell order-pickup-date">{% if order.pickup_date %}&check;{% endif %}</div>
-    <div class="order-cell order-paid-date">{% if order.date_paid %}&check;{% endif %}</div>
+    <div class="order-cell order-paid-date">
+        <button class="btn-paid-date-on btn btn{% if order.date_paid %}-outline{% endif %}-success" {% if order.date_paid %}disabled {% endif %}>On</button>
+        <button class="btn-paid-date-off btn btn{% if not order.date_paid %}-outline{% endif %}-danger" {% if not order.date_paid %}disabled {% endif %}>Off</button>
+    </div>
     <div class="order-cell order-who">{{ order.who }}</div>
     <div class="order-cell order-controls">
         <a class="btn btn-success" href="{% url "market:order_detail" pk=order.pk %}">View/Change Order</a>
         <a class="btn btn-success" href="{% url "market:order_printable_invoice" pk=order.pk %}">Printable Invoice</a>
     </div>
 
-</div>{% endfor %}
+</div>
+{% endfor %}
 </div>
 <div>
     {% if include_completed %}
@@ -65,4 +69,23 @@
 {% endblock %}
 
 {% block body_scripts %}
+<script type="application/javascript">
+function set_paid_date(event) {
+    console.log(`set_paid_date.`);
+    let data = event.data;
+    console.log(event);
+}
+function setup_event_handlers() {
+    // let w = $(window);
+    // let d = $(document);
+    console.log("setup_event_handlers.");
+    $(".btn-paid-date-on").on("click", {foo: "bar"}, set_paid_date);
+    $(".btn-paid-date-off").on("click", {foo: "snot"}, set_paid_date);
+    console.log("setup_event_handlers done.")
+}
+$( document ).ready(function() {
+    setup_event_handlers();
+});
+
+</script>
 {% endblock %}
