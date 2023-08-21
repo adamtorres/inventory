@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Current Price List{% endblock %}
+
+{% block styles %}
+<style>
+.item {
+    display: grid;
+    grid-template-columns: 3fr 3fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "a a a a a a";
+    border-bottom: black solid 1px;
+}
+.field {
+    {#display: inline-block;#}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="current-price-content">
+<div class="item item-header">
+    <div class="field">Name</div>
+    <div class="field">Description</div>
+    <div class="field">Last Order Date</div>
+    <div class="field">Pack Quantity</div>
+    <div class="field">Pack Cost</div>
+    <div class="field">Per Use Cost</div>
+</div>
+{% for item in items %}
+<div class="item">
+    <div class="field">
+        <div>{{ item.source_name }}</div>
+        <div>{{ item.common_name }}</div>
+    </div>
+    <div class="field">{{ item.description }}</div>
+    <div class="field">{{ item.last_order_date }}</div>
+    <div class="field">{{ item.quantity|intcomma }}</div>
+    <div class="dollar-cell field">{{ item.pack_cost|floatformat:2|intcomma }}</div>
+    <div class="dollar-cell field">{{ item.per_use_cost|floatformat:4|intcomma }}</div>
+</div>
+
+{% endfor %}
+</div>
+{% endblock %}

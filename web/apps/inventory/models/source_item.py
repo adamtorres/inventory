@@ -392,3 +392,10 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
 
     def remaining_cost(self):
         return self.per_use_cost() * self.remaining_quantity
+
+    @property
+    def source_name(self):
+        """
+        Shortcut to get name from the source preferring the one without horribly abbreviated terms.
+        """
+        return self.verbose_name or self.cryptic_name

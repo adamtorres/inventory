@@ -7,6 +7,7 @@ from .api_source_item_wide_filter import APISourceItemWideFilterView
 from .reports_created_today import ReportsCreatedTodayView
 from .reports_packaging_costs import ReportsPackagingCostsView
 from .reports_price_over_time import ReportsPriceOverTimeView
+from .search_criteria import SearchCriteriaCurrentPricesView
 from .source_item_create import SourceItemCreateView
 from .source_item_math_check import SourceItemMathCheckView
 from .source_item_order_items import SourceItemOrderItemsView

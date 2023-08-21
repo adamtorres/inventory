@@ -18,7 +18,9 @@ urlpatterns = [
         "api/sourceitem/autocomplete/", i_views.APISourceItemAutocompleteSearchView.as_view(),
         name="api_sourceitem_autocomplete"),
 
-    urls.path("api/sourceitem/chartdata/<str:report_name>/", i_views.APIChartDataView.as_view(), name="api_sourceitem_chartdata"),
+    urls.path(
+        "api/sourceitem/chartdata/<str:report_name>/", i_views.APIChartDataView.as_view(),
+        name="api_sourceitem_chartdata"),
 
     urls.path(
         "api/sourceitem/orders/", i_views.APISourceItemOrdersView.as_view(), name="api_sourceitem_orders"),
@@ -32,10 +34,18 @@ urlpatterns = [
     urls.path("reports/packaging_costs/", i_views.ReportsPackagingCostsView.as_view(), name="reports_packaging_costs"),
     urls.path("reports/price_over_time/", i_views.ReportsPriceOverTimeView.as_view(), name="reports_price_over_time"),
 
+    urls.path(
+        "saved_search/current_prices", i_views.SearchCriteriaCurrentPricesView.as_view(),
+        name="saved_search_current_prices"),
+
     urls.path("sourceitem/mathcheck/", i_views.SourceItemMathCheckView.as_view(), name="sourceitem_mathcheck"),
     urls.path("sourceitem/orders/", i_views.SourceItemOrdersView.as_view(), name="sourceitem_orders"),
-    urls.path("sourceitem/order/<str:source>/<str:order_number>/<str:delivered_date>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items_with_date"),
-    urls.path("sourceitem/order/<str:source>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items"),
+    urls.path(
+        "sourceitem/order/<str:source>/<str:order_number>/<str:delivered_date>/",
+        i_views.SourceItemOrderItemsView.as_view(), name="sourceitem_order_items_with_date"),
+    urls.path(
+        "sourceitem/order/<str:source>/<str:order_number>/", i_views.SourceItemOrderItemsView.as_view(),
+        name="sourceitem_order_items"),
     urls.path("sourceitem/search/", i_views.SourceItemSearchView.as_view(), name="sourceitem_search"),
     urls.path("sourceitem/search/save", i_views.SourceItemSaveSearchView.as_view(), name="sourceitem_save_search"),
     urls.path("sourceitem/stats/", i_views.SourceItemStatsView.as_view(), name="sourceitem_stats"),
