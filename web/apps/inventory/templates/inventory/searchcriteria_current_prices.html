@@ -20,27 +20,31 @@
 
 {% block content %}
 <div class="container-fluid" id="current-price-content">
-<div class="item item-header">
-    <div class="field">Name</div>
-    <div class="field">Description</div>
-    <div class="field">Last Order Date</div>
-    <div class="field">Pack Quantity</div>
-    <div class="field">Pack Cost</div>
-    <div class="field">Per Use Cost</div>
-</div>
-{% for item in items %}
-<div class="item">
-    <div class="field">
-        <div>{{ item.source_name }}</div>
-        <div>{{ item.common_name }}</div>
+<hr />
+{% for group_name, group_items in grouped_items.items %}
+    <h3>{{ group_name }}</h3>
+    <div class="item item-header">
+        <div class="field">Name</div>
+        <div class="field">Description</div>
+        <div class="field">Last Order Date</div>
+        <div class="field">Pack Quantity</div>
+        <div class="field">Pack Cost</div>
+        <div class="field">Per Use Cost</div>
     </div>
-    <div class="field">{{ item.description }}</div>
-    <div class="field">{{ item.last_order_date }}</div>
-    <div class="field">{{ item.quantity|intcomma }}</div>
-    <div class="dollar-cell field">{{ item.pack_cost|floatformat:2|intcomma }}</div>
-    <div class="dollar-cell field">{{ item.per_use_cost|floatformat:4|intcomma }}</div>
-</div>
-
+    {% for item in group_items %}
+    <div class="item">
+        <div class="field">
+            <div>{{ item.source_name }}</div>
+            <div>{{ item.common_name }}</div>
+        </div>
+        <div class="field">{{ item.description }}</div>
+        <div class="field">{{ item.last_order_date }}</div>
+        <div class="field">{{ item.quantity|intcomma }}</div>
+        <div class="dollar-cell field">{{ item.pack_cost|floatformat:2|intcomma }}</div>
+        <div class="dollar-cell field">{{ item.per_use_cost|floatformat:4|intcomma }}</div>
+    </div>
+    {% endfor %}
+    <hr />
 {% endfor %}
 </div>
 {% endblock %}

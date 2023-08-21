@@ -49,6 +49,7 @@ class SearchCriteria(sc_models.DatedModel):
     description = sc_fields.CharField(help_text="")
     # Should the fields and values be stored in a single field?  Parallel arrays?  json object?
     criteria = models.JSONField(default=dict)
+    category = sc_fields.CharField(help_text="Self-defined category as some vendors seem to randomly assign them")
 
     form_field_ajax_var_xlate = {
         "filter-item-id": "item_id",
@@ -128,28 +129,4 @@ class SearchCriteria(sc_models.DatedModel):
         qs = self.get_search_queryset()
         return qs.last()
 
-# /inventory/api/sourceitem/wide_filter/?
-#   empty=False
-#   wide_filter_fields=name
-#   wide_filter_fields=unit_size
-#   name=egg
-#   unit_size=dz
-# /inventory/api/sourceitem/wide_filter/?
-#   empty=false
-#   wide_filter_fields%5B%5D=item_id
-#   wide_filter_fields%5B%5D=source
-#   wide_filter_fields%5B%5D=category
-#   wide_filter_fields%5B%5D=quantity
-#   wide_filter_fields%5B%5D=unit_size
-#   wide_filter_fields%5B%5D=name
-#   wide_filter_fields%5B%5D=item_code
-#   wide_filter_fields%5B%5D=comment
-#   wide_filter_fields%5B%5D=order_number
-#   item_id=
-#   quantity=
-#   unit_size=dz
-#   name=egg
-#   item_code=
-#   comment=
-#   order_number=
 
