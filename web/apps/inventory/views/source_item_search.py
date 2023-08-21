@@ -27,7 +27,7 @@ class SourceItemSaveSearchView(generic.TemplateView):
         if search_criteria_to_save:
             obj = inv_models.SearchCriteria.objects.create(
                 name=request.POST["search-criteria-name"], description=request.POST["search-criteria-description"],
-                criteria=search_criteria_to_save
+                criteria=search_criteria_to_save, category=request.POST["search-criteria-category"]
             )
             context["search_criteria"] = obj
         return self.render_to_response(context)

@@ -64,10 +64,10 @@ class SearchCriteria(sc_models.DatedModel):
     }
 
     class Meta:
-        ordering = ['name']
+        ordering = ['category', 'name']
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.category} / {self.name}"
 
     def form_field_to_ajax_var(self, form_field_name):
         return self.form_field_ajax_var_xlate.get(form_field_name)
