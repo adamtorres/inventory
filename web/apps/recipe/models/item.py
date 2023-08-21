@@ -10,9 +10,6 @@ from scrap.models import fields as sc_fields
 
 
 class Item(sc_models.DatedModel):
-    # TODO: How to link this to multiple SourceItems?  This could be "All Purpose Flour" but we have purchased a could
-    #  different brands of APF and from different sources.
-
     name = sc_fields.CharField(blank=False)
     likely_source = sc_fields.CharField(help_text="Best guess where this would be purchased")
     description = sc_fields.CharField(help_text="General description")
