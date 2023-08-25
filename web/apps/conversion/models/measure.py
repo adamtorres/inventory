@@ -50,7 +50,9 @@ class MeasureManager(models.Manager):
 
 
 class Measure(sc_models.DatedModel):
-    item = models.ForeignKey("inventory.SourceItem", on_delete=models.DO_NOTHING, null=True)
+    item = models.ForeignKey(
+        "inventory.SourceItem", on_delete=models.DO_NOTHING, null=True, related_name="measures",
+        related_query_name="measures")
 
     # Copied from item in case it gets deleted.
     cryptic_name = sc_fields.CharField(blank=False, help_text="Source-specific name of item as it appears on invoices")

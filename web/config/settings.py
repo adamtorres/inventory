@@ -184,6 +184,7 @@ SHELL_PLUS_IMPORTS = [
     'from inventory import views as inv_views',
     'from market import models as mkt_models',
     'from conversion import models as con_models',
+    'from recipe import models as rcp_models',
 ]
 SHELL_PLUS_PYGMENTS_ENABLED = True
 SHELL_PLUS_PRINT_SQL_TRUNCATE = 0
