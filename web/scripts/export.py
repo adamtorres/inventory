@@ -1,8 +1,27 @@
 import datetime
 import os
+import pathlib
+import platform
 import subprocess
 
 from django.apps import apps
+from django.conf import settings
+from django import db
+
+
+def dump_pg_settings():
+    output_formats = {
+        "category": 70,
+        "name": 40,
+        "setting": 30,
+        "short_desc": 30,
+    }
+    with db.connection.cursor() as cur:
+        cur.execute("select * from pg_settings;")
+        headers = [c.name for c in cur.description]
+        for row in cur.fetchall():
+            dict_row = {h: v for h, v in zip(headers, row)}
+            print(" | ".join([str(dict_row[k]).ljust(v) for k, v in output_formats.items()]))
 
 
 def get_models_to_sort():
@@ -28,6 +47,22 @@ def sort_models(models_to_sort, models_in_order=None):
     return _models_in_order
 
 
+def find_pg_dump_binary():
+    tmp = "pg_dump"
+    if platform.system().lower() == "windows":
+        p = pathlib.Path(os.environ["ProgramFiles"])  # "C:\Program Files
+        pg_path = p / "PostgreSQL"
+        if not pg_path.exists():
+            raise FileNotFoundError(f"Could not find pg_dump.  {pg_path} not found.")
+        pg_version = max([int(folder.stem) for folder in pg_path.glob("*") if folder.stem.isdigit()])
+        tmp = pg_path / str(pg_version) / "bin" / tmp
+    return str(tmp)
+
+
+def generate_export_filename(datetime_slug, table_name):
+    return pathlib.Path(os.environ.get("DATA_FOLDER", ".")) / f"pg_dump_{datetime_slug}_{table_name}.sql"
+
+
 def generate_pg_dump_command(model, datetime_slug, for_script=False):
     db_args = [
         {"switch": "-d", "arg": "DB_NAME"},
@@ -37,7 +72,7 @@ def generate_pg_dump_command(model, datetime_slug, for_script=False):
     ]
     read_from_env_template = '$(grep "^_ARG_=" .env | cut -c_LEN_-)'
     kwargs = {
-        "output_file": ["-f", f'pg_dump_{datetime_slug}_{model._meta.db_table}.sql'],
+        "output_file": ["-f", f'{generate_export_filename(datetime_slug, model._meta.db_table)}'],
         "data-only": ["-a"],
         "inserts with column names instead of copy": ["--column-inserts"],
         "stub the on-conflict clause": ["--on-conflict-do-nothing"],
@@ -48,7 +83,7 @@ def generate_pg_dump_command(model, datetime_slug, for_script=False):
         else:
             tmp = os.environ.get(arg["arg"])
         kwargs[arg["arg"]] = [arg['switch'], tmp]
-    command = ["pg_dump"]
+    command = [find_pg_dump_binary()]
     for kwarg in kwargs.values():
         command.extend(kwarg)
     command.append(f"--table={model._meta.db_table}")
