@@ -1,18 +1,51 @@
+import collections
+import os
+import pathlib
+import re
+
 from . import export
 
+datetime_pattern = (
+    r".*(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})_.*")
+datetime_re = re.compile(datetime_pattern)
+datetime_slug_pattern = r".*(?P<slug>\d{4}-\d{2}-\d{2}_\d{6})_.*"
+datetime_slug_re = re.compile(datetime_slug_pattern)
 
-def find_exports(folder="."):
+
+def get_datetime_slug_from_filename(filename):
+    # pg_dump_2023-08-26_094300_inventory_commonname.sql
+    m = datetime_slug_re.match(filename.stem)
+    if not m:
+        return ""
+    return m.group("slug")
+
+
+def find_exports(prefix="pg_dump", extension="sql", folder=".", models=None):
     """
-    Searches path for files matching pattern "pg_dump_YYYY-MM-DD_HHMMSS_{table_name}.sql".  Returns list of files with
-    the most recent datetime slug.  Expects all files in the same export to have the same slug.
+    Searches path for files matching pattern "{prefix}_YYYY-MM-DD_HHMMSS_{table_name}.{extension}".  Returns list of
+    files with the most recent datetime slug.  Expects all files in the same export to have the same slug.
     """
-    return []
+    export_batches = collections.defaultdict(list)
+    data_folder = pathlib.Path(folder)
+    for model in models:
+        for data_file in data_folder.glob(f"{prefix}_*_{model._meta.db_table}.{extension}"):
+            export_batches[get_datetime_slug_from_filename(data_file)].append(data_file)
+    valid_export_batches = []
+    for datetime_slug in export_batches.keys():
+        if len(export_batches[datetime_slug]) != len(models):
+            # batch is missing some files.  Ignore it.
+            continue
+        valid_export_batches.append(datetime_slug)
+    selected_export_batch = max(valid_export_batches)
+    return [data_file for data_file in export_batches[selected_export_batch]]
 
 
 def sort_files_based_on_models(files_to_sort, models_in_order):
     """
     Uses models_in_order to sort the files.  Files should be named with the pattern
-    "pg_dump_YYYY-MM-DD_HHMMSS_{table_name}.sql"
+    "pg_dump_YYYY-MM-DD_HHMMSS_{table_name}.sql" Or
+    "dumpdata_YYYY-MM-DD_HHMMSS_{table_name}.json"
+    Should work regardless so we don't have to pass prefix and extension.
     """
     return []
 
@@ -28,7 +61,7 @@ def generate_import_commands(files_to_import):
     """
     Generates a list of commands to import the specified files.
     """
-    return []
+    return ["NotImplemented"]
 
 
 def run():
@@ -38,10 +71,10 @@ def run():
     """
     model_list = export.get_models_to_sort()
     models_in_order = export.sort_models(model_list)
-    print(models_in_order)
-    files_to_import = find_exports()
+    files_to_import = find_exports(prefix="dumpdata", extension="json", folder=os.environ.get("DATA_FOLDER", "."), models=models_in_order)
+    print(f"files_to_import = {files_to_import}")
     sorted_files_to_import = sort_files_based_on_models(files_to_import, models_in_order)
     modify_sql_scripts_insert_into_upsert(sorted_files_to_import)
     import_commands = generate_import_commands(sorted_files_to_import)
-    # print(import_commands[-1])
+    print(import_commands[-1])
     # export.execute_commands(import_commands)

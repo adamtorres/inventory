@@ -1,4 +1,5 @@
 import datetime
+import locale
 import os
 import pathlib
 import platform
@@ -59,8 +60,12 @@ def find_pg_dump_binary():
     return str(tmp)
 
 
-def generate_export_filename(datetime_slug, table_name):
-    return pathlib.Path(os.environ.get("DATA_FOLDER", ".")) / f"pg_dump_{datetime_slug}_{table_name}.sql"
+def generate_datetime_slug():
+    return datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+
+
+def generate_export_filename(datetime_slug, table_name, prefix="pg_dump", extension="sql"):
+    return pathlib.Path(os.environ.get("DATA_FOLDER", ".")) / f"{prefix}_{datetime_slug}_{table_name}.{extension}"
 
 
 def generate_pg_dump_command(model, datetime_slug, for_script=False):
@@ -72,7 +77,9 @@ def generate_pg_dump_command(model, datetime_slug, for_script=False):
     ]
     read_from_env_template = '$(grep "^_ARG_=" .env | cut -c_LEN_-)'
     kwargs = {
-        "output_file": ["-f", f'{generate_export_filename(datetime_slug, model._meta.db_table)}'],
+        "output_file": [
+            "-f",
+            f'{generate_export_filename(datetime_slug, model._meta.db_table, prefix="pg_dump", extension="sql")}'],
         "data-only": ["-a"],
         "inserts with column names instead of copy": ["--column-inserts"],
         "stub the on-conflict clause": ["--on-conflict-do-nothing"],
@@ -90,9 +97,8 @@ def generate_pg_dump_command(model, datetime_slug, for_script=False):
     return command
 
 
-def generate_pg_dump_commands(sorted_model_list):
+def generate_pg_dump_commands(sorted_model_list, datetime_slug):
     commands = []
-    datetime_slug = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
     for model in sorted_model_list:
         commands.append(generate_pg_dump_command(model, datetime_slug))
     return commands
@@ -109,11 +115,37 @@ def execute_commands(commands):
         execute_command(command)
 
 
-def run():
+def run_pg_dump(models_in_order, datetime_slug):
     """
     Exports each table as a separate sql file.  To be used with the import runscript.
     """
+    pg_dump_commands = generate_pg_dump_commands(models_in_order, datetime_slug)
+    execute_commands(pg_dump_commands)
+
+
+def run_dumpdata(models_in_order, datetime_slug):
+    """
+    Uses django's dumpdata manage command
+    """
+    if locale.getpreferredencoding() != "utf-8":
+        raise UnicodeError("Please run as 'python -Xutf8 ...'")
+    # python -Xutf8 manage.py dumpdata --output data\dumpdata_min.json
+    from django.core import management
+    # from django.core.management.commands import loaddata, dumpdata
+    # dumpdata.Command()
+    for model in models_in_order:
+        print(f"Exporting {model._meta.label}")
+        management.call_command("dumpdata",
+            # "--indent", "2",
+            "--output", generate_export_filename(
+                datetime_slug, model._meta.db_table, prefix="dumpdata", extension="json"),
+            model._meta.label
+        )
+
+
+def run():
     model_list = get_models_to_sort()
     models_in_order = sort_models(model_list)
-    pg_dump_commands = generate_pg_dump_commands(models_in_order)
-    execute_commands(pg_dump_commands)
+    datetime_slug = generate_datetime_slug()
+    # run_pg_dump(models_in_order, datetime_slug)
+    run_dumpdata(models_in_order, datetime_slug)
