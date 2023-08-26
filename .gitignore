@@ -136,3 +136,6 @@ scratch/
 # OSX files
 .DS_Store
 
+# pg_dump files as data exports probably shouldn't live in the repo.
+pg_dump*.sql
+
