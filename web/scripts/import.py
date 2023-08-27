@@ -47,14 +47,14 @@ def sort_files_based_on_models(files_to_sort, models_in_order):
     "dumpdata_YYYY-MM-DD_HHMMSS_{table_name}.json"
     Should work regardless so we don't have to pass prefix and extension.
     """
-    return []
-
-
-def modify_sql_scripts_insert_into_upsert(files_to_import):
-    """
-    The scripts are generated with "ON CONFLICT DO NOTHING;".  This changes the "DO NOTHING" into an update.
-    """
-    pass
+    table_names = [m._meta.db_table for m in models_in_order]
+    files_in_order = [None for i in range(len(table_names))]
+    for filename in files_to_sort:
+        m = re.match(r".*\d_(?P<table_name>.*)\..*", filename.name)
+        if not m:
+            continue
+        files_in_order[table_names.index(m.group("table_name"))] = filename
+    return files_in_order
 
 
 def generate_import_commands(files_to_import):
@@ -71,10 +71,16 @@ def run():
     """
     model_list = export.get_models_to_sort()
     models_in_order = export.sort_models(model_list)
-    files_to_import = find_exports(prefix="dumpdata", extension="json", folder=os.environ.get("DATA_FOLDER", "."), models=models_in_order)
-    print(f"files_to_import = {files_to_import}")
+    import_formats = {
+        "json": {"prefix": "dumpdata", "extension": "json"},
+        "sql": {"prefix": "pg_dump", "extension": "sql"},
+    }
+    import_format = "json"
+
+    files_to_import = find_exports(
+        prefix=import_formats[import_format]["prefix"], extension=import_formats[import_format]["extension"],
+        folder=os.environ.get("DATA_FOLDER", "."), models=models_in_order)
     sorted_files_to_import = sort_files_based_on_models(files_to_import, models_in_order)
-    modify_sql_scripts_insert_into_upsert(sorted_files_to_import)
     import_commands = generate_import_commands(sorted_files_to_import)
     print(import_commands[-1])
     # export.execute_commands(import_commands)

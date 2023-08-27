@@ -3,6 +3,7 @@ import locale
 import os
 import pathlib
 import platform
+import re
 import subprocess
 
 from django.apps import apps
@@ -76,10 +77,9 @@ def generate_pg_dump_command(model, datetime_slug, for_script=False):
         {"switch": "-U", "arg": "DB_USER"}
     ]
     read_from_env_template = '$(grep "^_ARG_=" .env | cut -c_LEN_-)'
+    sql_file = generate_export_filename(datetime_slug, model._meta.db_table, prefix="pg_dump", extension="sql")
     kwargs = {
-        "output_file": [
-            "-f",
-            f'{generate_export_filename(datetime_slug, model._meta.db_table, prefix="pg_dump", extension="sql")}'],
+        "output_file": ["-f", f'{sql_file}'],
         "data-only": ["-a"],
         "inserts with column names instead of copy": ["--column-inserts"],
         "stub the on-conflict clause": ["--on-conflict-do-nothing"],
@@ -94,7 +94,7 @@ def generate_pg_dump_command(model, datetime_slug, for_script=False):
     for kwarg in kwargs.values():
         command.extend(kwarg)
     command.append(f"--table={model._meta.db_table}")
-    return command
+    return {"command": command, "label": model._meta.db_table, "output_file": sql_file}
 
 
 def generate_pg_dump_commands(sorted_model_list, datetime_slug):
@@ -105,14 +105,59 @@ def generate_pg_dump_commands(sorted_model_list, datetime_slug):
 
 
 def execute_command(command):
-    command_result = subprocess.run(command, capture_output=True)
+    print(f"Exporting {command['label']}...")
+    command_result = subprocess.run(command["command"], capture_output=True)
     if command_result.returncode:
         print(command_result)
+        return
+    modify_sql_script_insert_into_upsert(command["output_file"])
 
 
 def execute_commands(commands):
-    for command in commands:
-        execute_command(command)
+    for command_dict in commands:
+        execute_command(command_dict)
+
+
+def modify_sql_script_insert_into_upsert(sql_file):
+    """
+    The scripts are generated with "ON CONFLICT DO NOTHING;".  This changes the "DO NOTHING" into an update.
+    Creates a temp sql file with the modified INSERT commands, then renames the original to "..._noupdate.sql" and the
+    new file to the original's original name.
+
+    Example - Manually added line breaks and indentation.  Original had no line breaks.
+    INSERT INTO public.recipe_recipe (
+        id, created, modified, name, source, description, reason_to_not_make, star_acceptance, star_effort,
+        common_multipliers, template)
+        VALUES (
+        '4e573964-f6fa-445b-9c9e-6df98e15e2cf', '2023-08-14 23:22:22.166051-06', '2023-08-14 23:22:22.166064-06',
+        'Pumpkin Chocolate Chip', 'Center', 'Results in mounds.  Does not flatten.', '', 4, 4, '{2,4,8,16}', false)
+        ON CONFLICT DO NOTHING;
+
+    ./manage.py dbshell < ../data/pg_dump_2023-08-26_185702_recipe_recipe.sql
+    """
+    # Find field list.
+    #   Should start with "(id, " and end at the first available ")".
+    # Find "ON CONFLICT DO NOTHING;"
+    field_list_pattern = r".* \(id, (.+?)\)"
+    field_list_re = re.compile(field_list_pattern)
+    new_sql_file = sql_file.with_suffix(".sql_tmp")
+    with sql_file.open() as old_file, new_sql_file.open("w") as new_file:
+        for original_line in old_file:
+            # TODO: will data containing newlines be escaped and stay on one line?
+            line = original_line.strip()
+            new_line_characters = original_line[len(line):]
+            if not (line.startswith("INSERT") and line.endswith("ON CONFLICT DO NOTHING;")):
+                new_file.write(line + new_line_characters)
+                continue
+            field_list_matched = field_list_re.match(line)
+            field_list = [f.strip() for f in field_list_matched.groups()[0].split(",")]
+            update_str = "UPDATE SET "
+            update_str += ", ".join(f"{field} = EXCLUDED.{field}" for field in field_list)
+            update_str += ";"
+            new_line = line[:-(len("DO NOTHING;"))] + "(id) DO " + update_str + new_line_characters
+            new_file.write(new_line)
+    sql_file = sql_file.rename(sql_file.with_stem(sql_file.stem + "_noupdate"))
+    new_sql_file = new_sql_file.rename(new_sql_file.with_suffix(".sql"))
 
 
 def run_pg_dump(models_in_order, datetime_slug):
@@ -127,7 +172,7 @@ def run_dumpdata(models_in_order, datetime_slug):
     """
     Uses django's dumpdata manage command
     """
-    if locale.getpreferredencoding() != "utf-8":
+    if platform.system().lower() == "windows" and locale.getpreferredencoding() != "utf-8":
         raise UnicodeError("Please run as 'python -Xutf8 ...'")
     # python -Xutf8 manage.py dumpdata --output data\dumpdata_min.json
     from django.core import management
@@ -147,5 +192,5 @@ def run():
     model_list = get_models_to_sort()
     models_in_order = sort_models(model_list)
     datetime_slug = generate_datetime_slug()
-    # run_pg_dump(models_in_order, datetime_slug)
-    run_dumpdata(models_in_order, datetime_slug)
+    run_pg_dump(models_in_order, datetime_slug)
+    # run_dumpdata(models_in_order, datetime_slug)
