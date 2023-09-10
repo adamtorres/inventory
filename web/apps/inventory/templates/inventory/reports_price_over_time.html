@@ -82,8 +82,10 @@ function chart_data_received(data){
     for (let i = 0; i < global_chart.data.datasets[0].data.length; i++) {
         if (data["source"][i] === "sysco") {
             point_background_colors.push("#90cd8a");
-        } else {
+        } else if (data["source"][i] === "rsm") {
             point_background_colors.push("#f58368");
+        } else {
+            point_background_colors.push("#6883f5");
         }
     }
     global_chart.update();

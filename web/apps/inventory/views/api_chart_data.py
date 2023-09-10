@@ -25,11 +25,12 @@ class APIChartDataView(views.APIView):
             case "eggs":
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg', ))])
             case "beets":
-                qs = inv_models.SourceItem.objects.wide_filter([('item_code', ('4109518',)), ('name', ('beet', )), ('source', ('sysco',))])
+                # TODO: convert these to use the saved searches?
+                qs = inv_models.SourceItem.objects.wide_filter([('item_code', ('4109518',)), ('name', ('beet', )), ('source', ('sysco', 'us foods'))])
             case "2milk":
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'white'))])
             case "chocmilk":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'choc')), ('source', ('sysco', 'rsm'))])
+                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'choc')), ('source', ('sysco', 'rsm', 'us foods'))])
             case "stringcheese":
                 qs = inv_models.SourceItem.objects.wide_filter([('name', ('string', 'cheese'))])
             case "apflour":

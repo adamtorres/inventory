@@ -15,6 +15,8 @@ from scrap.models import fields as sc_fields
 logger = logging.getLogger(__name__)
 
 
+# TODO: Need way to edit an order - load existing items into form and make the save intelligent to distinguish.
+# TODO: Add 'are you sure' page with summary of order changes.
 def add_filter(qs, kwarg_name, value):
     kwarg_names = {
         'single': {
@@ -54,8 +56,6 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             q = models.Q()
             for fn in field_names:
                 q |= models.Q(**{fn: ""})
-            # # This excludes only when all the field_names are blank.
-            # q = models.Q(**{fn: "" for fn in field_names})
             qs = qs.exclude(q)
         return qs.values(*field_names).order_by(*field_names).distinct(*field_names)
 
