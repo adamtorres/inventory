@@ -28,7 +28,7 @@ class APIChartDataView(views.APIView):
                 # TODO: convert these to use the saved searches?
                 qs = inv_models.SourceItem.objects.wide_filter([('item_code', ('4109518',)), ('name', ('beet', )), ('source', ('sysco', 'us foods'))])
             case "2milk":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'white'))])
+                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'white', ))])
             case "chocmilk":
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'choc')), ('source', ('sysco', 'rsm', 'us foods'))])
             case "stringcheese":
@@ -46,23 +46,5 @@ class APIChartDataView(views.APIView):
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('#10',)), ('name', ('green', 'bean'))])
             case _:
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg',))])
-
-        qs = qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
-        qs = qs.order_by().order_by('delivered_date', 'source_id', 'order_number', 'line_item_number')
-        data = {
-            'item_names': set(),
-            'item_name': [], 'delivered_date': [], 'per_use_cost': [], 'initial_quantity': [], 'pack_cost': [],
-            # '': [],
-            'source': [],
-        }
-        for si in qs:
-            data['item_names'].add(f"{si.verbose_name or si.cryptic_name} {si.unit_size}")
-            data['delivered_date'].append(si.delivered_date)
-            data['per_use_cost'].append(si.per_use_cost())
-            data['initial_quantity'].append(si.initial_quantity() / si.delivered_quantity)
-            data['item_name'].append(si.verbose_name or si.cryptic_name)
-            # Cannot use pack_cost directly as items using total_weight put the per lb price there.
-            data['pack_cost'].append(si.extended_cost / si.delivered_quantity)
-            data['source'].append(si.source.name)
-        data['item_names'] = ", ".join(data['item_names'])
+        data = inv_models.SourceItem.objects.price_history(initial_qs=qs)
         return response.Response(data)

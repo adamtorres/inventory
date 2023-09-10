@@ -45,7 +45,8 @@ def add_filter(qs, kwarg_name, value):
 
 class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.WideFilterManagerMixin, models.Manager):
     def get_queryset(self):
-        return super().get_queryset()  # .exclude(delivered_quantity=0)
+        # return super().get_queryset()  # .exclude(delivered_quantity=0)
+        return super().get_queryset().select_related("source")
 
     def _value_order_distinct(self, field_names, exclude_blank=True):
         if isinstance(field_names, str):
@@ -117,6 +118,44 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             items_to_update.append(si)
         if items_to_update:
             self.bulk_update(items_to_update, ['remaining_quantity'])
+
+    def price_history(self, initial_qs=None):
+        if initial_qs is None:
+            qs = self
+        elif isinstance(initial_qs, models.Q):
+            qs = self.filter(initial_qs)
+        elif isinstance(initial_qs, models.QuerySet):
+            qs = initial_qs
+        else:
+            raise TypeError(f"initial_qs should be Q or QuerySet.  Got {type(initial_qs)}")
+
+        # Ignore orders where the item wasn't delivered.
+        qs = qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
+        # Reset any existing sorting
+        qs = qs.order_by().order_by('delivered_date', 'source_id', 'order_number', 'line_item_number')
+        # Output is in parallel arrays - used by some graphing libraries.
+        data = {
+            'item_names': set(),  # distinct set of name/unit size for all items returned.
+            'item_name': [],
+            'delivered_date': [],
+            'per_use_cost': [],
+            'initial_quantity': [],
+            'pack_cost': [],
+            'source': [],
+        }
+        for si in qs:
+            data['item_names'].add(f"{si.verbose_name or si.cryptic_name} {si.unit_size}")
+            data['delivered_date'].append(si.delivered_date)
+            # per_use_cost: will give a price per egg - useful for comparing different unit sizes
+            data['per_use_cost'].append(si.per_use_cost())
+            # initial_quantity: items in a single pack
+            data['initial_quantity'].append(si.initial_quantity() / si.delivered_quantity)
+            data['item_name'].append(si.verbose_name or si.cryptic_name)
+            # Cannot use pack_cost directly as items using total_weight put the per lb price there.
+            data['pack_cost'].append(si.extended_cost / si.delivered_quantity)
+            data['source'].append(si.source.name)
+        data['item_names'] = ", ".join(data['item_names'])
+        return data
 
     def order_category_totals(
             self, source_id=None, source_name=None, delivered_date=None, order_number=None, general_search=None):

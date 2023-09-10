@@ -1,4 +1,6 @@
 import json
+
+from django.db import models
 from django_extensions.management.debug_cursor import monkey_patch_cursordebugwrapper
 
 from inventory import models as inv_models, reports as inv_reports
@@ -27,7 +29,16 @@ def packaging_costs():
     print(json.dumps(data, indent=2, default=str, sort_keys=True))
 
 
+def item_price_history():
+    search_criteria_names = ['eggs', '8oz chocolate milk']
+    search_criteria = inv_models.SearchCriteria.objects.get(name__iexact=search_criteria_names[0])
+    qs = search_criteria.get_search_queryset()
+    data = inv_models.SourceItem.objects.price_history(initial_qs=qs)
+    print(json.dumps(data, indent=2, default=str))
+
+
 def run():
-    with monkey_patch_cursordebugwrapper(print_sql=False, confprefix="SHELL_PLUS", print_sql_location=False):
+    with monkey_patch_cursordebugwrapper(print_sql=True, confprefix="SHELL_PLUS", print_sql_location=False):
         # inv_reports.SourceItemNamesAndQuantities.get_groupings()
-        packaging_costs()
+        # packaging_costs()
+        item_price_history()

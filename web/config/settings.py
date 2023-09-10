@@ -14,6 +14,9 @@ import os
 from pathlib import Path
 import sys
 
+from scrap import utils as sc_utils
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Add apps folder to system path
@@ -186,7 +189,8 @@ SHELL_PLUS_IMPORTS = [
     'from conversion import models as con_models',
     'from recipe import models as rcp_models',
 ]
-SHELL_PLUS_PYGMENTS_ENABLED = True
+
+SHELL_PLUS_PYGMENTS_ENABLED = sc_utils.stub_convert_to_bool(os.environ.get('SHELL_PLUS_PYGMENTS_ENABLED', True))
 SHELL_PLUS_PRINT_SQL_TRUNCATE = 0
 RUNSERVER_PLUS_PRINT_SQL_TRUNCATE = 0
 

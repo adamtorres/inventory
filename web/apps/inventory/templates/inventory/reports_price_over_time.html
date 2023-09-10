@@ -84,8 +84,10 @@ function chart_data_received(data){
             point_background_colors.push("#90cd8a");
         } else if (data["source"][i] === "rsm") {
             point_background_colors.push("#f58368");
-        } else {
+        } else if (data["source"][i] === "US Foods") {
             point_background_colors.push("#6883f5");
+        } else {
+            point_background_colors.push("#000");
         }
     }
     global_chart.update();
