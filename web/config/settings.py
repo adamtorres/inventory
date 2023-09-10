@@ -190,7 +190,7 @@ SHELL_PLUS_IMPORTS = [
     'from recipe import models as rcp_models',
 ]
 
-SHELL_PLUS_PYGMENTS_ENABLED = sc_utils.stub_convert_to_bool(os.environ.get('SHELL_PLUS_PYGMENTS_ENABLED', True))
+SHELL_PLUS_PYGMENTS_ENABLED = sc_utils.strtobool(os.environ.get('SHELL_PLUS_PYGMENTS_ENABLED', True))
 SHELL_PLUS_PRINT_SQL_TRUNCATE = 0
 RUNSERVER_PLUS_PRINT_SQL_TRUNCATE = 0
 
