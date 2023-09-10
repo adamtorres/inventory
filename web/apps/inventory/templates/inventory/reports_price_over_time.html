@@ -3,6 +3,57 @@
 
 {% block title %}Price Over Time{% endblock %}
 
+{% block styles %}
+<style>
+.chart-container {
+    height: 50%;
+}
+.chart-data-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+    grid-template-areas: "a a a a a";
+
+}
+#row-template {
+    display: none;
+}
+.chart-data-header {
+    border-top: black 1px solid;
+    border-bottom: black 1px solid;
+    border-right: black 1px solid;
+    font-weight: bold;
+    text-transform: capitalize;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+.chart-data-cell {
+    border-top: grey 1px solid;
+    border-bottom: grey 1px solid;
+    border-right: grey 1px solid;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+.chart-data-delivered_date {
+
+}
+.chart-data-source-and-item-name {
+
+}
+.chart-data-item_name {
+
+}
+.chart-data-pack_cost {
+
+}
+.chart-data-initial_quantity {
+
+}
+.chart-data-per_use_cost {
+
+}
+</style>
+{% endblock %}
+
 {% block content %}
     <label for="canned-report-select">Report: </label>
     <select id="canned-report-select">
@@ -20,7 +71,27 @@
     </select>
 <div>
     <span id="chart-title">Placeholder</span>
-    <canvas id="myChart"></canvas>
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+<div id="chart_data">
+    <div id="row-template" class="chart-data-row chart-data-row-template">
+        <div class="chart-data-cell chart-data-delivered_date date-cell" data-field="delivered_date">__delivered_date__</div>
+        <div class="chart-data-cell chart-data-source-and-item-name">
+            <span data-field="source">__source__</span> / <span data-field="item_name">__item_name__</span>
+        </div>
+        <div class="chart-data-cell chart-data-pack_cost dollar-cell right-align" data-field="pack_cost">__pack_cost__</div>
+        <div class="chart-data-cell chart-data-initial_quantity right-align" data-field="initial_quantity">__initial_quantity__</div>
+        <div class="chart-data-cell chart-data-per_use_cost dollar-cell right-align" data-field="per_use_cost">__per_use_cost__</div>
+    </div>
+    <div class="chart-data-row chart-data-row-header">
+        <div class="chart-data-header chart-data-delivered_date right-align" data-field="delivered_date">delivered date</div>
+        <div class="chart-data-header chart-data-source-and-item-name">source / item name</div>
+        <div class="chart-data-header chart-data-pack_cost right-align" data-field="pack_cost">pack cost</div>
+        <div class="chart-data-header chart-data-initial_quantity right-align" data-field="initial_quantity">initial quantity</div>
+        <div class="chart-data-header chart-data-per_use_cost right-align" data-field="per_use_cost">per use cost</div>
+    </div>
 </div>
 {% endblock %}
 
@@ -32,18 +103,21 @@
 let global_chart = null;
 
 function chart_data_received(data){
+    populate_chart_table(data);
     $("#chart-title").text(`Per Use Cost for: ${data['item_names']}`);
     let point_background_colors = [];
     // get reference to the canvas element.
     const ctx = document.getElementById('myChart');
     global_chart = new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: data['delivered_date'],
             datasets: [{
                 label: 'Per Use Cost',
                 data: data['per_use_cost'],
-                borderWidth: 1,
+                borderWidth: 3,
+                pointRadius: 7,
+                pointHoverRadius: 10,
                 pointBackgroundColor: point_background_colors,
                 barBackgroundColor: point_background_colors,
                 pointBorderColor: point_background_colors,
@@ -51,6 +125,7 @@ function chart_data_received(data){
             }]
         },
         options: {
+            maintainAspectRatio: true,
             plugins: {
                 legend: {
                     display: false,
@@ -74,7 +149,7 @@ function chart_data_received(data){
             },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: false
                 }
             }
         }
@@ -91,6 +166,15 @@ function chart_data_received(data){
         }
     }
     global_chart.update();
+}
+
+function empty_chart_table(chart_table) {
+    chart_table.find('div.chart-data-row').each(function() {
+        let e = $(this);
+        if (!(e.hasClass("chart-data-row-header") || e.hasClass("chart-data-row-template"))) {
+            e.remove();
+        }
+    });
 }
 
 function get_chart_data() {
@@ -115,6 +199,45 @@ function get_chart_data() {
     .always(function() {
     });
 }
+
+function new_chart_table_row(data){
+    let item_clone = $("#row-template").clone();
+    item_clone.attr('id', null);
+    {#item_clone.attr("data-id", data['id']);#}
+    item_clone.find('[data-field]').each(function() {
+        let e = $(this);
+        let key = e.data('field');
+        if (key === undefined) {
+            // The template should have names on each div so this is an error.  Probably shouldn't hide it.
+            return true;
+        }
+        e.html(`${data[key]}&nbsp;`);
+    });
+    item_clone.removeClass("chart-data-row-template");
+    return item_clone;
+}
+
+function populate_chart_table(data) {
+    let count = 0;
+    let chart_table = $("#chart_data");
+    empty_chart_table(chart_table);
+
+    for (i in data['delivered_date']) {
+        let tmp = {
+            "delivered_date": data['delivered_date'][i],
+            "source": data['source'][i],
+            "item_name": data['item_name'][i],
+            "pack_cost": data['pack_cost'][i],
+            "initial_quantity": data['initial_quantity'][i],
+            "per_use_cost": data['per_use_cost'][i]
+        }
+        chart_table.append(new_chart_table_row(tmp));
+        count++;
+    }
+    console.log(`got ${count} items.`);
+
+}
+
 $( document ).ready(function() {
     // get_chart_data();
     $("#canned-report-select").on("change", get_chart_data)
