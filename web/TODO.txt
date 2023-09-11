@@ -40,10 +40,11 @@ Want the date range specified as a date or as 'first of current year'.
         X cream cheese loaf
         X eggs
     * meats
-        * ground beef
-        * burger patties
-        * clod - precooked roast
-        * chicken cordon bleu
+        ! ground beef - need per lb
+        X burger patties
+        ! clod - precooked roast - need per lb
+        X chicken cordon bleu
+        X beef fritter
     * dry
         ! all purpose flour - needs to exclude gluten free
         X sugar
@@ -56,7 +57,7 @@ Want the date range specified as a date or as 'first of current year'.
     X 1 compartment foam
     X 8oz foam
     X 12oz foam
-    * lids for 8/12oz foam
+    X lids for 8/12oz foam - only two orders
     X toilet paper
     X plastic utensils - packs
     ! plastic utensils - needs to exclude the kit.  Fork order needs unit count.

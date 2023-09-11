@@ -1,5 +1,6 @@
 import logging
 
+from django.utils import text
 from django.views import generic
 
 from inventory import models as inv_models
@@ -27,8 +28,11 @@ class SourceItemSaveSearchView(generic.TemplateView):
         if search_criteria_to_save:
             obj = inv_models.SearchCriteria.objects.create(
                 name=request.POST["search-criteria-name"], description=request.POST["search-criteria-description"],
-                criteria=search_criteria_to_save, category=request.POST["search-criteria-category"]
+                criteria=search_criteria_to_save, category=request.POST["search-criteria-category"],
+                # url_slug=text.slugify(request.POST["search-criteria-name"])  # Need to exclude "(Issues) "
             )
+            obj.refresh_url_slug()
+            obj.save()
             context["search_criteria"] = obj
         return self.render_to_response(context)
 

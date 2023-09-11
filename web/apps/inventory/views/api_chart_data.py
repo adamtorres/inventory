@@ -19,7 +19,7 @@ class APIChartDataView(views.APIView):
         try:
             search_criteria = inv_models.SearchCriteria.objects.get(url_slug__iexact=kwargs.get("report_name"))
             qs = search_criteria.get_search_queryset()
-        except exceptions.ObjectDoesNotExist:
+        except (inv_models.SearchCriteria.DoesNotExist, exceptions.ObjectDoesNotExist):
             qs = self.get_custom_quesyset(kwargs.get("report_name"))
         data = inv_models.SourceItem.objects.price_history(initial_qs=qs)
         return response.Response(data)
@@ -35,6 +35,12 @@ class APIChartDataView(views.APIView):
                 qs = qs.exclude(cryptic_name__icontains="bobsred")
             case "butter":
                 qs = qs.exclude(cryptic_name__icontains="margarine")
+            case "ground-beef":
+                qs = qs.exclude(cryptic_name__icontains="beef ground pty")
+            case "burger-patties":
+                qs = qs.exclude(cryptic_name__icontains="beef ground pty")
+                # npp nat beef ground pty nat 3\1 frz  --  6/1/22 and 6/15/22  --  did not get delivered.
+                # Need to add an OR to the existing filter somehow.
             case _:
                 qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg',))])
         return qs

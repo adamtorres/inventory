@@ -132,4 +132,5 @@ class SearchCriteria(sc_models.DatedModel):
         return qs.last()
 
     def refresh_url_slug(self):
-        self.url_slug = text.slugify(self.name)
+        name = self.name[9:] if self.name.startswith("(Issues) ") else self.name
+        self.url_slug = text.slugify(name)
