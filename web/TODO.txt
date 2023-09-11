@@ -24,7 +24,7 @@ Want the date range specified as a date or as 'first of current year'.
         X beets
         X corn
         X green beans
-        ! pears - need to exclude peach/fruit or maintain a list of item codes
+        X pears - need to exclude peach/fruit or maintain a list of item codes
         X peaches (sliced, not diced)
         ! pineapple: crushed, chunk, tidbit, juice(not #10)
         X mushrooms
@@ -33,7 +33,7 @@ Want the date range specified as a date or as 'first of current year'.
     * dairy
         X cheese sticks
         X margarine - ok to include the butter/margarine order
-        ! butter - needs to exclude the butter/margarine order
+        X butter - needs to exclude the butter/margarine order
         X white milk
         X chocolate milk
         X whole milk - only 2 orders
@@ -46,7 +46,7 @@ Want the date range specified as a date or as 'first of current year'.
         X chicken cordon bleu
         X beef fritter
     * dry
-        ! all purpose flour - needs to exclude gluten free
+        X all purpose flour - needs to exclude gluten free
         X sugar
         X brown sugar
         X powdered sugar

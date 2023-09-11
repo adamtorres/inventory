@@ -35,6 +35,8 @@ class APIChartDataView(views.APIView):
                 qs = qs.exclude(cryptic_name__icontains="bobsred")
             case "butter":
                 qs = qs.exclude(cryptic_name__icontains="margarine")
+            case "10-pear":
+                qs = qs.exclude(models.Q(cryptic_name__icontains="peach")|models.Q(cryptic_name__icontains="cocktail"))
             case "ground-beef":
                 qs = qs.exclude(cryptic_name__icontains="beef ground pty")
             case "burger-patties":

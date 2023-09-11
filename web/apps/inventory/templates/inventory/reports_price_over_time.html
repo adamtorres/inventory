@@ -62,6 +62,7 @@
         <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_all-purpose-flour" %}?format=json" value="issues_all-purpose-flour">All Purpose Flour</option>
         <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_butter" %}?format=json" value="issues_butter">Butter</option>
         <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_ground-beef" %}?format=json" value="issues_ground-beef">Ground Beef</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_10-pear" %}?format=json" value="issues_10-pear">#10 Pear</option>
         {% for report_name in report_names %}
             <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name=report_name.url_slug %}?format=json" value="{{ report_name.url_slug }}">{{ report_name.name }}</option>
         {% endfor %}
