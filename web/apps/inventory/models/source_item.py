@@ -137,6 +137,7 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         data = {
             'item_names': set(),  # distinct set of name/unit size for all items returned.
             'item_name': [],
+            'unit_size': [],
             'delivered_date': [],
             'per_use_cost': [],
             'initial_quantity': [],
@@ -151,6 +152,7 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             # initial_quantity: items in a single pack
             data['initial_quantity'].append(si.initial_quantity() / si.delivered_quantity)
             data['item_name'].append(si.verbose_name or si.cryptic_name)
+            data['unit_size'].append(si.unit_size)
             # Cannot use pack_cost directly as items using total_weight put the per lb price there.
             data['pack_cost'].append(si.extended_cost / si.delivered_quantity)
             data['source'].append(si.source.name)

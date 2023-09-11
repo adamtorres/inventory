@@ -20,20 +20,47 @@ In Process:
 Want order history for an arbitrary list of items.
 Want the date range specified as a date or as 'first of current year'.
 * food
-    * cheese sticks
-    * (#10 can items) beets, corn, green beans, pears, peaches, pineapple, mushrooms, tomato sauce, cranberry sauce
-    * ground beef
-    * burger patties
-    * clod - precooked roast
-    * chicken cordon bleu
-    * flour, sugar, brown sugar, powdered sugar
+    * #10 can items
+        X beets
+        X corn
+        X green beans
+        ! pears - need to exclude peach/fruit or maintain a list of item codes
+        X peaches (sliced, not diced)
+        ! pineapple: crushed, chunk, tidbit, juice(not #10)
+        X mushrooms
+        ! tomato sauce - 99% done.  1 order of "pasta sauce"
+        X cranberry sauce
+    * dairy
+        X cheese sticks
+        X margarine - ok to include the butter/margarine order
+        ! butter - needs to exclude the butter/margarine order
+        X white milk
+        X chocolate milk
+        X whole milk - only 2 orders
+        X cream cheese loaf
+        X eggs
+    * meats
+        * ground beef
+        * burger patties
+        * clod - precooked roast
+        * chicken cordon bleu
+    * dry
+        ! all purpose flour - needs to exclude gluten free
+        X sugar
+        X brown sugar
+        X powdered sugar
+        X semi sweet chocolate chips
 * paper & disp
-    * senior trays
-    * 3 compartment foam
-    * 1 compartment foam
-    * 8oz foam
-    * 12oz foam
+    X senior trays
+    X 3 compartment foam
+    X 1 compartment foam
+    X 8oz foam
+    X 12oz foam
     * lids for 8/12oz foam
-    * toilet paper
-    * plastic utensils - packs and individual
-    * plastic bags - two sizes
+    X toilet paper
+    X plastic utensils - packs
+    ! plastic utensils - needs to exclude the kit.  Fork order needs unit count.
+    ! plastic bags - two sizes "poly gusset bag" but only one order of each.
+    X Bun pan bag
+    X paper bag
+    X saddle pack bags - for rolls

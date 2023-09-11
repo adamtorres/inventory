@@ -10,8 +10,8 @@
 }
 .chart-data-row {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
-    grid-template-areas: "a a a a a";
+    grid-template-columns: 1fr 2fr 1fr 1fr;
+    grid-template-areas: "a a a a";
 
 }
 #row-template {
@@ -58,16 +58,12 @@
     <label for="canned-report-select">Report: </label>
     <select id="canned-report-select">
         <option data-report-url="" value="">-- Please Select a Report --</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="eggs" %}?format=json" value="eggs">Eggs</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="beets" %}?format=json" value="beets">Pickled Beets</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="2milk" %}?format=json" value="2milk">2% Milk Cartons</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="chocmilk" %}?format=json" value="chocmilk">Chocolate Milk Cartons</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="stringcheese" %}?format=json" value="stringcheese">String Cheese</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="apflour" %}?format=json" value="apflour">All Purpose Flour</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="butter" %}?format=json" value="butter">Butter</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="margarine" %}?format=json" value="margarine">Margarine</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="corn" %}?format=json" value="corn">Corn</option>
-        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="greenbeans" %}?format=json" value="greenbeans">Green Beans</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_8oz-chocolate-milk" %}?format=json" value="issues_8oz-chocolate-milk">8oz Chocolate Milk</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_all-purpose-flour" %}?format=json" value="issues_all-purpose-flour">All Purpose Flour</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_butter" %}?format=json" value="issues_butter">Butter</option>
+        {% for report_name in report_names %}
+            <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name=report_name.url_slug %}?format=json" value="{{ report_name.url_slug }}">{{ report_name.name }}</option>
+        {% endfor %}
     </select>
 <div>
     <span id="chart-title">Placeholder</span>
@@ -79,17 +75,17 @@
     <div id="row-template" class="chart-data-row chart-data-row-template">
         <div class="chart-data-cell chart-data-delivered_date date-cell" data-field="delivered_date">__delivered_date__</div>
         <div class="chart-data-cell chart-data-source-and-item-name">
-            <span data-field="source">__source__</span> / <span data-field="item_name">__item_name__</span>
+            <span data-field="source">__source__</span> / <span data-field="item_name">__item_name__</span> <span data-field="unit_size">__unit_size__</span>
         </div>
         <div class="chart-data-cell chart-data-pack_cost dollar-cell right-align" data-field="pack_cost">__pack_cost__</div>
-        <div class="chart-data-cell chart-data-initial_quantity right-align" data-field="initial_quantity">__initial_quantity__</div>
+{#        <div class="chart-data-cell chart-data-initial_quantity right-align" data-field="initial_quantity">__initial_quantity__</div>#}
         <div class="chart-data-cell chart-data-per_use_cost dollar-cell right-align" data-field="per_use_cost">__per_use_cost__</div>
     </div>
     <div class="chart-data-row chart-data-row-header">
         <div class="chart-data-header chart-data-delivered_date right-align" data-field="delivered_date">delivered date</div>
         <div class="chart-data-header chart-data-source-and-item-name">source / item name</div>
         <div class="chart-data-header chart-data-pack_cost right-align" data-field="pack_cost">pack cost</div>
-        <div class="chart-data-header chart-data-initial_quantity right-align" data-field="initial_quantity">initial quantity</div>
+{#        <div class="chart-data-header chart-data-initial_quantity right-align" data-field="initial_quantity">initial quantity</div>#}
         <div class="chart-data-header chart-data-per_use_cost right-align" data-field="per_use_cost">per use cost</div>
     </div>
 </div>
@@ -136,7 +132,8 @@ function chart_data_received(data){
                             const lines = [];
                             lines.push(`Source: ${data["source"][context[0].dataIndex]}`);
                             lines.push(`Item: ${data["item_name"][context[0].dataIndex]}`);
-                            lines.push(`Pack cost: $${data["pack_cost"][context[0].dataIndex]}`);
+                            lines.push(`Unit size: ${data["unit_size"][context[0].dataIndex]}`);
+                            lines.push(`Pack cost: $${(data["pack_cost"][context[0].dataIndex]).toFixed(2)}`);
                             lines.push(`Quantity: ${data["initial_quantity"][context[0].dataIndex]}`);
                             return lines
                         },
@@ -223,13 +220,15 @@ function populate_chart_table(data) {
     empty_chart_table(chart_table);
 
     for (i in data['delivered_date']) {
+        // Convert each item from parallel array(used by chart) to single dict.
         let tmp = {
             "delivered_date": data['delivered_date'][i],
             "source": data['source'][i],
             "item_name": data['item_name'][i],
-            "pack_cost": data['pack_cost'][i],
+            "unit_size": data['unit_size'][i],
+            "pack_cost": (Math.round(data['pack_cost'][i] * 100) / 100).toFixed(2),
             "initial_quantity": data['initial_quantity'][i],
-            "per_use_cost": data['per_use_cost'][i]
+            "per_use_cost": (Math.round(data['per_use_cost'][i] * 10000) / 10000).toFixed(4)
         }
         chart_table.append(new_chart_table_row(tmp));
         count++;

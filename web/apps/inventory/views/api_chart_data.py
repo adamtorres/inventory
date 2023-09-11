@@ -1,7 +1,9 @@
 import json
 import logging
 
+from django.core import exceptions
 from django.db import models
+from django.utils import text
 from rest_framework import response, views
 
 from .. import models as inv_models, serializers as inv_serializers
@@ -14,37 +16,25 @@ class APIChartDataView(views.APIView):
 
     def get(self, request, *args, format=None, **kwargs):
         # TODO: Consider custom renderer - https://www.django-rest-framework.org/api-guide/renderers/#custom-renderers
-
-        # logger.debug(f"APIChartDataView.get: args={args}")
-        # logger.debug(f"APIChartDataView.get: kwargs={kwargs}")
-        # logger.debug(f"APIChartDataView.get: request.data={request.data}")
-        # logger.debug(f"APIChartDataView.get: request.parser_context={request.parser_context}")
-        # logger.debug(f"APIChartDataView.get: request.query_params={request.query_params}")
-
-        match kwargs.get("report_name"):
-            case "eggs":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg', ))])
-            case "beets":
-                # TODO: convert these to use the saved searches?
-                qs = inv_models.SourceItem.objects.wide_filter([('item_code', ('4109518',)), ('name', ('beet', )), ('source', ('sysco', 'us foods'))])
-            case "2milk":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'white', ))])
-            case "chocmilk":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('8oz',)), ('name', ('milk', 'choc')), ('source', ('sysco', 'rsm', 'us foods'))])
-            case "stringcheese":
-                qs = inv_models.SourceItem.objects.wide_filter([('name', ('string', 'cheese'))])
-            case "apflour":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('50lb',)), ('name', ('all', 'flour'))])
-            case "butter":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('1lb',)), ('name', ('butter', ))])
-                qs = qs.exclude(cryptic_name__icontains="margarine")
-            case "margarine":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('1lb',)), ('name', ('margarine', ))])
-            case "corn":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('#10',)), ('name', ('corn', ))])
-            case "greenbeans":
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('#10',)), ('name', ('green', 'bean'))])
-            case _:
-                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg',))])
+        try:
+            search_criteria = inv_models.SearchCriteria.objects.get(url_slug__iexact=kwargs.get("report_name"))
+            qs = search_criteria.get_search_queryset()
+        except exceptions.ObjectDoesNotExist:
+            qs = self.get_custom_quesyset(kwargs.get("report_name"))
         data = inv_models.SourceItem.objects.price_history(initial_qs=qs)
         return response.Response(data)
+
+    def get_custom_quesyset(self, report_name):
+        if report_name.startswith("issues_"):
+            report_name = report_name[7:]
+            qs = inv_models.SearchCriteria.objects.get(url_slug__iexact=report_name).get_search_queryset()
+        match report_name:
+            case "8oz-chocolate-milk":
+                qs = qs.exclude(cryptic_name__icontains="m&m")
+            case "all-purpose-flour":
+                qs = qs.exclude(cryptic_name__icontains="bobsred")
+            case "butter":
+                qs = qs.exclude(cryptic_name__icontains="margarine")
+            case _:
+                qs = inv_models.SourceItem.objects.wide_filter([('unit_size', ('dz',)), ('name', ('egg',))])
+        return qs
