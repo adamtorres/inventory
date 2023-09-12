@@ -1,7 +1,9 @@
 import collections
 import os
 import pathlib
+import platform
 import re
+import subprocess
 
 from . import export
 
@@ -40,6 +42,18 @@ def find_exports(prefix="pg_dump", extension="sql", folder=".", models=None):
     return [data_file for data_file in export_batches[selected_export_batch]]
 
 
+def find_psql_binary():
+    tmp = "psql"
+    if platform.system().lower() == "windows":
+        p = pathlib.Path(os.environ["ProgramFiles"])  # "C:\Program Files
+        pg_path = p / "PostgreSQL"
+        if not pg_path.exists():
+            raise FileNotFoundError(f"Could not find psql.  {pg_path} not found.")
+        pg_version = max([int(folder.stem) for folder in pg_path.glob("*") if folder.stem.isdigit()])
+        tmp = pg_path / str(pg_version) / "bin" / tmp
+    return str(tmp)
+
+
 def sort_files_based_on_models(files_to_sort, models_in_order):
     """
     Uses models_in_order to sort the files.  Files should be named with the pattern
@@ -57,11 +71,43 @@ def sort_files_based_on_models(files_to_sort, models_in_order):
     return files_in_order
 
 
+def execute_command(command):
+    print(f"Importing {command['input_file']}...")
+    command_result = subprocess.run(command["command"], capture_output=True)
+    if command_result.returncode:
+        print(command_result)
+        return
+    print(command_result.stdout.decode())
+
+
+def execute_commands(commands):
+    for command_dict in commands:
+        execute_command(command_dict)
+
+
+def generate_import_command(file_to_import, psql_binary):
+    command = [psql_binary]
+    # "C:\Program Files\PostgreSQL\15\bin\psql.exe"
+    # -f data\pg_dump_2023-09-11_160615_inventory_commonname.sql
+    # "host='localhost' port='5432' dbname='inventory_test' user='inventory_user'"
+    # 2>>&1
+    command.append("-f")
+    command.append(str(file_to_import))
+    # TODO: find windows way to grep the .env file.
+    command.append("host='localhost' port='5432' dbname='inventory_test' user='inventory_user'")
+    command.append("2>>&1")
+    return {"command": command, "label": "?", "input_file": file_to_import}
+
+
 def generate_import_commands(files_to_import):
     """
     Generates a list of commands to import the specified files.
     """
-    return ["NotImplemented"]
+    psql_binary = find_psql_binary()
+    commands = []
+    for file_to_import in files_to_import:
+        commands.append(generate_import_command(file_to_import, psql_binary))
+    return commands
 
 
 def run():
@@ -75,7 +121,7 @@ def run():
         "json": {"prefix": "dumpdata", "extension": "json"},
         "sql": {"prefix": "pg_dump", "extension": "sql"},
     }
-    import_format = "json"
+    import_format = "sql"
 
     files_to_import = find_exports(
         prefix=import_formats[import_format]["prefix"], extension=import_formats[import_format]["extension"],
@@ -83,4 +129,4 @@ def run():
     sorted_files_to_import = sort_files_based_on_models(files_to_import, models_in_order)
     import_commands = generate_import_commands(sorted_files_to_import)
     print(import_commands[-1])
-    # export.execute_commands(import_commands)
+    execute_commands(import_commands)

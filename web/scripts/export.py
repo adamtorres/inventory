@@ -192,5 +192,5 @@ def run():
     model_list = get_models_to_sort()
     models_in_order = sort_models(model_list)
     datetime_slug = generate_datetime_slug()
-    # run_pg_dump(models_in_order, datetime_slug)
-    run_dumpdata(models_in_order, datetime_slug)
+    run_pg_dump(models_in_order, datetime_slug)
+    # run_dumpdata(models_in_order, datetime_slug)

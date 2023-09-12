@@ -1,5 +1,7 @@
+import datetime
 import json
 import logging
+import zoneinfo
 
 from django.core import exceptions
 from django.db import models
@@ -21,6 +23,7 @@ class APIChartDataView(views.APIView):
             qs = search_criteria.get_search_queryset()
         except (inv_models.SearchCriteria.DoesNotExist, exceptions.ObjectDoesNotExist):
             qs = self.get_custom_quesyset(kwargs.get("report_name"))
+        # qs = qs.filter(delivered_date__gte=datetime.datetime(2023, 1, 1, 0, 0, 0, 0, zoneinfo.ZoneInfo("US/Mountain")))
         data = inv_models.SourceItem.objects.price_history(initial_qs=qs)
         return response.Response(data)
 
@@ -29,8 +32,11 @@ class APIChartDataView(views.APIView):
             report_name = report_name[7:]
             qs = inv_models.SearchCriteria.objects.get(url_slug__iexact=report_name).get_search_queryset()
         match report_name:
+            # TODO: Bandaid - SearchCriteria needs to be able to handle excludes which means the main search page does.
             case "8oz-chocolate-milk":
                 qs = qs.exclude(cryptic_name__icontains="m&m")
+            case "8oz-white-milk":
+                qs = qs.exclude(models.Q(cryptic_name__icontains="choc")|models.Q(cryptic_name__icontains="whole"))
             case "all-purpose-flour":
                 qs = qs.exclude(cryptic_name__icontains="bobsred")
             case "butter":

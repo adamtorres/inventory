@@ -5,8 +5,22 @@
 
 {% block styles %}
 <style>
+@media only print {
+    @page {
+        size: portrait;
+    }
+    body {
+        font-size: 0.75em;
+    }
+    .chart-container {
+        display: none;
+    }
+}
 .chart-container {
-    height: 50%;
+    height: 40vh;
+}
+#chart_data {
+    display: none;
 }
 .chart-data-row {
     display: grid;
@@ -51,6 +65,12 @@
 .chart-data-per_use_cost {
 
 }
+#chart_data_table tr {
+    border-bottom: black solid 1px;
+}
+#table-row-template {
+    display: none;
+}
 </style>
 {% endblock %}
 
@@ -58,6 +78,7 @@
     <label for="canned-report-select">Report: </label>
     <select id="canned-report-select">
         <option data-report-url="" value="">-- Please Select a Report --</option>
+        <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_8oz-white-milk" %}?format=json" value="issues_8oz-white-milk">8oz White Milk</option>
         <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_8oz-chocolate-milk" %}?format=json" value="issues_8oz-chocolate-milk">8oz Chocolate Milk</option>
         <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_all-purpose-flour" %}?format=json" value="issues_all-purpose-flour">All Purpose Flour</option>
         <option data-report-url="{% url "inventory:api_sourceitem_chartdata" report_name="issues_butter" %}?format=json" value="issues_butter">Butter</option>
@@ -91,6 +112,30 @@
         <div class="chart-data-header chart-data-per_use_cost right-align" data-field="per_use_cost">per use cost</div>
     </div>
 </div>
+<div>
+    <table id="chart_data_table">
+    <thead>
+    <tr>
+        <th>Delivered Date</th>
+        <th>Source / Item / Size</th>
+        <th>Pack Cost</th>
+{#        <th>Initial Quantity</th>#}
+        <th>Per Use Cost</th>
+    </tr>
+    </thead>
+    <tbody id="chart_data_table_body">
+    <tr id="table-row-template">
+        <td class="" data-field="delivered_date">__delivered_date__</td>
+        <td class="">
+            <span data-field="source">__source__</span> / <span data-field="item_name">__item_name__</span> <span data-field="unit_size">__unit_size__</span>
+        </td>
+        <td class="" data-field="pack_cost">__pack_cost__</td>
+{#        <td class="" data-field="initial_quantity">__initial_quantity__</td>#}
+        <td class="" data-field="per_use_cost">__per_use_cost__</td>
+    </tr>
+    </tbody>
+    </table>
+</div>
 {% endblock %}
 
 {% block body_scripts %}
@@ -101,7 +146,7 @@
 let global_chart = null;
 
 function chart_data_received(data){
-    populate_chart_table(data);
+    populate_chart_div_table(data);
     $("#chart-title").text(`Per Use Cost for: ${data['item_names']}`);
     let point_background_colors = [];
     // get reference to the canvas element.
@@ -123,7 +168,7 @@ function chart_data_received(data){
             }]
         },
         options: {
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false,
@@ -167,10 +212,19 @@ function chart_data_received(data){
     global_chart.update();
 }
 
-function empty_chart_table(chart_table) {
-    chart_table.find('div.chart-data-row').each(function() {
+function empty_chart_div_table(chart_div_table) {
+    chart_div_table.find('div.chart-data-row').each(function() {
         let e = $(this);
         if (!(e.hasClass("chart-data-row-header") || e.hasClass("chart-data-row-template"))) {
+            e.remove();
+        }
+    });
+}
+
+function empty_chart_table(chart_table_body) {
+    chart_table_body.find('tr').each(function() {
+        let e = $(this);
+        if (e.attr('id') !== "table-row-template") {
             e.remove();
         }
     });
@@ -199,7 +253,7 @@ function get_chart_data() {
     });
 }
 
-function new_chart_table_row(data){
+function new_chart_div_table_row(data){
     let item_clone = $("#row-template").clone();
     item_clone.attr('id', null);
     {#item_clone.attr("data-id", data['id']);#}
@@ -216,10 +270,29 @@ function new_chart_table_row(data){
     return item_clone;
 }
 
-function populate_chart_table(data) {
+function new_chart_table_row(data){
+    let item_clone = $("#table-row-template").clone();
+    item_clone.attr('id', null);
+    {#item_clone.attr("data-id", data['id']);#}
+    item_clone.find('[data-field]').each(function() {
+        let e = $(this);
+        let key = e.data('field');
+        if (key === undefined) {
+            // The template should have names on each div so this is an error.  Probably shouldn't hide it.
+            return true;
+        }
+        e.html(`${data[key]}&nbsp;`);
+    });
+    {#item_clone.removeClass("chart-data-row-template");#}
+    return item_clone;
+}
+
+function populate_chart_div_table(data) {
     let count = 0;
-    let chart_table = $("#chart_data");
-    empty_chart_table(chart_table);
+    let chart_div_table = $("#chart_data");
+    let chart_table_body = $("#chart_data_table_body");
+    empty_chart_div_table(chart_div_table);
+    empty_chart_table(chart_table_body);
 
     for (i in data['delivered_date']) {
         // Convert each item from parallel array(used by chart) to single dict.
@@ -232,16 +305,25 @@ function populate_chart_table(data) {
             "initial_quantity": data['initial_quantity'][i],
             "per_use_cost": (Math.round(data['per_use_cost'][i] * 10000) / 10000).toFixed(4)
         }
-        chart_table.append(new_chart_table_row(tmp));
+        chart_div_table.append(new_chart_div_table_row(tmp));
+        chart_table_body.append(new_chart_table_row(tmp));
         count++;
     }
     console.log(`got ${count} items.`);
-
 }
-
+function beforePrintHandler () {
+    // for (let id in Chart.instances) {
+    //     Chart.instances[id].resize();
+    // }
+    console.log("Resizing chart.");
+    global_chart.resize();
+}
 $( document ).ready(function() {
     // get_chart_data();
-    $("#canned-report-select").on("change", get_chart_data)
+    $("#canned-report-select").on("change", get_chart_data);
+    // $.on("beforeprint", beforePrintHandler);
+    window.addEventListener("beforeprint", beforePrintHandler);
+
 });
 function print_chart() {
 
