@@ -76,11 +76,7 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         return self._value_order_distinct('source__name')
 
     def source_categories(self):
-        return self.values('source_category').annotate(
-            line_items=models.Count('id'),
-            row_number=expressions.Window(
-                expression=functions.RowNumber(), order_by=models.F('source_category').asc()),
-        ).order_by('source_category')
+        return self.values('source_category').order_by('source_category').distinct('source_category')
 
     def unit_sizes(self):
         return self._value_order_distinct('unit_size')

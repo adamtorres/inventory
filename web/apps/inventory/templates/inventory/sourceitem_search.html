@@ -140,10 +140,10 @@ label {
                                 {% for category in categories %}
                                     <div class="choice-inline" style="margin-right: 2em;">
                                         <div class="choice-inline">
-                                            <input type="checkbox" name="filter-category" id="filter-category-{{ category.row_number }}" value="{{ category.row_number }}">
+                                            <input type="checkbox" name="filter-category" id="filter-category-{{ forloop.counter }}" value="{{ category.source_category }}">
                                         </div>
                                         <div class="choice-inline">
-                                            <label for="filter-category-{{ category.row_number }}">{{ category.source_category|title }}</label>
+                                        <label for="filter-category-{{ forloop.counter }}">{{ category.source_category|title }}</label>
                                         </div>
                                     </div>
                                 {% endfor %}
