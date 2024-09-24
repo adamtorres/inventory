@@ -583,6 +583,7 @@ autocomplete_remove_decimal_fields = ["pack_quantity", "current_quantity"];
 autocomplete_container_id = "line_item_list";
 // autocomplete_debug_log = true;
 autocomplete_extra_data_func = ac_extra_data;
+autocomplete_focus_after_select = "total_weight";
 
 let order_api_url = "{% url "inventory:api_sourceitem_orders" %}";
 function check_for_existing_order(caller_obj) {

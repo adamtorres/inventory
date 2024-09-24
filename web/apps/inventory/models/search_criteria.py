@@ -72,14 +72,16 @@ class SearchCriteria(sc_models.DatedModel):
         return f"{self.category} / {self.name}"
 
     def form_field_to_ajax_var(self, form_field_name):
-        return self.form_field_ajax_var_xlate.get(form_field_name)
+        return self.form_field_ajax_var_xlate.get(
+            form_field_name[1:] if form_field_name.startswith("-") else form_field_name)
 
     def get_search_queryset(self):
         from . import SourceItem
         vts = []
         for crit, value in self.criteria.items():
             ajax_var = self.form_field_to_ajax_var(crit[5:] if crit.startswith("save-") else crit)
-            vts.append((ajax_var, value))
+            exclude_filter = "-" if crit.startswith("-") else ""
+            vts.append((exclude_filter+ajax_var, value))
         qs = SourceItem.objects.wide_filter(vts)
         qs = qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
         qs = qs.order_by().order_by('delivered_date', 'source_id', 'order_number', 'line_item_number')

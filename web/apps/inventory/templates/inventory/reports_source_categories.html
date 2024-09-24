@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Source Categories{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table id="result-table">
+<thead>
+<tr>
+    <th>Source Category</th>
+    <th class="right-align">Items</th>
+    <th class="right-align">Orders</th>
+    <th class="right-align">First Delivered Date</th>
+    <th class="right-align">Last Delivered Date</th>
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for thing in source_categories %}
+    <tr class="order-row">
+    <td class="border">{{ thing.source_category }}</td>
+    <td class="border right-align">{{ thing.items|intcomma }}</td>
+    <td class="border right-align">{{ thing.orders|intcomma }}</td>
+    <td class="border right-align">{{ thing.first_delivered }}</td>
+    <td class="border right-align">{{ thing.last_delivered }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

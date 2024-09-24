@@ -14,8 +14,10 @@
                 <li><a href="{% url "inventory:sourceitem_search" %}" class="link-light rounded">Search</a></li>
                 <li><a href="{% url "inventory:sourceitem_stats" %}" class="link-light rounded">Random Stats</a></li>
                 <li><a href="{% url "inventory:reports_created_today" %}" class="link-light rounded">Orders Created In Last 24hrs</a></li>
+                <li><a href="{% url "inventory:reports_orders_created_range" %}" class="link-light rounded">Orders Created In Arbitrary Range</a></li>
                 <li><a href="{% url "inventory:reports_price_over_time" %}" class="link-light rounded">Price Over Time</a></li>
                 <li><a href="{% url "inventory:reports_packaging_costs" %}" class="link-light rounded">Packaging Costs</a></li>
+                <li><a href="{% url "inventory:reports_source_categories" %}" class="link-light rounded">Source Categories</a></li>
                 <li><a href="{% url "inventory:saved_search_current_prices" %}" class="link-light rounded">Current Prices</a></li>
             </ul>
         </li>

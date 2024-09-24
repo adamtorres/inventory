@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Source Categories{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table id="result-table">
+<thead>
+<tr>
+    {% for header in headers %}
+        <th class="right-align">{{ header }}</th>
+    {% endfor %}
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for row in source_totals_over_time %}
+    <tr class="order-row">
+    <td class="border right-align">{{ row.0 }}</td>
+    {% for cell in row|slice:"1:" %}
+{#        <td class="border right-align">{{ cell.orders|intcomma }}</td>#}
+{#        <td class="border right-align">{{ cell.items|intcomma }}</td>#}
+        <td class="border right-align dollar-cell">{{ cell.total_cost|default:""|floatformat:2|intcomma }}</td>
+    {% endfor %}
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

@@ -31,8 +31,18 @@ urlpatterns = [
         "api/sourceitem/wide_filter/", i_views.APISourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
 
     urls.path("reports/created_today/", i_views.ReportsCreatedTodayView.as_view(), name="reports_created_today"),
+    urls.path(
+        "reports/orders_created_range/", i_views.ReportsOrdersCreatedRangeView.as_view(),
+        name="reports_orders_created_range"),
+    urls.path(
+        "reports/orders_created_times_last_week/", i_views.ReportsCreatedTimesLastWeekView.as_view(),
+        name="reports_orders_created_times_last_week"),
     urls.path("reports/packaging_costs/", i_views.ReportsPackagingCostsView.as_view(), name="reports_packaging_costs"),
     urls.path("reports/price_over_time/", i_views.ReportsPriceOverTimeView.as_view(), name="reports_price_over_time"),
+    urls.path(
+        "reports/source_categories/", i_views.ReportsSourceCategoriesView.as_view(), name="reports_source_categories"),
+    urls.path(
+        "reports/source_totals_over_time/", i_views.ReportsSourceTotalsOverTimeView.as_view(), name="reports_source_totals_over_time"),
 
     urls.path(
         "saved_search/current_prices", i_views.SearchCriteriaCurrentPricesView.as_view(),

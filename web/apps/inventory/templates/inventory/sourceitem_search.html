@@ -219,6 +219,12 @@ label {
         </div>
         <div class="row">
             <div class="col text-left">
+                <label for="calc-source-category">Source Category: </label>
+                <span id="calc-source-category">[source category]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
                 <label for="calc-item-name">Item: </label>
                 <span id="calc-item-name">[item name]</span>
             </div>
@@ -503,6 +509,7 @@ filter_input_empty_if_only = ['category', 'source'];
 filter_result_fields = [
     {element: "data-field='delivered_date'", destination_field_id: "calc-delivered-date"},
     {element: "data-field='order_number'", destination_field_id: "calc-order-number"},
+    {element: "data-field='source_category'", destination_field_id: "calc-source-category"},
     {element: "data-field='item_code'", destination_field_id: "calc-item-code"},
     {element: "data-field='source_item_name'", destination_field_id: "calc-item-name"},
     {element: "data-field='common_name'", destination_field_id: "calc-common-item-name"},

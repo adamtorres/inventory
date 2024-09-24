@@ -4,3 +4,41 @@ Load a plain-text sql file.  The order of the options and the surrounding double
 
 Linux
 ?
+
+Windows Powershell uses back tick ` to escape spaces in path.
+C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 --file=pg_dump-2024-09-19.sql --format=p --if-exists --clean --create --blobs --column-inserts --inserts --rows-per-insert=100
+
+
+# export database on windows
+C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe
+-U inventory_user -d inventory_db_v7
+--file=pg_dump-2024-09-19.sql  file to save as
+                   --format=p  plain text (sql)
+                  --if-exists  don't error if object doesn't exist during drops
+                      --clean  remove structure
+                     --create  create structure
+                      --blobs  Include binary large objects
+             --column-inserts  Specify columns in the insert statements
+                    --inserts  Use inserts instead of copy
+        --rows-per-insert=100  Do 100 records per insert statement
+
+
+C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 --file=pg_dump-2024-09-20-schema-utf8.sql --format=p --encoding=UTF8 --schema-only --if-exists --clean --create --blobs --column-inserts --inserts --rows-per-insert=100
+C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 --file=pg_dump-2024-09-20-data-utf8.sql --format=p --encoding=UTF8 --data-only --blobs --column-inserts --inserts --rows-per-insert=100
+
+################################################################################################
+
+# Binary export from windows
+C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 > pg_dump-2024-09-20.bak
+# Binary import on linux
+psql postgres < "/drive/folder/backup.bak"
+
+
+################################################################################################
+# Jobs to export/import from windows to linux
+# On windows
+pg_dump -j 8 -Fd -f /tmp/newout.dir DATABASE
+# On linux
+createdb DATABASE
+pg_restore -j 8 --format=d -d DATABASE /tmp/newout.dir/
+

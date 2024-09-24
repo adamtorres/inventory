@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Orders created times in last week{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table id="result-table">
+<thead>
+<tr>
+    <th class="right-align">Created Date/Hour</th>
+    <th class="right-align">Orders</th>
+    <th class="right-align">Items</th>
+    <th class="right-align">First created</th>
+    <th class="right-align">Last created</th>
+    <th class="right-align">Estimated hours</th>
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for thing in created_last_week %}
+    <tr class="order-row">
+    <td class="border right-align">{{ thing.created_trunc }}</td>
+    <td class="border right-align">{{ thing.orders|intcomma }}</td>
+    <td class="border right-align">{{ thing.items|intcomma }}</td>
+    <td class="border right-align">{{ thing.first_created }}</td>
+    <td class="border right-align">{{ thing.last_created }}</td>
+    <td class="border right-align">{{ thing.est_hours|floatformat:2|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

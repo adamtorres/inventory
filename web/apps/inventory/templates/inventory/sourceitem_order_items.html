@@ -18,6 +18,9 @@
     Source: {{ order_items.0.source }}
     </div>
     <div>
+    Order Entered Date: {{ order_items.0.created|date:"M j, Y" }}
+    </div>
+    <div>
     Delivered Date: {{ order_items.0.delivered_date|date:"M j, Y" }}
     </div>
     <div>
