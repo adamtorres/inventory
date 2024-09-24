@@ -28,11 +28,29 @@ C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_d
 
 ################################################################################################
 
-# Binary export from windows
+# not binary export from windows
 C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 > pg_dump-2024-09-20.bak
-# Binary import on linux
+# not binary import on linux
 psql postgres < "/drive/folder/backup.bak"
+iconv -f UTF-16LE -t UTF-8 ../../../pg_dump-2024-09-20.bak | psql -U inventory_user -d inventory_db_v7 -p 5432 -h localhost
 
+
+# not binary export from linux
+pg_dump -U inventory_user -d inventory_db_v7 -p 5432 -h localhost -f tmp/pg_dump-2024-09-23.bak
+    pg_dump: error: server version: 16.4; pg_dump version: 14.13 (Ubuntu 14.13-0ubuntu0.22.04.1)
+    pg_dump: error: aborting because of server version mismatch
+# Removing v14 client, adding apt repo as described in https://www.postgresql.org/download/linux/ubuntu/, and installing v16 client.
+sudo apt remove postgresql-client
+sudo apt autoremove
+sudo install -d /usr/share/postgresql-common/pgdg
+sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sudo apt update
+sudo apt install postgresql-client
+# Redoing the pg_dump works fine now.
+
+
+# not binary import on windows
 
 ################################################################################################
 # Jobs to export/import from windows to linux
