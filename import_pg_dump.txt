@@ -28,8 +28,9 @@ C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_d
 
 ################################################################################################
 
-# not binary export from windows
+# not binary export from windows(powershell)
 C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 > pg_dump-2024-09-20.bak
+TRY: C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 -p 5432 -h localhost -f tmp\pg_dump-2024-09-30.bak
 # not binary import on linux
 psql postgres < "/drive/folder/backup.bak"
 iconv -f UTF-16LE -t UTF-8 ../../../pg_dump-2024-09-20.bak | psql -U inventory_user -d inventory_db_v7 -p 5432 -h localhost
@@ -48,9 +49,12 @@ sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresq
 sudo apt update
 sudo apt install postgresql-client
 # Redoing the pg_dump works fine now.
+pg_dump -U inventory_user -d inventory_db_v7 -p 5432 -h localhost -f tmp/pg_dump-2024-09-30.bak
 
-
-# not binary import on windows
+# not binary import on windows (powershell)
+C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 -f tmp\pg_dump-2024-09-30.bak
+# not binary import on windows (cmd)
+"C:\Program Files\PostgreSQL\15\bin\psql.exe" -f tmp\pg_dump-2024-09-30.bak "host='localhost' port='5432' dbname='inventory_db_v7' user='inventory_user'" 2>>&1
 
 ################################################################################################
 # Jobs to export/import from windows to linux
