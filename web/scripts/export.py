@@ -6,6 +6,8 @@ import platform
 import re
 import subprocess
 
+import dotenv
+
 from django.apps import apps
 from django.conf import settings
 from django import db
@@ -189,8 +191,12 @@ def run_dumpdata(models_in_order, datetime_slug):
 
 
 def run():
+    dotenv.read_dotenv('../../.env')
     model_list = get_models_to_sort()
     models_in_order = sort_models(model_list)
     datetime_slug = generate_datetime_slug()
+    # Setting PGPASSWORD makes it so psql doesn't ask for a password each time.
+    os.environ["PGPASSWORD"] = os.getenv("DB_PASSWORD")
     run_pg_dump(models_in_order, datetime_slug)
-    # run_dumpdata(models_in_order, datetime_slug)
+    run_dumpdata(models_in_order, datetime_slug)
+
