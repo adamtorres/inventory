@@ -30,6 +30,7 @@ urlpatterns = [
     urls.path(
         "api/sourceitem/wide_filter/", i_views.APISourceItemWideFilterView.as_view(), name="api_sourceitem_widefilter"),
 
+    urls.path("reports/common_name_prices/", i_views.ReportsCommonNamePricesView.as_view(), name="reports_common_name_prices"),
     urls.path("reports/created_today/", i_views.ReportsCreatedTodayView.as_view(), name="reports_created_today"),
     urls.path(
         "reports/orders_created_range/", i_views.ReportsOrdersCreatedRangeView.as_view(),

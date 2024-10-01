@@ -1,3 +1,4 @@
+from .common_name_prices import CommonNamePrices
 from .created_times_last_week import CreatedTimesLastWeek
 from .created_today import CreatedToday
 from .orders_created_range import OrdersCreatedRange

@@ -16,6 +16,7 @@
     <th class="right-align">Orders</th>
     <th class="right-align">First Delivered Date</th>
     <th class="right-align">Last Delivered Date</th>
+    <th class="right-align">Extended Cost</th>
 </tr>
 </thead>
 <tbody id="result-table-body">
@@ -26,6 +27,7 @@
     <td class="border right-align">{{ thing.orders|intcomma }}</td>
     <td class="border right-align">{{ thing.first_delivered }}</td>
     <td class="border right-align">{{ thing.last_delivered }}</td>
+    <td class="border right-align dollar-cell">{{ thing.extended_cost|floatformat:2|intcomma }}</td>
     </tr>
 {% endfor %}
 </tbody>

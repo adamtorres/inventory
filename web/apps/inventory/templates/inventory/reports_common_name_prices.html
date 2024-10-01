@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Common Name Prices{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+.default-row {
+    background-color: white;
+}
+.highlight-row {
+    background-color: lightgoldenrodyellow;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<table id="result-tableX">
+<thead>
+<tr>
+    <th class="">Common Name</th>
+    <th class="">Cryptic Names</th>
+    <th class="right-align">Pack Qty</th>
+    <th class="right-align">Unit Size</th>
+    <th class="right-align">Unit Qty</th>
+    <th colspan="2" class="right-align">First Delivered</th>
+    <th colspan="2" class="right-align">Last Delivered</th>
+    <th class="right-align">Cost Change</th>
+    <th class="right-align">Order Count</th>
+    <th class="right-align">Total Extended Cost</th>
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for thing in common_name_prices %}
+    <!-- {% ifchanged thing.common_name %}{% cycle "default-row" "highlight-row" as row_color %}{% endifchanged %} -->
+    <tr class="order-row {{ row_color }}">
+    <td class="border">{% ifchanged thing.common_name %}{{ thing.common_name }}{% endifchanged %}</td>
+    <td class="border">{{ thing.source_item_names }}</td>
+    <td class="border right-align">{{ thing.pack_quantity|intcomma }}</td>
+    <td class="border right-align">{{ thing.unit_size }}</td>
+    <td class="border right-align">{{ thing.unit_quantity|intcomma }}</td>
+    <td class="border right-align">{{ thing.first_delivered_date }}</td>
+    <td class="border right-align dollar-cell">{{ thing.first_pack_cost|floatformat:2|intcomma }}</td>
+    <td class="border right-align">{{ thing.last_delivered_date }}</td>
+    <td class="border right-align dollar-cell">{{ thing.last_pack_cost|floatformat:2|intcomma }}</td>
+    <td class="border right-align dollar-cell">{{ thing.cost_change|floatformat:2|intcomma }}</td>
+    <td class="border right-align">{{ thing.order_count|intcomma }}</td>
+    <td class="border right-align dollar-cell">{{ thing.total_extended_cost|floatformat:2|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
