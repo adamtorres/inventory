@@ -88,16 +88,16 @@ def execute_commands(commands):
 
 
 def generate_import_command(file_to_import, psql_binary):
-    command = [psql_binary]
     # "C:\Program Files\PostgreSQL\15\bin\psql.exe"
     # -f data\pg_dump_2023-09-11_160615_inventory_commonname.sql
     # "host='localhost' port='5432' dbname='inventory_test' user='inventory_user'"
     # 2>>&1
-    command.append("-f")
-    command.append(str(file_to_import))
-    # TODO: find windows way to grep the .env file.
-    command.append("host='127.0.0.1' port='5432' dbname='inventory_db_v7' user='inventory_user'")
-    command.append("2>>&1")
+    command = [
+        psql_binary, "-f", str(file_to_import),
+        f"host='{os.environ['DB_HOST']}' port='{os.environ['DB_PORT']}' dbname='{os.environ['DB_NAME']}' "
+        f"user='{os.environ['DB_USER']}'",
+        "2>>&1"
+    ]
     return {"command": command, "label": "?", "input_file": file_to_import}
 
 

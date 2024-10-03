@@ -4,7 +4,8 @@ from django.db import connections
 class CommonNamePrices(object):
     @staticmethod
     def run():
-        sql = "SELECT * FROM common_name_prices('2023-01-01', '2025-01-01');"
+        # Date range is set to include all data I have been able to track down.  Might make this a setting later.
+        sql = "SELECT * FROM common_name_prices('2021-01-01', CURRENT_TIMESTAMP::DATE + '1 day'::INTERVAL);"
         with connections['default'].cursor() as cur:
             cur.execute(sql)
             headers = [c.name for c in cur.description]

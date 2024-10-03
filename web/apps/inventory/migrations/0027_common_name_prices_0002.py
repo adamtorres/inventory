@@ -10,7 +10,7 @@ reverse_sql = (pathlib.Path(__file__).parent.parent / 'sql/common_name_prices-00
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0026_source_orders_0001'),
+        ('inventory', '0026_common_name_prices_0001'),
     ]
 
     operations = [
