@@ -165,7 +165,7 @@
     <span class="invoice-blue-header">STATEMENT</span>
     <div class="invoice-header-details">
         <div class="left-block">
-            <div>Date {{ order.pickup_date|default_if_none:order.date_made|default_if_none:order.date_ordered }}</div>
+            <div>Date {{ order.pickup_date|default_if_none:order.date_made|default_if_none:order.expected_date|default_if_none:order.date_ordered }}</div>
             <div>Statement # 001</div>
             <div>Bear Lake Senior Center/</div>
             <div>Community Center</div>

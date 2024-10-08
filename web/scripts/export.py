@@ -106,6 +106,15 @@ def generate_pg_dump_commands(sorted_model_list, datetime_slug):
     return commands
 
 
+def generate_pg_dump_create_database_command(datetime_slug):
+    command = [
+        find_pg_dump_binary(), "-U", os.getenv("DB_USER"), "-h", os.getenv("DB_HOST"), "-p", os.getenv("DB_PORT"),
+        "-d", os.getenv("DB_NAME"), "--format=p", "--if-exists", "--clean", "--create", "--schema-only"]
+    sql_file = generate_export_filename(datetime_slug, "create_database", prefix="initial", extension="sql")
+    command.append(f"--file={sql_file}")
+    return {"command": command, "label": "create_database", "output_file": sql_file}
+
+
 def execute_command(command):
     print(f"Exporting {command['label']}...")
     command_result = subprocess.run(command["command"], capture_output=True)
@@ -140,6 +149,9 @@ def modify_sql_script_insert_into_upsert(sql_file):
     # Find field list.
     #   Should start with "(id, " and end at the first available ")".
     # Find "ON CONFLICT DO NOTHING;"
+    if sql_file.stem.startswith("initial"):
+        # Do nothing to the create database script.
+        return
     field_list_pattern = r".* \(id, (.+?)\)"
     field_list_re = re.compile(field_list_pattern)
     new_sql_file = sql_file.with_suffix(".sql_tmp")
@@ -167,6 +179,7 @@ def run_pg_dump(models_in_order, datetime_slug):
     Exports each table as a separate sql file.  To be used with the import runscript.
     """
     pg_dump_commands = generate_pg_dump_commands(models_in_order, datetime_slug)
+    pg_dump_commands.append(generate_pg_dump_create_database_command(datetime_slug))
     execute_commands(pg_dump_commands)
 
 
@@ -199,4 +212,3 @@ def run():
     os.environ["PGPASSWORD"] = os.getenv("DB_PASSWORD")
     run_pg_dump(models_in_order, datetime_slug)
     run_dumpdata(models_in_order, datetime_slug)
-

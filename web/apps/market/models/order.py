@@ -37,7 +37,7 @@ class Order(sc_models.UUIDModel):
     objects = OrderManager()
 
     class Meta:
-        ordering = ['-date_ordered', '-time_ordered', 'who', 'id']
+        ordering = ['expected_date', 'who', 'id']
 
     def __str__(self):
         return f"{self.date_ordered} : {self.who} : {self.state()}"

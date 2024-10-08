@@ -26,6 +26,7 @@ C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe
 C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 --file=pg_dump-2024-09-20-schema-utf8.sql --format=p --encoding=UTF8 --schema-only --if-exists --clean --create --blobs --column-inserts --inserts --rows-per-insert=100
 C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 --file=pg_dump-2024-09-20-data-utf8.sql --format=p --encoding=UTF8 --data-only --blobs --column-inserts --inserts --rows-per-insert=100
 
+
 ################################################################################################
 
 # not binary export from windows(powershell)
@@ -55,6 +56,31 @@ pg_dump -U inventory_user -d inventory_db_v7 -p 5432 -h localhost -f tmp/pg_dump
 C:\Program` Files\PostgreSQL\15\bin\pg_dump.exe -U inventory_user -d inventory_db_v7 -f tmp\pg_dump-2024-09-30.bak
 # not binary import on windows (cmd)
 "C:\Program Files\PostgreSQL\15\bin\psql.exe" -f tmp\pg_dump-2024-09-30.bak "host='localhost' port='5432' dbname='inventory_db_v7' user='inventory_user'" 2>>&1
+
+
+##### Creating new database and importing a pg_dump.
+# Run the initial script that creates a database and sets it up to the minimum for loading a pgdump.  Ignore the 'user already exists' error.
+(inventory-venv) adam@bequietdesktop:~/SeniorCenterProjects/Inventory/inventory-v7$ docker exec -i inventory_db psql -U postgres < initial-database.sql
+    ERROR:  role "inventory_user" already exists
+    DROP DATABASE
+    CREATE DATABASE
+    ALTER DATABASE
+    You are now connected to database "inventory_db_20241004" as user "postgres".
+    CREATE EXTENSION
+
+# Do not run migrations.  The .bak includes create scripts.
+# ~python manage.py migrate~
+
+# Did not work.  Not sure why setting PGPASSWORD this way doesn't as it works when set via import/export scripts.
+(inventory-venv) adam@bequietdesktop:~/SeniorCenterProjects/Inventory/inventory-v7/v7/web$ export PGPASSWORD="$(grep "^DB_PASSWORD" ../.env | cut -c13-)"
+(inventory-venv) adam@bequietdesktop:~/SeniorCenterProjects/Inventory/inventory-v7/v7/web$ iconv -f UTF-16LE -t UTF-8 ./data/pg_dump-2024-10-04.bak | psql -U inventory_user -d inventory_db_20241004 -p 5432 -h localhost
+
+# worked w/o asking for password (as it is done via django).  Will show lots of errors if migrations were run.
+(inventory-venv) adam@bequietdesktop:~/SeniorCenterProjects/Inventory/inventory-v7/v7/web$ cat data/pg_dump-2024-10-04.bak | python manage.py dbshell
+
+# Use the create database script created from the runscript export command.
+(inventory-venv) adam@bequietdesktop:~/SeniorCenterProjects/Inventory/inventory-v7/v7/web$ docker exec -i inventory_db psql -U postgres < data/initial_2024-10-05_120837_create_database.sql
+
 
 ################################################################################################
 # Jobs to export/import from windows to linux
