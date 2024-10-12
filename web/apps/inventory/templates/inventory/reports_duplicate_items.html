@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Current Price List{% endblock %}
+
+{% block styles %}
+<style>
+.item {
+    display: grid;
+    grid-template-columns: 3fr 3fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "a a a a a a";
+    border-bottom: black solid 1px;
+}
+.field {
+    {#display: inline-block;#}
+}
+.number-cell {
+    text-align: right;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="current-price-content">
+Orders with potential duplicate items: {{ duplicate_items.order_count }}
+<hr />
+{% for order in duplicate_items.orders %}
+    <h3>{{ order.delivered_date }} / {{ order.order_number }} / {{ order.source_name }}</h3>
+    {% for item in order.line_items %}
+    <div class="item">
+    {{ item }}
+    </div>
+    {% endfor %}
+    <hr />
+{% endfor %}
+</div>
+{% endblock %}

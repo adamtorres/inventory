@@ -8,7 +8,7 @@ admin.AdminSite.site_header = "Customized Admin Site Header From Inventory"
 
 class SourceItemAdmin(admin.ModelAdmin):
     form = inv_forms.SourceItemAdminForm
-    search_fields = ['cryptic_name', 'verbose_name', 'common_name', 'item_code', ]
+    search_fields = ['cryptic_name', 'verbose_name', 'common_name', 'item_code', 'order_number', ]
     fieldsets = (
         ('Order', {
             'fields': ('delivered_date', 'source', 'customer_number', 'order_number', 'po_text')}),

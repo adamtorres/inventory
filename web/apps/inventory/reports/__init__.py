@@ -1,6 +1,7 @@
 from .common_name_prices import CommonNamePrices
 from .created_times_last_week import CreatedTimesLastWeek
 from .created_today import CreatedToday
+from .duplicate_items import DuplicateItems
 from .orders_created_range import OrdersCreatedRange
 from .packaging_costs import PackagingCosts
 from .source_categories import SourceCategories

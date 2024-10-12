@@ -6,6 +6,7 @@ from .api_source_item_quantity_adjustment import APISourceItemQuantityAdjustment
 from .api_source_item_wide_filter import APISourceItemWideFilterView
 from .reports_common_name_prices import ReportsCommonNamePricesView
 from .reports_created_today import ReportsCreatedTodayView
+from .reports_duplicate_items import ReportsDuplicateItemsView
 from .reports_orders_created_range import ReportsOrdersCreatedRangeView
 from .reports_order_created_times_last_week import ReportsCreatedTimesLastWeekView
 from .reports_packaging_costs import ReportsPackagingCostsView

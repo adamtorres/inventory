@@ -327,7 +327,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         ordering = ['-delivered_date', 'source_id', 'order_number', 'line_item_number']
 
     def __str__(self):
-        return f"{self.delivered_date} / {self.verbose_name or self.cryptic_name}"
+        return f"dl:{self.delivered_date} / cr:{self.created:%Y-%m-%d} / {self.verbose_name or self.cryptic_name}"
 
     @staticmethod
     def autocomplete_search_fields():
