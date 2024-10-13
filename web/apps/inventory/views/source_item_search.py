@@ -56,5 +56,5 @@ class SourceItemSearchView(generic.TemplateView):
 
         context['sources'] = inv_models.Source.objects.active_sources()
         context['categories'] = inv_models.SourceItem.objects.source_categories()
-        context['saved_searches'] = inv_models.SearchCriteria.objects.all()
+        context['saved_searches'] = inv_models.SearchCriteria.objects.saved_searches()
         return context
