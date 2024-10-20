@@ -43,6 +43,7 @@ urlpatterns = [
     urls.path("reports/price_over_time/", i_views.ReportsPriceOverTimeView.as_view(), name="reports_price_over_time"),
     urls.path(
         "reports/source_categories/", i_views.ReportsSourceCategoriesView.as_view(), name="reports_source_categories"),
+    urls.path("reports/source_totals/", i_views.ReportsSourceTotalsView.as_view(), name="reports_source_totals"),
     urls.path(
         "reports/source_totals_over_time/", i_views.ReportsSourceTotalsOverTimeView.as_view(), name="reports_source_totals_over_time"),
 

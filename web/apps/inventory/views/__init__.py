@@ -12,6 +12,7 @@ from .reports_order_created_times_last_week import ReportsCreatedTimesLastWeekVi
 from .reports_packaging_costs import ReportsPackagingCostsView
 from .reports_price_over_time import ReportsPriceOverTimeView
 from .reports_source_categories import ReportsSourceCategoriesView
+from .reports_source_totals import ReportsSourceTotalsView
 from .reports_source_totals_over_time import ReportsSourceTotalsOverTimeView
 from .search_criteria import SearchCriteriaCurrentPricesView
 from .source_item_create import SourceItemCreateView

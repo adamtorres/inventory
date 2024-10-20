@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Source Totals{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<table id="result-table">
+<thead>
+<tr>
+    <th>Source</th>
+    <th class="right-align">Orders</th>
+    <th class="right-align">Items</th>
+    <th class="right-align">Total Cost</th>
+</tr>
+</thead>
+<tbody id="result-table-body">
+{% for thing in source_totals %}
+    {% ifchanged thing.delivered_year %}<tr><td colspan="4">{{ thing.delivered_year }}</td></tr>{% endifchanged %}
+    <tr class="order-row">
+    <td class="border">{{ thing.iname }}</td>
+    <td class="border right-align">{{ thing.orders|intcomma }}</td>
+    <td class="border right-align">{{ thing.items|intcomma }}</td>
+    <td class="border right-align dollar-cell">{{ thing.total_cost|floatformat:2|intcomma }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

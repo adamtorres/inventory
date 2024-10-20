@@ -27,7 +27,7 @@ class ReportsSourceTotalsOverTimeView(generic.TemplateView):
                 cur_year_month = row["year_month"]
             if not headers_set:
                 # headers.extend([f"{row["iname"]} orders", f"{row["iname"]} items", f"{row["iname"]} total cost"])
-                headers.extend([f"{row["iname"]}"])
+                headers.extend([f"{row['iname']}"])
             wide_row.append({"orders": row["orders"], "items": row["items"], "total_cost": row["total_cost"]})
         wide_data.append(wide_row)
         wide_data.reverse()

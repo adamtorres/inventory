@@ -12,7 +12,13 @@
 <div>Description: {{ item.description }}</div>
 <div>Likely Container: {{ item.likely_container }}</div>
 <div>Saved Search: {{ item.saved_search.name }}</div>
-{# TODO: button to see current price? #}
+<div>per_use_cost: {{ current_cost_data.per_use_cost }}</div>
+<div>pack_cost: {{ current_cost_data.pack_cost }}</div>
+<div>last_delivered_date: {{ current_cost_data.last_delivered_date }}</div>
+<div>last_item_name: {{ current_cost_data.last_item_name }}</div>
+<div>last_item_id: {{ current_cost_data.last_item_id }}</div>
+<div>initial_quantity: {{ current_cost_data.initial_quantity }}</div>
+<div>per_pound_cost: {{ current_cost_data.per_pound_cost }}</div>
 <hr />
 <div>
     <a class="btn btn-secondary" href="{% url "recipe:item_update" pk=item.id %}">Edit Item</a>

@@ -6,4 +6,5 @@ from .orders_created_range import OrdersCreatedRange
 from .packaging_costs import PackagingCosts
 from .source_categories import SourceCategories
 from .source_item_names_and_quantities import SourceItemNamesAndQuantities
+from .source_totals import SourceTotals
 from .source_totals_over_time import SourceTotalsOverTime

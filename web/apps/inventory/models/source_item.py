@@ -405,7 +405,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
     def per_pound_cost(self, rounded_places=-1):
         if self.delivered_quantity == 0:
             return 0
-        if self.unit_size.endswith(["lb", "#"]):
+        if self.unit_size.endswith(("lb", "#")):
             # some items use pack_cost as a per pound cost.  For those, we could use that number blindly.
             # or, we could ignore the given pack_cost and calculate it so no conditional logic need done.
             pack_cost = self.extended_cost / self.delivered_quantity

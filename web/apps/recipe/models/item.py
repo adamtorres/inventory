@@ -34,9 +34,19 @@ class Item(sc_models.DatedModel):
             return {
                 "per_use_cost": 0.0,
                 "pack_cost": 0.0,
+                "last_delivered_date": "",
+                "last_item_name": "",
+                "last_item_id": "",
+                "initial_quantity": "",
+                "per_pound_cost": "",
             }
         last_result = self.saved_search.get_last_result()
         return {
             "per_use_cost": last_result.per_use_cost(),
             "pack_cost": last_result.calculated_pack_cost(),
+            "last_delivered_date": last_result.delivered_date,
+            "last_item_name": last_result.name,
+            "last_item_id": last_result.id,
+            "initial_quantity": last_result.initial_quantity(),
+            "per_pound_cost": last_result.per_pound_cost(),
         }
