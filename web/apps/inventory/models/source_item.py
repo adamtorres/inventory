@@ -309,6 +309,12 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
     extra_code = sc_fields.CharField(help_text="A second code or whatever.")
     scanned_filename = sc_fields.CharField(help_text="name of the scanned image file in case we need to verify data")
 
+    adjusted_pack_quantity = models.IntegerField(default=1)
+    adjusted_count = models.IntegerField(default=1)
+    adjusted_pack_cost = sc_fields.MoneyField(default=0)
+    adjusted_per_weight_cost = sc_fields.MoneyField(default=0)
+    adjusted_weight = sc_fields.DecimalField(default=0)
+    adjusted_weight_unit = sc_fields.CharField(default="")
     # TODO: tax, category
 
     discrepancy = sc_fields.MoneyField(

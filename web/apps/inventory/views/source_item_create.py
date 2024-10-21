@@ -3,6 +3,8 @@ import logging
 from django import urls
 from django.views import generic
 
+from scrap import utils as sc_utils
+
 from inventory import forms as inv_forms, models as inv_models
 
 
@@ -42,11 +44,19 @@ class SourceItemCreateView(generic.FormView):
             if (
                     instance.pack_cost and instance.pack_quantity and instance.delivered_quantity
                     and not instance.extended_cost):
+                instance.adjusted_pack_quantity = instance.pack_quantity
+                instance.adjusted_count = instance.unit_quantity
+                if instance.unit_size:
+                    adjusted_units = sc_utils.split_units(instance.unit_size)
+                    instance.adjusted_weight = adjusted_units['amount']
+                    instance.adjusted_weight_unit = adjusted_units['unit']
                 if instance.total_weight:
-                    instance.extended_cost = instance.pack_cost * instance.total_weight
+                    instance.adjusted_per_weight = instance.pack_cost
+                    instance.extended_cost = instance.adjusted_per_weight * instance.total_weight
                     logger.debug(f"{instance.extended_cost!r} = {instance.pack_cost!r} * {instance.total_weight}")
                 else:
-                    instance.extended_cost = instance.pack_cost * instance.delivered_quantity
+                    instance.adjusted_pack_cost = instance.pack_cost
+                    instance.extended_cost = instance.adjusted_pack_cost * instance.delivered_quantity
                     logger.debug(f"{instance.extended_cost!r} = {instance.pack_cost!r} * {instance.delivered_quantity}")
         form.save()
         return super().form_valid(form)
