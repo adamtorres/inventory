@@ -34,7 +34,7 @@ def forwards(apps, schema_editor):
             si.adjusted_pack_cost = si.extended_cost / si.delivered_quantity
         else:
             si.adjusted_pack_cost = si.pack_cost
-        si.remaining_pack_quantity = si.adjusted_pack_quantity
+        si.remaining_pack_quantity = si.adjusted_pack_quantity * si.delivered_quantity
         si.remaining_count_quantity = 0
         batch.append(si)
         if len(batch) == 500:

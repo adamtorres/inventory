@@ -252,9 +252,6 @@ label {
     <hr />
     <div class="row">
         <div class="col">
-            <label for="calc-remaining-quantity">Remaining Qty: </label>
-            <span id="calc-remaining-quantity">[remaining quantity]</span>
-
             <label for="calc-remaining-pack-quantity">Remaining Pack Qty: </label>
             <span id="calc-remaining-pack-quantity">[remaining pack quantity]</span>
 
@@ -267,8 +264,12 @@ label {
             <span class="d-none" id="calc-use-type">[use type]</span>
         </div>
         <div class="col">
-            <label for="calc-selected-item-inventory-adjustment">Use: </label>
-            <input type="number" id="calc-selected-item-inventory-adjustment" max="" value="0">
+            <label for="calc-selected-item-inventory-adjustment-pack">Use Pack: </label>
+            <input type="number" id="calc-selected-item-inventory-adjustment-pack" max="" value="0">
+        </div>
+        <div class="col">
+            <label for="calc-selected-item-inventory-adjustment-count">Use Count: </label>
+            <input type="number" id="calc-selected-item-inventory-adjustment-count" max="" value="0">
         </div>
         <div class="col">
             <span type="button" class="button btn-success" id="calc-adjust-selected-item-inventory-quantity">Adjust Remaining Quantity</span>
@@ -448,9 +449,8 @@ Log.
             </div>
         </td>
         <td class="border right-align">
-            <div data-field="remaining_quantity">__remaining_quantity__</div>
-            <div data-field="remaining_pack_quantity">__remaining_pack_quantity__</div>
-            <div data-field="remaining_count_quantity">__remaining_count_quantity__</div>
+            <div>Pack: <span data-field="remaining_pack_quantity">__remaining_pack_quantity__</span></div>
+            <div>Count: <span data-field="remaining_count_quantity">__remaining_count_quantity__</span></div>
         </td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
         <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
@@ -519,7 +519,7 @@ filter_fields = [
     "unit_quantity", "unit_size",
     "extended_cost", "total_weight", "individual_weights",
     "extra_notes", "extra_code", "scanned_filename",
-    "remaining_quantity", "remaining_pack_quantity", "remaining_count_quantity", "remaining_cost", "per_use_cost",
+    "remaining_pack_quantity", "remaining_count_quantity", "remaining_cost", "per_use_cost",
     "use_type", "use_type_str",
     "adjusted_pack_quantity",
     "adjusted_count",
@@ -528,7 +528,7 @@ filter_fields = [
     "adjusted_weight",
     "adjusted_weight_unit",
 ];
-remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
+remove_decimals = ["remaining_pack_quantity", "remaining_count_quantity", "delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost", "remaining_cost", "per_use_cost"];
 hide_parent_if_empty = ["order_number", "po_text"];
 filter_results_div_id = "result-table-body";
@@ -561,7 +561,6 @@ filter_result_fields = [
     {element: "data-field='extended_cost'", destination_field_id: "calc-price"},
     {element: "data-field='pack_cost'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
-    {element: "data-field='remaining_quantity'", destination_field_id: "calc-remaining-quantity"},
     {element: "data-field='remaining_pack_quantity'", destination_field_id: "calc-remaining-pack-quantity"},
     {element: "data-field='remaining_count_quantity'", destination_field_id: "calc-remaining-count-quantity"},
     {element: "data-field='id'", destination_field_id: "calc-item-id"},
@@ -724,17 +723,21 @@ function update_calculations() {
 }
 function adjust_selected_item_inventory_quantity() {
     let item_id = $("#calc-item-id").val();
-    let use_quantity = $("#calc-selected-item-inventory-adjustment").val();
-    let remaining_quantity = $("#calc-remaining-quantity").text();
+    let use_pack_quantity = $("#calc-selected-item-inventory-adjustment-pack").val();
+    let use_count_quantity = $("#calc-selected-item-inventory-adjustment-count").val();
+    let remaining_pack_quantity = $("#calc-remaining-pack-quantity").text();
+    let remaining_count_quantity = $("#calc-remaining-count-quantity").text();
     let use_type = $("#calc-use-type").text();
-    logit(`Adjusting ${item_id} from ${remaining_quantity} by ${use_quantity}.`);
+    logit(`Adjusting ${item_id} from ${remaining_pack_quantity}/${remaining_count_quantity} by ${use_pack_quantity}/${use_count_quantity}.`);
     // Should prevent further changes while waiting for this change.  Do not want multiple usages to be sent.
     // Though, sending the remaining with the request would allow the SQL to only update if the remaining matches.
     // First would work but subsequent would fail.
     let values_to_send = {
         "item_id": item_id,
-        "remaining_quantity": remaining_quantity,
-        "use_quantity": use_quantity,
+        "remaining_pack_quantity": remaining_pack_quantity,
+        "remaining_count_quantity": remaining_count_quantity,
+        "use_pack_quantity": use_pack_quantity,
+        "use_count_quantity": use_count_quantity,
         "use_type": use_type,
     };
     let headers = {};
@@ -748,7 +751,7 @@ function adjust_selected_item_inventory_quantity() {
         // traditional: true
     })
     .done(function(e) {
-        console.log(`adjusted quantity of '${e.adjustment}' from '${e.previous}' to '${e.new}'.`);
+        console.log(`adjusted quantity of '${e.adjustment_pack}/${e.adjustment_count}' from '${e.previous_pack}/${e.previous_count}' to '${e.new_pack}/${e.new_count}'.`);
         // After the item is adjusted, need to reload the table.
         $("#filter-pick-id").val(item_id);
         $(window).trigger(force_filter_refresh_event_name);
@@ -756,6 +759,8 @@ function adjust_selected_item_inventory_quantity() {
         if ('msg' in e) {
             showPopupMessage(e.msg);
         }
+        $("#calc-selected-item-inventory-adjustment-pack").val("0");
+        $("#calc-selected-item-inventory-adjustment-count").val("0");
     })
     .fail(function() {
         logit("ajax fail");
@@ -766,8 +771,9 @@ function adjust_selected_item_inventory_quantity() {
 }
 function new_filtered_item(e, new_filtered_item_row) {
     let new_row = $(new_filtered_item_row);
-    let remaining_quantity = parseInt(new_row.find('[data-field="remaining_quantity"]').text());
-    if (remaining_quantity === 0) {
+    let remaining_pack_quantity = parseInt(new_row.find('[data-field="remaining_pack_quantity"]').text());
+    let remaining_count_quantity = parseInt(new_row.find('[data-field="remaining_count_quantity"]').text());
+    if ((remaining_pack_quantity === 0) && (remaining_count_quantity === 0)) {
         new_row.addClass('no-remaining-quantity');
         new_row.addClass('text-muted');
     }
@@ -880,13 +886,15 @@ function setup_event_handlers() {
         }
     });
 }
-function prepare_remaining_quantity_controls(_selected_row) {
-    let nbr_ctrl = $("#calc-selected-item-inventory-adjustment");
-    let selected_row = $(_selected_row);
-    let item_id = selected_row.data('id');
-    console.log(item_id);
-    let remaining_quantity = selected_row.find('[data-field="remaining_quantity"]').text();
+function set_max_value(selected_row, pack_or_count){
+    let nbr_ctrl = $(`#calc-selected-item-inventory-adjustment-${pack_or_count}`);
+    let remaining_quantity = selected_row.find(`[data-field="remaining_${pack_or_count}_quantity"]`).text();
     nbr_ctrl.attr("max", remaining_quantity);
+}
+function prepare_remaining_quantity_controls(_selected_row) {
+    let selected_row = $(_selected_row);
+    set_max_value(selected_row, 'pack');
+    set_max_value(selected_row, 'count');
 }
 function link_to_search() {
     let args = {};

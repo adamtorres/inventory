@@ -348,28 +348,40 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
     def adjust_quantity_x(self, _use_type, expected_remaining_quantity, value):
         pass
 
-    def adjust_quantity(self, _use_type, expected_remaining_quantity, value):
-        if self.use_type != _use_type:
-            raise errors.UseTypeMismatchError(
-                use_type.use_type_to_str(_use_type), use_type.use_type_to_str(self.use_type))
-        if self.remaining_quantity < value:
-            # raise ValueError(f"Insufficient quantity({self.remaining_quantity}) to satisfy adjustment({value}).")
-            raise errors.InsufficientQuantityError(self.remaining_quantity, value)
-        if self.remaining_quantity != expected_remaining_quantity:
+    def adjust_quantity(
+            self, _use_type, expected_remaining_pack_quantity, pack_value, expected_remaining_count_quantity,
+            count_value):
+        if (
+                (self.remaining_pack_quantity != expected_remaining_pack_quantity)
+                or (self.remaining_count_quantity != expected_remaining_count_quantity)):
             raise ValueError(
-                f"Expected remaining quantity({expected_remaining_quantity}) does not match "
-                f"existing({self.remaining_quantity}).")
+                f"Expected remaining pack/count quantity({expected_remaining_pack_quantity}/"
+                f"{expected_remaining_count_quantity}) does not match "
+                f"existing({self.remaining_pack_quantity}/{self.remaining_count_quantity}).")
+        wanted_count = pack_value * self.adjusted_count + count_value
+        remaining_count = self.remaining_pack_quantity * self.adjusted_count + self.remaining_count_quantity
+        if remaining_count < wanted_count:
+            # raise ValueError(f"Insufficient quantity({self.remaining_quantity}) to satisfy adjustment({value}).")
+            raise errors.InsufficientQuantityError(
+                self.remaining_pack_quantity, pack_value, self.remaining_count_quantity, count_value)
         log_data = {
             'id': self.id,
-            'previous': self.remaining_quantity,
+            'previous_pack': self.remaining_pack_quantity,
+            'previous_count': self.remaining_count_quantity,
             'use_type': self.use_type,
-            'adjustment': value,
+            'adjustment_pack': pack_value,
+            'adjustment_count': count_value,
         }
-        self.remaining_quantity -= value
+        remaining_count -= wanted_count
+        self.remaining_pack_quantity = int(remaining_count / self.adjusted_count)
+        self.remaining_count_quantity = (
+            ((remaining_count / self.adjusted_count) - int(remaining_count / self.adjusted_count)) * self.adjusted_count
+        )
         self.save()
-        log_data['new'] = self.remaining_quantity
+        log_data['new_pack'] = self.remaining_pack_quantity
+        log_data['new_count'] = self.remaining_count_quantity
         logger.info(f"adjust_quantity|{json.dumps(log_data, sort_keys=True, default=str)}")
-        return self.remaining_quantity
+        return self.remaining_pack_quantity, self.remaining_count_quantity
 
     def calculated_pack_cost(self, round_places=-1):
         """
