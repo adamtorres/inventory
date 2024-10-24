@@ -324,7 +324,6 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
     remaining_quantity = models.IntegerField(null=False, default=0)
     #
     remaining_pack_quantity = models.IntegerField(null=False, default=0)
-    remaining_unit_quantity = models.IntegerField(null=False, default=0)
     remaining_count_quantity = models.IntegerField(null=False, default=0)
 
     objects = SourceItemManager()

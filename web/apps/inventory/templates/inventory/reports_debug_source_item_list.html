@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Debug Source Item List{% endblock %}
+
+{% block styles %}
+<style>
+.item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 3fr;
+    grid-template-areas: "a a a a";
+    {#border-bottom: black solid 1px;#}
+    background-color: lightgoldenrodyellow;
+}
+.original-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "a a a a a a a";
+    {#border-bottom: black solid 1px;#}
+    background-color: lightgray;
+}
+.new-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "a a a a a a";
+    border-bottom: black solid 3px;
+}
+.field {
+    display: inline-block;
+    border: lightgray solid 1px;
+}
+.number-cell {
+    text-align: right;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="current-price-content">
+Orders with potential duplicate items: {{ duplicate_items.order_count }}
+<hr />
+{% for si in debug_source_item_list %}
+    <div class="item">
+        <div class="field">{{ si.source.name }}</div>
+        <div class="field">{{ si.delivered_date }}</div>
+        <div class="field">{{ si.order_number }}</div>
+        <div class="field">{{ si.verbose_name }} | {{ si.cryptic_name }} | {{ si.common_name }}</div>
+    </div>
+    <div class="original-fields">
+        <div class="field">{{ si.delivered_quantity }} = delivered_quantity</div>
+        <div class="field">{{ si.pack_quantity }} = pack_quantity</div>
+        <div class="field">{{ si.unit_size }} = unit_size</div>
+        <div class="field">{{ si.unit_quantity }} = unit_quantity</div>
+        <div class="field">{{ si.pack_cost }} = pack_cost</div>
+        <div class="field">{{ si.extended_cost }} = extended_cost</div>
+        <div class="field">{{ si.total_weight }} = total_weight</div>
+    </div>
+    <div class="new-fields">
+        <div class="field">&nbsp;</div>
+        <div class="field">{{ si.adjusted_pack_quantity }} = adjusted_pack_quantity</div>
+        <div class="field">{{ si.adjusted_weight }}&nbsp;{{ si.adjusted_weight_unit }} = adjusted_weight & unit</div>
+        <div class="field">{{ si.adjusted_count }} = adjusted_count</div>
+        <div class="field">{{ si.adjusted_pack_cost }} = adjusted_pack_cost</div>
+        <div class="field">{{ si.adjusted_per_weight_cost }} = adjusted_per_weight_cost</div>
+        <div class="field">&nbsp;</div>
+    </div>
+    <hr />
+{% endfor %}
+</div>
+{% endblock %}

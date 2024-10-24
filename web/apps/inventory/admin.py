@@ -17,13 +17,16 @@ class SourceItemAdmin(admin.ModelAdmin):
                 'line_item_number', 'source_category', 'item_code', 'extra_code', 'brand', 'cryptic_name',
                 'verbose_name', 'common_name', 'pack_quantity', 'unit_quantity', 'unit_size',)}),
         ('Quantity And Cost', {
-            'fields': ('delivered_quantity', 'total_weight', 'individual_weights', 'pack_cost', 'extended_cost',)}),
+            'fields': (
+                'delivered_quantity', 'total_weight', 'individual_weights', 'pack_cost', 'extended_cost',
+                'adjusted_count', 'adjusted_pack_quantity', 'adjusted_weight', 'adjusted_weight_unit',
+                'adjusted_per_weight_cost', 'adjusted_pack_cost',
+            )}),
         ('Other Garbage', {
             'fields': ('extra_notes', 'scanned_filename', 'discrepancy',)}),
         ('Remaining Quantity', {
             'fields': (
-                'use_type', 'remaining_quantity', 'remaining_pack_quantity', 'remaining_unit_quantity',
-                'remaining_count_quantity',)}),
+                'use_type', 'remaining_quantity', 'remaining_pack_quantity', 'remaining_count_quantity',)}),
     )
 
 

@@ -196,6 +196,7 @@ label {
 <div id="calculation-div">
     <h5>
         Selected item
+        <span type="button" class="button btn-success" id="calc-edit-selected-item">Edit Item</span>
     </h5>
     <input type="hidden" name="calc-item-id" id="calc-item-id" />
     <div class="row selected-item-text-row">
@@ -251,8 +252,14 @@ label {
     <hr />
     <div class="row">
         <div class="col">
-            <label for="calc-remaining-quantity">Remaining Quantity: </label>
+            <label for="calc-remaining-quantity">Remaining Qty: </label>
             <span id="calc-remaining-quantity">[remaining quantity]</span>
+
+            <label for="calc-remaining-pack-quantity">Remaining Pack Qty: </label>
+            <span id="calc-remaining-pack-quantity">[remaining pack quantity]</span>
+
+            <label for="calc-remaining-count-quantity">Remaining Count Qty: </label>
+            <span id="calc-remaining-count-quantity">[remaining count quantity]</span>
         </div>
         <div class="col">
             <span>Used how: </span>
@@ -313,6 +320,23 @@ label {
         </div>
         <div class="col col-sm-2">
             <span id="calc-count-price" class="dollar-cell"></span>
+        </div>
+    </div>
+    <div>
+        <div class="col col-sm-1">
+            pack quantity: <span id="calc-adjusted_pack_quantity"></span>
+        </div>
+        <div class="col col-sm-1">
+            count within pack: <span id="calc-adjusted_count"></span>
+        </div>
+        <div class="col col-sm-1">
+            pack cost: <span id="calc-adjusted_pack_cost" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-1">
+            per weight cost: <span id="calc-adjusted_per_weight_cost" class="dollar-cell"></span>
+        </div>
+        <div class="col col-sm-1">
+            Weight: <span id="calc-adjusted_weight"></span>&nbsp;<span id="calc-adjusted_weight_unit"></span>
         </div>
     </div>
     <hr />
@@ -415,15 +439,19 @@ Log.
         <td class="border">
             <div>
                 <span data-field="pack_quantity">__pack_quantity__</span>pk
-                <span data-field="unit_size">__unit_size__</span>
-                <span class="d-none" data-field="unit_quantity">__unit_quantity__</span>
+                <span data-field="unit_size">__unit_size__</span>,
+                <span data-field="unit_quantity">__unit_quantity__</span>
             </div>
             <div>
                 <span class="d-none" data-field="use_type">__use_type__</span>
                 <span class="d-none" data-field="use_type_str">__use_type_str__</span>
             </div>
         </td>
-        <td class="border right-align" data-field="remaining_quantity">__remaining_quantity__</td>
+        <td class="border right-align">
+            <div data-field="remaining_quantity">__remaining_quantity__</div>
+            <div data-field="remaining_pack_quantity">__remaining_pack_quantity__</div>
+            <div data-field="remaining_count_quantity">__remaining_count_quantity__</div>
+        </td>
         <td class="border right-align dollar-cell" data-field="pack_cost">__pack_cost__</td>
         <td class="border right-align d-none" data-field="individual_weights">__individual_weights__</td>
         <td class="border right-align dollar-cell" data-field="extended_cost">__extended_cost__</td>
@@ -432,6 +460,12 @@ Log.
         <td class="border d-none">
             <div data-field="extra_notes">__extra_notes__</div>
             <div data-field="scanned_filename">__scanned_filename__</div>
+            <div data-field="adjusted_pack_quantity">__adjusted_pack_quantity__</div>
+            <div data-field="adjusted_count">__adjusted_count__</div>
+            <div data-field="adjusted_pack_cost">__adjusted_pack_cost__</div>
+            <div data-field="adjusted_per_weight_cost">__adjusted_per_weight_cost__</div>
+            <div data-field="adjusted_weight">__adjusted_weight__</div>
+            <div data-field="adjusted_weight_unit">__adjusted_weight_unit__</div>
         </td>
     </tr>
 </table>
@@ -485,8 +519,14 @@ filter_fields = [
     "unit_quantity", "unit_size",
     "extended_cost", "total_weight", "individual_weights",
     "extra_notes", "extra_code", "scanned_filename",
-    "remaining_quantity", "remaining_cost", "per_use_cost",
+    "remaining_quantity", "remaining_pack_quantity", "remaining_count_quantity", "remaining_cost", "per_use_cost",
     "use_type", "use_type_str",
+    "adjusted_pack_quantity",
+    "adjusted_count",
+    "adjusted_pack_cost",
+    "adjusted_per_weight_cost",
+    "adjusted_weight",
+    "adjusted_weight_unit",
 ];
 remove_decimals = ["remaining_quantity", "delivered_quantity", "pack_quantity"];
 money_fields = ["extended_cost", "remaining_cost", "per_use_cost"];
@@ -522,11 +562,25 @@ filter_result_fields = [
     {element: "data-field='pack_cost'", destination_field_id: "calc-pack-price"},
     {element: "data-field='total_weight'", destination_field_id: "calc-weight"},
     {element: "data-field='remaining_quantity'", destination_field_id: "calc-remaining-quantity"},
+    {element: "data-field='remaining_pack_quantity'", destination_field_id: "calc-remaining-pack-quantity"},
+    {element: "data-field='remaining_count_quantity'", destination_field_id: "calc-remaining-count-quantity"},
     {element: "data-field='id'", destination_field_id: "calc-item-id"},
     {element: "data-field='use_type'", destination_field_id: "calc-use-type"},
     {element: "data-field='use_type_str'", destination_field_id: "calc-use-type-str"},
+    {element: "data-field='use_type_str'", destination_field_id: "calc-use-type-str"},
+    {element: "data-field='adjusted_pack_quantity'", destination_field_id: "calc-adjusted_pack_quantity"},
+    {element: "data-field='adjusted_count'", destination_field_id: "calc-adjusted_count"},
+    {element: "data-field='adjusted_pack_cost'", destination_field_id: "calc-adjusted_pack_cost"},
+    {element: "data-field='adjusted_per_weight_cost'", destination_field_id: "calc-adjusted_per_weight_cost"},
+    {element: "data-field='adjusted_weight'", destination_field_id: "calc-adjusted_weight"},
+    {element: "data-field='adjusted_weight_unit'", destination_field_id: "calc-adjusted_weight_unit"},
 ];
 
+function edit_selected_item_button_pressed() {
+    let some_url = "{% url "admin:inventory_sourceitem_change" object_id="00000000-0000-0000-0000-000000000000" %}";
+    let item_id = $("#calc-item-id").val();
+    window.open(some_url.replace("00000000-0000-0000-0000-000000000000", item_id), '_blank').focus();
+}
 function round(v) {
     return Math.round(v * 100) / 100;
 }
@@ -800,6 +854,7 @@ function setup_event_handlers() {
     });
     $("#clear_form").on("click", clear_form);
     $("#calc-adjust-selected-item-inventory-quantity").on("click", adjust_selected_item_inventory_quantity);
+    $("#calc-edit-selected-item").on("click", edit_selected_item_button_pressed);
 
     $('.test-btn').on('click', function() {
         $("#filter-quantity").val(42);

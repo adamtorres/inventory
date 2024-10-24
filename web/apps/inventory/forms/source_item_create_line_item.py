@@ -35,8 +35,7 @@ class SourceItemCreateLineItemModelForm(forms.ModelForm):
         model = inv_models.SourceItem
         fields = '__all__'
         exclude = [
-            "use_type", "remaining_quantity", "remaining_pack_quantity", "remaining_unit_quantity",
-            "remaining_count_quantity", "discrepancy"
+            "use_type", "remaining_quantity", "remaining_pack_quantity", "remaining_count_quantity", "discrepancy"
         ]
 
     def log(self, msg):

@@ -48,8 +48,9 @@ class SourceItemCreateView(generic.FormView):
                 instance.adjusted_count = instance.unit_quantity
                 if instance.unit_size:
                     adjusted_units = sc_utils.split_units(instance.unit_size)
-                    instance.adjusted_weight = adjusted_units['amount']
-                    instance.adjusted_weight_unit = adjusted_units['unit']
+                    if adjusted_units['unit'] == "ct" and instance.adjusted_count != adjusted_units['amount']:
+                        instance.adjusted_weight = adjusted_units['amount']
+                        instance.adjusted_weight_unit = adjusted_units['unit']
                 if instance.total_weight:
                     instance.adjusted_per_weight = instance.pack_cost
                     instance.extended_cost = instance.adjusted_per_weight * instance.total_weight

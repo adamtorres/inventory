@@ -32,8 +32,15 @@ class SourceItemWideFilterSerializer(serializers.ModelSerializer):
             "unit_quantity", "unit_size",
             "extended_cost", "total_weight", "individual_weights",
             "extra_notes", "extra_code", "scanned_filename",
-            "remaining_quantity", "remaining_cost", "per_use_cost",
+            "remaining_quantity", "remaining_pack_quantity", "remaining_count_quantity",
+            "remaining_cost", "per_use_cost",
             "use_type", "use_type_str",
+            "adjusted_pack_quantity",
+            "adjusted_count",
+            "adjusted_pack_cost",
+            "adjusted_per_weight_cost",
+            "adjusted_weight",
+            "adjusted_weight_unit",
         ]
 
     def get_per_use_cost(self, obj):
