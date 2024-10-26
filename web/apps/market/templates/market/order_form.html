@@ -13,6 +13,11 @@
     <input class="btn btn-primary" type="submit" value="Save">
 </form>
 
+{% if order.id %}
+<div>
+    <a class="btn btn-secondary" href="{% url "market:order_detail" pk=order.id %}">Cancel</a>
+</div>
+{% endif %}
 <div>
     <a class="btn btn-secondary" href="{% url "market:order_list" %}">Back to list</a>
 </div>

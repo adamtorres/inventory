@@ -88,3 +88,11 @@ class OrderModifyByActionView(generic.View):
 class OrderPrintableInvoiceView(generic.DetailView):
     template_name = "market/order_printable_invoice_redesign.html"
     queryset = mkt_models.Order.objects.all()
+
+
+class OrderUpdateView(generic.UpdateView):
+    model = mkt_models.Order
+    fields = ["who", "expected_date", "expected_time", "who_is_picking_up", "reason_for_order", "contact_number"]
+
+    def get_success_url(self):
+        return urls.reverse('market:order_detail', args=(self.object.id,))

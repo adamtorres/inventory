@@ -4,27 +4,29 @@ from .. import models as inv_models
 class PackagingCosts(object):
     @staticmethod
     def run():
-        criteria = [
-            {'item_code': 'elkdp657', 'name': ('saddle', ), 'description': 'roll bag, saddle bag, bag with flap'},
-            {'item_code': 'baggk8500', 'name': ('paper', 'bag'), 'description': 'home delivery paper bag'},
-            {'item_code': 'hfa204535250w', 'name': ('senior', 'tray'), 'description': 'senior tray, foil tray'},
-            {'item_code': 'gensn200', 'name': ('foam', 'hinged'), 'description': 'large 1 comp foam'},
-            {'item_code': 'gensn203', 'name': ('foam', 'hinged'), 'description': 'large 3 comp foam'},
-            {'item_code': 'dar8sj20', 'name': ('foam', '8oz'), 'description': 'small foam cup'},
-            {'item_code': 'dar12sj20', 'name': ('foam', '12oz'), 'description': 'large foam cup'},
-            {'item_code': 'dar20jl', 'name': ('vented', 'lid'), 'description': 'lid for 8oz and 12oz foam'},
-            {'item_code': 'lcpfpimdc8pp', 'name': ('deli', 'container'), 'description': 'small plastic cup'},
-        ]
+        # Names of the SearchCriteria objects and an int to set the sort order on the report.
+        saved_search_names = {
+            "Saddle pack bag": 0,
+            "Paper bag": 1,
+            "Senior Tray": 2,
+            "Foam 1 compartment": 3,
+            "Foam 3 compartment": 4,
+            "Foam 8oz squat container": 5,
+            "Foam 12oz squat container": 6,
+            "Vented lid for 8oz and 12oz foam": 7,
+            "Plastic 8oz container with lid": 8,
+        }
         report_data = []
-        for crit in criteria:
-            wide_filter_criteria = [('item_code', (crit['item_code'],)), ('name', crit['name'])]
-            qs = inv_models.SourceItem.objects.wide_filter(wide_filter_criteria)
-            qs = qs.exclude(delivered_quantity__lte=0)
-            item = qs.first()
+        qs = inv_models.SearchCriteria.objects.filter(name__in=saved_search_names.keys())
+        sorted_qs = sorted(qs, key=lambda x: saved_search_names[x.name])
+        for ss in sorted_qs:
+            item = ss.get_last_result()
             item_name = item.verbose_name or item.cryptic_name
             report_data.append({
-                'name': item_name, 'description': crit['description'], 'last_order_date': item.delivered_date,
+                'name': item_name, 'description': ss.description, 'last_order_date': item.delivered_date,
                 'quantity': (item.pack_quantity * item.unit_quantity), 'pack_cost': item.pack_cost,
                 'per_use_cost': item.per_use_cost(),
+                "item_code": item.item_code, "source_id": item.source_id, "delivered_date": item.delivered_date,
+                "order_number": item.order_number,
             })
         return report_data

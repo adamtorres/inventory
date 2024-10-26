@@ -20,6 +20,6 @@ class APIChartDataView(views.APIView):
         # TODO: Consider custom renderer - https://www.django-rest-framework.org/api-guide/renderers/#custom-renderers
         search_criteria = inv_models.SearchCriteria.objects.get(url_slug__iexact=kwargs.get("report_name"))
         qs = search_criteria.get_search_queryset()
-        qs = qs.filter(delivered_date__gte=datetime.datetime(2023, 1, 1, 0, 0, 0, 0, zoneinfo.ZoneInfo("US/Mountain")))
+        qs = qs.filter(delivered_date__gte=datetime.datetime(2022, 1, 1, 0, 0, 0, 0, zoneinfo.ZoneInfo("US/Mountain")))
         data = inv_models.SourceItem.objects.price_history(initial_qs=qs)
         return response.Response(data)

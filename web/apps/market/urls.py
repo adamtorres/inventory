@@ -12,6 +12,7 @@ urlpatterns = [
     urls.path("item/new", m_views.ItemCreateView.as_view(), name="item_create"),
     urls.path("orders/", m_views.OrderListView.as_view(), name="order_list"),
     urls.path("order/<uuid:pk>", m_views.OrderDetailView.as_view(), name="order_detail"),
+    urls.path("order/<uuid:pk>/edit", m_views.OrderUpdateView.as_view(), name="order_update"),
     urls.path("order/<uuid:pk>/printable_invoice", m_views.OrderPrintableInvoiceView.as_view(), name="order_printable_invoice"),
     urls.path("order/<uuid:pk>/modify", m_views.OrderModifyByActionView.as_view(), name="order_modify"),
     urls.path("order/new", m_views.OrderCreateView.as_view(), name="order_create"),
