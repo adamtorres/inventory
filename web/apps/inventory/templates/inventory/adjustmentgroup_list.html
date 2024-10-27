@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Inventory : Adjustment Group List{% endblock %}
+
+{% block styles %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block content %}
+<ul>
+{% for adjustmentgroup in adjustmentgroup_list %}
+    <li><a href="{% url "inventory:adjustment_group_detail" pk=adjustmentgroup.pk %}">{{ adjustmentgroup }}</a></li>
+{% endfor %}
+</ul>
+<div>
+    {% if include_closed %}
+    <a class="btn btn-warning" href="{% url "inventory:adjustment_group_list" %}">Hide Closed Adjustment Groups</a>
+    {% else %}
+    <a class="btn btn-warning" href="{% url "inventory:adjustment_group_list" %}?include_closed=true">Show Closed Adjustment Groups</a>
+    {% endif %}
+</div>
+<div>
+    <a class="btn btn-secondary" href="{% url "inventory:adjustment_group_create" %}">Add Adjustment Group</a>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}

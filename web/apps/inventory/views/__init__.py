@@ -1,3 +1,5 @@
+from .adjustment_groups import (
+    AdjustmentGroupListView, AdjustmentGroupCreateView, AdjustmentGroupDetailView, AdjustmentGroupUpdateView)
 from .api_chart_data import APIChartDataView
 from .api_saved_search import APISavedSearchView
 from .api_source_item_autocomplete_search import APISourceItemAutocompleteSearchView

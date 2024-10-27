@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 
@@ -378,6 +379,17 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
             ((remaining_count / self.adjusted_count) - int(remaining_count / self.adjusted_count)) * self.adjusted_count
         )
         self.save()
+
+        from . import AdjustmentGroup
+        ag = AdjustmentGroup.objects.get_or_create_open_group(
+            start_date=datetime.date.today(), end_date=datetime.date.today())
+        pack_quantity_change = self.remaining_pack_quantity - log_data["previous_pack"]
+        count_quantity_change = self.remaining_count_quantity - log_data["previous_count"]
+        self.adjustments.create(
+            adjustment_group=ag, adjustment_date=ag.start_date, pack_quantity=pack_quantity_change,
+            count_quantity=count_quantity_change
+        )
+
         log_data['new_pack'] = self.remaining_pack_quantity
         log_data['new_count'] = self.remaining_count_quantity
         logger.info(f"adjust_quantity|{json.dumps(log_data, sort_keys=True, default=str)}")

@@ -1,17 +1,18 @@
 from django import urls
-from rest_framework import urlpatterns as rf_urls
 
 from . import views as i_views
 
-
 app_name = "inventory"
 
-# api_chart_urls = [
-#     urls.path("api/sourceitem/chartdata/", i_views.APIChartDataView.as_view(), name="api_sourceitem_chartdata"),
-# ]
-# api_chart_urls = rf_urls.format_suffix_patterns(api_chart_urls, allowed=['api', 'chartjs'])
-
 urlpatterns = [
+    urls.path(
+        "adjustment_groups/", i_views.AdjustmentGroupListView.as_view(), name="adjustment_group_list"),
+    urls.path("adjustment_group/<uuid:pk>/edit", i_views.AdjustmentGroupUpdateView.as_view(), name="adjustment_group_update"),
+    urls.path(
+        "adjustment_group/new", i_views.AdjustmentGroupCreateView.as_view(), name="adjustment_group_create"),
+    urls.path(
+        "adjustment_group/<uuid:pk>", i_views.AdjustmentGroupDetailView.as_view(), name="adjustment_group_detail"),
+
     urls.path("api/saved_search/<uuid:pk>", i_views.APISavedSearchView.as_view(), name="saved_search"),
 
     urls.path(

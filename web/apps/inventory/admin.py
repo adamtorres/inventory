@@ -6,6 +6,14 @@ from . import forms as inv_forms, models as inv_models
 admin.AdminSite.site_header = "Customized Admin Site Header From Inventory"
 
 
+class AdjustmentInline(admin.TabularInline):
+    model = inv_models.Adjustment
+
+
+class AdjustmentGroupAdmin(admin.ModelAdmin):
+    inlines = [AdjustmentInline]
+
+
 class SourceItemAdmin(admin.ModelAdmin):
     form = inv_forms.SourceItemAdminForm
     search_fields = ['cryptic_name', 'verbose_name', 'common_name', 'item_code', 'order_number', ]
@@ -30,6 +38,8 @@ class SourceItemAdmin(admin.ModelAdmin):
     )
 
 
+admin.site.register(inv_models.AdjustmentGroup, AdjustmentGroupAdmin)
+admin.site.register(inv_models.Adjustment)
 admin.site.register(inv_models.CommonName)
 admin.site.register(inv_models.SearchCriteria)
 admin.site.register(inv_models.Source)

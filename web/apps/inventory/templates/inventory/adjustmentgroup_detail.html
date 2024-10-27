@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Inventory : Adjustment Group{% endblock %}
+
+{% block styles %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+{{ adjustmentgroup }}
+<hr />
+    <ul>
+    {% for adj in adjustmentgroup.adjustments.all %}
+        <li>{{ adj }}</li>
+    {% endfor %}
+    </ul>
+<div><a class="btn btn-primary" href="{% url "inventory:adjustment_group_update" pk=adjustmentgroup.pk %}">Edit Adjustment Group</a></div>
+<div>
+    <a class="btn btn-danger" href="{% url "inventory:adjustment_group_list" %}">Back to list</a>
+</div>
+
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
