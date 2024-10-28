@@ -11,10 +11,13 @@
 
 {% block content %}
 {{ adjustmentgroup }}
+<div>Pack cost: {{ group_totals.group_pack_cost|floatformat:2|intcomma }}</div>
+<div>Count cost: {{ group_totals.group_count_cost|floatformat:2|intcomma }}</div>
+<div>Total cost: {{ group_totals.group_total_cost|floatformat:2|intcomma }}</div>
 <hr />
     <ul>
     {% for adj in adjustmentgroup.adjustments.all %}
-        <li>{{ adj }}</li>
+        <li>{{ adj }} {{ adj.pack_cost|floatformat:2|intcomma }} {{ adj.count_cost|floatformat:2|intcomma }}</li>
     {% endfor %}
     </ul>
 <div><a class="btn btn-primary" href="{% url "inventory:adjustment_group_update" pk=adjustmentgroup.pk %}">Edit Adjustment Group</a></div>

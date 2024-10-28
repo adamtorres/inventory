@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.db.models import functions
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
@@ -19,7 +20,9 @@ class AdjustmentType(models.TextChoices):
 
 class AdjustmentGroupManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('adjustments', 'adjustments__item')
+        from . import Adjustment
+        return super().get_queryset().prefetch_related(
+            models.Prefetch('adjustments', queryset=Adjustment.objects.prefetch_for_group()))
 
     def get_discards(self):
         return self.filter(adjustment_type=AdjustmentType.DISCARD)
@@ -85,3 +88,15 @@ class AdjustmentGroup(sc_models.DatedModel):
         return (
             f"AdjustmentGroup({self.adjustment_type}, {'open' if self.open else 'closed'}, "
             f"{self.start_date}, {self.end_date})")
+
+    def calculate_costs(self):
+        return self.adjustments.all().aggregate(
+            group_pack_cost=functions.Round(models.Sum('pack_cost'), precision=4),
+            group_count_cost=functions.Round(models.Sum('count_cost'), precision=4),
+            group_total_cost=(
+                functions.Round(
+                    models.Sum('pack_cost', output_field=models.FloatField())
+                    + models.Sum('count_cost', output_field=models.FloatField()),
+                    precision=4
+                )),
+        )

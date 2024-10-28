@@ -216,6 +216,13 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
             qs = qs.filter(order_number=order_number)
         if general_search:
             qs = qs & self.model.get_wide_filter(general_search, "general")
+        qs = qs.annotate(
+            # TODO: figure out this qty/pack/count mismatch.
+            calced_remaining_quantity=models.F('remaining_pack_quantity') / models.F('adjusted_pack_quantity'),
+            remaining_pack_cost=models.F('adjusted_pack_cost') * (models.F('remaining_pack_quantity') / models.F('adjusted_pack_quantity')),
+            remaining_count_cost=(
+                 models.F('adjusted_pack_cost') / models.F('adjusted_count') * models.F('remaining_count_quantity')),
+        )
         return qs.order_by('-delivered_date', 'source__name', 'order_number', 'line_item_number')
 
     def ordered_quantities(self, initial_qs=None):

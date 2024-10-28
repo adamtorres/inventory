@@ -23,6 +23,11 @@ class AdjustmentGroupCreateView(generic.CreateView):
 class AdjustmentGroupDetailView(generic.DetailView):
     queryset = inv_models.AdjustmentGroup.objects.all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["group_totals"] = self.object.calculate_costs()
+        return context
+
 
 class AdjustmentGroupListView(generic.ListView):
     include_closed = False

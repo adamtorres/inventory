@@ -202,6 +202,13 @@ label {
     <div class="row selected-item-text-row">
         <div class="row">
             <div class="col text-left">
+                <label for="calc-source-name">Source:</label>
+                <span id="calc-source-name">[source name]</span>
+                <span class="d-none" id="calc-source">[source]</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
                 <label for="calc-item-name">Delivered date:</label>
                 <span id="calc-delivered-date">[delivered_date]</span>
             </div>
@@ -258,10 +265,14 @@ label {
             <label for="calc-remaining-count-quantity">Remaining Count Qty: </label>
             <span id="calc-remaining-count-quantity">[remaining count quantity]</span>
         </div>
-        <div class="col">
-            <span>Used how: </span>
-            <span id="calc-use-type-str">[use type str]</span>
+        <div class="col d-none">
+            <span class="d-none">Used how: </span>
+            <span class="d-none" id="calc-use-type-str">[use type str]</span>
             <span class="d-none" id="calc-use-type">[use type]</span>
+        </div>
+        <div class="col">
+            <label for="calc-selected-item-inventory-adjustment-quantity">Use Qty: </label>
+            <input type="number" id="calc-selected-item-inventory-adjustment-quantity" max="" value="0">
         </div>
         <div class="col">
             <label for="calc-selected-item-inventory-adjustment-pack">Use Pack: </label>
@@ -419,6 +430,7 @@ Log.
         <td class="border date-cell filtered-item-link" data-field="delivered_date">__delivered_date__</td>
         <td class="border">
             <span class="d-none" data-field="id">__id__</span>
+            <span class="d-none" data-field="source">__source__</span>
             <span data-field="source_name">__source_name__</span> :
             <span><span data-field="order_number">__order_number__</span> :</span>
             <span><span data-field="po_text">__po_text__</span> : </span>
@@ -506,7 +518,7 @@ filter_url = "{% url "inventory:api_sourceitem_widefilter" %}";
 filter_fields = [
     "id",
     "delivered_date",
-    {#"source",#}
+    "source",
     "source_name",
     "brand",
     "order_number",
@@ -549,6 +561,8 @@ filter_input_empty_if_only = ['category', 'source'];
 filter_result_fields = [
     {element: "data-field='delivered_date'", destination_field_id: "calc-delivered-date"},
     {element: "data-field='order_number'", destination_field_id: "calc-order-number"},
+    {element: "data-field='source'", destination_field_id: "calc-source"},
+    {element: "data-field='source_name'", destination_field_id: "calc-source-name"},
     {element: "data-field='source_category'", destination_field_id: "calc-source-category"},
     {element: "data-field='item_code'", destination_field_id: "calc-item-code"},
     {element: "data-field='source_item_name'", destination_field_id: "calc-item-name"},
@@ -574,7 +588,14 @@ filter_result_fields = [
     {element: "data-field='adjusted_weight'", destination_field_id: "calc-adjusted_weight"},
     {element: "data-field='adjusted_weight_unit'", destination_field_id: "calc-adjusted_weight_unit"},
 ];
-
+function order_number_clicked() {
+    let link_to_order_items = "{% url "inventory:sourceitem_order_items" source="__source__" order_number="__order_number__" %}";
+    let source = $("#calc-source").text();
+    let order_number = $("#calc-order-number").text();
+    link_to_order_items = link_to_order_items.replace("__source__", source);
+    link_to_order_items = link_to_order_items.replace("__order_number__", order_number);
+    window.location = link_to_order_items;
+}
 function edit_selected_item_button_pressed() {
     let some_url = "{% url "admin:inventory_sourceitem_change" object_id="00000000-0000-0000-0000-000000000000" %}";
     let item_id = $("#calc-item-id").val();
@@ -723,6 +744,7 @@ function update_calculations() {
 }
 function adjust_selected_item_inventory_quantity() {
     let item_id = $("#calc-item-id").val();
+    let use_quantity = $("#calc-selected-item-inventory-adjustment-quantity").val();
     let use_pack_quantity = $("#calc-selected-item-inventory-adjustment-pack").val();
     let use_count_quantity = $("#calc-selected-item-inventory-adjustment-count").val();
     let remaining_pack_quantity = $("#calc-remaining-pack-quantity").text();
@@ -736,6 +758,7 @@ function adjust_selected_item_inventory_quantity() {
         "item_id": item_id,
         "remaining_pack_quantity": remaining_pack_quantity,
         "remaining_count_quantity": remaining_count_quantity,
+        "use_quantity": use_quantity,
         "use_pack_quantity": use_pack_quantity,
         "use_count_quantity": use_count_quantity,
         "use_type": use_type,
@@ -759,6 +782,7 @@ function adjust_selected_item_inventory_quantity() {
         if ('msg' in e) {
             showPopupMessage(e.msg);
         }
+        $("#calc-selected-item-inventory-adjustment-quantity").val("0");
         $("#calc-selected-item-inventory-adjustment-pack").val("0");
         $("#calc-selected-item-inventory-adjustment-count").val("0");
     })
@@ -861,6 +885,7 @@ function setup_event_handlers() {
     $("#clear_form").on("click", clear_form);
     $("#calc-adjust-selected-item-inventory-quantity").on("click", adjust_selected_item_inventory_quantity);
     $("#calc-edit-selected-item").on("click", edit_selected_item_button_pressed);
+    $("#calc-order-number").on("click", order_number_clicked);
 
     $('.test-btn').on('click', function() {
         $("#filter-quantity").val(42);

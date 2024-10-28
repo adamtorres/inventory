@@ -27,6 +27,7 @@ class APISourceItemQuantityAdjustmentView(views.APIView):
 
     def put(self, request, *args, **kwargs):
         adjusted_pack_quantity = 0
+        use_quantity = 0
         use_pack_quantity = 0
         adjusted_count_quantity = 0
         use_count_quantity = 0
@@ -34,6 +35,7 @@ class APISourceItemQuantityAdjustmentView(views.APIView):
         resp_data = {'id': None, 'previous': 0, 'adjustment': 0, 'new': 0}
         try:
             adjusted_pack_quantity = int(request.data['remaining_pack_quantity'])
+            use_quantity = int(request.data['use_quantity'])
             use_pack_quantity = int(request.data['use_pack_quantity'])
             adjusted_count_quantity = int(request.data['remaining_count_quantity'])
             use_count_quantity = int(request.data['use_count_quantity'])
@@ -49,7 +51,7 @@ class APISourceItemQuantityAdjustmentView(views.APIView):
         resp_data['previous_count'] = adjusted_count_quantity
         resp_data['new_count'] = adjusted_count_quantity
         resp_data['adjustment_count'] = use_count_quantity
-        if (use_pack_quantity == 0) and (use_count_quantity == 0):
+        if (use_quantity == 0) and (use_pack_quantity == 0) and (use_count_quantity == 0):
             # Noop.  Don't hit database.
             messages.info(request, "No change to quantity.")
             resp_data['msg'] = render(request, 'messages.html').content
@@ -73,7 +75,8 @@ class APISourceItemQuantityAdjustmentView(views.APIView):
             resp_data['msg'] = render(request, 'messages.html').content
             # return exceptions.ValidationError("Multiple objects returned")
             return response.Response(resp_data)
-
+        use_pack_quantity += use_quantity * obj.pack_quantity
+        resp_data['adjustment_pack'] = use_pack_quantity
         try:
             obj.adjust_quantity(
                 request.data['use_type'], adjusted_pack_quantity, use_pack_quantity, adjusted_count_quantity,

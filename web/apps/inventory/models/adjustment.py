@@ -14,6 +14,8 @@ https://simonwillison.net/2018/Mar/25/combined-recent-additions/
 import datetime
 
 from django.db import models
+from django.db.models import functions
+
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
@@ -22,6 +24,17 @@ from scrap.models import fields as sc_fields
 class AdjustmentManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().select_related('adjustment_group', 'item')
+
+    def prefetch_for_group(self):
+        return self.annotate(
+            pack_cost=functions.Cast(models.F('item__adjusted_pack_cost'), models.FloatField()) * (
+                functions.Cast(models.F('pack_quantity'), models.FloatField())
+                / functions.Cast(models.F('item__adjusted_pack_quantity'), models.FloatField())
+            ),
+            count_cost=(
+                models.F('item__adjusted_pack_cost') / models.F('item__adjusted_count') * models.F('count_quantity')
+            ),
+        )
 
 
 class Adjustment(sc_models.DatedModel):
@@ -49,4 +62,4 @@ class Adjustment(sc_models.DatedModel):
         self.no_change = (self.pack_quantity + self.count_quantity) == 0
 
     def __str__(self):
-        return f"{self.item.common_name}, {'not ' if self.no_change else ''}changed/{self.pack_quantity}/{self.count_quantity}, {self.notes!r}"
+        return f"{self.item.common_name}, {self.item.delivered_date}, {'not ' if self.no_change else ''}changed/{self.pack_quantity}/{self.count_quantity}, {self.notes!r}"
