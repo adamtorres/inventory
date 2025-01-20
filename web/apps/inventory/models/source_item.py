@@ -116,6 +116,47 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         if items_to_update:
             self.bulk_update(items_to_update, ['remaining_quantity'])
 
+    def example_items(self):
+        # TODO: Work out how to have these saved in the database.
+        example_item_filters = [
+            {"name": "8oz white milk", "wide_filter": [("unit_size", ("oz",)), ("name", ("white", "milk"))]},
+            {"name": "AP Flour", "wide_filter": [("unit_size", ("lb",)), ("name", ("all", "purp", "flour"))]},
+            {"name": "Ground Beef", "wide_filter": [("unit_size", ("lb",)), ("name", ("ground", "beef"))]},
+            {"name": "Broccoli spear", "wide_filter": [("unit_size", ("lb",)), ("name", ("broccoli", "spear"))]},
+            {"name": "Beef Roast Top Round", "wide_filter": [("name", ("beef", "roast", "top"))]},
+            {"name": "Corned Beef", "wide_filter": [("name", ("corned", "beef"))]},
+            {"name": "Distilled Vinegar", "wide_filter": [("unit_size", ("gal",)), ("name", ("vinegar",))]},
+            {"name": "Green Cabbage", "wide_filter": [("name", ("green", "cabbage",))]},
+            {"name": "Crushed Pineapple", "wide_filter": [("name", ("crushed", "pineapple",))]},
+            {"name": "Country Gravy", "wide_filter": [("name", ("country", "gravy",))]},
+            {"name": "Graham Cracker", "wide_filter": [("name", ("graham", "cracker",))]},
+            {"name": "Grape Juice", "wide_filter": [("name", ("grape", "juice",))]},
+            {"name": "Instant Mashed Potato", "wide_filter": [("name", ("instant", "potato",))]},
+            # Need to fiddle with this to include/exclude the european butter/margarine from 9/28/22.
+            {"name": "Butter Brick", "wide_filter": [("unit_size", ("1lb",)), ("name", ("butter",))]},
+            {"name": "Margarine Brick", "wide_filter": [("unit_size", ("1lb",)), ("name", ("margarine",))]},
+            {"name": "Shredded Monterey Jack Cheddar", "wide_filter": [("name", ("chedd", "jack",))]},
+            {"name": "Granulated Sugar", "wide_filter": [("name", ("granulated", "sugar",))]},
+            {"name": "Yellow Mustard Packet", "wide_filter": [("name", ("yellow", "mustard", "packets",))]},
+            # Includes margarine cup as the common_name is "butter cup"
+            {"name": "Butter cup", "wide_filter": [("name", ("butter", "cup",))]},
+            {"name": "Egg", "wide_filter": [("name", ("egg", "shell",))]},
+            {"name": "Fortune Cookie", "wide_filter": [("name", ("fortune", "cookie",))]},
+            {"name": "Potato Chip Small Bag", "wide_filter": [("name", ("potato", "chip",))]},
+            {"name": "BBQ Sauce", "wide_filter": [("name", ("bbq", "sauce",))]},
+            {"name": "Yellow Onion", "wide_filter": [("name", ("yellow", "onion",))]},
+            {"name": "Strawberry Topping", "wide_filter": [("name", ("strawberry", "topping",))]},
+            {"name": "White Chocolate Chip", "wide_filter": [("name", ("white", "choc", "chip",))]},
+            {"name": "2oz Plastic Portion Cup", "wide_filter": [("name", ("2oz", "cup",))]},
+        ]
+        example_item_ids = []
+        for example_item_filter in example_item_filters:
+            item_qs = self.wide_filter(example_item_filter["wide_filter"])
+            obj = item_qs.first()
+            if obj:
+                example_item_ids.append(obj.id)
+        return self.filter(id__in=example_item_ids)
+
     def price_history(self, initial_qs=None):
         if initial_qs is None:
             qs = self
