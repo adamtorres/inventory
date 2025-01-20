@@ -8,7 +8,7 @@ def run():
         "3cd2267d-fa72-4b69-8b48-839c90c9b0eb",  # 50# sugar
         "c05372d3-670f-4bf6-862b-fbc23a03fe7f",  # 168ct string cheese
     ]
-    items = inv_models.SourceItem.objects.filter(id__in=item_ids)
+    items = inv_models.SourceItem.objects.example_items()
     for i in items:
         print(f"item: {i.common_name}, {i.id}")
         print(f"\tdate delivered: {i.delivered_date}, order number: {i.order_number}")

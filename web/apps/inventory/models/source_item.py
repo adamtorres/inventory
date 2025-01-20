@@ -152,6 +152,8 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         example_item_ids = []
         for example_item_filter in example_item_filters:
             item_qs = self.wide_filter(example_item_filter["wide_filter"])
+            # Ignore orders where the item wasn't delivered.
+            item_qs = item_qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
             obj = item_qs.first()
             if obj:
                 example_item_ids.append(obj.id)
