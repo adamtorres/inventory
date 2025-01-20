@@ -1,6 +1,9 @@
 from inventory import models as inv_models
 
 
+from scrap import utils as sc_utils
+
+
 def run():
     item_ids = [
         "675c1d14-0ecc-4e1c-9199-986300e183a5",  # diced peach
@@ -9,15 +12,19 @@ def run():
         "c05372d3-670f-4bf6-862b-fbc23a03fe7f",  # 168ct string cheese
     ]
     items = inv_models.SourceItem.objects.example_items()
+    headers = [
+        "date deli", "order num", "init qty", "old", "pack", "count", "GRQ(?)", "puc", "calc pack cost", "rem cost",
+        "name"]
+    col_widths = [10, 12, 8, 3, 4, 5, 7, 6, 14, 8, 30]
+    col_align = [">", ">", ">", ">", ">", ">", ">", ">", ">", ">", "<"]
+    print("  ".join(f"{h:{col_align[idx]}{col_widths[idx]}}" for idx, h in enumerate(headers)))
     for i in items:
-        print(f"item: {i.common_name}, {i.id}")
-        print(f"\tdate delivered: {i.delivered_date}, order number: {i.order_number}")
-        print(f"\tquantity: initial={i.initial_quantity()} old={i.remaining_quantity} pack={i.remaining_pack_quantity} count={i.remaining_count_quantity}")
-        print(f"\tget_remaining_quantity(use_type={i.use_type}): {i.get_remaining_quantity(i.use_type)}")
-        print(f"\tper use cost: {i.per_use_cost(2)}")
-        print(f"\tcalculated pack cost: {i.calculated_pack_cost(2)}")
-        print(f"\tremaining cost: {i.remaining_cost(2)}")
-
+        data = [
+            str(i.delivered_date), i.order_number, i.initial_quantity(), i.remaining_quantity,  i.remaining_pack_quantity,
+            i.remaining_count_quantity, f"{i.use_type}={i.get_remaining_quantity(i.use_type)}", i.per_use_cost(2),
+            i.calculated_pack_cost(2), i.remaining_cost(2), sc_utils.cutoff(i.common_name, 30)
+        ]
+        print("  ".join(f"{d:{col_align[idx]}{col_widths[idx]}}" for idx, d in enumerate(data)))
         # !! Function not used?  Added 9/9/22
         # !! Old function.  Was written before the forms to add items to the db was written.
         # i.get_remaining_quantity(_use_type)
