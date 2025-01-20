@@ -12,19 +12,27 @@ def run():
         "c05372d3-670f-4bf6-862b-fbc23a03fe7f",  # 168ct string cheese
     ]
     items = inv_models.SourceItem.objects.example_items()
-    headers = [
-        "date deli", "order num", "init qty", "old", "pack", "count", "GRQ(?)", "puc", "calc pack cost", "rem cost",
-        "name"]
-    col_widths = [10, 12, 8, 3, 4, 5, 7, 6, 14, 8, 30]
-    col_align = [">", ">", ">", ">", ">", ">", ">", ">", ">", ">", "<"]
-    print("  ".join(f"{h:{col_align[idx]}{col_widths[idx]}}" for idx, h in enumerate(headers)))
+    output_cols = [
+        {"align": ">", "width": 10, "name": "date deli", },
+        {"align": ">", "width": 12, "name": "order num", },
+        {"align": ">", "width":  8, "name": "init qty", },
+        {"align": ">", "width":  3, "name": "old", },
+        {"align": ">", "width":  4, "name": "pack", },
+        {"align": ">", "width":  5, "name": "count", },
+        {"align": ">", "width":  7, "name": "GRQ(?)", },
+        {"align": ">", "width":  6, "name": "puc", },
+        {"align": ">", "width": 14, "name": "calc pack cost", },
+        {"align": ">", "width":  8, "name": "rem cost", },
+        {"align": "<", "width": 30, "name": "name", },
+    ]
+    print("  ".join(f"{h["name"]:{h["align"]}{h["width"]}}" for idx, h in enumerate(output_cols)))
     for i in items:
         data = [
             str(i.delivered_date), i.order_number, i.initial_quantity(), i.remaining_quantity,  i.remaining_pack_quantity,
             i.remaining_count_quantity, f"{i.use_type}={i.get_remaining_quantity(i.use_type)}", i.per_use_cost(2),
             i.calculated_pack_cost(2), i.remaining_cost(2), sc_utils.cutoff(i.common_name, 30)
         ]
-        print("  ".join(f"{d:{col_align[idx]}{col_widths[idx]}}" for idx, d in enumerate(data)))
+        print("  ".join(f"{data[idx]:{h["align"]}{h["width"]}}" for idx, h in enumerate(output_cols)))
         # !! Function not used?  Added 9/9/22
         # !! Old function.  Was written before the forms to add items to the db was written.
         # i.get_remaining_quantity(_use_type)
