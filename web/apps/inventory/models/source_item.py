@@ -152,6 +152,8 @@ class SourceItemManager(sc_models.AutocompleteFilterManagerMixin, sc_models.Wide
         example_item_ids = []
         for example_item_filter in example_item_filters:
             item_qs = self.wide_filter(example_item_filter["wide_filter"])
+            # Ignore orders where the item wasn't delivered.
+            item_qs = item_qs.exclude(models.Q(delivered_quantity__lte=0) | models.Q(extended_cost__lte=0))
             obj = item_qs.first()
             if obj:
                 example_item_ids.append(obj.id)
@@ -369,7 +371,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
     discrepancy = sc_fields.MoneyField(
         help_text="to hold the difference between extended_cost and calculating from quantity/pack_cost")
 
-    use_type = models.CharField(max_length=2, choices=use_type.USE_TYPE_CHOICES, default=use_type.BY_UNIT)
+    use_type = models.CharField(max_length=2, choices=use_type.USE_TYPE_CHOICES, default=use_type.BY_PACK)
     remaining_quantity = models.IntegerField(null=False, default=0)
     #
     remaining_pack_quantity = models.IntegerField(null=False, default=0)
@@ -473,9 +475,10 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
 
     def initial_quantity(self):
         if self.use_by_pack():
-            return self.delivered_quantity
-        if self.use_by_unit():
             return self.delivered_quantity * self.pack_quantity
+        if self.use_by_unit():
+            logger.warning("Pending deprecation? Unit and count use types might be the same.")
+            return self.delivered_quantity * self.pack_quantity * self.unit_quantity
         if self.use_by_count():
             return self.delivered_quantity * self.pack_quantity * self.unit_quantity
 
@@ -483,6 +486,7 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         if self.delivered_quantity == 0:
             return 0
         if self.unit_size.endswith(("lb", "#")):
+            # TODO: incomplete code.  Did I get interrupted?
             # some items use pack_cost as a per pound cost.  For those, we could use that number blindly.
             # or, we could ignore the given pack_cost and calculate it so no conditional logic need done.
             pack_cost = self.extended_cost / self.delivered_quantity
@@ -504,8 +508,11 @@ class SourceItem(sc_models.AutocompleteFilterModelMixin, sc_models.WideFilterMod
         # Used by grappelli autocomplete
         return f"related_label = {self}"
 
-    def remaining_cost(self):
-        return self.per_use_cost() * self.remaining_quantity
+    def remaining_cost(self, round_places=-1):
+        unrounded_cost = self.per_use_cost() * self.get_remaining_quantity(self.use_type)
+        if round_places < 0:
+            return unrounded_cost
+        return round(unrounded_cost, round_places)
 
     @property
     def source_name(self):

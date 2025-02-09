@@ -42,7 +42,6 @@ class APISourceItemQuantityAdjustmentView(views.APIView):
         except ValueError:
             messages.error(request, "Bad value in arguments.")
             resp_data['msg'] = render(request, 'messages.html').content
-            # return exceptions.ValidationError("Bad value in arguments")
             return response.Response(resp_data)
         resp_data['id'] = request.data['item_id']
         resp_data['previous_pack'] = adjusted_pack_quantity
@@ -58,22 +57,14 @@ class APISourceItemQuantityAdjustmentView(views.APIView):
             return response.Response(resp_data)
 
         try:
-            # { 'item_id': 'c69db32e-3cd1-4658-812b-d91615ac2950',
-            #   'remaining_pack_quantity': '1',
-            #   'remaining_count_quantity': '1',
-            #   'use_pack_quantity': '0',
-            #   'use_count_quantity': '0',
-            #   'use_type': 'BU'}
             obj = self.queryset.get(id=request.data['item_id'])
         except self.queryset.model.DoesNotExist:
             messages.error(request, "Specified item not found.")
             resp_data['msg'] = render(request, 'messages.html').content
-            # return exceptions.NotFound()
             return response.Response(resp_data)
         except self.queryset.model.MultipleObjectsReturned:
             messages.error(request, "Multiple items returned.  Somehow.  Even though using the primary key.")
             resp_data['msg'] = render(request, 'messages.html').content
-            # return exceptions.ValidationError("Multiple objects returned")
             return response.Response(resp_data)
         use_pack_quantity += use_quantity * obj.pack_quantity
         resp_data['adjustment_pack'] = use_pack_quantity
