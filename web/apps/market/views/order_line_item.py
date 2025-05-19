@@ -12,6 +12,8 @@ class OrderLineItemEditView(generic.detail.SingleObjectMixin, generic.FormView):
     def form_valid(self, form):
         form.save()
         # TODO: messages.add_message(blah)
+        # OrderLineItemEditView uses "model = mkt_models.Order" so self.object is the Order and not a single line item.
+        # Means the following line runs Order.calculate_totals() instead of OrderLineItem.calculate_totals().
         self.object.calculate_totals()
         return http.HttpResponseRedirect(self.get_success_url())
 

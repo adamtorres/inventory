@@ -92,7 +92,14 @@ class OrderPrintableInvoiceView(generic.DetailView):
 
 class OrderUpdateView(generic.UpdateView):
     model = mkt_models.Order
-    fields = ["who", "expected_date", "expected_time", "who_is_picking_up", "reason_for_order", "contact_number"]
+    fields = [
+        "who", "expected_date", "expected_time", "who_is_picking_up", "reason_for_order", "contact_number", "discount",
+        "discount_text"]
+
+    def form_valid(self, form):
+        form.save()
+        self.object.calculate_totals()
+        return http.HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return urls.reverse('market:order_detail', args=(self.object.id,))

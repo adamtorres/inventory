@@ -43,6 +43,9 @@
             {% for order_line_item in order.line_items.all %}
                 <div class="iili-list iili-description">{{ order_line_item }}</div>
             {% endfor %}
+            {% if order.discount %}
+                <div class="iili-list iili-description iili-discount">{{ order.discount_text }}</div>
+            {% endif %}
             <div class="iili-list iili-thank-you">
                 Thank you for supporting the Bear Lake Senior Center
             </div>
@@ -62,6 +65,9 @@
             {% for order_line_item in order.line_items.all %}
                 <div class="iili-list iili-amount">{{ order_line_item.sale_price|floatformat:2|intcomma }}</div>
             {% endfor %}
+            {% if order.discount %}
+                <div class="iili-list iili-amount iili-discount">-{{ order.discount|floatformat:2|intcomma }}</div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -80,7 +86,7 @@
     <div class="iili-list iili-past-due-31-60-days">&nbsp;</div>
     <div class="iili-list iili-past-due-61-90-days">&nbsp;</div>
     <div class="iili-list iili-past-due-91-plus-days">&nbsp;</div>
-    <div class="iili-list iili-amount-due dollar-cell right-align">{{ order.sale_price|floatformat:2|intcomma }}</div>
+    <div class="iili-list iili-amount-due dollar-cell right-align">{{ order.discounted_price|floatformat:2|intcomma }}</div>
 </div>
 <div class="invoice-remittance">
     <div class="left-block">

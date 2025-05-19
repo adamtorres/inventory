@@ -1,9 +1,14 @@
 import decimal
+import logging
+
 from django.db import models
 from django.utils import timezone
 
 from scrap import models as sc_models
 from scrap.models import fields as sc_fields
+
+
+logger = logging.getLogger(__name__)
 
 
 def today():
@@ -34,6 +39,9 @@ class Order(sc_models.UUIDModel):
     reason_for_order = sc_fields.CharField(help_text="Because people keep asking me.")
     how_paid = sc_fields.CharField(help_text="card/cash/gift certificate.  Is this even needed?")
     contact_number = sc_fields.CharField(help_text="In case there is an issue and/or pickup is delayed")
+    discount = sc_fields.MoneyField(help_text="discount applied to the order.", default=0)
+    discount_text = sc_fields.CharField(help_text="Brief explanation of the discount.", default="")
+    discounted_price = sc_fields.MoneyField(help_text="sale price minus discount.")
     objects = OrderManager()
 
     class Meta:
@@ -49,9 +57,11 @@ class Order(sc_models.UUIDModel):
             line_item.calculate_totals()
             material_cost += decimal.Decimal(line_item.material_cost)
             sale_price += decimal.Decimal(line_item.sale_price)
-        if (self.material_cost != material_cost) or (self.sale_price != sale_price):
+        if ((self.material_cost != material_cost) or (self.sale_price != sale_price)
+                or (self.discounted_price != (sale_price - self.discount))):
             self.material_cost = material_cost
             self.sale_price = sale_price
+            self.discounted_price = self.sale_price - self.discount
             self.save()
 
     def can_be_made(self):

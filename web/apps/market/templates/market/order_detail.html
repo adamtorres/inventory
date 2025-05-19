@@ -129,6 +129,13 @@
 <div>
     Total Sale: ${{ order.sale_price|floatformat:2|intcomma }}
 <div>
+{% if order.discount %}
+<div>
+    <div>Discount: ${{ order.discount|floatformat:2|intcomma }}</div>
+    <div>Discount Reason: {{ order.discount_text }}</div>
+    <div>Discounted Price: ${{ order.discounted_price|floatformat:2|intcomma }}</div>
+<div>
+{% endif %}
 </div>
     Total Material Cost: ${{ order.material_cost|floatformat:2|intcomma }}
 </div>

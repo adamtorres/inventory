@@ -49,7 +49,7 @@
     <div class="order-cell order-made-date">{% if order.date_made %}&check;{% endif %}</div>
     <div class="order-cell order-pickup-date">{% if order.pickup_date %}&check;{% endif %}</div>
     <div class="order-cell order-paid-date">{% if order.date_paid %}&check;{% endif %}</div>
-    <div class="order-cell order-price dollar-cell">{{ order.sale_price|floatformat:2|intcomma }}</div>
+    <div class="order-cell order-price dollar-cell">{{ order.discounted_price|floatformat:2|intcomma }}</div>
     <div class="order-cell order-who">{{ order.who }}</div>
     <div class="order-cell order-controls">
         <a class="btn btn-success" href="{% url "market:order_detail" pk=order.pk %}">View/Change Order</a>
