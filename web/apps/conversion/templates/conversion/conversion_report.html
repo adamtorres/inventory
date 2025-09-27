@@ -97,12 +97,19 @@ td {
 
 {% block body_scripts %}
 <script type="application/javascript">
-$("#copy-table-btn").on("click", function() {
-    // let html_to_copy = $("#hidden-table").html();
-    let html_to_copy = document.getElementById("hidden-table-container").innerHTML;
-    const blobInput = new Blob([html_to_copy], { type: 'text/html' });
-    navigator.clipboard.write([new ClipboardItem({ 'text/html': blobInput })]);
-});
+$("#copy-table-btn").on("click", copy_thing);
 
+function copy_thing() {
+    let html_to_copy = document.getElementById('hidden-table-container').innerHTML;
+
+    const clipboardItem = new ClipboardItem({
+      'text/html': new Blob([html_to_copy], { type: 'text/html' }),
+      'text/plain': new Blob([html_to_copy], { type: 'text/plain' })
+    });
+
+    navigator.clipboard.write([clipboardItem])
+      .then(() => console.log("clipboard.write() Ok"))
+      .catch(error => console.log(error))
+}
 </script>
 {% endblock %}
